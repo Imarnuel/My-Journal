@@ -34,6 +34,15 @@ export function reducedMotion(): boolean {
   return typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 }
 
+// Nothing animates on a keyboard-triggered change (review-animations STANDARDS): the control calls instantNext()
+// and the change it causes in the next moment swaps at once.
+let instantUntil = 0;
+export const instantNext = () => {
+  instantUntil = performance.now() + 150;
+};
+/** Swap at once instead of animating: reduced motion, or a change made from the keyboard. */
+export const noMotion = () => reducedMotion() || performance.now() < instantUntil;
+
 /**
  * Tween any value toward `target` with `lerp(from, to, k)`. The first value shows as-is; later changes animate.
  * `same` decides whether a new target is equal to the current one (no animation).
@@ -48,7 +57,7 @@ export function useTween<T>(target: T, lerp: (a: T, b: T, k: number) => T, same:
     if (same(goal.current, target)) return;
     goal.current = target;
     cancelAnimationFrame(raf.current);
-    if (reducedMotion()) {
+    if (noMotion()) {
       shownRef.current = target;
       setShown(target);
       return;

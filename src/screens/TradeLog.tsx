@@ -215,11 +215,11 @@ export function TradeLog() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "12px 8px 8px", borderTop: "1px solid var(--border-subtle)", marginTop: "4px" }}>
                     <label style={pickLabel}>
                       From
-                      <input type="date" value={pFrom} max={pTo || undefined} onChange={(ev) => setPFrom(ev.target.value)} style={pickInput} />
+                      <input type="date" value={pFrom} onChange={(ev) => setPFrom(ev.target.value)} style={pickInput} />
                     </label>
                     <label style={pickLabel}>
                       To
-                      <input type="date" value={pTo} min={pFrom || undefined} onChange={(ev) => setPTo(ev.target.value)} style={pickInput} />
+                      <input type="date" value={pTo} onChange={(ev) => setPTo(ev.target.value)} style={pickInput} />
                     </label>
                     <button type="button" className="btn btn-p" onClick={applyDates} style={{ minHeight: "32px" }}>
                       Apply

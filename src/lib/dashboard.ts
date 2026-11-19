@@ -186,7 +186,7 @@ export function breakdown(T: Entry[], names: string[], key: (e: Entry) => string
       const k = xs.length;
       const net = round2(xs.reduce((a, e) => a + (e.r as number), 0));
       const w = xs.filter((e) => (e.r as number) > 0).length;
-      return { name, n: k, rated: k >= MIN_RATE, winRate: k ? w / k : 0, expectancy: k ? net / k : 0, net, bar: { side: "left" as const, pct: 0 } };
+      return { name, n: k, rated: k >= MIN_RATE, winRate: k ? w / k : 0, expectancy: k ? net / k : 0, net, bar: { side: "left" as "left" | "right", pct: 0 } };
     })
     .filter((r) => r.n > 0);
   const m = Math.max(0.01, ...rows.map((r) => Math.abs(r.net)));

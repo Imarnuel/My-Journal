@@ -2,7 +2,7 @@
 // readout in a reserved strip above the bars, the other bars fade while one is hovered.
 // When the data changes, each bar grows or shrinks to its new height (transform only). Markup from the prototype.
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
-import { D_SLOW, reducedMotion } from "./tween";
+import { D_SLOW, noMotion } from "./tween";
 
 export type Bar = { up: number; down: number; col: string; label: string; when: string; r: string; n: string };
 
@@ -15,7 +15,7 @@ export function BarsChart({ bars, label }: { bars: Bar[]; label: string }) {
     const now = bars.flatMap((b) => [b.up, b.down]);
     const was = prev.current;
     prev.current = now;
-    if (!was || reducedMotion()) return;
+    if (!was || noMotion()) return;
     now.forEach((h, j) => {
       const el = refs.current[j];
       const before = was[j] ?? 0;

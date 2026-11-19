@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { slug } from "../../app/routes";
 import type { Entry, Period } from "../../lib/types";
 import { fr, pct, shortDate, tone } from "../../lib/format";
-import { barGroups, barHeight, bestWorst, breakdown, eqTicks, plural, type PeriodNumbers, type Row } from "../../lib/dashboard";
+import { barGroups, barHeight, bestWorst, eqTicks, plural, type PeriodNumbers, type Row } from "../../lib/dashboard";
 import { useCountUp } from "../../components/charts/tween";
 import { EquityChart, type EqPoint } from "../../components/charts/EquityChart";
 import { BarsChart, type Bar } from "../../components/charts/BarsChart";
@@ -115,7 +115,7 @@ export function Charts({
             onDrawn={onDrawn}
           />
         ) : (
-          <div className="ktable-wrap">
+          <div className="ktable-wrap" tabIndex={0}>
             <div className="ktable" role="table" aria-label="Each trade in the period, oldest first">
               <div role="row" className="ktr kth">
                 <span role="columnheader">Trade</span>
@@ -154,7 +154,7 @@ export function Charts({
         {!barTab ? (
           <BarsChart bars={bars} label={(byWeek ? "R by week: " : "R by trading day: ") + groups.map((g) => `${shortDate(g.k)} ${fr(g.r)}`).join(", ")} />
         ) : (
-          <div className="ktable-wrap">
+          <div className="ktable-wrap" tabIndex={0}>
             <div className="ktable" role="table" aria-label={barTitle}>
               <div role="row" className="ktr kth">
                 <span role="columnheader">{byWeek ? "Week" : "Day"}</span>
@@ -366,4 +366,3 @@ export function SessionsAndMistakes({ sessions, mistakes, untagged, n }: { sessi
   );
 }
 
-export { breakdown };

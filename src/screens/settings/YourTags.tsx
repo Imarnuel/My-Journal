@@ -1,7 +1,7 @@
 // Settings > Your tags (01-decisions.md "Tags"): kind breakdown from the tags in use, look-alike Merge
 // prompts, and Manage tags (rename in place, kind and use count, remove). Renames, merges and removals
 // update every old entry that carries the tag, and removals and merges have Undo.
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { useStore } from "../../data/store";
 import { usePref } from "../../data/settings";
 import { toast } from "../../components/primitives/toast";
@@ -17,8 +17,10 @@ function apply(patches: TagPatch[]) {
 
 function TagName({ tag, tags, onRename }: { tag: Tag; tags: Tag[]; onRename: (to: string) => void }) {
   const [draft, setDraft] = useState<string | null>(null);
+  const cancelled = useRef(false);
   const commit = () => {
-    if (draft !== null && validRename(tags, tag.t, draft)) onRename(draft.trim());
+    if (!cancelled.current && draft !== null && validRename(tags, tag.t, draft)) onRename(draft.trim());
+    cancelled.current = false;
     setDraft(null);
   };
   return (
@@ -32,7 +34,7 @@ function TagName({ tag, tags, onRename }: { tag: Tag; tags: Tag[]; onRename: (to
       onKeyDown={(e) => {
         if (e.key === "Enter") e.currentTarget.blur();
         if (e.key === "Escape") {
-          setDraft(null);
+          cancelled.current = true;
           e.currentTarget.blur();
         }
       }}

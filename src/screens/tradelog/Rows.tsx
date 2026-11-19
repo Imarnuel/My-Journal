@@ -1,9 +1,10 @@
 // Trade log entries: List view rows and Grid view cards, the row menu (Change date, Exclude / Include in
 // stats, Delete) and the drop zone for a trade from MT5 with no charts. Markup from prototype/Main.dc.html.
-import { useState, type ClipboardEvent, type DragEvent, type ReactNode } from "react";
+import { useRef, useState, type ClipboardEvent, type DragEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import type { Entry } from "../../lib/types";
 import { isImage, rowFacts, thumbs } from "../../lib/tradelog";
+import { returnFocus } from "./FilterMenu";
 import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash } from "./icons";
 
 export type RowActions = {
@@ -65,9 +66,11 @@ function DateDialog({ e, a }: { e: Entry; a: RowActions }) {
 
 /** The more button and its menu or Change date dialog (one of them at a time). */
 function RowMenu({ e, a }: { e: Entry; a: RowActions }) {
+  const ref = useRef<HTMLButtonElement>(null);
   return (
-    <span style={{ position: "relative", display: "inline-flex" }}>
+    <span style={{ position: "relative", display: "inline-flex" }} onClickCapture={(ev) => (ev.target as HTMLElement).closest(".kmenu") && returnFocus(ref.current)}>
       <button
+        ref={ref}
         className="kmore"
         type="button"
         aria-label="More actions"

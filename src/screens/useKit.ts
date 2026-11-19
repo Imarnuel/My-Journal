@@ -15,7 +15,10 @@ export function useMenu<T extends string = string>() {
   };
 }
 
-export function useKit(menu: ReturnType<typeof useMenu>) {
+/** Any screen's menu state that includes the account picker key "ap". */
+type MenuWithPicker = { close: () => void; isOpen: (k: "ap") => boolean; toggle: (k: "ap") => void };
+
+export function useKit(menu: MenuWithPicker) {
   const accounts = useStore((s) => s.accounts);
   const picked = useStore((s) => s.picked);
   const setPicked = useStore((s) => s.setPicked);
@@ -51,7 +54,7 @@ export function useKit(menu: ReturnType<typeof useMenu>) {
 }
 
 /** Show a toast and close any open menu (prototype's this.toast). */
-export function useToastAction(menu: ReturnType<typeof useMenu>) {
+export function useToastAction(menu: { close: () => void }) {
   return (msg: string, undo?: () => void) => {
     menu.close();
     showToast(msg, undo);

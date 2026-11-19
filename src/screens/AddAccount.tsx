@@ -31,7 +31,10 @@ export function AddAccount() {
   const loginRef = useRef<HTMLInputElement>(null);
   const serverRef = useRef<HTMLInputElement>(null);
   const alive = useRef(true);
-  useEffect(() => () => void (alive.current = false), []);
+  useEffect(() => {
+    alive.current = true;
+    return () => void (alive.current = false);
+  }, []);
 
   const editMt5 = (fn: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     fn(e.target.value);

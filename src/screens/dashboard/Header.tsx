@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import type { Period } from "../../lib/types";
 import { PERIODS } from "../../lib/dashboard";
 import type { useKit } from "../useKit";
+import { instantNext } from "../../components/charts/tween";
 
 type Kit = ReturnType<typeof useKit>;
 
@@ -25,7 +26,10 @@ export function Header({ sub, period, setPeriod, kit }: { sub: string; period: P
                 key={o.key}
                 type="button"
                 aria-pressed={on ? "true" : "false"}
-                onClick={() => setPeriod(o.key)}
+                onClick={(e) => {
+                  if (e.detail === 0) instantNext();
+                  setPeriod(o.key);
+                }}
                 style={{
                   font: "inherit", fontSize: "14px", fontWeight: on ? 600 : 500, color: on ? "var(--text-1)" : "var(--text-2)", background: on ? "var(--surface-3)" : "transparent",
                   border: "0", borderRadius: "8px", padding: "0 16px", minHeight: "32px", cursor: "pointer", whiteSpace: "nowrap",
@@ -54,6 +58,7 @@ export function Header({ sub, period, setPeriod, kit }: { sub: string; period: P
               <button type="button" aria-label="Close menu" tabIndex={-1} onClick={kit.kClose} style={{ position: "fixed", inset: "0", zIndex: 4, background: "transparent", border: "0", padding: "0", cursor: "default" }} />
               <fieldset
                 className="kmenu"
+                onKeyDownCapture={instantNext}
                 style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", right: "0", width: "300px", margin: "0", textAlign: "left" }}
               >
                 <legend style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>Accounts to include</legend>

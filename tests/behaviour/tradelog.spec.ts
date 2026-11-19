@@ -21,8 +21,9 @@ async function diffViewport(page: Page, ref: string, info: TestInfo, maxRatio = 
   const n = pixelmatch(got.data, want.data, d.data, W, H, { threshold: 0.2 });
   const ratio = n / (W * H);
   if (ratio > maxRatio) {
-    fs.mkdirSync("test-results/diffs", { recursive: true });
-    const base = `test-results/diffs/${ref.replace(/\//g, "_")}`;
+    const dir = process.env.DIFF_DIR ?? "test-results/diffs";
+    fs.mkdirSync(dir, { recursive: true });
+    const base = `${dir}/${ref.replace(/\//g, "_")}`;
     fs.writeFileSync(`${base}.diff.png`, PNG.sync.write(d));
     fs.writeFileSync(`${base}.actual.png`, PNG.sync.write(got));
     await info.attach("diff", { body: PNG.sync.write(d), contentType: "image/png" });
@@ -33,7 +34,9 @@ async function diffViewport(page: Page, ref: string, info: TestInfo, maxRatio = 
 /** The shared store, reached through Vite's module graph (same instance the app uses). */
 async function setStore(page: Page, fn: string) {
   await page.evaluate(async (body) => {
-    const m = await import(/* @vite-ignore */ "/src/data/store.ts");
+    // The app's own module instance (Vite adds ?t= after a hot update).
+    const url = performance.getEntriesByType("resource").map((e) => e.name).filter((n) => n.includes("/src/data/store.ts")).pop() ?? "/src/data/store.ts";
+    const m = await import(/* @vite-ignore */ url);
     new Function("s", body)(m.useStore);
   }, fn);
 }
@@ -60,13 +63,14 @@ test("state 07: Date filter open, counts beside every option", async ({ page }, 
 test("state 08: Pick dates shows From and To, Apply sets the range", async ({ page }, info) => {
   await page.goto("/log");
   await page.getByRole("button", { name: "Date: All time" }).click();
-  await page.getByRole("option", { name: /Pick dates/ }).click();
-  await expect(page.getByLabel("From")).toHaveValue("2026-11-01");
-  await expect(page.getByLabel("To")).toHaveValue("2026-11-16");
-  await page.getByRole("option", { name: /Pick dates/ }).hover();
+  // A real pointer click: Playwright's own scroll-into-view misreads options inside the sticky toolbar.
+  const box = (await page.getByRole("option", { name: /Pick dates/ }).boundingBox())!;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(page.getByLabel("From", { exact: true })).toHaveValue("2026-11-01");
+  await expect(page.getByLabel("To", { exact: true })).toHaveValue("2026-11-16");
   await diffViewport(page, "states/08-tradelog-date-pick-dates.png", info);
-  await page.getByLabel("From").fill("2026-11-09");
-  await page.getByLabel("To").fill("2026-11-13");
+  await page.getByLabel("From", { exact: true }).fill("2026-11-09");
+  await page.getByLabel("To", { exact: true }).fill("2026-11-13");
   await page.getByRole("button", { name: "Apply" }).click();
   await expect(page.locator(".kmenu")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Date: 9 Nov to 13 Nov" })).toBeVisible();
@@ -174,7 +178,7 @@ test("a filter set that matches nothing says so and offers Clear filters", async
   await page.getByRole("button", { name: "Status: Any status" }).click();
   await page.getByRole("option", { name: /^Analysis/ }).click();
   await page.getByRole("button", { name: "Direction: Long and short" }).click();
-  await page.getByRole("option", { name: /^Long\b/ }).click();
+  await page.getByRole("option", { name: /^Long\s*\d+$/ }).click();
   await expect(count(page)).toHaveText("0 entries");
   await expect(page.getByText("No entries match these filters")).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).last().click();
@@ -205,7 +209,7 @@ test("sort: Best R first and Oldest first", async ({ page }) => {
   expect(r(first)).toBeGreaterThanOrEqual(r(second));
   await page.getByRole("button", { name: "Sort: Best R first" }).click();
   await page.getByRole("option", { name: "Oldest first" }).click();
-  await expect(rows(page).first()).toContainText("2025");
+  await expect(rows(page).first()).toContainText("Thu 27 Nov"); // the oldest sample entry, November 2025
 });
 
 test("Show older entries loads 12 more at a time", async ({ page }) => {
@@ -224,10 +228,11 @@ test("menus: one open at a time, a click outside closes, Escape closes and retur
   const date = page.getByRole("button", { name: "Date: All time" });
   await date.click();
   await expect(page.locator(".kmenu")).toHaveCount(1);
-  await page.getByRole("button", { name: "Pair: Any pair" }).click({ force: true }); // outside click closes first
-  await expect(page.locator(".kmenu")).toHaveCount(0);
+  // Another trigger sits above the click-outside layer: it swaps menus, never two at once.
   await page.getByRole("button", { name: "Pair: Any pair" }).click();
+  await expect(page.locator(".kmenu")).toHaveCount(1);
   await expect(page.getByRole("listbox", { name: "Pair" })).toBeVisible();
+  // A row's more button sits under the toolbar's click-outside layer: that click only closes the menu.
   await more(page, 0).click({ force: true });
   await expect(page.locator(".kmenu")).toHaveCount(0);
   await more(page, 0).click();

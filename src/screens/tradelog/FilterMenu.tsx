@@ -1,7 +1,7 @@
 // A Trade log filter: a compact dropdown led by the filter's icon, with a count beside every option
 // (computed with the other filters applied) and options that would leave nothing dimmed, not hidden.
 // Markup from prototype/Main.dc.html.
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { IcCheck, IcChev } from "./icons";
 
 export type Opt = { label: string; count: string; dim: boolean; sel: boolean; pick: () => void };
@@ -21,10 +21,19 @@ type Props = {
   children?: ReactNode; // Pick dates fields under the options
 };
 
+/** After choosing closes the menu, focus goes back to its trigger instead of being lost. */
+export function returnFocus(trigger: HTMLElement | null) {
+  requestAnimationFrame(() => {
+    if (trigger && (!document.activeElement || document.activeElement === document.body)) trigger.focus();
+  });
+}
+
 export function FilterMenu({ name, icon, label, aria, active, open, onToggle, onClose, opts, width, align = "left", children }: Props) {
+  const ref = useRef<HTMLButtonElement>(null);
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
       <button
+        ref={ref}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open ? "true" : "false"}
@@ -45,6 +54,7 @@ export function FilterMenu({ name, icon, label, aria, active, open, onToggle, on
             role="listbox"
             aria-label={name}
             className="kmenu"
+            onClick={() => returnFocus(ref.current)}
             style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", [align]: 0, width: `${width}px`, transformOrigin: align === "right" ? "top right" : "top left" }}
           >
             {opts.map((o) => (
