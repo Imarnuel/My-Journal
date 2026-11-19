@@ -1,6 +1,8 @@
 // One dataset for every screen (handoff/docs/01-decisions.md, "One dataset").
 // Screens read from here and never keep their own copy of the numbers.
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { persistOptions, toDataUrl } from "./persist";
 import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
 import { seedAccounts, seedEntries, seedTags, seedWeeks, TODAY } from "./seed";
 import { fadeTheme } from "../components/primitives/motion";
@@ -70,7 +72,9 @@ function initialAppearance(): Appearance {
   }
 }
 
-export const useStore = create<State>((set, get) => ({
+export const useStore = create<State>()(
+  persist(
+  (set, get) => ({
   today: TODAY,
   entries: seedEntries,
   accounts: seedAccounts,
@@ -126,4 +130,35 @@ export const useStore = create<State>((set, get) => ({
     fadeTheme(() => applyTheme(a));
     set({ appearance: a });
   },
-}));
+}),
+  {
+    name: "journal:data",
+    ...persistOptions,
+    // Only the data is saved; actions are recreated, and Appearance has its own key (read before first paint).
+    partialize: (s) => ({ entries: s.entries, accounts: s.accounts, tags: s.tags, weeks: s.weeks, picked: s.picked, setups: s.setups, settings: s.settings }),
+  },
+  ),
+);
+
+// Uploaded charts start as blob: URLs, which die with the page. Turn them into data URLs so they are saved
+// with their entry (only the URLs this visit created; everything else is left alone).
+const converted = new Map<string, string>();
+const converting = new Set<string>();
+useStore.subscribe((s, prev) => {
+  if (s.entries === prev.entries) return;
+  for (const e of s.entries) {
+    for (const url of e.chartList ?? []) {
+      if (!url.startsWith("blob:") || converting.has(url)) continue;
+      converting.add(url);
+      toDataUrl(url).then((data) => {
+        converting.delete(url);
+        if (data === url) return;
+        converted.set(url, data);
+        const st = useStore.getState();
+        for (const x of st.entries)
+          if (x.chartList?.includes(url)) st.updateEntry(x.id, { chartList: x.chartList.map((u) => converted.get(u) ?? u) });
+      });
+    }
+  }
+});
+

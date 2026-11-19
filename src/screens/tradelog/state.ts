@@ -1,6 +1,8 @@
 // Trade log state that lives beyond one visit to the screen (in memory): filters, sort and how many
 // entries are shown, so going into a story and back keeps your place. Plus the canvas's very short trade.
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { persistOptions } from "../../data/persist";
 import type { Entry } from "../../lib/types";
 import { BATCH, NO_FILTERS, type Filters, type Sort } from "../../lib/tradelog";
 
@@ -48,7 +50,9 @@ type S = {
   setShort: (patch: Partial<Entry>) => void;
 };
 
-export const useTradeLog = create<S>((set) => ({
+export const useTradeLog = create<S>()(
+  persist(
+    (set) => ({
   filters: NO_FILTERS,
   sort: "Newest first",
   limit: BATCH,
@@ -57,4 +61,8 @@ export const useTradeLog = create<S>((set) => ({
   setSort: (sort) => set({ sort }),
   setLimit: (limit) => set({ limit }),
   setShort: (patch) => set((s) => ({ short: { ...s.short, ...patch } })),
-}));
+}),
+    // Filters and place in the list are for the visit; the answer to the short-trade prompt is saved.
+    { name: "journal:tradelog", ...persistOptions, partialize: (s) => ({ short: s.short }) },
+  ),
+);

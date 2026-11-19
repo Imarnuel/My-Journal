@@ -2,6 +2,8 @@
 // fills the example setups' rules from the frames the first time, keeps the look-alike suggestion, and
 // carries out rename / archive / delete / create so every story's `setup` follows (Trade log and Dashboard agree).
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { persistOptions } from "./persist";
 import { useStore, type Rules, type Setup } from "./store";
 
 export const GROUPS = ["Context", "Entry", "Exit"] as const;
@@ -50,7 +52,9 @@ type PB = {
   archivedOpen: boolean;
 };
 
-export const usePlaybook = create<PB>(() => ({ examples: SEED_EXAMPLES, suggestHidden: false, suggestUsed: false, archivedOpen: false }));
+export const usePlaybook = create<PB>()(
+  persist((): PB => ({ examples: SEED_EXAMPLES, suggestHidden: false, suggestUsed: false, archivedOpen: false }), { name: "journal:playbook", ...persistOptions }),
+);
 
 const emptyRules = (r: Rules) => !r.Context.length && !r.Entry.length && !r.Exit.length;
 const cloneRules = (r: Rules): Rules => ({ Context: [...r.Context], Entry: [...r.Entry], Exit: [...r.Exit] });
@@ -62,7 +66,9 @@ export function seedPlaybook() {
   seeded = true;
   useStore.getState().setSetups((list) => list.map((s) => (SEED_RULES[s.name] && emptyRules(s.rules) ? { ...s, rules: cloneRules(SEED_RULES[s.name]) } : s)));
 }
-seedPlaybook();
+// Run after the saved journal has loaded: a write before that would replace what was saved.
+if (useStore.persist.hasHydrated()) seedPlaybook();
+else useStore.persist.onFinishHydration(() => seedPlaybook());
 
 const st = () => useStore.getState();
 

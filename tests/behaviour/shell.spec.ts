@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 test("skip link is the first focusable element and moves focus to the main card", async ({ page }) => {
   await page.goto("/accounts");
+  await page.locator("#main").waitFor(); // the app renders once saved data has loaded
   await page.keyboard.press("Tab");
   const skip = page.getByRole("link", { name: "Skip to main content" });
   await expect(skip).toBeFocused();
