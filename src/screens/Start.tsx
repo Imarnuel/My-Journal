@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
 
-const step = { listStyle: "none", display: "flex", flexWrap: "wrap", gap: "16px 24px", alignItems: "center", padding: "24px", borderRadius: "12px" } as const;
+const step = { listStyle: "none", display: "flex", flexWrap: "wrap", gap: "16px 24px", alignItems: "center", padding: "24px", borderRadius: "var(--r-card)" } as const;
 const stepBody = { flex: "1 1 360px", minWidth: 0, display: "flex", gap: "16px", alignItems: "flex-start" } as const;
-const badge = { flex: "none", width: "28px", height: "28px", borderRadius: "12px", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 500, color: "var(--text-2)" } as const;
+const badge = { flex: "none", width: "28px", height: "28px", borderRadius: "999px", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 500, color: "var(--text-2)" } as const;
 const title = { fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const;
 const expectRow = { display: "grid", gridTemplateColumns: "160px minmax(0, 1fr)", gap: "16px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)" } as const;
 
@@ -34,7 +34,7 @@ export function Start() {
       <ol aria-label="First steps" style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
         <li className="card" style={{ ...step, background: "transparent" }}>
           <div style={stepBody}>
-            <span style={{ flex: "none", width: "28px", height: "28px", borderRadius: "12px", background: "color-mix(in srgb, var(--profit) 16%, transparent)", color: "var(--profit)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ flex: "none", width: "28px", height: "28px", borderRadius: "999px", background: "color-mix(in srgb, var(--profit) 16%, transparent)", color: "var(--profit)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>

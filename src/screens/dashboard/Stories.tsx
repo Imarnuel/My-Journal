@@ -49,7 +49,7 @@ export function Recent({ stories }: { stories: Entry[] }) {
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
                   {e.pair}
                   {e.dir ? (
-                    <span style={{ fontSize: "12px", fontWeight: "500", color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "5px", padding: "0 8px", lineHeight: "16px" }}>{e.dir}</span>
+                    <span style={{ fontSize: "12px", fontWeight: "500", color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "0 8px", lineHeight: "16px" }}>{e.dir}</span>
                   ) : null}
                 </span>
                 <span className="num" style={{ fontSize: "14px", fontWeight: "500", color: taken ? tone(e.r) : "var(--text-2)" }}>
@@ -74,7 +74,7 @@ export function TooFew({ n, wider, widen }: { n: number; wider: Period | null; w
     <section
       aria-labelledby="tfh"
       className="card"
-      style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}
+      style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}
     >
       <h2 id="tfh" style={{ margin: 0, fontSize: "16px", fontWeight: "500", lineHeight: "24px" }}>
         Your numbers start after 5 trades

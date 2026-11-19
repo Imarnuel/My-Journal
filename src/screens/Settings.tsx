@@ -18,7 +18,7 @@ const APPEARANCE: { label: string; value: Appearance }[] = [
 
 const h2 = { margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const;
 const row = { display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px 24px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)" } as const;
-const timeInput = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "8px 8px", colorScheme: "dark" } as const;
+const timeInput = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 8px", colorScheme: "dark" } as const;
 
 function Row({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -86,7 +86,7 @@ export function Settings() {
                     type="button"
                     aria-pressed={appearance === o.value ? "true" : "false"}
                     onClick={() => setAppearance(o.value)}
-                    style={{ font: "inherit", fontSize: "14px", border: 0, borderRadius: "7px", padding: "0 16px", minHeight: "32px", cursor: "pointer" }}
+                    style={{ font: "inherit", fontSize: "14px", border: 0, borderRadius: "var(--r-sm)", padding: "0 16px", minHeight: "32px", cursor: "pointer" }}
                   >
                     {o.label}
                   </button>

@@ -406,8 +406,8 @@ function StoryScreen({ id }: { id: string | null }) {
             <>
               <h1 style={{ margin: 0, fontFamily: "Inter, sans-serif", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em", display: "flex", alignItems: "center", gap: "12px" }}>
                 {s.pair}{" "}
-                {dirChip ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "6px", padding: "2px 8px", lineHeight: "16px" }}>{dirChip}</span> : null}
-                {s.textbook ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-1)", background: "var(--surface-pressed)", borderRadius: "6px", padding: "2px 8px", lineHeight: "16px" }}>Textbook example</span> : null}
+                {dirChip ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>{dirChip}</span> : null}
+                {s.textbook ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-1)", background: "var(--surface-pressed)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>Textbook example</span> : null}
               </h1>
               <p className="meta" style={{ margin: 0 }}>
                 {`${s.status} · ${s.account} · ${dtLabel}${s.closeTime ? ` to ${s.closeTime}` : ""} · ${s.session}`}
@@ -431,7 +431,7 @@ function StoryScreen({ id }: { id: string | null }) {
               </span>
             ) : null}
             <span style={{ position: "relative", display: "inline-flex" }}>
-              <button className="kmore" type="button" aria-label="More actions" aria-haspopup="menu" aria-expanded={exp("sm")} onClick={() => menu.toggle("sm")} style={{ width: "32px", height: "32px", border: "1px solid var(--border)", borderRadius: "8px", background: "transparent", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", position: "relative", zIndex: 5, lineHeight: "24px" }}>
+              <button className="kmore" type="button" aria-label="More actions" aria-haspopup="menu" aria-expanded={exp("sm")} onClick={() => menu.toggle("sm")} style={{ width: "32px", height: "32px", border: "1px solid var(--border)", borderRadius: "var(--r-md)", background: "transparent", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", position: "relative", zIndex: 5, lineHeight: "24px" }}>
                 <Dots />
               </button>
               {menu.isOpen("sm") ? (
@@ -488,7 +488,7 @@ function StoryScreen({ id }: { id: string | null }) {
         )}
       </header>
       {saved && s.excluded ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", borderRadius: "10px", border: "1px solid var(--border)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)" }}>
           <span className="meta">Excluded from your stats. It still shows in your trade log and playbook.</span>
           <button type="button" className="btn btn-q" onClick={exclT} style={{ marginLeft: "auto" }}>
             Include again
@@ -500,7 +500,7 @@ function StoryScreen({ id }: { id: string | null }) {
           <section aria-label="Charts" onDragOver={onSectionDragOver} onDrop={onSectionDrop} style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
             {big != null ? (
               <figure style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div className="chart" style={{ borderRadius: "12px" }}>
+                <div className="chart" style={{ borderRadius: "var(--r-card)" }}>
                   {isImage(big) ? (
                     <img src={big} alt="Your chart" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "contain", background: "var(--surface-inset)" }} />
                   ) : (
@@ -515,7 +515,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 </figcaption>
               </figure>
             ) : (
-              <label style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "12px", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", aspectRatio: "16 / 9", textAlign: "center", padding: "24px" }}>
+              <label style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "var(--r-card)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", aspectRatio: "16 / 9", textAlign: "center", padding: "24px" }}>
                 <Plus />
                 Scroll back on your chart and take one now. It still counts.
                 <input type="file"
@@ -565,7 +565,7 @@ function StoryScreen({ id }: { id: string | null }) {
                         {isImage(c) ? "" : captionOf(c)}
                       </span>
                       <span style={{ position: "relative", display: "inline-flex" }}>
-                        <button className="kmore" type="button" aria-label={`Actions for ${ordinal(i)} chart`} aria-haspopup="menu" aria-expanded={open ? "true" : "false"} onClick={() => menu.toggle(key)} style={{ width: "32px", height: "32px", margin: "-4px -4px", border: 0, borderRadius: "6px", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "12px", letterSpacing: "1px", padding: 0, position: "relative", zIndex: 5, lineHeight: "16px" }}>
+                        <button className="kmore" type="button" aria-label={`Actions for ${ordinal(i)} chart`} aria-haspopup="menu" aria-expanded={open ? "true" : "false"} onClick={() => menu.toggle(key)} style={{ width: "32px", height: "32px", margin: "-4px -4px", border: 0, borderRadius: "var(--r-sm)", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "12px", letterSpacing: "1px", padding: 0, position: "relative", zIndex: 5, lineHeight: "16px" }}>
                           <Dots />
                         </button>
                         {open ? (
@@ -621,7 +621,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   </figure>
                 );
               })}
-              <label aria-label="Add or paste another chart" style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "8px", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", fontSize: "12px", aspectRatio: "16 / 9", lineHeight: "16px" }}>
+              <label aria-label="Add or paste another chart" style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "var(--r-md)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", fontSize: "12px", aspectRatio: "16 / 9", lineHeight: "16px" }}>
                 <Plus />
                 Add
                 <input type="file"
@@ -653,7 +653,7 @@ function StoryScreen({ id }: { id: string | null }) {
             ) : null}
           </section>
 
-          <section aria-labelledby="nh" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "12px" }}>
+          <section aria-labelledby="nh" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "var(--r-card)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "-4px" }}>
               <h2 id="nh" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
                 Notes
@@ -680,7 +680,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 </button>
               </ProblemCard>
             ) : !s.voice && !recording ? (
-              <button type="button" onClick={startRec} style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "12px", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
+              <button type="button" onClick={startRec} style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
                 <span className="kvoice" style={{ flex: "none", width: "48px", height: "48px", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Mic />
                 </span>
@@ -693,7 +693,7 @@ function StoryScreen({ id }: { id: string | null }) {
               </button>
             ) : null}
             {recording ? (
-              <div role="status" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "12px", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
+              <div role="status" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
                 <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--loss)" }} />
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
                   <span style={{ fontSize: "14px", fontWeight: 500 }}>Listening · {clock(recSec)}</span>
@@ -791,7 +791,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   </button>
                 </div>
                 {said ? (
-                  <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-2)", padding: "12px", borderRadius: "8px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)" }}>
+                  <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-2)", padding: "12px", borderRadius: "var(--r-md)", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)" }}>
                     {transcriptRuns(s.transcript).map((r, i) =>
                       r.mark ? (
                         <mark key={i} style={{ background: "color-mix(in srgb, var(--voice) 16%, transparent)", color: "var(--text-1)", borderRadius: "4px", padding: "0 2px" }}>
@@ -808,7 +808,7 @@ function StoryScreen({ id }: { id: string | null }) {
           </section>
 
           {analysis ? (
-            <Link to={`/story/${analysis.id}`} className="card" style={{ display: "flex", gap: "12px", alignItems: "center", padding: "12px 16px", borderRadius: "12px", textDecoration: "none", color: "var(--text-1)" }}>
+            <Link to={`/story/${analysis.id}`} className="card" style={{ display: "flex", gap: "12px", alignItems: "center", padding: "12px 16px", borderRadius: "var(--r-card)", textDecoration: "none", color: "var(--text-1)" }}>
               <div className="chart" style={{ flex: "none", width: "112px" }}>
                 {analysisChart && isImage(analysisChart) ? (
                   <img src={analysisChart} alt="" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }} />
@@ -826,7 +826,7 @@ function StoryScreen({ id }: { id: string | null }) {
           ) : null}
         </div>
 
-        <aside aria-label="Details" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", flex: "2 1 380px", minWidth: 0, position: "sticky", top: "24px", display: "flex", flexDirection: "column", borderRadius: "12px" }}>
+        <aside aria-label="Details" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", flex: "2 1 380px", minWidth: 0, position: "sticky", top: "24px", display: "flex", flexDirection: "column", borderRadius: "var(--r-card)" }}>
           <section aria-labelledby="th" style={{ padding: "16px 24px 12px", display: "flex", flexDirection: "column", gap: "4px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px", paddingBottom: "8px" }}>
               <h2 id="th" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
@@ -847,7 +847,7 @@ function StoryScreen({ id }: { id: string | null }) {
                     <>
                       <Closer onClose={menu.close} />
                       <OptionList label="Setup" opts={setupNames.map((label) => ({ label }))} value={s.setup} onPick={pick("setup")} style={{ left: 0, width: "100%" }}>
-                        <Link to="/playbook/new" className="kit-opt" style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", color: "var(--text-2)", textDecoration: "none", boxSizing: "border-box" }}>
+                        <Link to="/playbook/new" className="kit-opt" style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", color: "var(--text-2)", textDecoration: "none", boxSizing: "border-box" }}>
                           <Plus />
                           New setup
                         </Link>
@@ -871,7 +871,7 @@ function StoryScreen({ id }: { id: string | null }) {
                             update({ tags: s.tags.filter((_, k) => k !== i) });
                             toastA(`“${t}” removed`, () => update({ tags: prev }), "deleted");
                           }}
-                          style={{ width: "24px", height: "24px", margin: "-2px -4px -2px -2px", border: 0, borderRadius: "6px", background: "transparent", color: "var(--text-3)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                          style={{ width: "24px", height: "24px", margin: "-2px -4px -2px -2px", border: 0, borderRadius: "var(--r-sm)", background: "transparent", color: "var(--text-3)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
                         >
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                             <path d="M6 6l12 12M18 6L6 18" />
@@ -906,13 +906,13 @@ function StoryScreen({ id }: { id: string | null }) {
                       <Closer onClose={menu.close} />
                       <div id="tagsug" role="listbox" aria-label="Matching tags" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", left: 0, right: 0 }}>
                         {ts.sug.map((o) => (
-                          <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => addTag(o.t)} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "8px", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" }}>
+                          <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => addTag(o.t)} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" }}>
                             <span>{o.t}</span>
                             <span style={{ fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>{usedLabel(o.n)}</span>
                           </button>
                         ))}
                         {ts.canAdd ? (
-                          <button type="button" role="option" aria-selected="false" onClick={askKind} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "8px", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px", color: "var(--text-2)" }}>
+                          <button type="button" role="option" aria-selected="false" onClick={askKind} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px", color: "var(--text-2)" }}>
                             {`Add “${niceTag(tagQ)}” as a new tag`}
                           </button>
                         ) : null}
@@ -952,11 +952,11 @@ function StoryScreen({ id }: { id: string | null }) {
                 </div>
               </DetailRow>
               <DetailRow label="Plan" icon={<DetailIcon name="plan" />}>
-                <div role="group" aria-label="Plan" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)", borderRadius: "8px" }}>
+                <div role="group" aria-label="Plan" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)", borderRadius: "var(--r-md)" }}>
                   {([["Followed", true], ["Not followed", false]] as const).map(([label, val]) => {
                     const on = s.followed === val;
                     return (
-                      <button key={label} type="button" aria-pressed={on ? "true" : "false"} onClick={() => update({ followed: on ? null : val })} style={{ flex: 1, font: "inherit", fontSize: "14px", fontWeight: on ? 600 : 500, color: on ? "var(--text-1)" : "var(--text-2)", background: on ? "var(--surface-3)" : "transparent", border: 0, borderRadius: "6px", padding: "0 12px", minHeight: "32px", cursor: "pointer" }}>
+                      <button key={label} type="button" aria-pressed={on ? "true" : "false"} onClick={() => update({ followed: on ? null : val })} style={{ flex: 1, font: "inherit", fontSize: "14px", fontWeight: on ? 600 : 500, color: on ? "var(--text-1)" : "var(--text-2)", background: on ? "var(--surface-3)" : "transparent", border: 0, borderRadius: "var(--r-sm)", padding: "0 12px", minHeight: "32px", cursor: "pointer" }}>
                         {label}
                       </button>
                     );
@@ -1016,7 +1016,7 @@ function StoryScreen({ id }: { id: string | null }) {
                     <div role="dialog" aria-label="Date and time" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", right: 0, width: "260px", padding: "12px", gap: "8px", transformOrigin: "top right" }}>
                       <label style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "14px", color: "var(--text-2)" }}>
                         Date and time
-                        <input type="datetime-local" value={dtDraft ?? dtValue} onChange={(e) => setDtDraft(e.target.value)} style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "8px 12px" }} />
+                        <input type="datetime-local" value={dtDraft ?? dtValue} onChange={(e) => setDtDraft(e.target.value)} style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 12px" }} />
                       </label>
                       <span style={{ fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>The session follows the time.</span>
                       <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
@@ -1109,7 +1109,7 @@ function StoryScreen({ id }: { id: string | null }) {
 
 /** One menu in the facts line. Shows the field's name until a value is picked. */
 /** Note fields line up with the labels and the Talk it through card: no ghost-field pull, full width, 8px corners. */
-const NOTE_FIELD = { display: "block", margin: 0, width: "100%", boxSizing: "border-box", border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "8px", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)" } as const;
+const NOTE_FIELD = { display: "block", margin: 0, width: "100%", boxSizing: "border-box", border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "var(--r-md)", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)" } as const;
 
 function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: string; icon: DetailIconName; value: string | null; menu: ReturnType<typeof useMenu<string>>; opts: { label: string; hint?: string }[]; onPick: (v: string) => void }) {
   const open = menu.isOpen(k);

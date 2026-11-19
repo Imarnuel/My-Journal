@@ -172,7 +172,7 @@ export function SetupEditor() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Asian low sweep"
-            style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "0 16px", minHeight: "32px", width: "100%", boxSizing: "border-box" }}
+            style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "0 16px", minHeight: "32px", width: "100%", boxSizing: "border-box" }}
           />
         </div>
 
@@ -222,7 +222,7 @@ export function SetupEditor() {
                     </svg>
                   </button>
                   <input className="ghost" type="text" aria-label="Rule" data-rule={r.id} value={r.t} onChange={(e) => setRow(g, r.id, e.target.value)} placeholder="Describe the rule" style={{ flex: 1 }} />
-                  <button className="kmore" type="button" aria-label="Remove rule" onClick={() => remove(g, r.id)} style={{ width: "32px", height: "32px", border: 0, borderRadius: "8px", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "16px", lineHeight: "24px" }}>
+                  <button className="kmore" type="button" aria-label="Remove rule" onClick={() => remove(g, r.id)} style={{ width: "32px", height: "32px", border: 0, borderRadius: "var(--r-md)", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "16px", lineHeight: "24px" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M18 6L6 18" />
                       <path d="M6 6l12 12" />

@@ -55,7 +55,7 @@ button, [role="button"], [role="tab"], .pill, .btn {
 /* Segmented controls: one thumb slides under the pressed segment; the segment itself goes transparent. */
 .kseg-thumb {
   position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none;
-  border-radius: 6px; background: var(--surface-3);
+  border-radius: var(--r-sm); background: var(--surface-3);
   box-shadow: inset 0 1px 0 var(--highlight), 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.25);
   transition: transform var(--d-fast) var(--ease-standard), width var(--d-fast) var(--ease-standard);
 }
@@ -99,7 +99,7 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 .kcrumbs { align-self: flex-start; min-width: 0; max-width: 100%; margin-bottom: -16px; }
 .kcrumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .kcrumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-.app .kcrumb { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; margin: 0 -4px; border-radius: var(--r-sm);
+.app .kcrumb { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; margin: 0 -4px; border-radius: var(--r-md);
   font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-2); text-decoration: none; min-width: 0;
   transition: background var(--d-instant), color var(--d-instant); }
 .kcrumbs li:first-child .kcrumb { margin-left: -8px; }
@@ -135,7 +135,7 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 .kseg-track button[aria-pressed="true"], .kseg-track [role="tab"][aria-selected="true"] { font-weight: 500 !important; }
 
 /* Dashboard notice (DESIGN.md): icon tile, text column, a quiet action. */
-.knotice { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 16px 16px 24px; border-radius: 12px; }
+.knotice { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 16px 16px 24px; border-radius: var(--r-card); }
 .knotice-link { flex: none; gap: 4px !important; }
 .knote-tile { flex: none; align-self: flex-start; width: 32px; height: 32px; border-radius: var(--r-md); background: var(--surface-inset);
   box-shadow: 0 0 0 1px var(--border-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-2); }
@@ -196,13 +196,13 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
    colours as in the handoff; they rise in from 12px below and leave faster, dropping 8px. */
 .ktoast { position: fixed; z-index: 20; right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   display: flex; align-items: center; gap: 12px; max-width: min(560px, calc(100vw - 48px)); box-sizing: border-box;
-  padding: 10px 10px 10px 14px; border-radius: 12px; background: var(--inverse-bg); color: var(--inverse-fg);
+  padding: 10px 10px 10px 14px; border-radius: var(--r-card); background: var(--inverse-bg); color: var(--inverse-fg);
   box-shadow: 0 16px 40px -8px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.12); font-size: 14px; line-height: 20px; }
 .ktoast-ic { flex: none; display: flex; opacity: 0.72; }
 .ktoast-ic[data-kind="voice"] { opacity: 1; color: color-mix(in srgb, var(--voice) 55%, var(--inverse-fg)); }
 .ktoast-msg { flex: 1; min-width: 0; text-wrap: pretty; }
 .ktoast-undo { flex: none; font: inherit; font-size: 14px; font-weight: 500; color: var(--inverse-fg); background: transparent;
-  border: 1px solid var(--inverse-border); border-radius: 8px; padding: 0 12px; min-height: 32px; cursor: pointer; }
+  border: 1px solid var(--inverse-border); border-radius: var(--r-md); padding: 0 12px; min-height: 32px; cursor: pointer; }
 @media (hover: hover) and (pointer: fine) { .ktoast-undo:hover { background: color-mix(in srgb, var(--inverse-fg) 10%, transparent); } }
 @keyframes ktoast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @keyframes ktoast-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px); } }

@@ -73,7 +73,7 @@ export function Accounts() {
         </div>
       </header>
 
-      <section aria-label="Your accounts" className="card" style={{ borderRadius: "12px", overflow: "hidden" }}>
+      <section aria-label="Your accounts" className="card" style={{ borderRadius: "var(--r-card)", overflow: "hidden" }}>
         <div aria-hidden="true" className="acct-head" style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", padding: "12px 16px", fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>
           <span>Name</span>
           <span>Type</span>

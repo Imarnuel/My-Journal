@@ -25,7 +25,7 @@ const TABS: { k: Tab; label: string }[] = [
 ];
 
 const statNum = { fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" } as const;
-const tabBtn = { font: "inherit", fontSize: "14px", fontWeight: 500, border: 0, borderRadius: "8px", padding: "0 16px", minHeight: "32px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px" } as const;
+const tabBtn = { font: "inherit", fontSize: "14px", fontWeight: 500, border: 0, borderRadius: "var(--r-md)", padding: "0 16px", minHeight: "32px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px" } as const;
 
 function Stat({ k, v }: { k: string; v: string }) {
   return (
@@ -44,7 +44,7 @@ function Example({ e, picked }: { e: Entry; picked: string[] }) {
   const taken = e.status === "Taken";
   const meta = `${shortDate(e.date)} · ${e.session}${picked.includes(e.account) ? "" : ` · ${e.account}`}`;
   return (
-    <Link to={`/story/${e.id}`} className="card" style={{ display: "flex", flexDirection: "column", gap: "8px", textDecoration: "none", color: "var(--text-1)", padding: "12px", borderRadius: "12px" }}>
+    <Link to={`/story/${e.id}`} className="card" style={{ display: "flex", flexDirection: "column", gap: "8px", textDecoration: "none", color: "var(--text-1)", padding: "12px", borderRadius: "var(--r-card)" }}>
       {strip.length ? (
         <div style={{ display: "flex", gap: "8px" }}>
           {strip.map((s, i) => (
@@ -152,7 +152,7 @@ export function SetupPage() {
       <div style={{ display: "flex", flexWrap: "wrap", gap: "32px", alignItems: "flex-start" }}>
         <section aria-label="Examples, patterns and lessons" style={{ flex: "2 1 560px", minWidth: 0, display: "flex", flexDirection: "column", gap: "24px" }}>
           <div role="tablist" aria-label="Setup sections" onKeyDown={onTabKey}>
-            <div className="kseg-track" style={{ display: "inline-flex", gap: "2px", padding: "4px", background: "var(--surface-2)", border: "1px solid var(--border-subtle)", borderRadius: "11px" }}>
+            <div className="kseg-track" style={{ display: "inline-flex", gap: "2px", padding: "4px", background: "var(--surface-2)", border: "1px solid var(--border-subtle)", borderRadius: "var(--r-lg)" }}>
               {TABS.map((t) => {
                 const on = t.k === tab;
                 return (
@@ -307,7 +307,7 @@ export function SetupPage() {
       </div>
 
       {sug.shown ? (
-        <section aria-label="Suggested setup" className="card" style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderRadius: "12px" }}>
+        <section aria-label="Suggested setup" className="card" style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderRadius: "var(--r-card)" }}>
           <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", flex: "1 1 400px", minWidth: 0 }}>
             <span aria-hidden="true" className="knote-ic" style={{ position: "static", flex: "none", color: "var(--voice)" }}>
               <Sparkle />

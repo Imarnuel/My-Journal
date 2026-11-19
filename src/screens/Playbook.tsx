@@ -14,11 +14,11 @@ import { useKit, useMenu } from "./useKit";
 import { AccountPicker } from "../components/primitives/AccountPicker";
 import { ArchiveIcon, ChartArt, closeMenuBtn, Dot, h1Style, PencilIcon, PlaybookSprite, PlusIcon, Sparkle } from "./playbook/parts";
 
-const optStyle = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" } as const;
+const optStyle = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" } as const;
 
 function NoSetups() {
   return (
-    <div className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}>
+    <div className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}>
       <div style={{ fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>No setups yet</div>
       <p className="meta" style={{ margin: 0 }}>Add the setups you trade, or keep logging. When a few similar charts show up, you'll be asked to name them.</p>
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -113,7 +113,7 @@ export function Playbook() {
             return (
               <div key={s.name} style={{ position: "relative" }}>
                 {ren ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "16px", borderRadius: "12px", border: "1px solid var(--border-strong)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", border: "1px solid var(--border-strong)" }}>
                     <span className="chart" style={{ display: "block" }}>
                       <ChartArt src={s.chart} />
                     </span>
@@ -129,7 +129,7 @@ export function Playbook() {
                           if (e.key === "Enter") saveRename();
                           if (e.key === "Escape") setRenaming(null);
                         }}
-                        style={{ font: "inherit", fontSize: "16px", fontWeight: 500, color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "8px 12px", lineHeight: "24px" }}
+                        style={{ font: "inherit", fontSize: "16px", fontWeight: 500, color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 12px", lineHeight: "24px" }}
                       />
                     </label>
                     <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>Every story in this setup keeps it under the new name.</span>
@@ -144,7 +144,7 @@ export function Playbook() {
                   </div>
                 ) : (
                   <>
-                    <Link to={`/playbook/${slug(s.name)}`} className="card" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "16px", borderRadius: "12px", textDecoration: "none", color: "var(--text-1)" }}>
+                    <Link to={`/playbook/${slug(s.name)}`} className="card" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", textDecoration: "none", color: "var(--text-1)" }}>
                       <span className="chart" style={{ display: "block" }}>
                         <ChartArt src={s.chart} />
                       </span>
@@ -182,7 +182,7 @@ export function Playbook() {
                       aria-haspopup="true"
                       aria-expanded={open ? "true" : "false"}
                       onClick={() => menu.toggle(key)}
-                      style={{ position: "absolute", top: "12px", right: "12px", width: "36px", height: "36px", border: 0, borderRadius: "8px", background: open ? "var(--surface-pressed)" : "rgba(14,16,20,0.7)", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", zIndex: 5, lineHeight: "24px" }}
+                      style={{ position: "absolute", top: "12px", right: "12px", width: "36px", height: "36px", border: 0, borderRadius: "var(--r-md)", background: open ? "var(--surface-pressed)" : "rgba(14,16,20,0.7)", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", zIndex: 5, lineHeight: "24px" }}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <circle cx="5" cy="12" r="1.6" />
@@ -265,7 +265,7 @@ export function Playbook() {
         <NoSetups />
       )}
 
-      <section aria-labelledby="unsorted" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "24px", borderRadius: "12px", border: "1px dashed var(--border)" }}>
+      <section aria-labelledby="unsorted" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "24px", borderRadius: "var(--r-card)", border: "1px dashed var(--border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", flexWrap: "wrap" }}>
           <h2 id="unsorted" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
             Unsorted <span style={{ fontWeight: 500, color: "var(--text-3)" }}>({unsorted.length})</span>
@@ -366,7 +366,7 @@ export function Playbook() {
                     value={nameDraft}
                     onChange={(e) => setNameDraft(e.target.value)}
                     placeholder="e.g. Asian sweep reversal"
-                    style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "0 12px", minHeight: "32px" }}
+                    style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px" }}
                   />
                 </label>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "4px" }}>

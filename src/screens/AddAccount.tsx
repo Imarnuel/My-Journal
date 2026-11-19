@@ -98,7 +98,7 @@ export function AddAccount() {
           />
         </section>
 
-        <section aria-labelledby="mt5h" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "12px" }}>
+        <section aria-labelledby="mt5h" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "var(--r-card)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
             <div>
               <h2 id="mt5h" style={{ margin: 0, fontSize: "14px", fontWeight: 500 }}>

@@ -13,7 +13,7 @@ import { AccountPicker } from "../components/primitives/AccountPicker";
 import { PastWeeks } from "./review/PastWeeks";
 
 const h2 = { margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const;
-const stat = { display: "flex", flexDirection: "column", gap: "4px", padding: "16px 16px", borderRadius: "12px", minWidth: 0 } as const;
+const stat = { display: "flex", flexDirection: "column", gap: "4px", padding: "16px 16px", borderRadius: "var(--r-card)", minWidth: 0 } as const;
 const statNum = { fontSize: "24px", fontWeight: 600, letterSpacing: "-0.025em", lineHeight: "32px" } as const;
 const small = { fontSize: "12px", lineHeight: "16px" } as const;
 const q = (t: string) => `“${t}”`;
@@ -43,7 +43,7 @@ function TradeCard({ e }: { e: Entry }) {
         <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 500 }}>
             {e.pair}
-            {e.dir ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "5px", padding: "0 8px", lineHeight: "16px" }}>{e.dir}</span> : null}
+            {e.dir ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "0 8px", lineHeight: "16px" }}>{e.dir}</span> : null}
           </span>
           <span className="num" style={{ fontSize: "14px", fontWeight: 500, color: tone(r) }}>
             {fr(r)}
@@ -116,7 +116,7 @@ export function WeeklyReview() {
           {sel && w ? (
             <>
               {prevTake ? (
-                <div className="card" style={{ display: "flex", alignItems: "baseline", gap: "8px", padding: "16px 16px", borderRadius: "12px", flexWrap: "wrap" }}>
+                <div className="card" style={{ display: "flex", alignItems: "baseline", gap: "8px", padding: "16px 16px", borderRadius: "var(--r-card)", flexWrap: "wrap" }}>
                   <span className="lbl" style={{ fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap", lineHeight: "16px" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <circle cx="12" cy="12" r="9" />
@@ -133,7 +133,7 @@ export function WeeklyReview() {
                 <h2 id="wn" style={h2}>
                   The week
                 </h2>
-                <div className="card kstat" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", padding: "16px", borderRadius: "12px" }}>
+                <div className="card kstat" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", padding: "16px", borderRadius: "var(--r-card)" }}>
                   <div className="card" style={stat}>
                     <span className="lbl">Net</span>
                     <span className="num" style={{ ...statNum, color: tone(w.net) }}>
@@ -170,7 +170,7 @@ export function WeeklyReview() {
                     Mistakes you tagged more than once
                   </h2>
                   {w.mistakes.map((m) => (
-                    <div key={m.tag} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "16px 16px", borderRadius: "12px" }}>
+                    <div key={m.tag} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "16px 16px", borderRadius: "var(--r-card)" }}>
                       <span style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                         <span className="pill">{m.tag}</span>
                         <span className="lbl">{mistakeWhere(m)}</span>
@@ -228,7 +228,7 @@ export function WeeklyReview() {
                 )}
               </section>
 
-              <section aria-labelledby="wt" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "8px", padding: "16px 24px", borderRadius: "12px" }}>
+              <section aria-labelledby="wt" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "8px", padding: "16px 24px", borderRadius: "var(--r-card)" }}>
                 <label htmlFor="takeaway" id="wt" style={{ fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
                   What I'll do differently next week
                 </label>
@@ -238,7 +238,7 @@ export function WeeklyReview() {
                   placeholder="One thing, in your own words"
                   value={tk}
                   onChange={(ev) => setTakeaway(sel, ev.target.value)}
-                  style={{ font: "inherit", fontSize: "14px", lineHeight: "20px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "10px", padding: "12px 12px", resize: "vertical" }}
+                  style={{ font: "inherit", fontSize: "14px", lineHeight: "20px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "12px 12px", resize: "vertical" }}
                 />
                 <span className="lbl" style={small}>
                   {takeNote}

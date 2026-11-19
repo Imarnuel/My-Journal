@@ -68,7 +68,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
   return (
     <>
       {account.archived ? (
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", borderRadius: "10px", border: "1px solid var(--border)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)" }}>
           <span className="meta">Archived. It has left your account lists; its chart stories stay in your playbook.</span>
           <button type="button" className="btn btn-q" onClick={() => updateAccount(account.name, { archived: false })} style={{ marginLeft: "auto" }}>
             Restore
@@ -99,7 +99,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
         </section>
 
         {account.source !== "screenshots" ? (
-          <section aria-labelledby="mt5h" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "12px", padding: "24px", borderRadius: "12px" }}>
+          <section aria-labelledby="mt5h" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "12px", padding: "24px", borderRadius: "var(--r-card)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
               <h2 id="mt5h" style={{ margin: 0, fontSize: "14px", fontWeight: 500 }}>MT5</h2>
               <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>

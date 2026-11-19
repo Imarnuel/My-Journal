@@ -11,7 +11,7 @@ import { useCountUp } from "../../components/charts/tween";
 import { EquityChart, type EqPoint } from "../../components/charts/EquityChart";
 import { BarsChart, type Bar } from "../../components/charts/BarsChart";
 
-const card = { display: "flex", flexDirection: "column", gap: "8px", padding: "16px 16px 16px", borderRadius: "12px", minWidth: "0" } as const;
+const card = { display: "flex", flexDirection: "column", gap: "8px", padding: "16px 16px 16px", borderRadius: "var(--r-card)", minWidth: "0" } as const;
 const big = { fontSize: "24px", fontWeight: "600", lineHeight: "32px", letterSpacing: "-0.025em" } as const;
 
 function Stat({ label, icon, value, color, sub }: { label: string; icon: DetailIconName; value: string; color?: string; sub: string }) {
@@ -39,7 +39,7 @@ export function StatRow({ p }: { p: PeriodNumbers }) {
   const pl = useCountUp(s.planRate ?? 0);
   const n = useCountUp(s.n);
   return (
-    <div className="card kstat" style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", padding: "16px", borderRadius: "12px" }}>
+    <div className="card kstat" style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", padding: "16px", borderRadius: "var(--r-card)" }}>
       <Stat label="Net R" icon="net" value={fr(net)} color={tone(s.net)} sub={`Worst drawdown ${fr(s.dd)}`} />
       <Stat label="Expectancy" icon="expectancy" value={fr(ex, 2)} sub="What an average trade made" />
       <Stat label="Win rate" icon="winrate" value={pct(wr)} sub={`Wins avg ${s.avgWin == null ? "–" : fr(s.avgWin)}, losses ${s.avgLoss == null ? "–" : fr(s.avgLoss)}`} />
@@ -57,7 +57,7 @@ function TableToggle({ on, flip }: { on: boolean; flip: () => void }) {
   );
 }
 
-const sectionCard = { display: "flex", flexDirection: "column", gap: "8px", padding: "24px", borderRadius: "12px", minWidth: "0" } as const;
+const sectionCard = { display: "flex", flexDirection: "column", gap: "8px", padding: "24px", borderRadius: "var(--r-card)", minWidth: "0" } as const;
 const headRow = { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", flexWrap: "wrap" } as const;
 const h2 = { margin: "0", fontSize: "16px", fontWeight: "500", lineHeight: "24px" } as const;
 
@@ -257,7 +257,7 @@ function Heads({ cols, first, k }: { cols: string; first: string; k?: boolean })
   );
 }
 
-const listCard = { display: "flex", flexDirection: "column", gap: "4px", padding: "24px", borderRadius: "12px" } as const;
+const listCard = { display: "flex", flexDirection: "column", gap: "4px", padding: "24px", borderRadius: "var(--r-card)" } as const;
 const listHead = { ...headRow, marginBottom: "12px" } as const;
 
 export function BySetup({ rows, thumbs }: { rows: Row[]; thumbs: Record<string, string> }) {
@@ -292,7 +292,7 @@ export function BySetup({ rows, thumbs }: { rows: Row[]; thumbs: Record<string, 
                   </svg>
                 </span>
               ) : (
-                <span aria-hidden="true" style={{ flex: "none", width: "64px", height: "36px", borderRadius: "8px", border: "1px dashed var(--border)", boxSizing: "border-box" }} />
+                <span aria-hidden="true" style={{ flex: "none", width: "64px", height: "36px", borderRadius: "var(--r-md)", border: "1px dashed var(--border)", boxSizing: "border-box" }} />
               )}
               <span style={{ fontSize: "14px", fontWeight: "500" }}>{x.name}</span>
             </span>

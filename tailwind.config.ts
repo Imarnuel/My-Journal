@@ -66,7 +66,7 @@ export default {
         "medal-glyph-2": "var(--medal-glyph-2)",
         "skeleton": "var(--skeleton)"
       },
-      borderRadius: { xs: "var(--r-xs)", sm: "var(--r-sm)", md: "var(--r-md)", card: "var(--r-card)", menu: "var(--r-menu)", panel: "var(--r-panel)", dialog: "var(--r-dialog)" },
+      borderRadius: { xs: "var(--r-xs)", sm: "var(--r-sm)", md: "var(--r-md)", lg: "var(--r-lg)", card: "var(--r-card)", menu: "var(--r-menu)", panel: "var(--r-panel)", dialog: "var(--r-dialog)" },
       boxShadow: { card: "var(--shadow-card)", float: "var(--shadow-float)", dialog: "var(--shadow-dialog)" },
       transitionDuration: { instant: "80ms", fast: "140ms", base: "220ms", slow: "320ms" },
       transitionTimingFunction: { out: "cubic-bezier(0.16, 1, 0.3, 1)", in: "cubic-bezier(0.4, 0, 1, 1)", standard: "cubic-bezier(0.2, 0, 0, 1)" },

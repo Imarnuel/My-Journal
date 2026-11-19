@@ -23,7 +23,7 @@ export function Wordmark() {
     <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0 12px" }}>
       <span
         aria-hidden="true"
-        style={{ width: "26px", height: "26px", borderRadius: "8px", background: "var(--btn-p-bg)", boxShadow: "var(--btn-p-shadow)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--btn-p-fg)" }}
+        style={{ width: "26px", height: "26px", borderRadius: "var(--r-md)", background: "var(--btn-p-bg)", boxShadow: "var(--btn-p-shadow)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--btn-p-fg)" }}
       >
         <Icon name="logo-mark" />
       </span>

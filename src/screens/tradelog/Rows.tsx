@@ -26,7 +26,7 @@ const closer = (onClick: () => void) => (
   <button type="button" aria-label="Close menu" tabIndex={-1} onClick={onClick} style={{ position: "fixed", inset: 0, zIndex: 4, background: "transparent", border: 0, padding: 0, cursor: "default" }} />
 );
 
-const itemStyle = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" } as const;
+const itemStyle = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" } as const;
 
 function DateDialog({ e, a }: { e: Entry; a: RowActions }) {
   const [draft, setDraft] = useState(`${e.date}T${e.time}`);
@@ -48,7 +48,7 @@ function DateDialog({ e, a }: { e: Entry; a: RowActions }) {
             onKeyDown={(ev) => {
               if (ev.key === "Enter") save();
             }}
-            style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "8px 12px", colorScheme: "dark" }}
+            style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 12px", colorScheme: "dark" }}
           />
         </label>
         <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
@@ -77,7 +77,7 @@ function RowMenu({ e, a }: { e: Entry; a: RowActions }) {
         aria-haspopup="menu"
         aria-expanded={a.menuOpen || a.dateOpen ? "true" : "false"}
         onClick={a.toggleMenu}
-        style={{ width: "32px", height: "32px", border: 0, borderRadius: "8px", background: a.menuOpen ? "var(--surface-pressed)" : "transparent", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", position: "relative", zIndex: 5, lineHeight: "24px" }}
+        style={{ width: "32px", height: "32px", border: 0, borderRadius: "var(--r-md)", background: a.menuOpen ? "var(--surface-pressed)" : "transparent", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", position: "relative", zIndex: 5, lineHeight: "24px" }}
       >
         <IcMore />
       </button>
@@ -128,7 +128,7 @@ function DropZone({ a, grid }: { a: RowActions; grid?: boolean }) {
       a.addCharts(f);
     }
   };
-  const base = { minWidth: 0, border: "1.5px dashed var(--border-strong)", borderRadius: "8px", color: "var(--text-1)", cursor: "copy", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", fontWeight: 500, background: over ? "var(--surface-hover)" : undefined } as const;
+  const base = { minWidth: 0, border: "1.5px dashed var(--border-strong)", borderRadius: "var(--r-md)", color: "var(--text-1)", cursor: "copy", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", fontWeight: 500, background: over ? "var(--surface-hover)" : undefined } as const;
   return (
     <label
       className="kdrop"
@@ -162,7 +162,7 @@ function DropZone({ a, grid }: { a: RowActions; grid?: boolean }) {
 }
 
 function Chart({ c }: { c: string }) {
-  if (isImage(c)) return <img src={c} alt="Your chart" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "contain", borderRadius: "8px" }} />;
+  if (isImage(c)) return <img src={c} alt="Your chart" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "contain", borderRadius: "var(--r-md)" }} />;
   return (
     <svg viewBox="0 0 320 180" aria-hidden="true" style={{ display: "block", width: "100%", height: "auto" }}>
       <use href={`#${c}`} />
@@ -172,9 +172,9 @@ function Chart({ c }: { c: string }) {
 
 function DirChip({ e, grid }: { e: Entry; grid?: boolean }) {
   if (e.status === "Analysis")
-    return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--voice)", border: "1px solid var(--voice-border)", borderRadius: "6px", padding: grid ? "0 8px" : "2px 8px", lineHeight: "16px" }}>Analysis</span>;
+    return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--voice)", border: "1px solid var(--voice-border)", borderRadius: "var(--r-xs)", padding: grid ? "0 8px" : "2px 8px", lineHeight: "16px" }}>Analysis</span>;
   if (!e.dir) return null;
-  return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "6px", padding: "2px 8px", lineHeight: "16px" }}>{e.dir}</span>;
+  return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>{e.dir}</span>;
 }
 
 function Fact({ icon, sr, text, hint }: { icon: ReactNode; sr?: string; text: string; hint?: string }) {
@@ -268,7 +268,7 @@ export function GridCard({ e, a }: { e: Entry; a: RowActions }) {
   const t = thumbs(e);
   const open = useOpenOnClick(story(e));
   return (
-    <li className="card tcard" onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "12px", minWidth: 0 }}>
+    <li className="card tcard" onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "var(--r-card)", minWidth: 0 }}>
       {t.n === 0 ? <DropZone a={a} grid /> : null}
       {t.grid ? (
         <span className="chart" style={{ display: "block" }}>

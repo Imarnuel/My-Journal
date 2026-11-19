@@ -39,7 +39,7 @@ export function FilterMenu({ name, icon, label, aria, active, open, onToggle, on
         aria-expanded={open ? "true" : "false"}
         aria-label={aria}
         onClick={onToggle}
-        style={{ font: "inherit", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", background: active || open ? "var(--surface-pressed)" : "transparent", border: `1px solid ${active ? "var(--border-strong)" : "var(--border)"}`, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", position: "relative", zIndex: 5 }}
+        style={{ font: "inherit", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", background: active || open ? "var(--surface-pressed)" : "transparent", border: `1px solid ${active ? "var(--border-strong)" : "var(--border)"}`, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", position: "relative", zIndex: 5 }}
       >
         <span style={{ color: "var(--text-2)", display: "flex" }}>{icon}</span>
         {label}
@@ -65,7 +65,7 @@ export function FilterMenu({ name, icon, label, aria, active, open, onToggle, on
                 aria-selected={o.sel ? "true" : "false"}
                 onClick={o.pick}
                 className="kit-opt"
-                style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", background: o.sel ? "var(--surface-pressed)" : "transparent" }}
+                style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", background: o.sel ? "var(--surface-pressed)" : "transparent" }}
               >
                 <span style={{ color: o.dim ? "var(--text-disabled)" : "var(--text-1)" }}>{o.label}</span>
                 <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>

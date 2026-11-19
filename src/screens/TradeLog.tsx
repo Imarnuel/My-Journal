@@ -37,13 +37,13 @@ import { SHORT_SECONDS, useTradeLog } from "./tradelog/state";
 import { IcBook, IcCalendar, IcClock, IcDir, IcGrid, IcList, IcPair, IcPlus, IcSort, IcStatus, IcTag } from "./tradelog/icons";
 
 const segStyle = (on: boolean) =>
-  ({ font: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", fontWeight: 500, color: on ? "var(--inverse-fg)" : "var(--text-2)", background: on ? "var(--inverse-bg)" : "transparent", border: 0, borderRadius: "7px", padding: "0 12px", minHeight: "32px", cursor: "pointer" }) as const;
+  ({ font: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", fontWeight: 500, color: on ? "var(--inverse-fg)" : "var(--text-2)", background: on ? "var(--inverse-bg)" : "transparent", border: 0, borderRadius: "var(--r-sm)", padding: "0 12px", minHeight: "32px", cursor: "pointer" }) as const;
 
-const pickInput = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "8px 8px", colorScheme: "dark" } as const;
+const pickInput = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 8px", colorScheme: "dark" } as const;
 const pickLabel = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-2)" } as const;
 
 /** Frame 16 card markup (prototype/States.dc.html). */
-const stateCard = { padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" } as const;
+const stateCard = { padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" } as const;
 
 export function TradeLog() {
   const menu = useMenu<string>();
@@ -270,7 +270,7 @@ export function TradeLog() {
                   align="right"
                   opts={SORTS.map((o) => ({ label: o, count: "", dim: false, sel: o === sort, pick: () => { setSort(o); menu.close(); } }))}
                 />
-                <div role="group" aria-label="View" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", border: "1px solid var(--border)", borderRadius: "10px" }}>
+                <div role="group" aria-label="View" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", border: "1px solid var(--border)", borderRadius: "var(--r-lg)" }}>
                   <button type="button" aria-pressed={view === "list" ? "true" : "false"} aria-label="List view" onClick={() => setView("list")} style={segStyle(view === "list")}>
                     <IcList />
                     List
@@ -302,7 +302,7 @@ export function TradeLog() {
           ))}
 
           {asking && !anyF ? (
-            <div className="card" style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderRadius: "12px" }}>
+            <div className="card" style={{ display: "flex", flexWrap: "wrap", gap: "12px 24px", alignItems: "center", justifyContent: "space-between", padding: "16px 24px", borderRadius: "var(--r-card)" }}>
               <div className="knote" style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0, flex: "1 1 360px" }}>
                 <span className="knote-ic">
                   <IcClock />

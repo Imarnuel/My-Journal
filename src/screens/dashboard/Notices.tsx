@@ -79,7 +79,7 @@ export function NoChartsNotice({ trades }: { trades: Entry[] }) {
               </h2>
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", fontSize: "14px", lineHeight: "20px", color: "var(--text-2)" }}>
                 <span style={{ color: "var(--text-1)", fontWeight: 500 }}>{e.pair}</span>
-                {e.dir ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "6px", padding: "0 8px", lineHeight: "18px" }}>{e.dir}</span> : null}
+                {e.dir ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "0 8px", lineHeight: "18px" }}>{e.dir}</span> : null}
                 <span className="num" style={{ color: tone(e.r), fontWeight: 500 }}>
                   {fr(e.r ?? 0)}
                 </span>

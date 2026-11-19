@@ -18,7 +18,7 @@ export function Header({ sub, period, setPeriod, kit }: { sub: string; period: P
         </p>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-        <div role="group" aria-label="Period" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "4px", border: "1px solid var(--border)", borderRadius: "11px" }}>
+        <div role="group" aria-label="Period" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "4px", border: "1px solid var(--border)", borderRadius: "var(--r-lg)" }}>
           {PERIODS.map((o) => {
             const on = o.key === period;
             return (
@@ -32,7 +32,7 @@ export function Header({ sub, period, setPeriod, kit }: { sub: string; period: P
                 }}
                 style={{
                   font: "inherit", fontSize: "14px", fontWeight: on ? 600 : 500, color: on ? "var(--text-1)" : "var(--text-2)", background: on ? "var(--surface-3)" : "transparent",
-                  border: "0", borderRadius: "8px", padding: "0 16px", minHeight: "32px", cursor: "pointer", whiteSpace: "nowrap",
+                  border: "0", borderRadius: "var(--r-md)", padding: "0 16px", minHeight: "32px", cursor: "pointer", whiteSpace: "nowrap",
                 }}
               >
                 {o.label}

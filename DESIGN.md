@@ -159,3 +159,16 @@ a control. Source: the Notes card in `src/screens/ChartStory.tsx`.
 Why: the owner wanted the pair to lead. Every line under the pair (date, status, account, ticket, setup,
 plan, tags, plan notes) is 12/16 with 14px icons. The pair, direction chip and result stay at 14px as the
 headline line.
+
+## Rounder corners
+Overrides the radii in `CLAUDE.md` and `02-look-and-feel.md` (8 on controls, 12 on cards and menus, 14 on
+the main card). Why: the owner wanted the whole app a little softer. Every radius now comes from one scale in
+`src/styles/tokens.css`, so the next change is one line.
+- `--r-xs` 7px: chips and badges (direction, Suggested, Demo).
+- `--r-sm` 8px: 28px buttons, the selected segment, the focus ring.
+- `--r-md` 10px: 32px controls (buttons, fields, filter dropdowns, the account picker), sidebar items, menu
+  rows, chart thumbnails, tooltips, the drop zone.
+- `--r-lg` 12px: segment tracks and inset rows. The selected segment inside is 12 minus the 4px padding.
+- `--r-card` and `--r-menu` 16px: cards, notices, menus, toasts. `--r-panel` 18px: the main card.
+  `--r-dialog` 20px.
+- Toggle tracks are full pills. Circles, dots, progress bars and the chart bars keep their own shapes.

@@ -59,7 +59,7 @@ export function ChoiceSelect({ name, triggerName, value, options, open, onToggle
                   aria-selected={sel ? "true" : "false"}
                   onClick={() => onPick(o)}
                   className="kit-opt"
-                  style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", background: sel ? "var(--surface-pressed)" : "transparent" }}
+                  style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", background: sel ? "var(--surface-pressed)" : "transparent" }}
                 >
                   <span>{o}</span>
                   {sel ? (

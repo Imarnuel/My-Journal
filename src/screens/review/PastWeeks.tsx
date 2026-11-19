@@ -12,8 +12,8 @@ export const useMonthsOpen = create<{ open: Record<string, boolean>; set: (key: 
   set: (key, v) => set((s) => ({ open: { ...s.open, [key]: v } })),
 }));
 
-const rowBtn = { font: "inherit", width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", padding: "12px 16px", border: 0, borderRadius: "8px", background: "transparent", color: "var(--text-1)", cursor: "pointer", textAlign: "left" } as const;
-const weekBtn = { font: "inherit", width: "100%", textAlign: "left", display: "flex", flexDirection: "column", gap: "4px", padding: "12px 16px", borderRadius: "8px", border: 0, color: "var(--text-1)", cursor: "pointer" } as const;
+const rowBtn = { font: "inherit", width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", padding: "12px 16px", border: 0, borderRadius: "var(--r-md)", background: "transparent", color: "var(--text-1)", cursor: "pointer", textAlign: "left" } as const;
+const weekBtn = { font: "inherit", width: "100%", textAlign: "left", display: "flex", flexDirection: "column", gap: "4px", padding: "12px 16px", borderRadius: "var(--r-md)", border: 0, color: "var(--text-1)", cursor: "pointer" } as const;
 
 export function PastWeeks({ months, selected, takeaway, onPick }: { months: PastMonth[]; selected: string | undefined; takeaway: (monday: string) => string; onPick: (monday: string) => void }) {
   const open = useMonthsOpen((s) => s.open);

@@ -95,7 +95,7 @@ export function YourTags() {
       <p className="meta" style={{ margin: "4px 0 0" }}>Rename, merge or remove tags. Old stories update with them.</p>
       <div style={{ marginTop: "12px" }}>
         {pairs.map((p) => (
-          <div key={pairKey(p)} style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "16px 16px", borderRadius: "12px", border: "1px solid var(--border)", marginBottom: "8px" }}>
+          <div key={pairKey(p)} style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "16px 16px", borderRadius: "var(--r-card)", border: "1px solid var(--border)", marginBottom: "8px" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
               <span aria-hidden="true" style={{ flex: "none", width: "8px", height: "8px", borderRadius: "4px", background: "var(--attention)" }} />
               {`"${p.from}" and "${p.into}" look like the same tag`}
@@ -134,7 +134,7 @@ export function YourTags() {
                   <TagName tag={t} tags={tags} onRename={(to) => rename(t.t, to)} />
                   <span className="lbl">{t.k}</span>
                   <span className="lbl" style={{ textAlign: "right" }}>{usedLabel(t.n)}</span>
-                  <button className="kmore" type="button" aria-label={`Remove ${t.t}`} onClick={() => remove(t)} style={{ width: "32px", height: "32px", border: 0, borderRadius: "8px", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "16px", lineHeight: "24px" }}>
+                  <button className="kmore" type="button" aria-label={`Remove ${t.t}`} onClick={() => remove(t)} style={{ width: "32px", height: "32px", border: 0, borderRadius: "var(--r-md)", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "16px", lineHeight: "24px" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
                   </button>
                 </div>

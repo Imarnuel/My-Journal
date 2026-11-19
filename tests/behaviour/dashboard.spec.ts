@@ -260,6 +260,7 @@ test("reduced motion: no draw-in, numbers and charts swap at once", async ({ pag
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   // The line is drawn twice (blue above zero, orange below, DESIGN.md); neither animates.
+  await expect(page.locator("path.kdraw")).toHaveCount(2);
   expect(await page.locator("path.kdraw").evaluateAll((els) => els.map((e) => getComputedStyle(e).strokeDashoffset))).toEqual(["0px", "0px"]);
   await page.getByRole("button", { name: "3 months" }).click();
   // Without motion the value is final on the next frame.

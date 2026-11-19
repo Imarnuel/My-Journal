@@ -17,7 +17,7 @@ export function Closer({ onClose }: { onClose: () => void }) {
 
 export const menuBox: CSSProperties = { position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box" };
 
-const optStyle: CSSProperties = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" };
+const optStyle: CSSProperties = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" };
 
 export function Check() {
   return (
@@ -156,7 +156,7 @@ export function DetailRow({ label, icon, children }: { label: string; icon?: Rea
 /** Frame 16 problem card ("Couldn't make out your note", "Prices on this screenshot are too small to read"). */
 export function ProblemCard({ title, text, children }: { title: string; text: string; children: ReactNode }) {
   return (
-    <div role="status" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "12px", boxSizing: "border-box" }}>
+    <div role="status" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", boxSizing: "border-box" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 500 }}>
         <span aria-hidden="true" style={{ flex: "none", width: "8px", height: "8px", borderRadius: "4px", background: "var(--attention)" }} />
         {title}

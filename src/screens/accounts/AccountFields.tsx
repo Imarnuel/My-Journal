@@ -13,7 +13,7 @@ export function draftFrom(a: { name: string; type: string; practice: boolean }):
   return { name: a.name, type: a.type, own: own ? a.type : "", ownOpen: own, practice: a.practice };
 }
 
-const field = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "8px", padding: "0 16px", minHeight: "32px", width: "100%", boxSizing: "border-box" } as const;
+const field = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "0 16px", minHeight: "32px", width: "100%", boxSizing: "border-box" } as const;
 const label = { fontSize: "14px", fontWeight: 500, color: "var(--text-2)" } as const;
 const chip = { font: "inherit", fontSize: "14px", fontWeight: 500, color: "var(--text-1)", background: "transparent", border: "1px solid var(--border)", borderRadius: "999px", padding: "0 16px", minHeight: "32px", cursor: "pointer" } as const;
 
