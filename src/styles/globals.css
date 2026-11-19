@@ -129,3 +129,7 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
   :root:not([data-theme="dark"]) .tcard:hover { box-shadow: 0 0 0 1px var(--border-strong), 0 1px 2px rgba(15,17,21,0.06); }
 }
 @media (prefers-reduced-motion: reduce) { .tcard:hover { transform: none; } }
+
+/* Segmented controls: the selected label is medium (500) like the others (DESIGN.md, owner's request);
+   the raised fill marks the choice, so the label doesn't change weight or width. */
+.kseg-track button[aria-pressed="true"], .kseg-track [role="tab"][aria-selected="true"] { font-weight: 500 !important; }

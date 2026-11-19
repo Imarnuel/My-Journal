@@ -13,6 +13,8 @@ handoff (see `DESIGN.md`). Everything else is still compared with `handoff/scree
 
 | Story images and states 17 to 24 refreshed | Emoji beside each headspace | 2026-11-19 |
 
+| Story images refreshed | Selected segment label at medium weight (500) | 2026-11-19 |
+
 The other screens still compare with the handoff screenshots: the sidebar change stays within their tolerance,
 and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 

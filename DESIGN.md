@@ -57,3 +57,8 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
 ## Feedback
 - **Saving a chart story shows a toast**, "Chart story saved", as the app moves to the saved story.
   Why: the page changes underneath you, and the toast confirms the trade is in the log.
+
+## Segmented controls
+- **The selected segment's label is medium (500)**, the same weight as the others; the raised fill alone
+  marks the choice. This overrides the handoff's 600 on a selected segment. Why: the owner prefers the calmer
+  weight, and the labels no longer change width as the selection moves.
