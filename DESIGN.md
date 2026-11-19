@@ -10,7 +10,8 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
 - **Trade facts read from MT5 have icons**: pair (two arrows), direction (trend down for Short, up for Long),
   status (circle with a check), account (card), date and time (calendar). Facts sit 16px apart with no "·"
   separators, matching the Trade log's facts. The dashed underline marks the words only, not the icon.
-- **These icons are filled, grey (`--text-3`), 16px.** Source: `src/screens/story/detailIcons.tsx`. Other
+- **These icons are filled, 14px, a step lighter than tertiary text (`--text-3` at 72% opacity).** (Was 16px
+  at full `--text-3`; the owner asked for smaller and lighter so the labels lead.) Source: `src/screens/story/detailIcons.tsx`. Other
   icons in the app stay as the handoff draws them (stroke icons) unless the owner says otherwise.
 
 ## Spacing and alignment
@@ -29,3 +30,14 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
   level above is one click away, as in the owner's reference (Linear-style).
 - **Sidebar rows are roomier**: 36px tall, 4px apart, 16px icons, 10px from icon to label. Why: the
   tighter 32px rows read cramped next to the calm main card.
+
+## Page tops and the story header
+- **Breadcrumbs sit 16px above the page title**, not the 32px between page sections: the trail belongs to
+  the title. Why: the owner found the top of the page too airy.
+- **The story header shows a result only when there is one** (a taken trade). A running, watched or
+  not-filled entry already says its status under the title, so the 24px slot stays empty instead of
+  repeating it.
+
+## Voice note
+- **Re-record is a labelled button** ("Re-record" with the mic), not a bare icon, so it can be found. It
+  records a new note and, like the first one, fills only what is still empty.

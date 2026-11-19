@@ -26,6 +26,7 @@ for (const c of CASES)
 
 test("sidebar: 16px icons, 36px rows, 4px apart", async ({ page }) => {
   await page.goto("/accounts");
+  await page.locator("#main").waitFor();
   const links = page.getByRole("navigation", { name: "Main" }).getByRole("link");
   const boxes = await links.evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); const i = el.querySelector("svg")!.getBoundingClientRect(); return [r.top, r.height, i.width, i.height]; }));
   for (const [, h, iw, ih] of boxes) expect([h, iw, ih]).toEqual([36, 16, 16]);

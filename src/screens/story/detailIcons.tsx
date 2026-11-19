@@ -1,12 +1,12 @@
-// Filled 16px icons for the story's Details labels and the trade facts read from MT5 (owner's request:
-// filled, grey, 16px). Grey is the tertiary text tone; they sit beside the text, never replace it.
+// Filled icons for the story's Details labels and the trade facts read from MT5 (owner's request, DESIGN.md:
+// filled, grey, 14px, a step lighter than tertiary text). They sit beside the text, never replace it.
 import type { CSSProperties, ReactNode } from "react";
 
-const style: CSSProperties = { flex: "none", color: "var(--text-3)", display: "block" };
+const style: CSSProperties = { flex: "none", color: "var(--text-3)", opacity: 0.72, display: "block" };
 
 function Filled({ children, flip }: { children: ReactNode; flip?: boolean }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={flip ? { ...style, transform: "scaleY(-1)" } : style}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={flip ? { ...style, transform: "scaleY(-1)" } : style}>
       {children}
     </svg>
   );

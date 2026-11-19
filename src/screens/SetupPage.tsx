@@ -109,7 +109,7 @@ export function SetupPage() {
   return (
     <Shell active="playbook">
       <PlaybookSprite />
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
         <Breadcrumbs items={[{ label: "Playbook", to: "/playbook", icon: <Icon name="book" size={16} /> }, { label: S, icon: <Icon name="filter-setup" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>

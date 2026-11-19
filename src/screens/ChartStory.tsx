@@ -417,10 +417,13 @@ function StoryScreen({ id }: { id: string | null }) {
           )}
         </div>
         {saved ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-            <span className="num" style={{ fontSize: "24px", fontWeight: 600, color: resCol, letterSpacing: "-0.025em", lineHeight: "32px" }}>
-              {resVal}
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", alignSelf: s.status === "Taken" ? undefined : "flex-start" }}>
+            {/* The result only when there is one: a running or watched entry already says its status under the title. */}
+            {s.status === "Taken" ? (
+              <span className="num" style={{ fontSize: "24px", fontWeight: 600, color: resCol, letterSpacing: "-0.025em", lineHeight: "32px" }}>
+                {resVal}
+              </span>
+            ) : null}
             <span style={{ position: "relative", display: "inline-flex" }}>
               <button className="kmore" type="button" aria-label="More actions" aria-haspopup="menu" aria-expanded={exp("sm")} onClick={() => menu.toggle("sm")} style={{ width: "32px", height: "32px", border: "1px solid var(--border)", borderRadius: "8px", background: "transparent", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", position: "relative", zIndex: 5, lineHeight: "24px" }}>
                 <Dots />
@@ -758,8 +761,10 @@ function StoryScreen({ id }: { id: string | null }) {
                   <button type="button" className="btn btn-q" aria-expanded={said ? "true" : "false"} onClick={() => setSaid(!said)} style={{ minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
                     What you said
                   </button>
-                  <button type="button" className="btn btn-q" aria-label="Re-record your voice note" title="Re-record" onClick={startRec} style={{ marginLeft: "auto", minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
+                  {/* Re-record says what it does: it records a new note and fills only what is still empty. */}
+                  <button type="button" className="btn btn-q" title="Record a new note. It fills only what is still empty." onClick={startRec} style={{ marginLeft: "auto", minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
                     <Mic />
+                    Re-record
                   </button>
                 </div>
                 {said ? (

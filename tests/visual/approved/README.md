@@ -9,6 +9,8 @@ handoff (see `DESIGN.md`). Everything else is still compared with `handoff/scree
 
 | `chrome/` sidebar and story-top images; the story images above were refreshed | Breadcrumbs instead of back links, sidebar rows 36px with 16px icons | 2026-11-19 |
 
+| `light/` and `dark/` 13-AddAccount, 14-EditAccount, 10-SetupEdit; `states/` 31, 35; story images refreshed | Breadcrumbs 16px above the title; story icons 14px and lighter; Re-record labelled; no result slot on entries without a result | 2026-11-19 |
+
 The other screens still compare with the handoff screenshots: the sidebar change stays within their tolerance,
 and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 

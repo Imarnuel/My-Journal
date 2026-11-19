@@ -298,7 +298,7 @@ test("re-record fills only what is still empty", async ({ page }) => {
   await openStory(page);
   await page.locator("#nR").fill("");
   await page.locator("#nB").fill("Kept as typed.");
-  await page.getByRole("button", { name: "Re-record your voice note" }).click();
+  await page.getByRole("button", { name: "Re-record" }).click();
   await expect(page.getByText(/Listening/)).toBeVisible();
   await page.getByRole("button", { name: "Stop" }).click();
   await expect(toast(page)).toContainText("Notes filled from your note");
