@@ -14,9 +14,19 @@ function items(menu: HTMLElement): HTMLElement[] {
   return [...menu.querySelectorAll<HTMLElement>(ITEM)].filter((el) => el.offsetParent !== null);
 }
 
+let lastTrigger: HTMLElement | null = null;
+
+/** Remember the control that opened a menu, so Escape returns focus to it (not to another expanded section). */
+export function noteTrigger(el: HTMLElement | null) {
+  if (el) lastTrigger = el;
+}
+
 function trigger(): HTMLElement | null {
-  const t = document.querySelectorAll<HTMLElement>('[aria-expanded="true"]');
-  return t.length ? t[t.length - 1] : null;
+  if (lastTrigger?.isConnected && lastTrigger.getAttribute("aria-expanded") === "true") return lastTrigger;
+  const t = document.querySelectorAll<HTMLElement>('[aria-haspopup][aria-expanded="true"]');
+  if (t.length) return t[t.length - 1];
+  const any = document.querySelectorAll<HTMLElement>('[aria-expanded="true"]');
+  return any.length ? any[any.length - 1] : null;
 }
 
 export function closeOpenMenu(): boolean {

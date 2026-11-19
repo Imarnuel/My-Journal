@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon, type IconName } from "../components/primitives/Icon";
-import { focusFirstItem, onMenuKeyDown } from "../components/primitives/menuKeys";
+import { focusFirstItem, noteTrigger, onMenuKeyDown } from "../components/primitives/menuKeys";
 import { useToast } from "../components/primitives/toast";
 
 export type NavKey = "dashboard" | "log" | "playbook" | "review" | "accounts" | "settings" | null;
@@ -62,14 +62,15 @@ function useMenuKeyboard() {
     const down = (e: KeyboardEvent) => onMenuKeyDown(e);
     const click = (e: MouseEvent) => {
       // A menu trigger activated from the keyboard (Enter/Space give detail 0) moves focus into the menu.
-      const t = (e.target as HTMLElement).closest("[aria-haspopup]");
+      const t = (e.target as HTMLElement).closest<HTMLElement>("[aria-haspopup]");
+      noteTrigger(t);
       if (t && e.detail === 0) focusFirstItem();
     };
     document.addEventListener("keydown", down);
-    document.addEventListener("click", click);
+    document.addEventListener("click", click, true);
     return () => {
       document.removeEventListener("keydown", down);
-      document.removeEventListener("click", click);
+      document.removeEventListener("click", click, true);
     };
   }, []);
 }
