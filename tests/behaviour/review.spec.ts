@@ -24,7 +24,7 @@ test("opens on the latest week traded, with its numbers; the week in progress is
   await expect(week(page, "9 to 13 Nov")).toHaveAttribute("aria-current", "true");
   await expect(pastWeeks(page).getByText("16 to 20 Nov")).toHaveCount(0);
   await expect(page.locator("#takeaway")).toHaveValue("Leave the stop where I planned it. No moving it to breakeven before 1R.");
-  await expect(page.getByText("Saved. It shows on your dashboard all next week.")).toBeVisible();
+  await expect(page.getByText("Saved. It comes back in next week's review.")).toBeVisible();
 });
 
 test("past weeks: every traded week, months fold, year header", async ({ page }) => {
@@ -76,7 +76,7 @@ test("state 33: pick a past week loads it, highlights it and scrolls to the top"
   await expect(page.getByRole("region", { name: "Mistakes you tagged more than once" })).toHaveCount(0);
   await expect(page.getByText("No reflections on this week's stories.")).toBeVisible();
   await expect(page.locator("#takeaway")).toHaveValue("");
-  await expect(page.getByText("You can still write one. Only your latest week shows on the dashboard.")).toBeVisible();
+  await expect(page.getByText("You can still write one for the record.")).toBeVisible();
   // the screenshot was taken with the pointer resting on the row below
   await week(page, "7 to 11 Sep").hover();
   await diffAgainst(page, "states/33-review-past-week-selected.png", info);
@@ -102,7 +102,7 @@ test("the takeaway saves as you type and marks the week reviewed", async ({ page
   await page.goto("/review/2026-10-26");
   const box = page.getByRole("textbox", { name: "What I'll do differently next week" });
   await expect(box).toHaveValue("");
-  await expect(page.getByText("You can still write one. Only your latest week shows on the dashboard.")).toBeVisible();
+  await expect(page.getByText("You can still write one for the record.")).toBeVisible();
   await box.pressSequentially("Sit on my hands after a loss.");
   await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   await expect(week(page, "26 to 30 Oct")).toContainText("“Sit on my hands after a loss.”");
@@ -124,10 +124,10 @@ test("latest week: empty takeaway note, then saved note", async ({ page }) => {
   await page.goto("/review");
   const box = page.locator("#takeaway");
   await box.fill("");
-  await expect(page.getByText("Write one thing. It saves as you type and shows on your dashboard all next week.")).toBeVisible();
+  await expect(page.getByText("Write one thing. It saves as you type and comes back in next week's review.")).toBeVisible();
   await expect(week(page, "9 to 13 Nov")).toContainText("Not reviewed");
   await box.fill("Wait for the close.");
-  await expect(page.getByText("Saved. It shows on your dashboard all next week.")).toBeVisible();
+  await expect(page.getByText("Saved. It comes back in next week's review.")).toBeVisible();
   await expect(week(page, "9 to 13 Nov")).toContainText("“Wait for the close.”");
 });
 

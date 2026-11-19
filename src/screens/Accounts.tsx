@@ -130,7 +130,7 @@ export function Accounts() {
                         className="btn btn-q"
                         onClick={() => {
                           updateAccount(a.name, { archived: false });
-                          toast(`${a.name} is back in your lists`, () => updateAccount(a.name, { archived: true }));
+                          toast(`${a.name} restored`, () => updateAccount(a.name, { archived: true }), "restored");
                         }}
                       >
                         Restore

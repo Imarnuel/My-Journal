@@ -68,10 +68,10 @@ export function YourTags() {
     const { patches, before } = retagEntries(s.entries, t.t, null);
     apply(patches);
     setTags(prevTags.filter((x) => x.t !== t.t));
-    toast(`Removed ${t.t} from ${t.n} ${t.n === 1 ? "story" : "stories"}`, () => {
+    toast(`“${t.t}” removed from ${t.n} ${t.n === 1 ? "story" : "stories"}`, () => {
       apply(before);
       useStore.getState().setTags(prevTags);
-    });
+    }, "deleted");
   };
 
   const merge = (p: Lookalike) => {
@@ -82,11 +82,11 @@ export function YourTags() {
     apply(patches);
     setTags(mergeTags(prevTags, p.from, p.into));
     setMerged([...prevMerged, pairKey(p)]);
-    toast(`Merged into ${p.into}. Old stories updated.`, () => {
+    toast(`Merged into “${p.into}”`, () => {
       apply(before);
       useStore.getState().setTags(prevTags);
       useStore.getState().setSetting("mergedLookalikes", prevMerged);
-    });
+    }, "edited");
   };
 
   return (

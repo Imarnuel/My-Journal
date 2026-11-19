@@ -1,6 +1,7 @@
 // Frames 03 and 04 · Trade log: one list of everything recorded, List and Grid views (view kept in the URL,
 // `/log?view=grid`), compact filter dropdowns with counts, sort, batches of 12, the row menu with Undo, the
 // very short trade prompt, and the frame-16 states that belong here. Markup from prototype/Main.dc.html.
+import { dateTime, entryName } from "../lib/format";
 import { useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -28,7 +29,7 @@ import {
   type FilterKey,
   type Filters,
 } from "../lib/tradelog";
-import { toast } from "../components/primitives/toast";
+import { toast, type ToastKind } from "../components/primitives/toast";
 import { useMenu } from "./useKit";
 import { FilterMenu, type Opt } from "./tradelog/FilterMenu";
 import { GridCard, ListRow, type RowActions } from "./tradelog/Rows";
@@ -67,9 +68,9 @@ export function TradeLog() {
   const [pFrom, setPFrom] = useState("");
   const [pTo, setPTo] = useState("");
 
-  const act = (msg: string, undo?: () => void) => {
+  const act = (msg: string, undo?: () => void, kind?: ToastKind) => {
     menu.close();
-    toast(msg, undo);
+    toast(msg, undo, kind);
   };
 
   // ---- Filters ----
@@ -130,23 +131,23 @@ export function TradeLog() {
     saveDate: (date, time) => {
       const was = { date: e.date, time: e.time };
       updateEntry(e.id, { date, time });
-      act("Date changed", () => updateEntry(e.id, was));
+      act(`${e.pair} moved to ${dateTime(date, time)}`, () => updateEntry(e.id, was), "moved");
     },
     toggleExcluded: () => {
       const was = e.excluded;
       updateEntry(e.id, { excluded: !was });
-      act(was ? "Back in your stats" : "Excluded from stats", () => updateEntry(e.id, { excluded: was }));
+      act(was ? `${e.pair} is back in your stats` : `${e.pair} left out of your stats`, () => updateEntry(e.id, { excluded: was }), was ? "restored" : "hidden");
     },
     remove: () => {
       const index = useStore.getState().entries.findIndex((x) => x.id === e.id);
       removeEntry(e.id);
-      act("Entry deleted", () => restoreEntry(e, index));
+      act(`${entryName(e)} deleted`, () => restoreEntry(e, index), "deleted");
     },
     addCharts: (files) => {
       const urls = files.map((file) => URL.createObjectURL(file));
       const list = [...(e.chartList ?? []), ...urls];
       updateEntry(e.id, { chartList: list, charts: list.length });
-      act(urls.length === 1 ? "Chart added" : "Charts added");
+      act(urls.length === 1 ? `Chart added to ${e.pair}` : `${urls.length} charts added to ${e.pair}`, undefined, "added");
     },
   });
 
@@ -158,7 +159,7 @@ export function TradeLog() {
     const patch = { shortTrade: a, excluded: a === "left-out" ? true : e.excluded };
     const apply = (p: Partial<Entry>) => (inStore ? updateEntry(e.id, p) : setShort(p));
     apply(patch);
-    act(a === "counted" ? `${e.pair} counts in your stats` : `${e.pair} left out of your stats`, () => apply(was));
+    act(a === "counted" ? `${e.pair} counts in your stats` : `${e.pair} left out of your stats`, () => apply(was), a === "counted" ? "done" : "hidden");
   };
 
   // ---- Frame 16: an account that stopped syncing (real accounts only; see report) ----

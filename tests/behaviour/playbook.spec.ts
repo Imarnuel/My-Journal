@@ -140,7 +140,7 @@ test.describe("playbook home", () => {
     await page.goto("/playbook");
     await page.getByRole("button", { name: "Actions for London breakout" }).click();
     await page.getByRole("menuitem", { name: "Delete setup" }).click();
-    await expect(status(page)).toContainText("London breakout deleted. Its 28 stories moved to Unsorted");
+    await expect(status(page)).toContainText("London breakout deleted. 28 stories moved to Unsorted");
     await expect(card(page, "London breakout")).toHaveCount(0);
     await expect(unsorted(page)).toHaveText("Unsorted (49)");
     await undo(page).click();
@@ -299,7 +299,7 @@ test.describe("setup page", () => {
   test("Not now hides the suggestion everywhere; Undo brings it back", async ({ page }) => {
     await page.goto(URL);
     await page.getByRole("button", { name: "Not now" }).click();
-    await expect(status(page)).toContainText("Hidden. It comes back if more stories look alike.");
+    await expect(status(page)).toContainText("Suggestion hidden until more stories look alike");
     await expect(page.getByText("4 unsorted chart stories look alike")).toHaveCount(0);
     await undo(page).click();
     await expect(page.getByText("4 unsorted chart stories look alike")).toBeVisible();

@@ -2,7 +2,7 @@
 // computed from the shared store. One menu open at a time per screen: `kmenu` holds its key.
 import { useState } from "react";
 import { realAccounts, useStore } from "../data/store";
-import { toast as showToast, useToast } from "../components/primitives/toast";
+import { toast as showToast, useToast, type ToastKind } from "../components/primitives/toast";
 
 export function useMenu<T extends string = string>() {
   const [kmenu, setK] = useState<T | null>(null);
@@ -55,8 +55,8 @@ export function useKit(menu: MenuWithPicker) {
 
 /** Show a toast and close any open menu (prototype's this.toast). */
 export function useToastAction(menu: { close: () => void }) {
-  return (msg: string, undo?: () => void) => {
+  return (msg: string, undo?: () => void, kind?: ToastKind) => {
     menu.close();
-    showToast(msg, undo);
+    showToast(msg, undo, kind);
   };
 }

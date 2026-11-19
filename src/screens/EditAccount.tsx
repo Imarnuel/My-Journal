@@ -54,7 +54,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
 
   const archive = () => {
     updateAccount(account.name, { archived: true });
-    toast(`${account.name} archived`, () => updateAccount(account.name, { archived: false }));
+    toast(`${account.name} archived`, () => updateAccount(account.name, { archived: false }), "archived");
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
   };
@@ -62,7 +62,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
   const reconnect = () => {
     if (account.source === "mt5-reconnect") updateAccount(account.name, { source: "mt5" });
     setSynced("Synced just now");
-    toast("Reconnected. Synced just now.");
+    toast(`${account.name} reconnected and synced`);
   };
 
   return (

@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { slideSegments, trackInputModality } from "../components/primitives/motion";
 import { Icon, type IconName } from "../components/primitives/Icon";
 import { focusFirstItem, noteTrigger, onMenuKeyDown } from "../components/primitives/menuKeys";
-import { useToast } from "../components/primitives/toast";
+import { useToast, type ToastKind } from "../components/primitives/toast";
 
 export type NavKey = "dashboard" | "log" | "playbook" | "review" | "accounts" | "settings" | null;
 
@@ -32,6 +32,81 @@ export function Wordmark() {
   );
 }
 
+/** One icon per kind of outcome, 16px, stroke 1.8 like the rest of the interface. */
+function ToastIcon({ kind }: { kind: ToastKind }) {
+  const p = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (kind) {
+    case "deleted":
+      return (
+        <svg {...p}>
+          <path d="M4 7h16" />
+          <path d="M10 11v6M14 11v6" />
+          <path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
+          <path d="M9 7V4h6v3" />
+        </svg>
+      );
+    case "hidden":
+      return (
+        <svg {...p}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M5.6 5.6l12.8 12.8" />
+        </svg>
+      );
+    case "restored":
+      return (
+        <svg {...p}>
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <path d="M3 4v5h5" />
+        </svg>
+      );
+    case "added":
+      return (
+        <svg {...p}>
+          <rect x="3" y="3" width="18" height="18" rx="2.5" />
+          <circle cx="9" cy="9" r="1.8" />
+          <path d="M21 15l-5-5L5 21" />
+        </svg>
+      );
+    case "moved":
+      return (
+        <svg {...p}>
+          <rect x="3.5" y="5" width="17" height="15" rx="2" />
+          <path d="M3.5 10h17M8 3v4M16 3v4" />
+        </svg>
+      );
+    case "voice":
+      return (
+        <svg {...p}>
+          <rect x="9" y="3" width="6" height="11" rx="3" />
+          <path d="M5 11a7 7 0 0 0 14 0" />
+          <path d="M12 18v3" />
+        </svg>
+      );
+    case "archived":
+      return (
+        <svg {...p}>
+          <rect x="3" y="4" width="18" height="5" rx="1.5" />
+          <path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" />
+          <path d="M10 13h4" />
+        </svg>
+      );
+    case "edited":
+      return (
+        <svg {...p}>
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...p}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M8 12.5l2.7 2.7L16 9.8" />
+        </svg>
+      );
+  }
+}
+
 export function Toasts() {
   const live = useToast((s) => s.toast);
   const runUndo = useToast((s) => s.runUndo);
@@ -56,19 +131,13 @@ export function Toasts() {
   const t = live ?? shown;
   if (!t) return null;
   return (
-    <div
-      key={t.id}
-      role="status"
-      className={leaving && !live ? "kstatus leaving" : "kstatus"}
-      style={{ position: "fixed", zIndex: 20, left: "50%", bottom: "calc(28px + env(safe-area-inset-bottom, 0px))", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px 12px 16px", background: "var(--inverse-bg)", color: "var(--inverse-fg)", borderRadius: "12px", boxShadow: "0 16px 40px rgba(0,0,0,0.5)", fontSize: "14px", whiteSpace: "nowrap" }}
-    >
-      <span>{t.msg}</span>
+    <div key={t.id} role="status" className={leaving && !live ? "kstatus ktoast leaving" : "kstatus ktoast"}>
+      <span className="ktoast-ic" data-kind={t.kind} aria-hidden="true">
+        <ToastIcon kind={t.kind} />
+      </span>
+      <span className="ktoast-msg">{t.msg}</span>
       {t.undo ? (
-        <button
-          type="button"
-          onClick={runUndo}
-          style={{ font: "inherit", fontSize: "14px", fontWeight: 500, color: "var(--inverse-fg)", background: "transparent", border: "1px solid var(--inverse-border)", borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer" }}
-        >
+        <button type="button" className="ktoast-undo" onClick={runUndo}>
           Undo
         </button>
       ) : null}

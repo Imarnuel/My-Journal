@@ -59,5 +59,5 @@ test("saving a chart story shows a toast", async ({ page }) => {
   await page.locator("#main").waitFor();
   await page.getByRole("button", { name: "Save story" }).click();
   await expect(page).toHaveURL(/\/story\/e\d+$/);
-  await expect(page.getByRole("status")).toContainText("Chart story saved");
+  await expect(page.getByRole("status")).toContainText("saved to your trade log");
 });

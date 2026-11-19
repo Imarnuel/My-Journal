@@ -49,7 +49,7 @@ export function SetupEditor() {
   const remove = (g: Group, id: number) => {
     const prev = rules;
     setRules((d) => ({ ...d, [g]: d[g].filter((r) => r.id !== id) }));
-    toast("Rule removed", () => setRules(prev));
+    toast("Rule removed", () => setRules(prev), "deleted");
   };
   const add = (g: Group) => {
     const row = { id: ++rid, t: "" };

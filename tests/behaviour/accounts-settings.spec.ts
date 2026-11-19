@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
-import { diffAgainst, MAX_RATIO, settle } from "../visual/compare";
+import { diffAgainst, MAX_RATIO, maybeApprove, refPath, settle } from "../visual/compare";
 
 /** The shared store, read through Vite's module graph (same instance the app uses). */
 async function store<T>(page: Page, fn: string): Promise<T> {
@@ -23,9 +23,10 @@ async function store<T>(page: Page, fn: string): Promise<T> {
  * scrolled down the page (39, 40); same threshold and ratio as diffAgainst.
  */
 async function diffViewport(page: Page, ref: string, info: TestInfo, maxRatio = MAX_RATIO) {
-  const want = PNG.sync.read(fs.readFileSync(path.join("handoff/screenshots", ref)));
+  const want = PNG.sync.read(fs.readFileSync(refPath(ref)));
   await settle(page);
   const got = PNG.sync.read(await page.screenshot());
+  if (maybeApprove(ref, got)) return;
   const d = new PNG({ width: want.width, height: want.height });
   const n = pixelmatch(got.data, want.data, d.data, want.width, want.height, { threshold: 0.2 });
   const ratio = n / (want.width * want.height);
@@ -220,7 +221,7 @@ test("edit account: Reconnect confirms with a toast", async ({ page }) => {
   await page.goto("/accounts/funded-100k");
   await expect(page.getByText("Synced 2 min ago · FTMO-Demo2")).toBeVisible();
   await page.getByRole("button", { name: "Reconnect" }).click();
-  await expect(page.getByRole("status")).toContainText("Reconnected. Synced just now.");
+  await expect(page.getByRole("status")).toContainText("reconnected and synced");
 });
 
 test("edit account: an address with no account goes back to Accounts", async ({ page }) => {
@@ -344,7 +345,7 @@ test("settings: removing a tag happens at once; Undo restores the tag and every 
   const before = await store<string>(page, snap);
   await page.getByRole("button", { name: "Manage tags" }).click();
   await page.getByRole("button", { name: "Remove Chased entry" }).click();
-  await expect(page.getByRole("status")).toContainText("Removed Chased entry from 7 stories");
+  await expect(page.getByRole("status")).toContainText("“Chased entry” removed from 7 stories");
   await expect(page.getByText("Tags (12)")).toBeVisible();
   await expect(page.getByText(/7 good · 2 mistakes · 3 neutral/)).toBeVisible();
   expect(await store<number>(page, `(s) => s.entries.filter((e) => e.tags.includes("Chased entry") || e.mistakes.includes("Chased entry")).length`)).toBe(0);
@@ -359,7 +360,7 @@ test("state 40: Merge look-alike tags shows an Undo toast; Undo brings the promp
   await expect(prompt).toBeVisible();
   await page.getByRole("button", { name: "Merge" }).click();
   await expect(prompt).toHaveCount(0);
-  await expect(page.getByRole("status")).toContainText("Merged into Break of structure. Old stories updated.");
+  await expect(page.getByRole("status")).toContainText("Merged into “Break of structure”");
   await expect(page.getByText("Tags (13)")).toBeVisible();
   await page.mouse.move(0, 0);
   await scrollToSessions(page);
@@ -466,5 +467,5 @@ test("reduced motion: the screens still work", async ({ page }) => {
   await page.getByRole("option", { name: "Monday" }).click();
   await expect(page.getByRole("button", { name: "Review day: Monday" })).toBeVisible();
   await page.getByRole("button", { name: "Merge" }).click();
-  await expect(page.getByRole("status")).toContainText("Merged into Break of structure");
+  await expect(page.getByRole("status")).toContainText("Merged into “Break of structure”");
 });

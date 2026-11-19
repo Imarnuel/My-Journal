@@ -212,10 +212,14 @@ function StoryScreen({ id }: { id: string | null }) {
     const next = charts.filter((_, k) => k !== i);
     update({ charts: next });
     setSel(Math.min(selI, next.length - 1));
-    toastA("Chart removed", () => {
-      update({ charts: before });
-      setSel(prevSel);
-    });
+    toastA(
+      "Chart removed",
+      () => {
+        update({ charts: before });
+        setSel(prevSel);
+      },
+      "deleted",
+    );
   };
   const addFiles = (files: File[]) => {
     const imgs = files.filter((f) => !f.type || f.type.startsWith("image/"));
@@ -223,7 +227,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const urls = imgs.map((f) => URL.createObjectURL(f));
     update({ charts: charts.concat(urls) });
     setSel(charts.length + urls.length - 1);
-    toastA(urls.length === 1 ? "Chart added" : `${urls.length} charts added`);
+    toastA(urls.length === 1 ? "Chart added" : `${urls.length} charts added`, undefined, "added");
   };
   addFilesRef.current = addFiles;
   const onPick = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -281,7 +285,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const prev = prevOf(s, patch);
     registerKinds(newKinds);
     update(patch);
-    toastA(voiceToast(filled), () => update(prev));
+    toastA(voiceToast(filled), () => update(prev), "voice");
   };
   const len = s.voiceLen;
   const togglePlay = () => {
@@ -337,7 +341,7 @@ function StoryScreen({ id }: { id: string | null }) {
       const prev = { date: s.date, time: s.time, session: s.session };
       update({ date: d, time: t, session: sessionOf(t) });
       setDtDraft(null);
-      toastA("Date changed", () => update(prev));
+      toastA(`Moved to ${dateTime(d, t)}`, () => update(prev), "moved");
     } else menu.close();
   };
   const dirChip = s.status === "Analysis" ? "Analysis" : s.dir;
@@ -356,12 +360,12 @@ function StoryScreen({ id }: { id: string | null }) {
   const pinT = () => {
     const was = s.textbook;
     update({ textbook: !was });
-    toastA(was ? "Unpinned" : `Pinned as a textbook example in ${s.setup || "your playbook"}`, () => update({ textbook: was }));
+    toastA(was ? "No longer a textbook example" : "Pinned as a textbook example", () => update({ textbook: was }), was ? "restored" : "done");
   };
   const exclT = () => {
     const was = s.excluded;
     update({ excluded: !was });
-    toastA(was ? "Back in your stats" : "Excluded from stats", () => update({ excluded: was }));
+    toastA(was ? "Back in your stats" : "Left out of your stats", () => update({ excluded: was }), was ? "restored" : "hidden");
   };
   const delStory = () => {
     const all = useStore.getState().entries;
@@ -379,7 +383,7 @@ function StoryScreen({ id }: { id: string | null }) {
     addEntry(entryFromStory(nid, s, kindOf));
     if (s.voiceLen) setExtras(nid, { voiceLen: s.voiceLen });
     nav(`/story/${nid}`);
-    toastA("Chart story saved");
+    toastA(`${s.pair} saved to your trade log`);
   };
 
   const analysis = saved && entry ? linkedAnalysis(entries, entry) : null;
@@ -714,66 +718,80 @@ function StoryScreen({ id }: { id: string | null }) {
               <textarea id="nB" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.before} onChange={(e) => update({ before: e.target.value })} style={NOTE_FIELD} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {/* The row only grows to 28px when Keep / Delete sit beside the label. */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", minHeight: s.suggested && s.refl ? "28px" : undefined }}>
+              {/* Tidied (DESIGN.md, Notes): the label row is only the label and a small Suggested badge, so it
+                  sits 8px from its field like Before / during; Keep and Delete move under the field. */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <label htmlFor="nR" className="lbl" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", lineHeight: "16px" }}>
                   Reflection
                 </label>
                 {s.suggested && s.refl ? (
-                  <>
-                    <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--voice)", border: "1px solid var(--voice-border)", borderRadius: "5px", padding: "0 8px", lineHeight: "16px" }}>Suggested</span>
-                    <span className="lbl" style={{ fontSize: "12px", marginLeft: "auto", lineHeight: "16px" }}>
-                      Inferred from your note
-                    </span>
-                    <button type="button" className="btn btn-q" onClick={() => update({ suggested: false })} style={{ minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
-                      Keep
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-q"
-                      onClick={() => {
-                        const r = s.refl;
-                        update({ refl: "", suggested: false });
-                        toastA("Reflection deleted", () => update({ refl: r, suggested: true }));
-                      }}
-                      style={{ minHeight: "28px", padding: "0 8px", fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}
-                    >
-                      Delete
-                    </button>
-                  </>
+                  <span className="ksugg" title="Inferred from your note">
+                    Suggested
+                  </span>
                 ) : null}
               </div>
               <textarea id="nR" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.refl} onChange={(e) => update({ refl: e.target.value, suggested: false })} style={NOTE_FIELD} />
+              {s.suggested && s.refl ? (
+                <div className="ksugg-row">
+                  <span>Inferred from your note</span>
+                  <button type="button" className="btn btn-g kbtn-sm" onClick={() => update({ suggested: false })}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                    Keep
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-q kbtn-sm kbtn-loss"
+                    onClick={() => {
+                      const r = s.refl;
+                      update({ refl: "", suggested: false });
+                      toastA("Suggested reflection deleted", () => update({ refl: r, suggested: true }), "deleted");
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 6L6 18" />
+                      <path d="M6 6l12 12" />
+                    </svg>
+                    Delete
+                  </button>
+                </div>
+              ) : null}
             </div>
             {s.voice && !recording ? (
               <>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", paddingTop: "4px" }}>
-                  <button type="button" aria-label={playing ? "Pause your voice note" : "Play your voice note"} onClick={togglePlay} style={{ flex: "none", width: "28px", height: "28px", borderRadius: "12px", border: 0, background: "var(--inverse-bg)", color: "var(--inverse-fg)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                {/* The voice note row: one height (28px controls), 14px control labels, 12px for the length. */}
+                <div className="kvoice-row">
+                  <button type="button" className="kplay" aria-label={playing ? "Pause your voice note" : "Play your voice note"} onClick={togglePlay}>
                     {playing ? (
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <rect x="6" y="5" width="4" height="14" rx="1" />
                         <rect x="14" y="5" width="4" height="14" rx="1" />
                       </svg>
                     ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M7 4l13 8-13 8z" />
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M8 5l11 7-11 7z" />
                       </svg>
                     )}
                   </button>
-                  <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-                    {playText}
-                  </span>
-                  <button type="button" className="btn btn-q" aria-expanded={said ? "true" : "false"} onClick={() => setSaid(!said)} style={{ minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
+                  <span className="kvoice-len">{playText}</span>
+                  <button type="button" className="btn btn-q kbtn-sm" aria-expanded={said ? "true" : "false"} onClick={() => setSaid(!said)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.6A8 8 0 1 1 21 12z" />
+                    </svg>
                     What you said
+                    <svg className="kchev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
                   </button>
-                  {/* Re-record says what it does: it records a new note and fills only what is still empty. */}
-                  <button type="button" className="btn btn-q" title="Record a new note. It fills only what is still empty." onClick={startRec} style={{ marginLeft: "auto", minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
+                  {/* Re-record in the voice colour, so it reads as the voice action (DESIGN.md). */}
+                  <button type="button" className="btn btn-q kbtn-sm kbtn-voice" title="Record a new note. It fills only what is still empty." onClick={startRec} style={{ marginLeft: "auto" }}>
                     <Mic />
                     Re-record
                   </button>
                 </div>
                 {said ? (
-                  <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-2)", padding: "12px 12px", borderRadius: "10px", background: "var(--surface-inset)" }}>
+                  <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-2)", padding: "12px", borderRadius: "8px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)" }}>
                     {transcriptRuns(s.transcript).map((r, i) =>
                       r.mark ? (
                         <mark key={i} style={{ background: "color-mix(in srgb, var(--voice) 16%, transparent)", color: "var(--text-1)", borderRadius: "4px", padding: "0 2px" }}>
@@ -851,7 +869,7 @@ function StoryScreen({ id }: { id: string | null }) {
                             e.stopPropagation();
                             const prev = s.tags;
                             update({ tags: s.tags.filter((_, k) => k !== i) });
-                            toastA(`Removed ${t}`, () => update({ tags: prev }));
+                            toastA(`“${t}” removed`, () => update({ tags: prev }), "deleted");
                           }}
                           style={{ width: "24px", height: "24px", margin: "-2px -4px -2px -2px", border: 0, borderRadius: "6px", background: "transparent", color: "var(--text-3)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
                         >
@@ -919,7 +937,7 @@ function StoryScreen({ id }: { id: string | null }) {
                                 const t = kindFor;
                                 registerKinds({ [t]: k });
                                 addTag(t);
-                                toastA(`New tag “${t}” (${k.toLowerCase()})`);
+                                toastA(`“${t}” added as a new ${k.toLowerCase()} tag`, undefined, "added");
                               }}
                               style={{ minHeight: "32px", flex: 1, flexDirection: "column", gap: 0, padding: "4px 12px" }}
                             >

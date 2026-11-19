@@ -77,7 +77,7 @@ test("state 17: Stop fills the notes and empty Details, toast lists them with Un
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();
   await page.getByRole("button", { name: "Stop" }).click();
-  await expect(toast(page)).toContainText("From your note: notes, setup, 3 tags, plan, headspace");
+  await expect(toast(page)).toContainText("Filled from your note: setup, 3 tags, plan and headspace");
   await page.mouse.move(5, 990);
   await diffViewport(page, "states/17-newstory-after-voice-note-filled.png", info);
 });
@@ -113,7 +113,7 @@ test("state 21: Pin as textbook adds the label and a toast with Undo", async ({ 
   await page.getByRole("button", { name: "More actions" }).click();
   await page.getByRole("menuitem", { name: "Pin as textbook" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Textbook example");
-  await expect(toast(page)).toContainText("Pinned as a textbook example in 4H supply pullback");
+  await expect(toast(page)).toContainText("Pinned as a textbook example");
   await page.mouse.move(5, 990);
   await diffViewport(page, "states/21-story-pinned-textbook.png", info);
   await toast(page).getByRole("button", { name: "Undo" }).click();
@@ -224,7 +224,7 @@ test("the facts line: each part is a menu; Status explains its options; the date
   await page.getByRole("dialog", { name: "Date and time" }).locator("input").fill("2026-11-13T15:10");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator("header .meta")).toContainText("Fri 13 Nov, 15:10 to 13:20 · New York");
-  await expect(toast(page)).toContainText("Date changed");
+  await expect(toast(page)).toContainText("Moved to ");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("header .meta")).toContainText("Mon 16 Nov, 09:45 to 13:20 · London");
 });
@@ -270,7 +270,7 @@ test("voice note: Undo restores exactly; it never overwrites what was set by han
   await page.getByRole("option", { name: "Tired" }).click();
   await page.getByRole("button", { name: "Talk it through" }).click();
   await page.getByRole("button", { name: "Stop" }).click();
-  await expect(toast(page)).toContainText("From your note: notes, 3 tags");
+  await expect(toast(page)).toContainText("Filled from your note: 3 tags");
   await expect(page.locator("#nB")).toHaveValue("My own words.");
   await expect(page.getByRole("button", { name: "Setup" })).toContainText("London breakout");
   await expect(page.getByRole("button", { name: "Not followed" })).toHaveAttribute("aria-pressed", "true");
@@ -285,7 +285,7 @@ test("Suggested reflection: Keep makes it yours, Delete has Undo, editing makes 
   await expect(page.getByText("Inferred from your note")).toBeVisible();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(page.locator("#nR")).toHaveValue("");
-  await expect(toast(page)).toContainText("Reflection deleted");
+  await expect(toast(page)).toContainText("Suggested reflection deleted");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("#nR")).toHaveValue(/Waiting for the candle/);
   await expect(page.getByText("Inferred from your note")).toBeVisible();
@@ -301,7 +301,7 @@ test("re-record fills only what is still empty", async ({ page }) => {
   await page.getByRole("button", { name: "Re-record" }).click();
   await expect(page.getByText(/Listening/)).toBeVisible();
   await page.getByRole("button", { name: "Stop" }).click();
-  await expect(toast(page)).toContainText("Notes filled from your note");
+  await expect(toast(page)).toContainText("Both notes filled from your voice note");
   await expect(page.locator("#nB")).toHaveValue("Kept as typed.");
   await expect(page.locator("#nR")).toHaveValue(/Waiting for the candle/);
   await expect(page.getByRole("button", { name: "Setup" })).toContainText("4H supply pullback");
@@ -389,7 +389,7 @@ test("tags: autocomplete with counts, Enter, Backspace, × with Undo, a new tag 
   await expect(pills).toHaveText(["Supply zone"]);
   await page.getByRole("button", { name: "Remove Supply zone" }).click();
   await expect(pills).toHaveCount(0);
-  await expect(toast(page)).toContainText("Removed Supply zone");
+  await expect(toast(page)).toContainText("“Supply zone” removed");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(pills).toHaveText(["Supply zone"]);
 
@@ -400,7 +400,7 @@ test("tags: autocomplete with counts, Enter, Backspace, × with Undo, a new tag 
   await expect(ask).toContainText("What kind of tag is Revenge entry? You only set this once.");
   await ask.getByRole("button", { name: /Mistake/ }).click();
   await expect(pills).toHaveText(["Supply zone", "Revenge entry"]);
-  await expect(toast(page)).toContainText("New tag “Revenge entry” (mistake)");
+  await expect(toast(page)).toContainText("“Revenge entry” added as a new mistake tag");
 
   // the kind is stored once the story is saved, and the tag counts as a mistake
   await page.getByRole("button", { name: "Save story" }).click();

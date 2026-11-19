@@ -69,7 +69,7 @@ describe("story rules", () => {
     const { patch, filled, newKinds } = applyVoiceNote(empty(), fill);
     expect(patch).toMatchObject({ before: "B", refl: "R", suggested: true, setup: "4H supply pullback", tags: ["Supply zone", "Retest"], followed: true, headspace: "Calm", voice: true });
     expect(filled).toEqual(["setup", "2 tags", "plan", "headspace"]);
-    expect(voiceToast(filled)).toBe("From your note: notes, setup, 2 tags, plan, headspace");
+    expect(voiceToast(filled)).toBe("Filled from your note: setup, 2 tags, plan and headspace");
     expect(newKinds).toEqual({ "Supply zone": "Good", Retest: "Good" });
   });
 
@@ -83,7 +83,7 @@ describe("story rules", () => {
     expect(patch.tags).toEqual(["retest", "Supply zone"]);
     expect(filled).toEqual(["1 tag"]);
     const all = applyVoiceNote({ ...s, refl: "x", tags: ["Supply zone", "Retest"] }, fill);
-    expect(voiceToast(all.filled)).toBe("Notes filled from your note");
+    expect(voiceToast(all.filled)).toBe("Both notes filled from your voice note");
   });
 
   it("tag autocomplete: most used first, excludes tags already on the story, offers a new tag", () => {

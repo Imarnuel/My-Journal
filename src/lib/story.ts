@@ -264,9 +264,12 @@ export function applyVoiceNote(s: Story, fill: VoiceNoteFill): { patch: Partial<
   return { patch, filled, newKinds };
 }
 
-/** The toast after a voice note (prototype copy). */
+/** The toast after a voice note: what it filled besides the notes (DESIGN.md, Toasts). */
 export function voiceToast(filled: string[]): string {
-  return filled.length ? `From your note: notes, ${filled.join(", ")}` : "Notes filled from your note";
+  if (!filled.length) return "Both notes filled from your voice note";
+  const parts = filled.map((x) => x.toLowerCase());
+  const list = parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+  return `Filled from your note: ${list}`;
 }
 
 /** The values a patch replaces, for Undo. */

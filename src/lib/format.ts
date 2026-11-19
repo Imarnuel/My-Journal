@@ -75,3 +75,9 @@ export function weekRange(monday: string, days = 4): string {
   if (a.getUTCMonth() === b.getUTCMonth()) return `${a.getUTCDate()} to ${b.getUTCDate()} ${MON[b.getUTCMonth()]}`;
   return `${a.getUTCDate()} ${MON[a.getUTCMonth()]} to ${b.getUTCDate()} ${MON[b.getUTCMonth()]}`;
 }
+
+/** What an entry is called in a message: "GBPUSD trade", "EURJPY watched setup", "GBPUSD, XAUUSD analysis". */
+export function entryName(e: { pair: string; status: string }): string {
+  const noun = e.status === "Watched" ? "watched setup" : e.status === "Not filled" ? "order" : e.status === "Analysis" ? "analysis" : "trade";
+  return `${e.pair} ${noun}`;
+}

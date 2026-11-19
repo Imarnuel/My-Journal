@@ -89,11 +89,11 @@ export function WeeklyReview() {
   const isLatest = sel === list[0];
   const takeNote = isLatest
     ? tk
-      ? "Saved. It shows on your dashboard all next week."
-      : "Write one thing. It saves as you type and shows on your dashboard all next week."
+      ? "Saved. It comes back in next week's review."
+      : "Write one thing. It saves as you type and comes back in next week's review."
     : tk
       ? "Saved."
-      : "You can still write one. Only your latest week shows on the dashboard.";
+      : "You can still write one for the record.";
 
   return (
     <Shell active="review">

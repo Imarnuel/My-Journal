@@ -20,7 +20,7 @@ function useAddCharts(e: Entry | undefined) {
     const before = { charts: e.charts, chartList: e.chartList };
     const urls = files.map((f) => URL.createObjectURL(f));
     updateEntry(e.id, { charts: e.charts + urls.length, chartList: [...(e.chartList ?? []), ...urls] });
-    toast(`Chart added to ${e.pair}`, () => updateEntry(e.id, before));
+    toast(files.length === 1 ? `Chart added to ${e.pair}` : `${files.length} charts added to ${e.pair}`, () => updateEntry(e.id, before), "added");
   };
 }
 

@@ -166,3 +166,52 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 /* Phone: chart card grids (Recent chart stories, a week's trades) go to two columns. */
 @media (max-width: 640px) { .kcards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 16px !important; } }
 
+
+/* Notes on the chart story (DESIGN.md, Notes). */
+.ksugg { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: var(--r-xs); font-size: 12px; line-height: 16px;
+  font-weight: 500; color: var(--voice); background: color-mix(in srgb, var(--voice) 10%, transparent); cursor: default; }
+.ksugg-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ksugg-row > span { font-size: 12px; line-height: 16px; color: var(--text-3); margin-right: auto; }
+.app .kbtn-sm { min-height: var(--h-sm) !important; padding: 0 8px !important; gap: 6px !important; }
+.app .kbtn-loss, .app .kbtn-loss svg { color: var(--loss) !important; }
+.app .kbtn-voice, .app .kbtn-voice svg { color: var(--voice) !important; }
+@media (hover: hover) and (pointer: fine) {
+  .app .kbtn-loss:hover { background: color-mix(in srgb, var(--loss) 8%, transparent) !important; }
+  .app .kbtn-voice:hover { background: color-mix(in srgb, var(--voice) 10%, transparent) !important; }
+}
+.kvoice-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kplay { flex: none; width: 28px; height: 28px; border-radius: 999px; border: 0; padding: 0; cursor: pointer;
+  background: var(--inverse-bg); color: var(--inverse-fg); display: flex; align-items: center; justify-content: center; }
+.kvoice-len { font-size: 12px; line-height: 16px; color: var(--text-3); margin-right: 8px; }
+.kchev { transition: transform var(--d-fast) var(--ease-standard); }
+[aria-expanded="true"] > .kchev { transform: rotate(180deg); }
+
+/* Trade log rows (DESIGN.md): the pair and its result lead at 14px; every other line is 12px. */
+.trow .kfacts { font-size: 12px; line-height: 16px; gap: 4px 12px; }
+.trow .kfact { gap: 6px; }
+.trow .kfact-ic svg { width: 14px; height: 14px; }
+.trow .meta { font-size: 12px !important; line-height: 16px !important; }
+
+/* Toasts (DESIGN.md, Toasts): bottom right, an icon for the kind of outcome, the message, Undo. Inverse
+   colours as in the handoff; they rise in from 12px below and leave faster, dropping 8px. */
+.ktoast { position: fixed; z-index: 20; right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; max-width: min(560px, calc(100vw - 48px)); box-sizing: border-box;
+  padding: 10px 10px 10px 14px; border-radius: 12px; background: var(--inverse-bg); color: var(--inverse-fg);
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.12); font-size: 14px; line-height: 20px; }
+.ktoast-ic { flex: none; display: flex; opacity: 0.72; }
+.ktoast-ic[data-kind="voice"] { opacity: 1; color: color-mix(in srgb, var(--voice) 55%, var(--inverse-fg)); }
+.ktoast-msg { flex: 1; min-width: 0; text-wrap: pretty; }
+.ktoast-undo { flex: none; font: inherit; font-size: 14px; font-weight: 500; color: var(--inverse-fg); background: transparent;
+  border: 1px solid var(--inverse-border); border-radius: 8px; padding: 0 12px; min-height: 32px; cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .ktoast-undo:hover { background: color-mix(in srgb, var(--inverse-fg) 10%, transparent); } }
+@keyframes ktoast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes ktoast-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px); } }
+.kstatus.ktoast { animation: ktoast-in var(--d-base) var(--ease-out); }
+.kstatus.ktoast.leaving { animation: ktoast-out calc(var(--d-base) * 0.7) var(--ease-in) forwards; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .kstatus.ktoast { animation: kfade 120ms linear; }
+  .kstatus.ktoast.leaving { animation: kfade 120ms linear reverse forwards; }
+}
+@media (max-width: 640px) {
+  .ktoast { left: calc(16px + env(safe-area-inset-left, 0px)); right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: none; }
+}

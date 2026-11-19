@@ -323,7 +323,7 @@ export function SetupPage() {
               className="btn btn-q"
               onClick={() => {
                 hideSuggestion(true);
-                toast("Hidden. It comes back if more stories look alike.", () => hideSuggestion(false));
+                toast("Suggestion hidden until more stories look alike", () => hideSuggestion(false), "hidden");
               }}
             >
               Not now

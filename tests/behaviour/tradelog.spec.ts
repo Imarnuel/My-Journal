@@ -111,7 +111,7 @@ test("state 12: Exclude from stats, the row says so, Undo toast", async ({ page 
   await more(page, 3).click();
   await page.getByRole("menuitem", { name: "Exclude from stats" }).click();
   await expect(rows(page).nth(3)).toContainText("Excluded from stats");
-  await expect(toast(page)).toContainText("Excluded from stats");
+  await expect(toast(page)).toContainText("left out of your stats");
   await page.mouse.move(0, 999);
   await diffViewport(page, "states/12-tradelog-excluded-with-undo-toast.png", info);
 });
@@ -286,7 +286,7 @@ test("Exclude from stats becomes Include in stats; Undo restores exactly", async
   await more(page, 3).click();
   await expect(page.getByRole("menuitem", { name: "Include in stats" })).toBeVisible();
   await page.getByRole("menuitem", { name: "Include in stats" }).click();
-  await expect(toast(page)).toContainText("Back in your stats");
+  await expect(toast(page)).toContainText("is back in your stats");
   await expect(rows(page).nth(3)).not.toContainText("Excluded from stats");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(rows(page).nth(3)).toContainText("Excluded from stats");
@@ -299,7 +299,7 @@ test("Delete happens at once; Undo puts the entry back in its place", async ({ p
   await page.getByRole("menuitem", { name: "Delete" }).click();
   await expect(count(page)).toHaveText("133 entries");
   await expect(rows(page).nth(2)).toContainText("GBPUSD");
-  await expect(toast(page)).toContainText("Entry deleted");
+  await expect(toast(page)).toContainText("trade deleted");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(count(page)).toHaveText("134 entries");
   await expect(rows(page).nth(2)).toContainText("EURUSD");
@@ -316,7 +316,7 @@ test("Change date moves the entry to its new place; Cancel changes nothing; Undo
   await page.getByRole("menuitem", { name: "Change date" }).click();
   await page.getByLabel("Date and time").fill("2026-11-12T12:00");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(toast(page)).toContainText("Date changed");
+  await expect(toast(page)).toContainText(" moved to ");
   await expect(rows(page).first()).toContainText("EURJPY");
   const moved = rows(page).filter({ hasText: "AUDUSD" }).filter({ hasText: "Thu 12 Nov, 12:00" });
   await expect(moved).toHaveCount(1);
@@ -426,7 +426,7 @@ test("reduced motion: menus, dialogs and toasts still work", async ({ page }) =>
   await expect(count(page)).toHaveText("15 entries");
   await more(page, 0).click();
   await page.getByRole("menuitem", { name: "Exclude from stats" }).click();
-  await expect(toast(page)).toContainText("Excluded from stats");
+  await expect(toast(page)).toContainText("left out of your stats");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(toast(page)).toHaveCount(0);
 });

@@ -82,7 +82,7 @@ export function Playbook() {
     setRenaming(null);
     if (v === from) return;
     renameSetup(from, v);
-    toast(`Renamed to ${v}`, () => renameSetup(v, from));
+    toast(`Renamed to ${v}`, () => renameSetup(v, from), "edited");
   };
 
   return (
@@ -222,7 +222,7 @@ export function Playbook() {
                             onClick={() => {
                               menu.close();
                               setArchived(s.name, true);
-                              toast(`${s.name} archived`, () => setArchived(s.name, false));
+                              toast(`${s.name} archived`, () => setArchived(s.name, false), "archived");
                             }}
                             style={optStyle}
                           >
@@ -238,7 +238,7 @@ export function Playbook() {
                             onClick={() => {
                               menu.close();
                               const { moved, undo } = deleteSetup(s.name);
-                              toast(`${s.name} deleted. Its ${moved} stories moved to Unsorted`, undo);
+                              toast(`${s.name} deleted. ${moved} ${moved === 1 ? "story" : "stories"} moved to Unsorted`, undo, "deleted");
                             }}
                             style={{ ...optStyle, color: "var(--loss)" }}
                           >

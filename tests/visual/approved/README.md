@@ -30,3 +30,5 @@ and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 
 To regenerate after another approved change: `APPROVE='<regex of refs>' npx playwright test <specs>`,
 then look at every regenerated image against the handoff screenshot before committing.
+
+| `states/` 12, 14, 17, 21, 22, 27, 31, 40 and the Story, NewStoryTyped, Main and story-top images | Toasts bottom right with icons; Notes tidied; Trade log rows at 12px (DESIGN.md). Only the toast, Notes card and row text changed (checked) | 2026-11-19 |

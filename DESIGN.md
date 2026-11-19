@@ -130,3 +130,32 @@ soft wash), Stripe, Whop and Revolut (labels on the right, recessive guides), Ge
 - **Each stat label leads with a filled grey 14px icon** in the Details style: Net R (rising bars),
   Expectancy (a balance), Win rate (a trophy), Plan followed (clipboard with a check), Trades taken (a stack).
   Overrides section 10's "never on stat labels". Source: `src/screens/story/detailIcons.tsx`.
+
+## Toasts
+Overrides the bottom-centre toast in `02-look-and-feel.md`. Why: the owner wanted it out of the way of the
+content, and quicker to read. Source: `Toasts` in `src/app/Shell.tsx`, `src/components/primitives/toast.ts`.
+- **Bottom right**, up to 560px wide so messages fit on one line, 24px from the edges (safe areas included). On phones it spans the width, 16px gutters.
+  Still one at a time, 6 seconds, Undo on anything destructive or hiding.
+- **A 16px icon says what happened** (the action's kind): check (done), trash (deleted), ban (left out),
+  rotate (restored), image (charts added), calendar (moved), mic (voice note, in the voice colour),
+  archive (archived), pen (renamed or merged).
+- **Message rules**: the outcome first, naming the thing it happened to, in past tense, short enough for one
+  line. "GBPUSD left out of your stats", "EURUSD trade deleted", "“Supply zone” removed",
+  "Moved to Mon 16 Nov, 09:45", "Filled from your note: setup and 3 tags". No "Done", no
+  instructions, no em dashes.
+
+## Notes reflection, tidied
+Why: the owner found the Suggested pill too big, Keep and Delete nudging, and "What you said" not reading as
+a control. Source: the Notes card in `src/screens/ChartStory.tsx`.
+- **Suggested** is a small 18px badge (12px text, voice colour on a 10% voice tint) beside the label.
+- **Under the field**: "Inferred from your note", then Keep (neutral 28px button with a check) and Delete
+  (quiet 28px button in `--loss` with a ×). Green isn't in the palette and blue means profit, so Keep stays
+  neutral rather than green.
+- **Voice row**: a 28px play circle, the length, "What you said" as a ghost button with a speech icon and a
+  chevron that turns when open, and Re-record in the voice colour with a mic, at the far right.
+- Labels sit 8px above their fields.
+
+## Trade log rows at 12px
+Why: the owner wanted the pair to lead. Every line under the pair (date, status, account, ticket, setup,
+plan, tags, plan notes) is 12/16 with 14px icons. The pair, direction chip and result stay at 14px as the
+headline line.

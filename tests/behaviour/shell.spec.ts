@@ -57,7 +57,7 @@ test("archived accounts: Restore happens at once with an Undo toast that restore
   await page.goto("/accounts");
   await page.getByRole("button", { name: /Archived \(2\)/ }).click();
   await page.getByRole("button", { name: "Restore" }).first().click();
-  await expect(page.getByRole("status")).toContainText("Challenge 25K is back in your lists");
+  await expect(page.getByRole("status")).toContainText("Challenge 25K restored");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("(6)");
   await page.getByRole("status").getByRole("button", { name: "Undo" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("(5)");
