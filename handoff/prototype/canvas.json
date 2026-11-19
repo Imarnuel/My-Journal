@@ -1,0 +1,201 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T00:05:06Z"
+ },
+ "title": "Trading Journal Concept",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Start.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 740,
+   "title": "0 \u00b7 First run",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Dashboard.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 2090,
+   "title": "1 \u00b7 Dashboard (home)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Main.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 2070,
+   "title": "2 \u00b7 Trade log, list view",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MainCal.dc.html": {
+   "x": 4560,
+   "y": 0,
+   "w": 1440,
+   "h": 1220,
+   "title": "2b \u00b7 Trade log, grid view, date menu open",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "NewStory.dc.html": {
+   "x": 6080,
+   "y": 0,
+   "w": 1440,
+   "h": 1160,
+   "title": "3 \u00b7 New chart story, before your note",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "NewStoryTyped.dc.html": {
+   "x": 7600,
+   "y": 0,
+   "w": 1440,
+   "h": 1100,
+   "title": "3b \u00b7 New chart story, after your note",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Story.dc.html": {
+   "x": 9120,
+   "y": 0,
+   "w": 1440,
+   "h": 1210,
+   "title": "4 \u00b7 Chart story",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "PlaybookHome.dc.html": {
+   "x": 10640,
+   "y": 0,
+   "w": 1440,
+   "h": 890,
+   "title": "5 \u00b7 Playbook",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Playbook.dc.html": {
+   "x": 12160,
+   "y": 0,
+   "w": 1440,
+   "h": 1720,
+   "title": "6 \u00b7 Setup page",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "SetupEdit.dc.html": {
+   "x": 13680,
+   "y": 0,
+   "w": 1440,
+   "h": 1280,
+   "title": "7 \u00b7 New setup (from unsorted stories)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Review.dc.html": {
+   "x": 15200,
+   "y": 0,
+   "w": 1440,
+   "h": 1670,
+   "title": "8 \u00b7 Weekly review",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Accounts.dc.html": {
+   "x": 0,
+   "y": 2510,
+   "w": 1440,
+   "h": 820,
+   "title": "9 \u00b7 Accounts",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AddAccount.dc.html": {
+   "x": 1520,
+   "y": 2510,
+   "w": 1440,
+   "h": 940,
+   "title": "10 \u00b7 Add an account",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "EditAccount.dc.html": {
+   "x": 3040,
+   "y": 2510,
+   "w": 1440,
+   "h": 980,
+   "title": "11 \u00b7 Edit account",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Settings.dc.html": {
+   "x": 4560,
+   "y": 2510,
+   "w": 1440,
+   "h": 1630,
+   "title": "12 \u00b7 Settings",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "States.dc.html": {
+   "x": 6640,
+   "y": 2510,
+   "w": 1440,
+   "h": 920,
+   "title": "Reference \u00b7 empty and problem states",
+   "expand": "fill",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Start.dc.html",
+  "Dashboard.dc.html",
+  "Main.dc.html",
+  "MainCal.dc.html",
+  "NewStory.dc.html",
+  "NewStoryTyped.dc.html",
+  "Story.dc.html",
+  "PlaybookHome.dc.html",
+  "Playbook.dc.html",
+  "SetupEdit.dc.html",
+  "Review.dc.html",
+  "Accounts.dc.html",
+  "AddAccount.dc.html",
+  "EditAccount.dc.html",
+  "Settings.dc.html",
+  "States.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -320,
+   "text": "Trading journal concept: drop the charts, talk it through, learn weekly",
+   "kind": "title1",
+   "maxW": 16640
+  },
+  "s1": {
+   "x": -480,
+   "y": 0,
+   "w": 380,
+   "text": "Sample data throughout: one set of 134 entries going back a year, so every screen's numbers agree. Swap in yours.\n\nEvery frame works. Press Play and click anything: filters, menus, the voice note, tags, charts, the account picker.\n\nCharts are the record. Everything else (tags, numbers, patterns) exists to help you read them.\n\nDashboard (home): what happened, in R and %, never money.\n\nTrade log: everything you record, any time, newest first, as a list or a grid. One chart story at a time: drop its charts, talk it through, and your note fills what you haven't set.\n\nWeekly review: one page per week, built from what you recorded, and one thing to do differently.",
+   "fill": "gray",
+   "size": "m"
+  },
+  "t2": {
+   "x": 0,
+   "y": 2190,
+   "text": "Accounts and settings",
+   "kind": "title1",
+   "maxW": 6000
+  }
+ },
+ "designSystems": []
+}

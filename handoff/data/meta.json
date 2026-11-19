@@ -1,0 +1,34 @@
+{
+ "canvas_today": "2026-11-16",
+ "this_week_monday": "2026-11-16",
+ "pairs": [
+  "GBPUSD",
+  "EURUSD",
+  "XAUUSD",
+  "GBPJPY",
+  "USDJPY",
+  "AUDUSD",
+  "EURJPY",
+  "USDCAD",
+  "NZDUSD"
+ ],
+ "frame_heights": {
+  "Start": 740,
+  "Dashboard": 2090,
+  "Main": 2070,
+  "MainCal": 1220,
+  "NewStory": 1160,
+  "NewStoryTyped": 1100,
+  "Story": 1210,
+  "PlaybookHome": 890,
+  "Playbook": 1720,
+  "SetupEdit": 1280,
+  "Review": 1670,
+  "ReviewEarly": 1180,
+  "Accounts": 820,
+  "AddAccount": 940,
+  "EditAccount": 980,
+  "Settings": 1630,
+  "States": 920
+ }
+}

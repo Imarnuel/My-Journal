@@ -1,0 +1,87 @@
+{
+ "good": [
+  "Supply zone",
+  "Break of structure",
+  "Retest",
+  "Liquidity sweep",
+  "Demand zone",
+  "Trend continuation"
+ ],
+ "mistake": [
+  "Moved stop",
+  "Entered before close",
+  "Chased entry"
+ ],
+ "neutral": [
+  "News day",
+  "Asia range",
+  "Low volume"
+ ],
+ "vocab_with_counts": [
+  {
+   "t": "Break of structure",
+   "n": 18,
+   "k": "Good"
+  },
+  {
+   "t": "Trend continuation",
+   "n": 16,
+   "k": "Good"
+  },
+  {
+   "t": "Liquidity sweep",
+   "n": 12,
+   "k": "Good"
+  },
+  {
+   "t": "Entered before close",
+   "n": 10,
+   "k": "Mistake"
+  },
+  {
+   "t": "Supply zone",
+   "n": 7,
+   "k": "Good"
+  },
+  {
+   "t": "Retest",
+   "n": 7,
+   "k": "Good"
+  },
+  {
+   "t": "Chased entry",
+   "n": 7,
+   "k": "Mistake"
+  },
+  {
+   "t": "Asia range",
+   "n": 7,
+   "k": "Neutral"
+  },
+  {
+   "t": "Moved stop",
+   "n": 6,
+   "k": "Mistake"
+  },
+  {
+   "t": "Demand zone",
+   "n": 6,
+   "k": "Good"
+  },
+  {
+   "t": "Low volume",
+   "n": 6,
+   "k": "Neutral"
+  },
+  {
+   "t": "News day",
+   "n": 6,
+   "k": "Neutral"
+  },
+  {
+   "t": "Liquidity grab",
+   "n": 3,
+   "k": "Good"
+  }
+ ]
+}

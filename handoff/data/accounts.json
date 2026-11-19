@@ -1,0 +1,12 @@
+{
+ "real": [
+  "Main account",
+  "Funded 100K",
+  "Challenge 50K"
+ ],
+ "practice": [
+  "Demo account",
+  "Backtesting"
+ ],
+ "default_for_screenshots": "Main account"
+}
