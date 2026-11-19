@@ -215,3 +215,33 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 @media (max-width: 640px) {
   .ktoast { left: calc(16px + env(safe-area-inset-left, 0px)); right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: none; }
 }
+
+/* Chart tiles, drag to reorder (DESIGN.md, Chart reordering; src/screens/story/useTileReorder.ts). The tile
+   lifts (scale 1.04 and a floating shadow that fades in), the others slide to make room, and the order is
+   saved once the lifted tile has settled. Only transform and opacity move. */
+.ktile { position: relative; touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; cursor: grab; }
+.ktile img { -webkit-user-drag: none; }
+.ktile::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-md);
+  box-shadow: var(--shadow-float); opacity: 0; pointer-events: none; z-index: -1;
+  transition: opacity var(--d-fast) var(--ease-out), transform var(--d-fast) var(--ease-out); }
+.ktile > .chart { transition: transform var(--d-fast) var(--ease-out); }
+.ktile[data-active] { z-index: 4; }
+.ktile[data-lifted] { cursor: grabbing; }
+.ktile[data-lifted]::before { opacity: 1; transform: scale(1.04); }
+.ktile[data-lifted] > .chart { transform: scale(1.04); }
+.ktile .kmore { transition: opacity var(--d-fast) var(--ease-out); }
+.ktile[data-lifted] .kmore { opacity: 0; }
+.ktiles[data-reordering] .ktile[data-shifting] { transition: transform var(--d-base) var(--ease-standard); }
+html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
+/* The grip (the same six dots as setup rules) says a tile can be dragged: it fades in on hover with a mouse,
+   stays on the tile being dragged, and hides on the others while one is moving. No hover on touch. */
+.kgrip { position: absolute; top: 4px; left: 4px; z-index: 1; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm); background: var(--surface-3); color: var(--text-2); box-shadow: var(--shadow-card);
+  opacity: 0; pointer-events: none; transition: opacity var(--d-fast) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .ktile:hover .kgrip { opacity: 1; } }
+.ktile[data-lifted] .kgrip { opacity: 1; }
+.ktiles[data-reordering] .ktile:not([data-lifted]) .kgrip { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .ktile[data-lifted]::before, .ktile[data-lifted] > .chart { transform: none; }
+  .ktiles[data-reordering] .ktile[data-shifting] { transition: none; }
+}

@@ -172,3 +172,22 @@ the main card). Why: the owner wanted the whole app a little softer. Every radiu
 - `--r-card` and `--r-menu` 16px: cards, notices, menus, toasts. `--r-panel` 18px: the main card.
   `--r-dialog` 20px.
 - Toggle tracks are full pills. Circles, dots, progress bars and the chart bars keep their own shapes.
+
+## Chart reordering
+Builds on `01-decisions.md` ("Reorder by dragging the whole tile, or each chart's menu") and the drag spring
+in `02-look-and-feel.md`. Why: the owner wanted dragging charts to feel better; the browser's own drag gave a
+ghost image, no sign of where the tile would land, and didn't work with a finger. Source:
+`src/screens/story/useTileReorder.ts`.
+- **Shows it can be dragged**: on hover (mouse), a grip chip (the same six dots as setup rules, 16px, on
+  `--surface-3`) fades into the thumbnail's top-left corner. The cursor is a grab hand.
+- **Lift**: with a mouse after 6px of movement, with a finger after a 250ms press (so a swipe still
+  scrolls). The thumbnail scales to 1.04 with a floating shadow, its ··· fades out, and it follows the
+  pointer 1:1 from where it was grabbed. Past the edge of the grid it follows less and less.
+- **Make room**: the other tiles slide to where they'll be (`--d-base`, `--ease-standard`), so the gap shows
+  where it will land.
+- **Drop**: it settles into its slot with the drag spring (stiffness 420, damping 34, no overshoot), carrying
+  the release speed, then the order is saved and the moved chart shows large (as Move left/right do).
+- **Cancel**: Escape puts it back at once. A click that ends a drag doesn't select the chart; a plain click
+  still does. Grabbing a tile while another settles finishes that one first.
+- **Reduced motion**: no lift scale and no slide; the tile still follows the pointer and the order changes on
+  release. Keyboard users keep the ··· menu (Move left, Move right).

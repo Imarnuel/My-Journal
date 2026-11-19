@@ -5,6 +5,7 @@
 import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
+import { useTileReorder } from "./story/useTileReorder";
 import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -107,7 +108,7 @@ function StoryScreen({ id }: { id: string | null }) {
   const [unreadable, setUnreadable] = useState(() => query("charts") === "unreadable");
   const recT = useRef<ReturnType<typeof setInterval>>(undefined);
   const playT = useRef<ReturnType<typeof setInterval>>(undefined);
-  const dragFrom = useRef<number | null>(null);
+  const tileGrid = useRef<HTMLDivElement>(null);
   const replaceInput = useRef<HTMLInputElement>(null);
   const firstNum = useRef<HTMLInputElement>(null);
 
@@ -206,6 +207,9 @@ function StoryScreen({ id }: { id: string | null }) {
     setSel(j);
     menu.close();
   };
+  const tiles = useTileReorder(tileGrid, move, menu.close);
+  // Keys follow the chart, not its place, so a tile keeps its element when the order changes.
+  const tileKeys = charts.map((c, i) => `${c}#${charts.slice(0, i).filter((x) => x === c).length}`);
   const removeChart = (i: number) => {
     const before = charts;
     const prevSel = selI;
@@ -235,10 +239,9 @@ function StoryScreen({ id }: { id: string | null }) {
     ev.target.value = "";
   };
   const onSectionDragOver = (e: DragEvent) => {
-    if (dragFrom.current != null || e.dataTransfer.types.includes("Files")) e.preventDefault();
+    if (e.dataTransfer.types.includes("Files")) e.preventDefault();
   };
   const onSectionDrop = (e: DragEvent) => {
-    if (dragFrom.current != null) return;
     const files = [...e.dataTransfer.files];
     if (!files.length) return;
     e.preventDefault();
@@ -522,36 +525,31 @@ function StoryScreen({ id }: { id: string | null }) {
                 title="" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
               </label>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "8px", alignItems: "start" }}>
+            <div ref={tileGrid} className="ktiles" onClickCapture={tiles.onClickCapture} style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "8px", alignItems: "start" }}>
               {charts.map((c, i) => {
                 const key = `c${i}`;
                 const open = menu.isOpen(key);
                 return (
                   <figure
-                    key={`${c}-${i}`}
-                    draggable
-                    onDragStart={(e) => {
-                      dragFrom.current = i;
-                      try {
-                        e.dataTransfer.effectAllowed = "move";
-                        e.dataTransfer.setData("text/plain", String(i));
-                      } catch {
-                        /* some browsers refuse data on drag start; the index is kept in a ref */
-                      }
-                    }}
-                    onDragEnd={() => (dragFrom.current = null)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      if (dragFrom.current == null) return;
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (dragFrom.current !== i) move(dragFrom.current, i);
-                      dragFrom.current = null;
-                    }}
+                    key={tileKeys[i]}
+                    data-tile
+                    className="ktile"
+                    onPointerDown={tiles.onPointerDown(i)}
+                    onDragStart={(e) => e.preventDefault()}
                     aria-roledescription="Draggable chart"
-                    style={{ margin: 0, display: "flex", flexDirection: "column", gap: "4px", minWidth: 0, cursor: "grab" }}
+                    style={{ margin: 0, display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}
                   >
-                    <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ display: "block", padding: 0, border: 0, cursor: "pointer", boxShadow: i === selI ? "0 0 0 2px var(--text-1)" : "none" }}>
+                    <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 2px var(--text-1)" : "none" }}>
+                      <span className="kgrip" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="9" cy="6" r="1.5" />
+                          <circle cx="15" cy="6" r="1.5" />
+                          <circle cx="9" cy="12" r="1.5" />
+                          <circle cx="15" cy="12" r="1.5" />
+                          <circle cx="9" cy="18" r="1.5" />
+                          <circle cx="15" cy="18" r="1.5" />
+                        </svg>
+                      </span>
                       {isImage(c) ? (
                         <img src={c} alt="" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }} />
                       ) : (
