@@ -1,9 +1,9 @@
 // Dashboard formulas (handoff/docs/05-data-and-calculations.md) on top of calc.ts: the period line,
-// R over time geometry, R by day / week, breakdown rows, recent stories, the no-charts notice and the focus line.
+// R over time geometry, R by day / week, breakdown rows, recent stories, and the no-charts notice.
 // Pure functions over one set of entries, so every number follows the period and the account picker.
-import type { Entry, Period, TagKind, Week } from "./types";
+import type { Entry, Period, TagKind } from "./types";
 import { MIN_RATE, byTime, countStatus, counted, periodStart, stats, type Stats } from "./calc";
-import { addDays, monShort, monthName, mondayOf, parseDate, shortDate, weekRange } from "./format";
+import { addDays, monShort, monthName, mondayOf, parseDate, shortDate } from "./format";
 
 const round2 = (x: number) => Math.round(x * 100) / 100;
 
@@ -217,7 +217,7 @@ export function mistakeRows(T: Entry[], kindOf: (t: string) => TagKind | undefin
   return { rows: rows.map((x) => ({ ...x, pct: Math.round((Math.abs(x.r) / mm) * 100) })), untagged };
 }
 
-// ---------- Recent chart stories, no-charts notice, focus ----------
+// ---------- Recent chart stories, no-charts notice ----------
 
 /** The last `k` stories with charts, newest first, whatever the period or accounts. */
 export function recentStories(entries: Entry[], k = 6): Entry[] {
@@ -232,10 +232,5 @@ export function noChartTrades(entries: Entry[]): Entry[] {
   return entries.filter((e) => e.status === "Taken" && e.charts === 0 && !!e.mt5).sort((a, b) => byTime(b, a));
 }
 
-/** "This week's focus": the takeaway of the latest reviewed week up to today. */
-export function latestFocus(weeks: Week[], today: string): { monday: string; takeaway: string; from: string } | null {
-  const w = [...weeks].filter((x) => x.monday <= today && x.takeaway && x.takeaway.trim()).sort((a, b) => b.monday.localeCompare(a.monday))[0];
-  return w ? { monday: w.monday, takeaway: w.takeaway!.trim(), from: `From your review of ${weekRange(w.monday)}` } : null;
-}
 
 export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;

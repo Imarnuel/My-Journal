@@ -228,10 +228,9 @@ test("no-charts notice: dropping an image works too", async ({ page }) => {
   await expect(page.getByRole("region", { name: "1 trade has no charts yet" })).toHaveCount(0);
 });
 
-test("links: focus to its review, setups to their pages, Unsorted to the playbook, stories, new story", async ({ page }) => {
+test("links: setups to their pages, Unsorted to the playbook, stories, new story; no weekly focus (DESIGN.md)", async ({ page }) => {
   await open(page);
-  await expect(page.getByRole("region", { name: "This week's focus" })).toContainText("“Leave the stop where I planned it. No moving it to breakeven before 1R.”");
-  await expect(page.getByRole("link", { name: "From your review of 9 to 13 Nov" })).toHaveAttribute("href", "/review/2026-11-09");
+  await expect(page.getByText("This week's focus")).toHaveCount(0);
   const setups = page.locator("section[aria-labelledby=bsh]");
   await expect(setups.getByRole("link", { name: /^4H supply pullback/ })).toHaveAttribute("href", "/playbook/4h-supply-pullback");
   await expect(setups.getByRole("link", { name: /^Unsorted/ })).toHaveAttribute("href", "/playbook");

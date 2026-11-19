@@ -19,6 +19,8 @@ handoff (see `DESIGN.md`). Everything else is still compared with `handoff/scree
 
 | Dashboard images refreshed | Edit and clear buttons on this week's focus | 2026-11-19 |
 
+| Dashboard images refreshed | Weekly focus removed; below the notice everything matches the handoff screenshot moved up 80px (checked) | 2026-11-19 |
+
 The other screens still compare with the handoff screenshots: the sidebar change stays within their tolerance,
 and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 

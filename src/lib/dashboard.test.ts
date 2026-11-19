@@ -1,11 +1,11 @@
 // Dashboard numbers for every period, checked against the prototype (handoff/prototype/Dashboard.dc.html)
 // and the screenshots (light/02-Dashboard.png, states/02-dashboard-period-3-months.png).
 import { describe, expect, it } from "vitest";
-import { seedEntries, seedTags, seedWeeks, TODAY } from "../data/seed";
+import { seedEntries, seedTags, TODAY } from "../data/seed";
 import type { Entry, TagKind } from "./types";
 import { fr, pct } from "./format";
 import {
-  barGroups, barHeight, bestWorst, breakdown, dateSpan, eqGrid, eqPaths, eqScale, eqTicks, firstWeekday, latestFocus,
+  barGroups, barHeight, bestWorst, breakdown, dateSpan, eqGrid, eqPaths, eqScale, eqTicks, firstWeekday,
   mistakeRows, mistakesOf, noChartTrades, periodNumbers, recentStories, resample, setupOrder, subtitle, widerPeriod,
 } from "./dashboard";
 
@@ -152,7 +152,7 @@ describe("This week (fewer than 5 trades)", () => {
   });
 });
 
-describe("recency, notice, focus", () => {
+describe("recency and notice", () => {
   it("recent chart stories ignore period and accounts", () => {
     expect(recentStories(seedEntries).map((e) => `${e.pair} ${e.status}`)).toEqual([
       "AUDUSD Running", "EURJPY Watched", "GBPUSD Taken", "GBPUSD Taken", "EURJPY Taken", "NZDUSD Not filled",
@@ -164,14 +164,6 @@ describe("recency, notice, focus", () => {
     const after = seedEntries.map((e): Entry => (e.id === "e19" ? { ...e, charts: 1 } : e));
     expect(noChartTrades(after)).toEqual([]);
     expect(recentStories(after).map((e) => e.id).slice(0, 3)).toEqual(["e24", "e25", "e19"]);
-  });
-  it("this week's focus is the latest reviewed week", () => {
-    expect(latestFocus(seedWeeks, TODAY)).toEqual({
-      monday: "2026-11-09",
-      takeaway: "Leave the stop where I planned it. No moving it to breakeven before 1R.",
-      from: "From your review of 9 to 13 Nov",
-    });
-    expect(latestFocus([{ monday: "2026-11-09", takeaway: null, watched: 0, not_filled: 0 }], TODAY)).toBeNull();
   });
   it("mistakes come from tag kinds", () => {
     const e = seedEntries.find((x) => x.id === "e18")!;

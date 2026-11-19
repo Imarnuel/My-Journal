@@ -1,10 +1,9 @@
 // Weekly review numbers against the screenshots (light/11-Review.png, states/32 and 33), seeded with
 // data/entries.json and today = 16 November 2026, real accounts ticked.
 import { describe, expect, it } from "vitest";
-import { seedAccounts, seedEntries, seedWeeks, TODAY } from "../data/seed";
-import { realAccounts, useStore } from "../data/store";
+import { seedAccounts, seedEntries, TODAY } from "../data/seed";
+import { realAccounts } from "../data/store";
 import { fr } from "./format";
-import { weekFocus } from "./focus";
 import { mistakeWhere, monthKey, pastWeeks, tradedWeeks, watchedLine, weekParam, weekReview, weekTitle } from "./review";
 
 const real = realAccounts(seedAccounts);
@@ -113,18 +112,5 @@ describe("past weeks", () => {
     expect(rows("2026-10")).toEqual(["26 to 30 Oct 3 trades · −0.4R", "19 to 23 Oct 5 trades · +2.2R", "5 to 9 Oct 6 trades · −1.8R"]);
     expect(rows("2026-09").slice(0, 3)).toEqual(["21 to 25 Sep 4 trades · +1.9R", "14 to 18 Sep 2 trades · +0.6R", "7 to 11 Sep 5 trades · +1.2R"]);
     expect(rows("2026-09")[3]).toBe("31 Aug to 4 Sep 3 trades · −0.6R");
-  });
-});
-
-describe("this week's focus (dashboard)", () => {
-  // The review writes with setTakeaway; the dashboard reads last week's takeaway with weekFocus (src/lib/focus.ts)
-  // when the owner hasn't set their own focus. Older takeaways never come back (DESIGN.md).
-  it("is last week's takeaway, follows what the review saves, and doesn't fall back to older weeks", () => {
-    expect(weekFocus(seedWeeks, null, TODAY)?.text).toBe("Leave the stop where I planned it. No moving it to breakeven before 1R.");
-    const { setTakeaway } = useStore.getState();
-    setTakeaway("2026-11-09", "Wait for the close.");
-    expect(weekFocus(useStore.getState().weeks, null, TODAY)).toMatchObject({ text: "Wait for the close.", reviewMonday: "2026-11-09" });
-    setTakeaway("2026-11-09", "");
-    expect(weekFocus(useStore.getState().weeks, null, TODAY)).toBeNull();
   });
 });

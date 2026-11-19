@@ -93,3 +93,9 @@ Replaces "the latest review's takeaway". Source: `src/lib/focus.ts`, `Focus` in 
 - **It lasts for its week.** It never falls back to an older takeaway, so a stale rule is never shown as this
   week's. Why: the owner's focus isn't always a lesson from last week, and nothing should pile up.
 - **No focus means no card**, only one quiet "Set a focus for this week" line where the card would be.
+
+## No weekly focus on the Dashboard
+- **"This week's focus" is removed from the Dashboard** (owner's decision, after trying an owned, editable
+  version). The weekly takeaway lives in the Weekly review, where it's written and read back ("The week
+  before, you said"). The Dashboard shows what happened; the no-charts notice is the only card above the
+  numbers, because it asks for an action. This supersedes the two focus sections above.

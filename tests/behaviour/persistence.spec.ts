@@ -28,14 +28,15 @@ test("a deleted entry stays deleted after reload, and the dashboard agrees", asy
   await expect(page.locator(".kstat")).toContainText("+5.5R");
 });
 
-test("the weekly takeaway is saved and shows on the dashboard after reload", async ({ page }) => {
+test("the weekly takeaway is saved and shows in the next week's review after reload", async ({ page }) => {
   await page.goto("/review");
   const box = page.getByRole("textbox", { name: /What I.ll do differently next week/ });
   await box.fill("Only A+ setups on Fridays.");
   await reload(page);
   await expect(page.getByRole("textbox", { name: /What I.ll do differently next week/ })).toHaveValue("Only A+ setups on Fridays.");
+  // The Dashboard no longer shows it (DESIGN.md); the review is where it's written and read back.
   await page.goto("/");
-  await expect(page.getByText("Only A+ setups on Fridays.")).toBeVisible();
+  await expect(page.getByText("Only A+ setups on Fridays.")).toHaveCount(0);
 });
 
 test("account changes and set-once rules are saved", async ({ page }) => {

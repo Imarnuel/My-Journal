@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { persistOptions, toDataUrl } from "./persist";
 import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
-import type { OwnFocus } from "../lib/focus";
 import { seedAccounts, seedEntries, seedTags, seedWeeks, TODAY } from "./seed";
 import { fadeTheme } from "../components/primitives/motion";
 
@@ -30,9 +29,6 @@ type State = {
   picked: string[];
   appearance: Appearance;
   setups: Setup[];
-  /** This week's focus as the owner set it (DESIGN.md). Null: not set, so last week's takeaway fills in. */
-  focus: OwnFocus | null;
-  setFocus: (f: OwnFocus | null) => void;
   /** Set-once rules and preferences (Accounts rules, Settings). Keys are owned by the screen that sets them. */
   settings: Record<string, unknown>;
   setSetting: (key: string, value: unknown) => void;
@@ -87,8 +83,6 @@ export const useStore = create<State>()(
   picked: realAccounts(seedAccounts),
   appearance: typeof window === "undefined" ? "light" : initialAppearance(),
   setups: seedSetups,
-  focus: null,
-  setFocus: (focus) => set({ focus }),
   settings: {},
   setSetting: (key, value) => set((s) => ({ settings: { ...s.settings, [key]: value } })),
   setSetups: (fn) => set((s) => ({ setups: fn(s.setups) })),
@@ -141,7 +135,7 @@ export const useStore = create<State>()(
     name: "journal:data",
     ...persistOptions,
     // Only the data is saved; actions are recreated, and Appearance has its own key (read before first paint).
-    partialize: (s) => ({ entries: s.entries, accounts: s.accounts, tags: s.tags, weeks: s.weeks, picked: s.picked, setups: s.setups, settings: s.settings, focus: s.focus }),
+    partialize: (s) => ({ entries: s.entries, accounts: s.accounts, tags: s.tags, weeks: s.weeks, picked: s.picked, setups: s.setups, settings: s.settings }),
   },
   ),
 );

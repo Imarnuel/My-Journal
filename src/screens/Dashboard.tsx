@@ -1,6 +1,5 @@
 // Frame 02 · Dashboard (home). Markup from handoff/prototype/Dashboard.dc.html; every number is computed from the
 // shared store with src/lib/calc.ts and src/lib/dashboard.ts, so the period and the account picker change all of them.
-import { weekFocus } from "../lib/focus";
 import { useCallback, useMemo, useState } from "react";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
@@ -11,7 +10,7 @@ import {
 import { SESSIONS } from "../lib/calc";
 import { useKit, useMenu } from "./useKit";
 import { Header } from "./dashboard/Header";
-import { Focus, NoChartsNotice } from "./dashboard/Notices";
+import { NoChartsNotice } from "./dashboard/Notices";
 import { BySetup, Charts, SessionsAndMistakes, StatRow } from "./dashboard/Numbers";
 import { Footnote, Recent, TooFew } from "./dashboard/Stories";
 
@@ -21,7 +20,6 @@ export function Dashboard() {
   const entries = useStore((s) => s.entries);
   const picked = useStore((s) => s.picked);
   const today = useStore((s) => s.today);
-  const weeks = useStore((s) => s.weeks);
   const setups = useStore((s) => s.setups);
   const tags = useStore((s) => s.tags);
 
@@ -43,8 +41,6 @@ export function Dashboard() {
   const thumbs = useMemo(() => Object.fromEntries(setups.filter((s) => s.chart).map((s) => [s.name, s.chart])), [setups]);
   const recent = useMemo(() => recentStories(entries), [entries]);
   const noCharts = useMemo(() => noChartTrades(entries), [entries]);
-  const ownFocus = useStore((s) => s.focus);
-  const focus = useMemo(() => weekFocus(weeks, ownFocus, today), [weeks, ownFocus, today]);
   const wider = widerPeriod(period);
 
   const pick = (x: Period) => {
@@ -55,12 +51,7 @@ export function Dashboard() {
   return (
     <Shell active="dashboard">
       <Header sub={subtitle(period, today)} period={period} setPeriod={pick} kit={kit} />
-      {/* The two notices belong together: 16px apart, one zone before the numbers. With no focus set, the
-          zone holds only the quiet "Set a focus for this week". */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <NoChartsNotice trades={noCharts} />
-        <Focus focus={focus} />
-      </div>
+      <NoChartsNotice trades={noCharts} />
       {p.enough ? (
         <>
           <StatRow p={p} />
