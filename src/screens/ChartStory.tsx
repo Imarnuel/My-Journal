@@ -514,7 +514,8 @@ function StoryScreen({ id }: { id: string | null }) {
               <label style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "12px", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", aspectRatio: "16 / 9", textAlign: "center", padding: "24px" }}>
                 <Plus />
                 Scroll back on your chart and take one now. It still counts.
-                <input type="file" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
+                <input type="file"
+                title="" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
               </label>
             )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "8px", alignItems: "start" }}>
@@ -619,7 +620,8 @@ function StoryScreen({ id }: { id: string | null }) {
               <label aria-label="Add or paste another chart" style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "8px", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", fontSize: "12px", aspectRatio: "16 / 9", lineHeight: "16px" }}>
                 <Plus />
                 Add
-                <input type="file" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
+                <input type="file"
+                title="" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
               </label>
             </div>
             <p className="lbl" style={{ margin: 0, fontSize: "12px", lineHeight: "16px" }}>
@@ -641,7 +643,8 @@ function StoryScreen({ id }: { id: string | null }) {
                 >
                   Type the numbers
                 </button>
-                <input ref={replaceInput} type="file" accept="image/*" tabIndex={-1} aria-hidden="true" onChange={replaceLast} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0, pointerEvents: "none" }} />
+                <input ref={replaceInput} type="file"
+                title="" accept="image/*" tabIndex={-1} aria-hidden="true" onChange={replaceLast} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0, pointerEvents: "none" }} />
               </ProblemCard>
             ) : null}
           </section>

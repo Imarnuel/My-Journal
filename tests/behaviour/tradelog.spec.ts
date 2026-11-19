@@ -6,19 +6,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
-import { MAX_RATIO, settle } from "../visual/compare";
+import { MAX_RATIO, settle, refPath, maybeApprove } from "../visual/compare";
 
 /**
  * The state screenshots are 1440 × 1000 viewport captures (a fixed toast sits at the viewport's bottom),
  * so these compare the viewport, not the full page that `diffAgainst()` captures.
  */
 async function diffViewport(page: Page, ref: string, info: TestInfo, maxRatio = MAX_RATIO) {
-  const want = PNG.sync.read(fs.readFileSync(path.join("handoff/screenshots", ref)));
+  const want = PNG.sync.read(fs.readFileSync(refPath(ref)));
   // The states are drawn at the top of the page. Under load Playwright may scroll an element into view
   // before clicking it (layout still settling), so put the page back at the top before capturing.
   await page.evaluate(() => window.scrollTo(0, 0));
   await settle(page);
   const got = PNG.sync.read(await page.screenshot());
+  if (maybeApprove(ref, got)) return;
   const { width: W, height: H } = want;
   const d = new PNG({ width: W, height: H });
   const n = pixelmatch(got.data, want.data, d.data, W, H, { threshold: 0.2 });
@@ -327,7 +328,10 @@ test("Change date moves the entry to its new place; Cancel changes nothing; Undo
 test("MT5 trade without charts: the drop zone is a file picker; the chosen image shows in the row", async ({ page }) => {
   await page.goto("/log");
   const row = rows(page).nth(2);
-  await expect(row).toContainText("No screenshot?");
+  // Facts only (DESIGN.md): the ticket is a fact and the drop zone is the signal, no instruction sentence.
+  await expect(row).toContainText("MT5 #48231");
+  await expect(row).not.toContainText("No screenshot?");
+  await expect(row).toContainText("It still counts");
   await row.locator('input[type="file"]').setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: fs.readFileSync("handoff/screenshots/states/13-tradelog-grid-view.png") });
   await expect(toast(page)).toContainText("Chart added");
   // The upload shows at once (blob:) and is then saved as a data URL so it survives a reload.

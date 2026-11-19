@@ -99,3 +99,17 @@ Replaces "the latest review's takeaway". Source: `src/lib/focus.ts`, `Focus` in 
   version). The weekly takeaway lives in the Weekly review, where it's written and read back ("The week
   before, you said"). The Dashboard shows what happened; the no-charts notice is the only card above the
   numbers, because it asks for an action. This supersedes the two focus sections above.
+
+## Trade log rows read as facts only
+Overrides `01-decisions.md` ("…or a one-line hint for running, watched, not-filled and chart-less entries").
+Why: the hint sentences repeated on every entry of the same status, and some repeated a fact ("Open" next
+to the pair said what "Running" says). Source: `rowFacts` in `src/lib/tradelog.ts`.
+- **Every row has the same shape**: pair, direction chip, result (only when there is one); date, status,
+  account; setup, plan, tags (on every entry that has them, running and watched included). Tags stay.
+- **The status word carries the meaning; what it means is on hover** (`STATUS_HINT`), and the Status menu
+  explains each option. No status sentences in rows.
+- **Only things that need the owner get a signal, kept brief**: an MT5 trade without charts shows its ticket
+  as a fact ("MT5 #48231") and its drop zone, which says "Drop, paste or choose charts · It still counts".
+  The whole drop zone is the file picker.
+- **The owner's own words stay**: an analysis entry shows its plan note on one line.
+- Grid cards follow the same rules: the result, or the status when there is no result, beside the pair.

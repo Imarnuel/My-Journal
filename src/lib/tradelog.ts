@@ -146,54 +146,63 @@ export function thumbs(e: Entry): Thumbs {
 
 export type RowFacts = {
   when: string;
-  res: string; // List view result ("+2.1R", "Open", or empty)
-  gres: string; // Grid view result (falls back to the status)
+  res: string; // the result, only when there is one ("+2.1R"); nothing for running, watched, not filled
+  gres: string; // Grid view: the result, or the status when there's no result
   resTone: "profit" | "loss" | "flat" | "muted";
   statusLabel: string;
+  /** What the status means, shown on hover (the explanation moved out of the row, DESIGN.md). */
+  statusHint: string;
   acct: string;
   hasAcct: boolean;
   plan: string;
-  /** Second facts line (setup, plan, tags) for a taken trade with charts; otherwise a one-line hint. */
+  /** The MT5 ticket, shown as a fact on a trade from MT5 that has no charts yet. */
+  mt5: string;
+  /** Second facts line (setup, plan, tags) on every entry that has them; Analysis shows its plan note instead. */
   facts2: boolean;
   hint: string;
-  gridLine: string; // Grid view: setup, or a short hint
+  gridLine: string; // Grid view: the setup
   gridSetup: boolean;
   noCharts: boolean;
   noNote: boolean;
+};
+
+/**
+ * Rows read as facts only, the same shape for every status (owner's request, DESIGN.md "Trade log rows").
+ * The status word carries the meaning; what it means is on hover. Only the user's own words (an analysis
+ * plan) appear as a sentence. An MT5 trade without charts is signalled by its drop zone.
+ */
+export const STATUS_HINT: Record<string, string> = {
+  Taken: "Counts in your results",
+  Running: "Still open in MT5. When it closes you get one chance to add an after chart.",
+  Watched: "You saw it and didn't take it. Stays out of your results.",
+  "Not filled": "Your order never triggered. Stays out of your results.",
+  "Before trading": "Your analysis before trading. Never counts as a trade.",
 };
 
 export function rowFacts(e: Entry): RowFacts {
   const t = thumbs(e);
   const noCharts = t.n === 0;
   const taken = e.status === "Taken";
+  const analysis = e.status === "Analysis";
   const plan = e.followed === true ? "Followed" : e.followed === false ? "Not followed" : "";
-  let hint = "";
-  if (taken && noCharts) hint = `From MT5${e.mt5 ? " " + e.mt5 : ""}. No screenshot? Scroll back on your chart and take one now. It still counts.`;
-  else if (e.status === "Running") hint = "Still open in MT5. When it closes you'll get one chance to add an after chart. Skipping is fine.";
-  else if (e.status === "Watched") hint = `${e.setup} · Add an after chart any time if you want to see how it played out`;
-  else if (e.status === "Not filled") hint = "Your limit order never triggered · stays out of your results";
-  else if (e.status === "Analysis") hint = `“${e.plan ?? ""}”`;
-  const res = taken && e.r != null ? fr(e.r) : e.status === "Running" ? "Open" : "";
+  const res = taken && e.r != null ? fr(e.r) : "";
   const v = e.r == null ? 0 : Math.round(e.r * 10) / 10;
-  const gridLine =
-    e.status === "Analysis" ? "Before trading"
-    : e.status === "Running" ? "Running in MT5"
-    : e.status === "Not filled" ? "Limit order never triggered"
-    : noCharts ? "From MT5 · no charts yet"
-    : e.setup || "";
+  const statusLabel = analysis ? "Before trading" : e.status;
   return {
     when: dateTime(e.date, e.time),
     res,
-    gres: res || (e.status === "Analysis" ? "" : e.status),
+    gres: res || (analysis ? "" : statusLabel),
     resTone: !taken ? "muted" : v > 0 ? "profit" : v < 0 ? "loss" : "flat",
-    statusLabel: e.status === "Analysis" ? "Before trading" : e.status,
+    statusLabel,
+    statusHint: STATUS_HINT[statusLabel] ?? "",
     acct: e.also ? `${e.account} and ${e.also}` : e.account,
-    hasAcct: e.status !== "Analysis",
+    hasAcct: !analysis,
     plan,
-    facts2: taken && !noCharts,
-    hint,
-    gridLine,
-    gridSetup: taken && !noCharts && !!e.setup,
+    mt5: taken && noCharts && e.mt5 ? `MT5 ${e.mt5}` : "",
+    facts2: !analysis && !!(e.setup || plan || e.tags.length),
+    hint: analysis ? `“${e.plan ?? ""}”` : "",
+    gridLine: analysis ? "Before trading" : e.setup || "",
+    gridSetup: !analysis && !!e.setup,
     noCharts,
     noNote: !e.note && taken,
   };

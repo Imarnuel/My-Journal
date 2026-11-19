@@ -109,6 +109,7 @@ export function NoChartsNotice({ trades }: { trades: Entry[] }) {
               <span>Add chart</span>
               <input
                 type="file"
+                title=""
                 accept="image/*"
                 multiple
                 aria-label={`Drop, paste or choose charts for ${e.pair}, ${shortDate(e.date)}`}

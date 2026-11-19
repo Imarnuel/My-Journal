@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Entry } from "../../lib/types";
 import { isImage, rowFacts, thumbs } from "../../lib/tradelog";
 import { returnFocus } from "./FilterMenu";
-import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash } from "./icons";
+import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcLink, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash } from "./icons";
 
 export type RowActions = {
   menuOpen: boolean;
@@ -139,12 +139,14 @@ function DropZone({ a, grid }: { a: RowActions; grid?: boolean }) {
       onDragLeave={() => setOver(false)}
       onDrop={onDrop}
       onPaste={onPaste}
-      style={grid ? { ...base, position: "relative", aspectRatio: "16 / 9" } : { ...base, flex: 2, aspectRatio: "32 / 9" }}
+      style={grid ? { ...base, position: "relative", aspectRatio: "16 / 9" } : { ...base, position: "relative", flex: 2, aspectRatio: "32 / 9" }}
     >
       <IcImage />
       <span>Drop, paste or choose charts</span>
+      {grid ? null : <span style={{ fontSize: "12px", lineHeight: "16px", fontWeight: 400, color: "var(--text-3)" }}>It still counts</span>}
       <input
         type="file"
+                title=""
         accept="image/*"
         multiple
         onChange={(ev) => {
@@ -152,7 +154,8 @@ function DropZone({ a, grid }: { a: RowActions; grid?: boolean }) {
           if (f.length) a.addCharts(f);
           ev.target.value = "";
         }}
-        style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }}
+        // The whole zone is the picker: the input covers it, invisible (a click anywhere opens it).
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", margin: 0, padding: 0, opacity: 0, cursor: "pointer" }}
       />
     </label>
   );
@@ -174,12 +177,12 @@ function DirChip({ e, grid }: { e: Entry; grid?: boolean }) {
   return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "6px", padding: "2px 8px", lineHeight: "16px" }}>{e.dir}</span>;
 }
 
-function Fact({ icon, sr, text }: { icon: ReactNode; sr?: string; text: string }) {
+function Fact({ icon, sr, text, hint }: { icon: ReactNode; sr?: string; text: string; hint?: string }) {
   return (
     <span className="kfact">
       <span className="kfact-ic">{icon}</span>
       {sr ? <span className="ksr">{sr}</span> : null}
-      <span className="kfact-t" title={text}>
+      <span className="kfact-t" title={hint ? `${text}: ${hint}` : text}>
         {text}
       </span>
     </span>
@@ -220,8 +223,9 @@ export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
         </div>
         <span className="kfacts">
           <Fact icon={<IcCalendar s={14} />} sr="Date:" text={f.when} />
-          <Fact icon={<IcStatus s={14} />} sr="Status:" text={f.statusLabel} />
+          <Fact icon={<IcStatus s={14} />} sr="Status:" text={f.statusLabel} hint={f.statusHint} />
           {f.hasAcct ? <Fact icon={<IcAccount />} sr="Account:" text={f.acct} /> : null}
+          {f.mt5 ? <Fact icon={<IcLink />} sr="From:" text={f.mt5} /> : null}
           {e.excluded ? <Fact icon={<IcExcluded />} text="Excluded from stats" /> : null}
         </span>
         {f.facts2 ? (
@@ -230,11 +234,11 @@ export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
             {f.plan ? <Fact icon={<IcPlan />} sr="Plan:" text={f.plan} /> : null}
             {e.tags.length ? <Fact icon={<IcTag s={14} />} sr="Tags:" text={e.tags.join(", ")} /> : null}
           </span>
-        ) : (
-          <span className="meta" style={{ color: "var(--text-3)" }}>
+        ) : f.hint ? (
+          <span className="meta" style={{ color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={f.hint}>
             {f.hint}
           </span>
-        )}
+        ) : null}
       </div>
       <div style={{ flex: "1 1 300px", minWidth: 0, display: "flex", gap: "8px", alignItems: "center", position: "relative" }}>
         {t.n === 0 ? <DropZone a={a} /> : null}

@@ -23,8 +23,10 @@ test("the entry's own controls keep their action", async ({ page }) => {
   await expect(page.getByRole("menu")).toBeVisible();
   await expect(page).toHaveURL(/\/log$/);
   await page.keyboard.press("Escape");
-  // The drop zone on the MT5 trade without charts is a file picker, not a way into the story.
-  await row(page, 2).getByText("Drop, paste or choose charts").click();
+  // The drop zone on the MT5 trade without charts is a file picker over its whole area, not a way into the story.
+  const chooser = page.waitForEvent("filechooser");
+  await row(page, 2).locator('input[type="file"]').click();
+  await chooser;
   await expect(page).toHaveURL(/\/log$/);
 });
 

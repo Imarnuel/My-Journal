@@ -91,14 +91,17 @@ describe("rows", () => {
     expect(thumbs(e)).toEqual({ n: 3, list: ["blob:b", "blob:c"], grid: "blob:c", more: "+1 chart" });
     expect(rowFacts(e).facts2).toBe(true);
   });
-  it("facts and hints", () => {
-    expect(rowFacts(byId("e19"))).toMatchObject({ res: "+0.6R", noCharts: true, facts2: false, noNote: true, gridLine: "From MT5 · no charts yet" });
-    expect(rowFacts(byId("e19")).hint).toBe("From MT5 #48231. No screenshot? Scroll back on your chart and take one now. It still counts.");
-    expect(rowFacts(byId("e17"))).toMatchObject({ res: "−1.0R", resTone: "loss", plan: "Followed", when: "Fri 13 Nov, 15:40" });
-    expect(rowFacts(byId("e24"))).toMatchObject({ res: "Open", gres: "Open", statusLabel: "Running", gridLine: "Running in MT5" });
-    expect(rowFacts(byId("e26"))).toMatchObject({ statusLabel: "Before trading", hasAcct: false, gres: "" });
+  it("rows read as facts only (DESIGN.md): no status sentences, the status explains itself on hover", () => {
+    expect(rowFacts(byId("e19"))).toMatchObject({ res: "+0.6R", noCharts: true, facts2: true, noNote: true, mt5: "MT5 #48231", hint: "", gridLine: "Unsorted" });
+    expect(rowFacts(byId("e17"))).toMatchObject({ res: "−1.0R", resTone: "loss", plan: "Followed", when: "Fri 13 Nov, 15:40", mt5: "" });
+    // Running: no "Open" beside the pair, the status says it; the setup reads as a normal fact.
+    expect(rowFacts(byId("e24"))).toMatchObject({ res: "", gres: "Running", statusLabel: "Running", hint: "", facts2: true, gridLine: "Unsorted" });
+    expect(rowFacts(byId("e24")).statusHint).toContain("Still open in MT5");
+    // Analysis keeps the owner's own plan note.
+    expect(rowFacts(byId("e26"))).toMatchObject({ statusLabel: "Before trading", hasAcct: false, gres: "", facts2: false });
+    expect(rowFacts(byId("e26")).hint).toMatch(/^“Dollar weak into New York/);
     expect(rowFacts(byId("e15")).acct).toBe("Main account and Funded 100K");
-    expect(rowFacts(byId("e27"))).toMatchObject({ gres: "Not filled", hint: "Your limit order never triggered · stays out of your results" });
+    expect(rowFacts(byId("e27"))).toMatchObject({ gres: "Not filled", hint: "", statusHint: "Your order never triggered. Stays out of your results." });
   });
   it("short trade line", () => {
     expect(shortTradeLine({ ...byId("e19"), mt5: "#48240", r: -0.1 })).toBe("MT5 #48240 · −0.1R. Count it in your stats? If you leave this, it counts.");
