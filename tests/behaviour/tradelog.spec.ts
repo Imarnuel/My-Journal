@@ -330,7 +330,8 @@ test("MT5 trade without charts: the drop zone is a file picker; the chosen image
   await expect(row).toContainText("No screenshot?");
   await row.locator('input[type="file"]').setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: fs.readFileSync("handoff/screenshots/states/13-tradelog-grid-view.png") });
   await expect(toast(page)).toContainText("Chart added");
-  await expect(row.getByRole("img", { name: "Your chart" })).toHaveAttribute("src", /^blob:/);
+  // The upload shows at once (blob:) and is then saved as a data URL so it survives a reload.
+  await expect(row.getByRole("img", { name: "Your chart" })).toHaveAttribute("src", /^(blob|data):/);
   await expect(row.getByText("Drop, paste or choose charts")).toHaveCount(0);
   await expect(row).toContainText("Trend continuation, Liquidity sweep"); // now reads as a taken trade with charts
   // The same chart leads the card in Grid view, from the shared store.

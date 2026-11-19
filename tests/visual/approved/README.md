@@ -1,0 +1,11 @@
+# Approved reference images
+
+These replace the handoff screenshot of the same name, only where the owner asked for a change after the
+handoff (see `DESIGN.md`). Everything else is still compared with `handoff/screenshots/`.
+
+| Images | Change | Asked |
+| --- | --- | --- |
+| `light/` and `dark/` 05-NewStory, 06-NewStoryTyped, 07-Story; `states/` 15 to 24 | Filled grey 16px icons on the Details labels (Setup, Tags, Plan, Headspace) and on the trade facts (pair, direction, status, account, date), facts 16px apart without dot separators; Notes fields aligned with their labels and the Talk it through card, even spacing; the Tags input aligned with the other Details values | 2026-11-19 |
+
+To regenerate after another approved change: `APPROVE='<regex of refs>' npx playwright test <specs>`,
+then look at every regenerated image against the handoff screenshot before committing.

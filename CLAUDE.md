@@ -15,6 +15,9 @@ The full design handoff lives in `handoff/`. Every path below is relative to it 
 Keep `handoff/docs/07-screens-inventory.md`, `handoff/screenshots/` and `handoff/prototype/` open while building each screen. Run the prototype with `cd handoff/prototype && python3 -m http.server 8765`.
 
 ## Order of authority
+0. `DESIGN.md` (root): the owner's corrections after the handoff. It wins over everything below. When the
+   owner corrects a design choice, add the rule there with its reason, and approve the new reference images
+   (`tests/visual/approved/README.md`).
 1. `01-decisions.md` wins on behaviour.
 2. The prototype and screenshots win on exact pixels, layout and copy.
 3. `02-look-and-feel.md` explains the system behind those values and covers motion, hover, focus and phone.

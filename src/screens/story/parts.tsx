@@ -116,7 +116,9 @@ export function Plus() {
 }
 
 /** One part of the facts line: a dashed-underline button that opens its menu. */
-export const factBtn: CSSProperties = { font: "inherit", fontSize: "14px", fontWeight: 500, color: "var(--text-1)", background: "transparent", border: 0, borderBottom: "1px dashed var(--border-strong)", padding: "2px 0", cursor: "pointer", position: "relative", zIndex: 5 };
+export const factBtn: CSSProperties = { font: "inherit", fontSize: "14px", fontWeight: 500, color: "var(--text-1)", background: "transparent", border: 0, padding: "2px 0", cursor: "pointer", position: "relative", zIndex: 5, display: "inline-flex", alignItems: "center", gap: "8px" };
+/** The fact's value: a dashed underline marks it as tappable (under the words only, not the icon). */
+export const factText: CSSProperties = { borderBottom: "1px dashed var(--border-strong)", lineHeight: "20px" };
 
 export function Sep() {
   return (
@@ -127,10 +129,11 @@ export function Sep() {
 }
 
 /** A Details row: label on the left, control on the right. */
-export function DetailRow({ label, children }: { label: string; children: ReactNode }) {
+export function DetailRow({ label, icon, children }: { label: string; icon?: ReactNode; children: ReactNode }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "96px minmax(0, 1fr)", gap: "12px", alignItems: "center", minHeight: "48px", borderTop: "1px solid var(--border-subtle)" }}>
-      <dt className="lbl lbl-k" style={{ margin: 0 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "120px minmax(0, 1fr)", gap: "12px", alignItems: "center", minHeight: "48px", borderTop: "1px solid var(--border-subtle)" }}>
+      <dt className="lbl lbl-k" style={{ margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+        {icon}
         {label}
       </dt>
       <dd style={{ margin: 0, minWidth: 0, padding: "4px 0 4px 12px" }}>{children}</dd>

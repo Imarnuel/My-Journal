@@ -12,6 +12,27 @@ export const FRAME_H: Record<string, number> = {
   "11-Review": 1670, "12-Accounts": 820, "13-AddAccount": 940, "14-EditAccount": 980, "15-Settings": 1630, "16-States": 920,
 };
 
+/**
+ * Reference image for a screen or state. The handoff screenshots are the reference, except where the owner
+ * asked for a change after the handoff: those screens have an approved image in tests/visual/approved
+ * (see tests/visual/approved/README.md). Running with APPROVE=<regex> writes the current render as the
+ * approved image for matching refs, after which it must be looked at before committing.
+ */
+export function refPath(ref: string): string {
+  const approved = path.join("tests/visual/approved", ref);
+  return fs.existsSync(approved) ? approved : path.join("handoff/screenshots", ref);
+}
+
+/** Write `img` as the approved reference for `ref` when APPROVE matches it. Returns true if it did. */
+export function maybeApprove(ref: string, img: PNG): boolean {
+  const pat = process.env.APPROVE;
+  if (!pat || !new RegExp(pat).test(ref)) return false;
+  const out = path.join("tests/visual/approved", ref);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, PNG.sync.write(img));
+  return true;
+}
+
 /** Fraction of pixels allowed to differ: anti-aliasing and font hinting only. */
 export const MAX_RATIO = 0.004;
 
@@ -22,8 +43,7 @@ export async function settle(page: Page) {
 }
 
 export async function diffAgainst(page: Page, ref: string, info: TestInfo, opts: { height?: number; maxRatio?: number } = {}) {
-  const refPath = path.join("handoff/screenshots", ref);
-  const want = PNG.sync.read(fs.readFileSync(refPath));
+  const want = PNG.sync.read(fs.readFileSync(refPath(ref)));
   const h = opts.height ?? want.height;
   await page.setViewportSize({ width: 1440, height: h });
   await settle(page);
@@ -35,6 +55,7 @@ export async function diffAgainst(page: Page, ref: string, info: TestInfo, opts:
     return out;
   };
   const a = crop(got);
+  if (maybeApprove(ref, a)) return;
   const b = crop(want);
   const d = new PNG({ width: 1440, height: H });
   const n = pixelmatch(a.data, b.data, d.data, 1440, H, { threshold: 0.2 });

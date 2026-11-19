@@ -2,6 +2,7 @@
 // story (/story/:id). One component; only the starting state and the footer differ (01-decisions.md,
 // "Chart story"). Markup from src/screens/body/Story.body.tsx and NewStory.body.tsx; a saved story reads
 // and writes its Entry in the shared store, a new one is a draft until Save story adds it.
+import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -38,7 +39,7 @@ import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
 import { CANVAS_EXTRAS, PAIRS, captionOf, newStoryStart } from "./story/canvas";
 import { useStoryExtras } from "./story/extras";
-import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, Sep, factBtn } from "./story/parts";
+import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText } from "./story/parts";
 
 const KINDS: { k: TagKind; hint: string }[] = [
   { k: "Good", hint: "Something to repeat" },
@@ -638,8 +639,8 @@ function StoryScreen({ id }: { id: string | null }) {
             ) : null}
           </section>
 
-          <section aria-labelledby="nh" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "12px", padding: "16px 24px 24px", borderRadius: "12px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <section aria-labelledby="nh" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "12px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "-4px" }}>
               <h2 id="nh" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
                 Notes
               </h2>
@@ -694,16 +695,17 @@ function StoryScreen({ id }: { id: string | null }) {
                 </button>
               </div>
             ) : null}
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", minHeight: "28px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <label htmlFor="nB" className="lbl" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", lineHeight: "16px" }}>
                   Before / during
                 </label>
               </div>
-              <textarea id="nB" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.before} onChange={(e) => update({ before: e.target.value })} style={{ border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "10px", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)" }} />
+              <textarea id="nB" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.before} onChange={(e) => update({ before: e.target.value })} style={NOTE_FIELD} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", minHeight: "28px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {/* The row only grows to 28px when Keep / Delete sit beside the label. */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", minHeight: s.suggested && s.refl ? "28px" : undefined }}>
                 <label htmlFor="nR" className="lbl" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", lineHeight: "16px" }}>
                   Reflection
                 </label>
@@ -731,7 +733,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   </>
                 ) : null}
               </div>
-              <textarea id="nR" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.refl} onChange={(e) => update({ refl: e.target.value, suggested: false })} style={{ border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "10px", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)" }} />
+              <textarea id="nR" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.refl} onChange={(e) => update({ refl: e.target.value, suggested: false })} style={NOTE_FIELD} />
             </div>
             {s.voice && !recording ? (
               <>
@@ -805,7 +807,7 @@ function StoryScreen({ id }: { id: string | null }) {
               </span>
             </div>
             <dl style={{ margin: 0, display: "flex", flexDirection: "column" }}>
-              <DetailRow label="Setup">
+              <DetailRow label="Setup" icon={<DetailIcon name="setup" />}>
                 <div style={{ position: "relative" }}>
                   <button type="button" className="ghost tagfield" aria-haspopup="listbox" aria-expanded={exp("setup")} aria-label={`Setup: ${s.setup ?? "Pick a setup"}`} onClick={() => menu.toggle("setup")} style={{ justifyContent: "space-between", position: "relative", zIndex: 5 }}>
                     {s.setup ? <span className="pill">{s.setup}</span> : <span style={{ fontSize: "14px", color: "var(--text-3)" }}>Pick a setup</span>}
@@ -824,7 +826,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   ) : null}
                 </div>
               </DetailRow>
-              <DetailRow label="Tags">
+              <DetailRow label="Tags" icon={<DetailIcon name="tags" />}>
                 <div style={{ position: "relative" }}>
                   <div className="ghost tagfield" role="group" aria-label="Tags" onClick={() => document.getElementById("taginput")?.focus()} style={{ cursor: "text", flexWrap: "wrap", position: "relative", zIndex: 5 }}>
                     {s.tags.map((t, i) => (
@@ -865,6 +867,7 @@ function StoryScreen({ id }: { id: string | null }) {
                         if (!menu.isOpen("tag")) menu.open("tag");
                       }}
                       onKeyDown={tagKey}
+                      className="tag-input"
                       style={{ flex: 1, minWidth: "90px", font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "transparent", border: 0, outline: "none", padding: "4px 2px" }}
                     />
                   </div>
@@ -918,7 +921,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   ) : null}
                 </div>
               </DetailRow>
-              <DetailRow label="Plan">
+              <DetailRow label="Plan" icon={<DetailIcon name="plan" />}>
                 <div role="group" aria-label="Plan" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)", borderRadius: "8px" }}>
                   {([["Followed", true], ["Not followed", false]] as const).map(([label, val]) => {
                     const on = s.followed === val;
@@ -930,7 +933,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   })}
                 </div>
               </DetailRow>
-              <DetailRow label="Headspace">
+              <DetailRow label="Headspace" icon={<DetailIcon name="headspace" />}>
                 <div style={{ position: "relative" }}>
                   <button type="button" className="ghost tagfield" aria-haspopup="listbox" aria-expanded={exp("head")} aria-label={`Headspace: ${s.headspace ?? "Pick one"}`} onClick={() => menu.toggle("head")} style={{ justifyContent: "space-between", position: "relative", zIndex: 5 }}>
                     {s.headspace ? <span className="pill">{s.headspace}</span> : <span style={{ fontSize: "14px", color: "var(--text-3)" }}>Pick one</span>}
@@ -951,15 +954,12 @@ function StoryScreen({ id }: { id: string | null }) {
             <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
               {saved ? "From your charts and MT5, or typed by you" : "Read from your charts and MT5 · tap anything to change"}
             </span>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 8px" }}>
-              <Fact name="Pair" k="pair" value={s.pair} menu={menu} opts={PAIRS.map((label) => ({ label }))} onPick={pick("pair")} />
-              <Sep />
-              <Fact name="Direction" k="dir" value={s.dir} menu={menu} opts={[{ label: "Long" }, { label: "Short" }]} onPick={pick("dir")} />
-              <Sep />
-              <Fact name="Status" k="status" value={s.status} menu={menu} opts={STATUS_OPTS} onPick={(v) => pick("status")(v as Status)} />
-              <Sep />
-              <Fact name="Account" k="acct" value={s.account} menu={menu} opts={acctNames.map((label) => ({ label }))} onPick={pick("account")} />
-              <Sep />
+            {/* Each fact leads with its icon and they sit 16px apart, no dot separators (the Trade log's facts rule). */}
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px" }}>
+              <Fact name="Pair" k="pair" icon="pair" value={s.pair} menu={menu} opts={PAIRS.map((label) => ({ label }))} onPick={pick("pair")} />
+              <Fact name="Direction" k="dir" icon={s.dir === "Long" ? "long" : "short"} value={s.dir} menu={menu} opts={[{ label: "Long" }, { label: "Short" }]} onPick={pick("dir")} />
+              <Fact name="Status" k="status" icon="status" value={s.status} menu={menu} opts={STATUS_OPTS} onPick={(v) => pick("status")(v as Status)} />
+              <Fact name="Account" k="acct" icon="account" value={s.account} menu={menu} opts={acctNames.map((label) => ({ label }))} onPick={pick("account")} />
               <span style={{ position: "relative", display: "inline-flex" }}>
                 <button
                   type="button"
@@ -972,7 +972,8 @@ function StoryScreen({ id }: { id: string | null }) {
                   }}
                   style={factBtn}
                 >
-                  {dtLabel}
+                  <DetailIcon name="date" />
+                  <span style={factText}>{dtLabel}</span>
                 </button>
                 {menu.isOpen("dt") ? (
                   <>
@@ -1072,12 +1073,16 @@ function StoryScreen({ id }: { id: string | null }) {
 }
 
 /** One menu in the facts line. Shows the field's name until a value is picked. */
-function Fact({ name, k, value, menu, opts, onPick }: { name: string; k: string; value: string | null; menu: ReturnType<typeof useMenu<string>>; opts: { label: string; hint?: string }[]; onPick: (v: string) => void }) {
+/** Note fields line up with the labels and the Talk it through card: no ghost-field pull, full width, 8px corners. */
+const NOTE_FIELD = { display: "block", margin: 0, width: "100%", boxSizing: "border-box", border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "8px", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)" } as const;
+
+function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: string; icon: DetailIconName; value: string | null; menu: ReturnType<typeof useMenu<string>>; opts: { label: string; hint?: string }[]; onPick: (v: string) => void }) {
   const open = menu.isOpen(k);
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
       <button type="button" aria-haspopup="listbox" aria-expanded={open ? "true" : "false"} aria-label={`${name}: ${value ?? "not set"}`} onClick={() => menu.toggle(k)} style={factBtn}>
-        {value ?? name}
+        <DetailIcon name={icon} />
+        <span style={factText}>{value ?? name}</span>
       </button>
       {open ? (
         <>

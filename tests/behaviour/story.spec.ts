@@ -7,14 +7,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
-import { MAX_RATIO, settle } from "../visual/compare";
+import { MAX_RATIO, maybeApprove, refPath, settle } from "../visual/compare";
 
 /** State screenshots are 1440 × 1000 viewport captures (a fixed toast sits at the viewport's bottom). */
 async function diffViewport(page: Page, ref: string, info: TestInfo, maxRatio = MAX_RATIO) {
-  const want = PNG.sync.read(fs.readFileSync(path.join("handoff/screenshots", ref)));
+  const want = PNG.sync.read(fs.readFileSync(refPath(ref)));
   await page.evaluate(() => window.scrollTo(0, 0)); // every state is drawn at the top of the page
   await settle(page);
   const got = PNG.sync.read(await page.screenshot());
+  if (maybeApprove(ref, got)) return;
   const { width: W, height: H } = want;
   const d = new PNG({ width: W, height: H });
   const n = pixelmatch(got.data, want.data, d.data, W, H, { threshold: 0.2 });

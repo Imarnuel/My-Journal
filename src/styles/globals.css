@@ -90,3 +90,6 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
   .kstat > div:nth-child(2)::before { display: none; }
   .kgrid-2 { grid-template-columns: minmax(0, 1fr) !important; }
 }
+
+/* The tag field's text input starts where the pills and other Details values start (no field padding). */
+.app input.tag-input { padding-left: 0 !important; padding-right: 0 !important; }
