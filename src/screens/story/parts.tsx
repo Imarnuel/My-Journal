@@ -33,9 +33,7 @@ export type Opt = { label: string; hint?: string };
 
 /** A choice listbox: label, optional hint, a check on the selected row. */
 export function OptionList({ opts, value, onPick, style, label, children }: { opts: Opt[]; value: string | null; onPick: (v: string) => void; style: CSSProperties; label?: string; children?: ReactNode }) {
-  return (
-    <div role="listbox" aria-label={label} className="kmenu" style={{ ...menuBox, ...style }}>
-      {opts.map((o) => {
+  const rows = opts.map((o) => {
         const sel = o.label === value;
         return (
           <button key={o.label} type="button" role="option" aria-selected={sel ? "true" : "false"} onClick={() => onPick(o.label)} className="kit-opt" style={{ ...optStyle, background: sel ? "var(--surface-pressed)" : "transparent" }}>
@@ -46,7 +44,19 @@ export function OptionList({ opts, value, onPick, style, label, children }: { op
             {sel ? <Check /> : null}
           </button>
         );
-      })}
+      });
+  if (!children)
+    return (
+      <div role="listbox" aria-label={label} className="kmenu" style={{ ...menuBox, ...style }}>
+        {rows}
+      </div>
+    );
+  // An action row under the options (Setup's "New setup") sits outside the listbox.
+  return (
+    <div className="kmenu" style={{ ...menuBox, ...style }}>
+      <div role="listbox" aria-label={label} style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        {rows}
+      </div>
       {children}
     </div>
   );

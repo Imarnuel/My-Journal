@@ -306,39 +306,39 @@ export function Playbook() {
       </section>
 
       <button
-          type="button"
-          aria-expanded={archivedOpen ? "true" : "false"}
-          onClick={() => usePlaybook.setState({ archivedOpen: !archivedOpen })}
-          style={{ font: "inherit", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 4px", minHeight: "48px", border: 0, borderTop: "1px solid var(--border-subtle)", background: "transparent", color: "var(--text-2)", cursor: "pointer", fontSize: "14px" }}
-        >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-            <ArchiveIcon />
-            {`Archived setups (${archived.length})`}
-          </span>
-          <span style={{ display: "flex" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </span>
-        </button>
-        {archivedOpen ? (
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            {archived.map((a) => (
-              <div key={a.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 4px", borderTop: "1px solid var(--border-subtle)" }}>
-                <span style={{ fontSize: "14px" }}>{a.name}</span>
-                <span className="lbl">{`${storiesIn(a.name)} stories kept`}</span>
-                <button type="button" className="btn btn-q" onClick={() => setArchived(a.name, false)}>
-                  Restore
-                </button>
-              </div>
-            ))}
-            {!archived.length ? (
-              <span className="lbl" style={{ padding: "12px 4px" }}>
-                Nothing archived. Archive a setup you've stopped trading; its stories and examples stay.
-              </span>
-            ) : null}
-          </div>
-        ) : null}
+        type="button"
+        aria-expanded={archivedOpen ? "true" : "false"}
+        onClick={() => usePlaybook.setState({ archivedOpen: !archivedOpen })}
+        style={{ font: "inherit", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 4px", minHeight: "48px", border: 0, borderTop: "1px solid var(--border-subtle)", background: "transparent", color: "var(--text-2)", cursor: "pointer", fontSize: "14px" }}
+      >
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+          <ArchiveIcon />
+          {`Archived setups (${archived.length})`}
+        </span>
+        <span style={{ display: "flex" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
+      </button>
+      {archivedOpen ? (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {archived.map((a) => (
+            <div key={a.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 4px", borderTop: "1px solid var(--border-subtle)" }}>
+              <span style={{ fontSize: "14px" }}>{a.name}</span>
+              <span className="lbl">{`${storiesIn(a.name)} stories kept`}</span>
+              <button type="button" className="btn btn-q" onClick={() => setArchived(a.name, false)}>
+                Restore
+              </button>
+            </div>
+          ))}
+          {!archived.length ? (
+            <span className="lbl" style={{ padding: "12px 4px" }}>
+              Nothing archived. Archive a setup you've stopped trading; its stories and examples stay.
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       {nameOpen ? (
         <>

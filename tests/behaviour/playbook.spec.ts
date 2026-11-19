@@ -36,7 +36,9 @@ test.describe("playbook home", () => {
     await expect(card(page, "4H supply pullback")).toContainText("9 taken");
     await expect(card(page, "4H supply pullback")).toContainText("Trend appears after 10 trades");
     await expect(unsorted(page)).toHaveText("Unsorted (21)");
-    // One menu at a time: opening a setup's menu closes the picker, and another setup's menu closes that one.
+    // One menu at a time: a click outside closes the picker; another setup's menu replaces the open one.
+    await page.mouse.click(700, 960);
+    await expect(page.locator(".kmenu")).toHaveCount(0);
     await page.getByRole("button", { name: "Actions for London breakout" }).click();
     await expect(page.locator(".kmenu")).toHaveCount(1);
     await expect(page.getByRole("menu", { name: "Actions for London breakout" })).toBeVisible();

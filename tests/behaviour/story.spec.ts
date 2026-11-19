@@ -570,6 +570,30 @@ for (const [name, go] of [
   ],
   ["Story", async (p: Page, q: string) => p.goto(`/story/e20?${q}`)],
   [
+    "New chart story with the Setup menu open",
+    async (p: Page, q: string) => {
+      await p.goto(`/new?${q}`);
+      await p.getByRole("button", { name: "Setup" }).click();
+    },
+  ],
+  [
+    "Story with the More menu and numbers open",
+    async (p: Page, q: string) => {
+      await p.goto(`/story/e20?${q}`);
+      await p.getByRole("button", { name: "Edit numbers" }).click();
+      await p.getByRole("button", { name: "More actions" }).click();
+    },
+  ],
+  [
+    "New chart story with both frame 16 problems",
+    async (p: Page, q: string) => {
+      await p.goto(`/new?voice=unclear&charts=unreadable&${q}`);
+      await p.getByRole("button", { name: "Talk it through" }).click();
+      await p.getByRole("button", { name: "Stop" }).click();
+      await p.getByText("Couldn't make out your note").waitFor();
+    },
+  ],
+  [
     "Story with the tag menu open",
     async (p: Page, q: string) => {
       await p.goto(`/story/e20?${q}`);
