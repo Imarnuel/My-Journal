@@ -189,15 +189,23 @@ ghost image, no sign of where the tile would land, and didn't work with a finger
 - **Cancel**: Escape puts it back at once. A click that ends a drag doesn't select the chart; a plain click
   still does. Grabbing a tile while another settles finishes that one first.
 - **Reduced motion**: no lift scale and no slide; the tile still follows the pointer and the order changes on
-  release. Keyboard users keep the ··· menu (Move left, Move right).
+  release.
+- **Keyboard**: focus a tile's grip and press ← or → to move it one place; focus follows it (the same as the
+  arrow keys on setup rule grips). Nothing animates.
 
 ## Chart tiles
 Why: the owner didn't want a row under every thumbnail just for the ··· menu, or icons in white containers.
+Overrides `01-decisions.md` ("…or each chart's menu: Move left, Move right, Remove"): there is no chart menu
+any more, and state 19 (a chart's menu open) is retired.
 - **Controls sit on the image**: on hover, a black wash (`--media-scrim`, fading out by 70% of the height)
-  fades in from the top of the thumbnail, with the grip top left and ··· top right as white icons
+  fades in from the top of the thumbnail, with the grip top left and a trash top right as white icons
   (`--on-media`) in 24px targets. Both themes use the same wash and white.
-- The wash and ··· also show while the tile's menu is open and when a control in the tile has keyboard focus.
-  While a tile is dragged, only its grip shows; the other tiles show nothing.
-- **Touch has no hover**, so the wash and ··· are always shown there; there's no grip (press and hold to drag).
+- **Trash removes the chart at once** with "Chart removed" and Undo. The last remaining chart has no trash
+  (a story keeps at least one chart). Reordering is by drag, or the arrow keys on the grip.
+- The wash and controls also show when a control in the tile has keyboard focus. While a tile is dragged,
+  only its grip shows; the other tiles show nothing.
+- **Touch has no hover**, so the wash and trash are always shown there; there's no grip (press and hold to
+  drag).
+- The hint under the tiles reads "Drag to reorder."
 - **The caption under a thumbnail only appears when there is one** (the timeframe on sample charts), so
   uploaded charts take no extra row.

@@ -531,8 +531,6 @@ function StoryScreen({ id }: { id: string | null }) {
             )}
             <div ref={tileGrid} className="ktiles" onClickCapture={tiles.onClickCapture} style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "8px", alignItems: "start" }}>
               {charts.map((c, i) => {
-                const key = `c${i}`;
-                const open = menu.isOpen(key);
                 return (
                   <figure
                     key={tileKeys[i]}
@@ -546,16 +544,6 @@ function StoryScreen({ id }: { id: string | null }) {
                   >
                     <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 2px var(--text-1)" : "none" }}>
                       <span className="ktile-scrim" aria-hidden="true" />
-                      <span className="kgrip" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <circle cx="9" cy="6" r="1.5" />
-                          <circle cx="15" cy="6" r="1.5" />
-                          <circle cx="9" cy="12" r="1.5" />
-                          <circle cx="15" cy="12" r="1.5" />
-                          <circle cx="9" cy="18" r="1.5" />
-                          <circle cx="15" cy="18" r="1.5" />
-                        </svg>
-                      </span>
                       {isImage(c) ? (
                         <img src={c} alt="" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }} />
                       ) : (
@@ -569,59 +557,39 @@ function StoryScreen({ id }: { id: string | null }) {
                         {captionOf(c)}
                       </figcaption>
                     ) : null}
-                    <span className="ktile-more">
-                        <button className="ktile-more-btn" type="button" aria-label={`Actions for ${ordinal(i)} chart`} aria-haspopup="menu" aria-expanded={open ? "true" : "false"} onClick={() => menu.toggle(key)}>
-                          <Dots />
-                        </button>
-                        {open ? (
-                          <>
-                            <Closer onClose={menu.close} />
-                            <div role="menu" aria-label={`Actions for ${ordinal(i)} chart`} className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", right: 0, width: "170px", transformOrigin: "top right" }}>
-                              {i > 0 ? (
-                                <MenuItem
-                                  icon={
-                                    <>
-                                      <path d="M19 12H5" />
-                                      <path d="M11 6l-6 6 6 6" />
-                                    </>
-                                  }
-                                  onClick={() => move(i, i - 1)}
-                                >
-                                  Move left
-                                </MenuItem>
-                              ) : null}
-                              {i < charts.length - 1 ? (
-                                <MenuItem
-                                  icon={
-                                    <>
-                                      <path d="M5 12h14" />
-                                      <path d="M13 6l6 6-6 6" />
-                                    </>
-                                  }
-                                  onClick={() => move(i, i + 1)}
-                                >
-                                  Move right
-                                </MenuItem>
-                              ) : null}
-                              {charts.length > 1 ? (
-                                <MenuItem
-                                  danger
-                                  icon={
-                                    <>
-                                      <path d="M18 6L6 18" />
-                                      <path d="M6 6l12 12" />
-                                    </>
-                                  }
-                                  onClick={() => removeChart(i)}
-                                >
-                                  Remove
-                                </MenuItem>
-                              ) : null}
-                              {charts.length === 1 ? <span style={{ fontSize: "12px", color: "var(--text-3)", padding: "8px 12px", lineHeight: "16px" }}>A story keeps at least one chart</span> : null}
-                            </div>
-                          </>
-                        ) : null}
-                    </span>
+                    <button
+                      type="button"
+                      className="kgrip"
+                      aria-label={`Reorder ${ordinal(i)} chart`}
+                      aria-describedby="tiles-hint"
+                      onKeyDown={(e) => {
+                        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+                        e.preventDefault();
+                        const j = i + (e.key === "ArrowLeft" ? -1 : 1);
+                        if (j < 0 || j >= charts.length) return;
+                        move(i, j);
+                        // Focus follows the chart to its new place, as on setup rules.
+                        requestAnimationFrame(() => tileGrid.current?.querySelectorAll<HTMLElement>(".kgrip")[j]?.focus());
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <circle cx="9" cy="6" r="1.5" />
+                        <circle cx="15" cy="6" r="1.5" />
+                        <circle cx="9" cy="12" r="1.5" />
+                        <circle cx="15" cy="12" r="1.5" />
+                        <circle cx="9" cy="18" r="1.5" />
+                        <circle cx="15" cy="18" r="1.5" />
+                      </svg>
+                    </button>
+                    {charts.length > 1 ? (
+                      <button type="button" className="ktile-rm" aria-label={`Remove ${ordinal(i)} chart`} onClick={() => removeChart(i)}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M6 6l1 14h10l1-14" />
+                        </svg>
+                      </button>
+                    ) : null}
                   </figure>
                 );
               })}
@@ -632,8 +600,8 @@ function StoryScreen({ id }: { id: string | null }) {
                 title="" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
               </label>
             </div>
-            <p className="lbl" style={{ margin: 0, fontSize: "12px", lineHeight: "16px" }}>
-              Drag to reorder, or use each chart's menu.
+            <p id="tiles-hint" className="lbl" style={{ margin: 0, fontSize: "12px", lineHeight: "16px" }}>
+              Drag to reorder.
             </p>
             {unreadable ? (
               <ProblemCard title="Prices on this screenshot are too small to read" text="It's still in the story. Replace it with a sharper one, or type the entry, stop and target yourself.">

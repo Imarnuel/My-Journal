@@ -36,3 +36,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | Every image in `light/`, `dark/`, `states/` and `chrome/` | Rounder corners (DESIGN.md); only corners changed (checked dashboard, trade log, menus, settings in both themes) | 2026-11-19 |
 
 | Story images and `states/` 15 to 24 | Chart tile controls moved onto the thumbnail (DESIGN.md, Chart tiles); only the tile row changed (checked) | 2026-11-19 |
+
+| Story images and `states/` 15 to 24 | Trash replaces the chart menu (DESIGN.md, Chart tiles); state 19 retired. Only the tile row and hint changed (checked) | 2026-11-19 |

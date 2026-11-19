@@ -195,7 +195,7 @@ export function useTileReorder(gridRef: React.RefObject<HTMLElement | null>, onM
 
   const onPointerDown = (i: number) => (e: RPointerEvent<HTMLElement>) => {
     if (e.button !== 0 || drag.current) return; // one pointer at a time: a second finger is ignored
-    if ((e.target as HTMLElement).closest(".kmore, .ktile-more, [role=menu]")) return;
+    if ((e.target as HTMLElement).closest(".kmore, .ktile-rm, [role=menu]")) return;
     settling.current?.stop(); // grabbing during a settle finishes it at once, then this drag starts
     const p = { x: e.clientX, y: e.clientY, t: e.timeStamp };
     const d: Drag = { from: i, to: i, id: e.pointerId, type: e.pointerType, start: p, hist: [p], lifted: false, tiles: [], rects: [], bounds: new DOMRect(), dx: 0, dy: 0 };

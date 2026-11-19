@@ -93,15 +93,6 @@ test("state 18: Story, More menu open", async ({ page }, info) => {
   await diffViewport(page, "states/18-story-more-menu-open.png", info);
 });
 
-test("state 19: a chart's menu (first chart: Move right, Remove)", async ({ page }, info) => {
-  await openStory(page);
-  await asDrawn(page);
-  await page.getByRole("button", { name: "Actions for first chart" }).click();
-  await expect(page.getByRole("menuitem", { name: "Move left" })).toHaveCount(0);
-  await expect(page.getByRole("menuitem", { name: "Move right" })).toBeVisible();
-  await diffViewport(page, "states/19-story-chart-menu-open.png", info);
-});
-
 test("state 20: Edit numbers opens six live inputs", async ({ page }, info) => {
   await openStory(page);
   await asDrawn(page);
@@ -445,7 +436,7 @@ test("Edit numbers: live inputs; Result updates the header and the shared store"
 
 // ---------- charts
 
-test("charts: tap a thumbnail to view it large; Move left / Move right; Remove with Undo", async ({ page }) => {
+test("charts: tap a thumbnail to view it large; ← → on the grip reorder; the trash removes with Undo", async ({ page }) => {
   await openStory(page);
   const big = page.getByRole("region", { name: "Charts" }).locator("figure").first();
   await expect(big).toContainText("5 of 5");
@@ -454,18 +445,21 @@ test("charts: tap a thumbnail to view it large; Move left / Move right; Remove w
   await expect(big).toContainText("1 of 5");
   await expect(page.getByRole("button", { name: "Show first chart" })).toHaveAttribute("aria-pressed", "true");
 
-  await page.getByRole("button", { name: "Actions for first chart" }).click();
-  await page.getByRole("menuitem", { name: "Move right" }).click();
+  await page.getByRole("button", { name: "Reorder first chart" }).focus();
+  await page.keyboard.press("ArrowRight");
   await expect(big).toContainText("2 of 5");
   const caps = page.getByRole("region", { name: "Charts" }).locator("figure[data-tile]");
   await expect.poll(() => chartOrder(page)).toEqual(["gD", "gW", "g4H", "gE", "gA"]);
-  await page.getByRole("button", { name: "Actions for second chart" }).click();
-  await page.getByRole("menuitem", { name: "Move left" }).click();
+  // Focus follows the chart; ← takes it back. Nothing past the ends.
+  await expect(page.getByRole("button", { name: "Reorder second chart" })).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
+  await expect.poll(() => chartOrder(page)).toEqual(["gW", "gD", "g4H", "gE", "gA"]);
+  await expect(page.getByRole("button", { name: "Reorder first chart" })).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
   await expect.poll(() => chartOrder(page)).toEqual(["gW", "gD", "g4H", "gE", "gA"]);
 
-  await page.getByRole("button", { name: "Actions for fifth chart" }).click();
-  await expect(page.getByRole("menuitem", { name: "Move right" })).toHaveCount(0);
-  await page.getByRole("menuitem", { name: "Remove" }).click();
+  await tileEls(page).nth(4).locator(".chart").hover();
+  await page.getByRole("button", { name: "Remove fifth chart" }).click();
   await expect(caps).toHaveCount(4);
   await expect(toast(page)).toContainText("Chart removed");
   await toast(page).getByRole("button", { name: "Undo" }).click();
@@ -534,9 +528,9 @@ test("reorder: the grip shows on hover, stays on the dragged tile, hides on the 
   await page.mouse.up();
 });
 
-test("tile overlay: ··· sits on the thumbnail, shows on hover, keyboard focus and while its menu is open", async ({ page }) => {
+test("tile overlay: the trash sits on the thumbnail, shows on hover and with keyboard focus", async ({ page }) => {
   await openStory(page);
-  const more = page.getByRole("button", { name: "Actions for second chart" });
+  const more = page.getByRole("button", { name: "Remove second chart" });
   const scrim = tileEls(page).nth(1).locator(".ktile-scrim");
   await page.mouse.move(5, 5);
   await expect(more).toHaveCSS("opacity", "0");
@@ -548,11 +542,11 @@ test("tile overlay: ··· sits on the thumbnail, shows on hover, keyboard focus
   await tileEls(page).nth(1).locator(".chart").hover();
   await expect(more).toHaveCSS("opacity", "1");
   await expect(scrim).toHaveCSS("opacity", "1");
-  await more.click();
   await page.mouse.move(5, 5);
-  await expect(more).toHaveCSS("opacity", "1"); // menu open
-  await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Show second chart" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Reorder second chart" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Reorder second chart" })).toHaveCSS("opacity", "1");
   await page.keyboard.press("Tab");
   await expect(more).toBeFocused();
   await expect(more).toHaveCSS("opacity", "1");
@@ -561,11 +555,11 @@ test("tile overlay: ··· sits on the thumbnail, shows on hover, keyboard focus
   await expect(tileEls(page).nth(0).locator("figcaption")).toHaveText("Weekly");
 });
 
-test("tile overlay on touch: the ··· is always there, no grip", async ({ browser }) => {
+test("tile overlay on touch: the trash is always there, no grip", async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await ctx.newPage();
   await openStory(page);
-  await expect(page.getByRole("button", { name: "Actions for first chart" })).toHaveCSS("opacity", "1");
+  await expect(page.getByRole("button", { name: "Remove first chart" })).toHaveCSS("opacity", "1");
   await expect(tileEls(page).nth(0).locator(".kgrip")).toHaveCSS("opacity", "0");
   await ctx.close();
 });
@@ -600,11 +594,23 @@ test("reorder: a click without moving still shows the chart large, and the click
   await expect.poll(() => chartOrder(page)).toEqual(ORDER);
 });
 
-test("reorder: the ··· menu still opens and doesn't start a drag", async ({ page }) => {
+test("reorder: pressing the trash removes and doesn't start a drag; dragging by the grip works", async ({ page }) => {
   await openStory(page);
-  await page.getByRole("button", { name: "Actions for first chart" }).click();
-  await expect(page.getByRole("menuitem", { name: "Move right" })).toBeVisible();
+  await tileEls(page).nth(0).locator(".chart").hover();
+  const rm = (await page.getByRole("button", { name: "Remove first chart" }).boundingBox())!;
+  await page.mouse.move(rm.x + 12, rm.y + 12);
+  await page.mouse.down();
+  await page.mouse.move(rm.x + 40, rm.y + 12, { steps: 4 });
   await expect(page.locator("figure[data-lifted]")).toHaveCount(0);
+  await page.mouse.up();
+  await expect.poll(() => chartOrder(page)).toEqual(ORDER);
+  const g = (await page.getByRole("button", { name: "Reorder first chart" }).boundingBox())!;
+  const c = await centre(page, 2);
+  await page.mouse.move(g.x + 12, g.y + 12);
+  await page.mouse.down();
+  await page.mouse.move(c.x, g.y + 12, { steps: 10 });
+  await page.mouse.up();
+  await expect.poll(() => chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
 });
 
 /** A finger: pointer events with pointerType touch, sent the way the browser sends them. */
@@ -649,11 +655,10 @@ test("reorder with reduced motion: no lift scale, no slide, the order changes on
   expect(await chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
 });
 
-test("charts: the last remaining chart can't be removed", async ({ page }) => {
+test("charts: the last remaining chart can't be removed (no trash on it)", async ({ page }) => {
   await openStory(page, "e10"); // one chart
-  await page.getByRole("button", { name: "Actions for first chart" }).click();
-  await expect(page.getByText("A story keeps at least one chart")).toBeVisible();
-  await expect(page.getByRole("menuitem")).toHaveCount(0);
+  await expect(tileEls(page)).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /^Remove .* chart$/ })).toHaveCount(0);
 });
 
 test("charts: + Add is a file picker; a dropped image becomes a chart", async ({ page }) => {

@@ -232,27 +232,27 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 .ktiles[data-reordering] .ktile[data-shifting] { transition: transform var(--d-base) var(--ease-standard); }
 html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 /* Tile overlay (DESIGN.md, Chart tiles): on hover a black wash fades down from the top of the thumbnail with
-   the grip (top left) and ··· (top right) in white. It stays while the menu is open or a control has keyboard
-   focus. On touch there's no hover, so the wash and ··· are always there (and no grip: press and hold). */
+   the grip (top left, also ← → from the keyboard) and the trash (top right) in white. It stays while a control
+   in the tile has keyboard focus. On touch there's no hover, so the wash and trash are always there (no grip:
+   press and hold to drag). */
 .ktile-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
   background: linear-gradient(to bottom, var(--media-scrim), transparent 70%);
   transition: opacity var(--d-fast) var(--ease-out); }
-.kgrip { position: absolute; top: 4px; left: 4px; z-index: 2; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
-  color: var(--on-media); opacity: 0; pointer-events: none; transition: opacity var(--d-fast) var(--ease-out); }
-.ktile-more { position: absolute; top: 4px; right: 4px; z-index: 5; display: inline-flex; }
-.app .ktile-more-btn { width: 24px; height: 24px; padding: 0; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--on-media);
-  display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0;
-  transition: opacity var(--d-fast) var(--ease-out), background var(--d-instant); }
+.app .kgrip, .app .ktile-rm { position: absolute; top: 4px; z-index: 5; width: 24px; height: 24px; padding: 0; border: 0;
+  border-radius: var(--r-sm); background: transparent; color: var(--on-media); display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity var(--d-fast) var(--ease-out), background var(--d-instant); }
+.app .kgrip { left: 4px; cursor: grab; }
+@media (hover: none) { .app .kgrip { pointer-events: none; } } /* hidden on touch; leave the spot to the thumbnail */
+.app .ktile-rm { right: 4px; cursor: pointer; }
 @media (hover: hover) and (pointer: fine) {
-  .ktile:hover .ktile-scrim, .ktile:hover .kgrip, .ktile:hover .ktile-more-btn { opacity: 1; }
-  .app .ktile-more-btn:hover { background: color-mix(in srgb, var(--on-media) 18%, transparent); }
+  .ktile:hover :is(.ktile-scrim, .kgrip, .ktile-rm) { opacity: 1; }
+  .app :is(.kgrip, .ktile-rm):hover { background: color-mix(in srgb, var(--on-media) 18%, transparent); }
 }
-@media (hover: none) { .ktile-scrim, .app .ktile-more-btn { opacity: 1; } }
-.ktile:has(:focus-visible) .ktile-scrim, .ktile:has(:focus-visible) .ktile-more-btn,
-.ktile:has([aria-expanded="true"]) .ktile-scrim, .ktile:has([aria-expanded="true"]) .ktile-more-btn { opacity: 1; }
-.ktile[data-lifted] .ktile-scrim, .ktile[data-lifted] .kgrip { opacity: 1; }
-.ktiles[data-reordering] .ktile:not([data-lifted]) :is(.ktile-scrim, .kgrip, .ktile-more-btn) { opacity: 0; }
-.ktiles .ktile[data-lifted] .ktile-more-btn { opacity: 0; } /* nothing to press mid-drag */
+@media (hover: none) { .ktile-scrim, .app .ktile-rm { opacity: 1; } }
+.ktile:has(:focus-visible) :is(.ktile-scrim, .kgrip, .ktile-rm) { opacity: 1; }
+.ktile[data-lifted] :is(.ktile-scrim, .kgrip) { opacity: 1; }
+.ktiles[data-reordering] .ktile:not([data-lifted]) :is(.ktile-scrim, .kgrip, .ktile-rm) { opacity: 0; }
+.ktiles .ktile[data-lifted] .ktile-rm { opacity: 0; } /* nothing to press mid-drag */
 @media (prefers-reduced-motion: reduce) {
   .ktile[data-lifted]::before, .ktile[data-lifted] > .chart { transform: none; }
   .ktiles[data-reordering] .ktile[data-shifting] { transition: none; }
