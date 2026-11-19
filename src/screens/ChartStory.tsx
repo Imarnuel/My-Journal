@@ -379,6 +379,7 @@ function StoryScreen({ id }: { id: string | null }) {
     addEntry(entryFromStory(nid, s, kindOf));
     if (s.voiceLen) setExtras(nid, { voiceLen: s.voiceLen });
     nav(`/story/${nid}`);
+    toastA("Chart story saved");
   };
 
   const analysis = saved && entry ? linkedAnalysis(entries, entry) : null;

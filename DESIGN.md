@@ -47,3 +47,13 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
   Frustrated 😤, in the Headspace menu and on the chosen value. The word stays the value and carries the
   meaning; the emoji is decorative (hidden from screen readers). This overrides the handoff's "no emoji in
   the interface" for Headspace only. Source: `HEADSPACE_EMOJI` in `src/lib/story.ts`.
+
+## Trade log entries
+- **An entry opens its story from a click anywhere on it**, List row or Grid card, with a hover state:
+  rows take the row hover fill, cards lift 1px and strengthen their edge (never scale). The entry's own
+  controls (pair link, More menu, Add a note, the drop zone) keep their action, and selecting text opens
+  nothing. The pair link stays the keyboard route. Source: `useOpenOnClick` in `src/screens/tradelog/Rows.tsx`.
+
+## Feedback
+- **Saving a chart story shows a toast**, "Chart story saved", as the app moves to the saved story.
+  Why: the page changes underneath you, and the toast confirms the trade is in the log.

@@ -1,7 +1,7 @@
 // Trade log entries: List view rows and Grid view cards, the row menu (Change date, Exclude / Include in
 // stats, Delete) and the drop zone for a trade from MT5 with no charts. Markup from prototype/Main.dc.html.
-import { useRef, useState, type ClipboardEvent, type DragEvent, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState, type ClipboardEvent, type DragEvent, type MouseEvent, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import type { Entry } from "../../lib/types";
 import { isImage, rowFacts, thumbs } from "../../lib/tradelog";
 import { returnFocus } from "./FilterMenu";
@@ -186,11 +186,28 @@ function Fact({ icon, sr, text }: { icon: ReactNode; sr?: string; text: string }
   );
 }
 
+/**
+ * A click anywhere on an entry opens its story (owner's request, DESIGN.md). Clicks on the entry's own
+ * controls (links, buttons, the drop zone, menus) keep their own action, and selecting text opens nothing.
+ * Keyboard users open it with the pair link, which stays the entry's one tab stop for this.
+ */
+function useOpenOnClick(to: string) {
+  const nav = useNavigate();
+  return (ev: MouseEvent<HTMLElement>) => {
+    if (ev.defaultPrevented || ev.button !== 0) return;
+    const t = ev.target as HTMLElement;
+    if (t.closest('a, button, input, label, textarea, select, [role="menu"], [role="dialog"], [role="listbox"], .kmenu')) return;
+    if (window.getSelection()?.toString()) return;
+    nav(to);
+  };
+}
+
 export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
   const f = rowFacts(e);
   const t = thumbs(e);
+  const open = useOpenOnClick(story(e));
   return (
-    <li style={{ listStyle: "none", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px 32px", padding: "16px 24px", borderTop: "1px solid var(--border-subtle)" }}>
+    <li className="krow trow" onClick={open} style={{ listStyle: "none", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px 32px", padding: "16px 24px", borderTop: "1px solid var(--border-subtle)" }}>
       <div style={{ flex: "1 1 280px", minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           <Link to={story(e)} className="num" style={{ fontSize: "14px", fontWeight: 500, textDecoration: "none" }}>
@@ -245,8 +262,9 @@ export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
 export function GridCard({ e, a }: { e: Entry; a: RowActions }) {
   const f = rowFacts(e);
   const t = thumbs(e);
+  const open = useOpenOnClick(story(e));
   return (
-    <li className="card" style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "12px", minWidth: 0 }}>
+    <li className="card tcard" onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "12px", minWidth: 0 }}>
       {t.n === 0 ? <DropZone a={a} grid /> : null}
       {t.grid ? (
         <span className="chart" style={{ display: "block" }}>
