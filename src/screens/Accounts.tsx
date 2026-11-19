@@ -74,7 +74,7 @@ export function Accounts() {
       </header>
 
       <section aria-label="Your accounts" className="card" style={{ borderRadius: "12px", overflow: "hidden" }}>
-        <div aria-hidden="true" style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", padding: "12px 16px", fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>
+        <div aria-hidden="true" className="acct-head" style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", padding: "12px 16px", fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>
           <span>Name</span>
           <span>Type</span>
           <span>Trade numbers from</span>
@@ -85,10 +85,10 @@ export function Accounts() {
             <li key={a.name} style={{ listStyle: "none" }}>
               <Link
                 to={`/accounts/${slug(a.name)}`}
-                className="krow"
+                className="krow acct-row"
                 style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", alignItems: "center", minHeight: "60px", padding: "0 16px", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)" }}
               >
-                <span style={{ fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center" }}>
+                <span style={{ fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "4px" }}>
                   {a.name}
                   {a.name === dflt ? <span style={badge}>Default for screenshots</span> : a.practice ? <span style={badge}>Practice</span> : null}
                 </span>

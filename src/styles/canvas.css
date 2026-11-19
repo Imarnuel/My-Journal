@@ -14,7 +14,6 @@ body{margin:0;background:var(--bg-app)}
 
 .app a{color:var(--text-1);text-underline-offset:3px;text-decoration-color:var(--border-strong);transition:color var(--d-instant),text-decoration-color var(--d-instant)}
 
-.app a:hover{text-decoration-color:var(--text-1)}
 
 .app ::selection{background:var(--surface-pressed)}
 
@@ -34,19 +33,16 @@ body{margin:0;background:var(--bg-app)}
 
 .btn-p{background:var(--btn-p-bg)!important;color:var(--btn-p-fg)!important;box-shadow:var(--btn-p-shadow);font-weight:600}
 
-.btn-p:hover{background:var(--btn-p-bg-hover)!important}
 
 .btn-p:active{box-shadow:0 0 0 1px var(--border-strong)}
 
 .btn-g{background:var(--btn-g-bg)!important;color:var(--text-1)!important;box-shadow:var(--btn-g-shadow)}
 
-.btn-g:hover{background:var(--btn-g-bg-hover)!important}
 
 .btn-g:active{box-shadow:0 0 0 1px var(--border)}
 
 .btn-q{background:transparent!important;color:var(--text-2)!important}
 
-.btn-q:hover{background:var(--surface-hover)!important;color:var(--text-1)!important}
 
 .kvoice{background:var(--btn-v-bg)!important;color:var(--btn-v-fg)!important;box-shadow:var(--btn-p-shadow)!important}
 
@@ -54,7 +50,6 @@ body{margin:0;background:var(--bg-app)}
 
 .nav a{display:flex;align-items:center;gap:12px;padding:0 12px;min-height:38px;border-radius:var(--r-sm);color:var(--text-2);text-decoration:none;font-size:14px;font-weight:500;transition:background var(--d-instant),color var(--d-instant)}
 
-.nav a:hover{color:var(--text-1);background:var(--surface-hover)}
 
 .nav a.on{color:var(--text-1);background:var(--surface-pressed);box-shadow:inset 0 1px 0 var(--highlight)}
 
@@ -66,7 +61,6 @@ body{margin:0;background:var(--bg-app)}
 
 .ghost{font:inherit;font-size:14px;color:var(--text-1);background:transparent;border:1px solid transparent;border-radius:var(--r-sm);padding:0 12px;margin:0 -12px;min-height:34px;width:100%;box-sizing:border-box;text-align:left;transition:background var(--d-instant),border-color var(--d-instant)}
 
-.ghost:hover{background:var(--surface-hover)}
 
 .ghost:focus{outline:none;border-color:var(--border-strong);background:var(--surface-inset)}
 
@@ -80,14 +74,11 @@ body{margin:0;background:var(--bg-app)}
 
 .card{background:linear-gradient(var(--card-fill,var(--surface-2)),var(--card-fill,var(--surface-2))) padding-box,var(--card-edge) border-box!important;border:1px solid transparent!important;box-shadow:var(--shadow-card);border-radius:var(--r-card);transition:transform var(--d-fast) var(--ease-out)}
 
-a.card:hover,button.card:hover{background:linear-gradient(var(--card-fill,var(--surface-2)),var(--card-fill,var(--surface-2))) padding-box,var(--card-edge-hover) border-box!important;transform:translateY(-1px)}
 
 .kit-opt{transition:background var(--d-instant)}
 
-.kit-opt:hover{background:var(--surface-hover)!important}
 
 .kit-row .kit-only{opacity:0;transition:opacity var(--d-instant)}
-.kit-row:hover .kit-only,.kit-row:focus-within .kit-only{opacity:1}
 
 .kmenu{background:var(--surface-3)!important;border:0!important;border-radius:var(--r-menu)!important;box-shadow:var(--shadow-float)!important;animation:kpop var(--d-fast) var(--ease-out);transform-origin:top center}
 
@@ -99,7 +90,6 @@ a.card:hover,button.card:hover{background:linear-gradient(var(--card-fill,var(--
 
 .kseg-track button[aria-pressed="false"]{background:transparent!important;color:var(--text-2)!important;font-weight:500!important}
 
-.kseg-track button[aria-pressed="false"]:hover{color:var(--text-1)!important}
 
 .kchip{background:transparent!important;color:var(--text-1)!important;border-color:var(--border)!important;font-weight:500!important;transition:background var(--d-fast),color var(--d-fast)}
 
@@ -119,7 +109,6 @@ a.card:hover,button.card:hover{background:linear-gradient(var(--card-fill,var(--
 
 .krow{transition:background var(--d-instant)}
 
-.krow:hover{background:var(--surface-hover)}
 
 @keyframes kpop{from{opacity:0;transform:translateY(-4px) scale(0.97)}
 to{opacity:1;transform:none}
@@ -199,7 +188,6 @@ to{opacity:1;transform:none}
 
 .btn-g svg,.btn-q svg{color:var(--text-2);transition:color var(--d-instant)}
 
-.btn-g:hover svg,.btn-q:hover svg{color:var(--text-1)}
 
 .kit-opt .mi{display:flex;align-items:center;gap:8px;min-width:0}
 
@@ -209,7 +197,6 @@ to{opacity:1;transform:none}
 
 .kmore{color:var(--text-2)!important;display:inline-flex!important;align-items:center;justify-content:center}
 
-.kmore:hover{color:var(--text-1)!important}
 
 .knote{position:relative;padding-left:48px!important}
 
@@ -225,7 +212,6 @@ to{opacity:1;transform:none}
 
 .kseg-track [role=tab][aria-selected="false"]{background:transparent!important;color:var(--text-2)!important}
 
-.kseg-track [role=tab][aria-selected="false"]:hover{color:var(--text-1)!important}
 
 
 .app{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-feature-settings:"calt" 1}
@@ -237,7 +223,6 @@ to{opacity:1;transform:none}
 
 .kpt-on{position:absolute;inset:0;opacity:0;transition:opacity 80ms linear;pointer-events:none}
 
-.kpt:hover .kpt-on{opacity:1}
 
 .kpt-line{position:absolute;top:13.7%;bottom:8.9%;width:1px;background:var(--border-strong);transform:translateX(-0.5px)}
 
@@ -261,13 +246,10 @@ to{opacity:1;transform:none}
 
 .kbar:last-child .ktip-bar{left:auto;right:0;transform:none}
 
-.kbar:hover .ktip-bar{opacity:1}
 
 .kbar-fill{transition:opacity 140ms var(--ease-standard)}
 
-.kbars:hover .kbar:not(:hover) .kbar-fill{opacity:0.3}
 
-.keq:hover .kdraw{transition:opacity 140ms}
 
 
 
@@ -285,7 +267,6 @@ to{opacity:1;transform:none}
 
 .btn-q[style*="--loss"],.btn-g[style*="--loss"]{color:var(--loss)!important}
 
-.btn-q[style*="--loss"]:hover,.btn-g[style*="--loss"]:hover{color:var(--loss)!important}
 
 .kskip{position:absolute;left:12px;top:-60px;z-index:60;padding:8px 16px;border-radius:8px;background:var(--inverse-bg)!important;color:var(--inverse-fg)!important;font-size:14px;font-weight:500;text-decoration:none;transition:top var(--d-fast) var(--ease-out)}
 
@@ -348,3 +329,31 @@ to{opacity:1;transform:none}
 
 .app textarea{border-radius:8px!important;padding:8px 12px!important}
 
+
+/* Chart readouts stay on :hover so a tap shows them on touch screens (02-look-and-feel.md section 13). */
+.kpt:hover .kpt-on{opacity:1}
+.kbar:hover .ktip-bar{opacity:1}
+.kbars:hover .kbar:not(:hover) .kbar-fill{opacity:0.3}
+.keq:hover .kdraw{transition:opacity 140ms}
+/* Hover only where the pointer can hover (mobile-native: no sticky hover after a tap). */
+@media (hover: hover) and (pointer: fine) {
+.app a:hover{text-decoration-color:var(--text-1)}
+.btn-p:hover{background:var(--btn-p-bg-hover)!important}
+.btn-g:hover{background:var(--btn-g-bg-hover)!important}
+.btn-q:hover{background:var(--surface-hover)!important;color:var(--text-1)!important}
+.nav a:hover{color:var(--text-1);background:var(--surface-hover)}
+.ghost:hover{background:var(--surface-hover)}
+a.card:hover,button.card:hover{background:linear-gradient(var(--card-fill,var(--surface-2)),var(--card-fill,var(--surface-2))) padding-box,var(--card-edge-hover) border-box!important;transform:translateY(-1px)}
+.kit-opt:hover{background:var(--surface-hover)!important}
+.kit-row:hover .kit-only,.kit-row:focus-within .kit-only{opacity:1}
+.kseg-track button[aria-pressed="false"]:hover{color:var(--text-1)!important}
+.krow:hover{background:var(--surface-hover)}
+.btn-g:hover svg,.btn-q:hover svg{color:var(--text-1)}
+.kmore:hover{color:var(--text-1)!important}
+.kseg-track [role=tab][aria-selected="false"]:hover{color:var(--text-1)!important}
+.btn-q[style*="--loss"]:hover,.btn-g[style*="--loss"]:hover{color:var(--loss)!important}
+}
+/* Touch: row actions that appear on hover on desktop are always visible (section 11, Lists and rows). */
+@media (hover: none), (pointer: coarse) {
+.kit-row .kit-only{opacity:1}
+}

@@ -40,7 +40,7 @@ export function Toasts() {
       key={t.id}
       role="status"
       className="kstatus"
-      style={{ position: "fixed", zIndex: 20, left: "50%", bottom: "28px", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px 12px 16px", background: "var(--inverse-bg)", color: "var(--inverse-fg)", borderRadius: "12px", boxShadow: "0 16px 40px rgba(0,0,0,0.5)", fontSize: "14px", whiteSpace: "nowrap" }}
+      style={{ position: "fixed", zIndex: 20, left: "50%", bottom: "calc(28px + env(safe-area-inset-bottom, 0px))", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px 12px 16px", background: "var(--inverse-bg)", color: "var(--inverse-fg)", borderRadius: "12px", boxShadow: "0 16px 40px rgba(0,0,0,0.5)", fontSize: "14px", whiteSpace: "nowrap" }}
     >
       <span>{t.msg}</span>
       {t.undo ? (
