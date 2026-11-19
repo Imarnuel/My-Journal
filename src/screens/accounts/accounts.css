@@ -1,0 +1,12 @@
+/* Loading state inside a button (02-look-and-feel.md, Buttons, Loading): the label fades out, a 16px
+   spinner fades in at the centre, the button keeps its width. */
+.kload { position: relative; }
+.kload > .kload-label { transition: opacity var(--d-fast) var(--ease-out); }
+.kload > .kload-spin { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--d-fast) var(--ease-out); pointer-events: none; }
+.kload[aria-busy="true"] { cursor: progress; }
+.kload[aria-busy="true"] > .kload-label { opacity: 0; }
+.kload[aria-busy="true"] > .kload-spin { opacity: 1; }
+.kload-spin svg { animation: kspin 800ms linear infinite; }
+@keyframes kspin { to { transform: rotate(360deg); } }
+/* Reduced motion keeps the loading cue but turns it gently. */
+@media (prefers-reduced-motion: reduce) { .kload-spin svg { animation-duration: 1600ms; } }
