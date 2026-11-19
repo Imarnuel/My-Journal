@@ -43,10 +43,17 @@ test("menus opened from the keyboard appear at once; from the pointer they grow 
 test("theme change cross-fades colours and nothing moves", async ({ page }) => {
   await page.goto("/settings");
   await page.locator("#main").waitFor();
+  // Record the class as it comes and goes (it only lasts the length of the fade).
+  await page.evaluate(() => {
+    const w = window as unknown as { fades: boolean[] };
+    w.fades = [];
+    new MutationObserver(() => w.fades.push(document.documentElement.classList.contains("theme-fade"))).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  });
   await page.getByRole("button", { name: "Dark" }).first().click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(page.locator("html")).toHaveClass(/theme-fade/);
   await expect(page.locator("html")).not.toHaveClass(/theme-fade/, { timeout: 2000 });
+  const fades = await page.evaluate(() => (window as unknown as { fades: boolean[] }).fades);
+  expect(fades).toEqual([true, false]);
 });
 
 test("page change: content fades in with a small drift; first load and keyboard navigation stay still", async ({ page }) => {

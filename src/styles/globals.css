@@ -93,3 +93,25 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 
 /* The tag field's text input starts where the pills and other Details values start (no field padding). */
 .app input.tag-input { padding-left: 0 !important; padding-right: 0 !important; }
+
+/* Breadcrumbs (DESIGN.md): icon + name per step, chevrons between, current page in --text-1. */
+.kcrumbs { align-self: flex-start; min-width: 0; max-width: 100%; }
+.kcrumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.kcrumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.app .kcrumb { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; margin: 0 -4px; border-radius: var(--r-sm);
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-2); text-decoration: none; min-width: 0;
+  transition: background var(--d-instant), color var(--d-instant); }
+.kcrumbs li:first-child .kcrumb { margin-left: -8px; }
+.kcrumb-ic { display: inline-flex; flex: none; color: var(--text-3); }
+.kcrumb-ic svg { width: 16px; height: 16px; }
+.kcrumb-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+.app .kcrumb-now { color: var(--text-1); }
+@media (hover: hover) and (pointer: fine) {
+  .app a.kcrumb:hover { color: var(--text-1); background: var(--surface-hover); }
+  .app a.kcrumb:hover .kcrumb-ic { color: var(--text-2); }
+}
+
+/* Sidebar navigation (DESIGN.md): roomier rows, 16px icons. */
+.nav { gap: 4px !important; }
+.app .nav a { min-height: 36px; gap: 10px; }
+.app .nav a svg { width: 16px; height: 16px; flex: none; }

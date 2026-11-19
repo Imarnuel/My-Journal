@@ -43,7 +43,8 @@ export async function settle(page: Page) {
 }
 
 export async function diffAgainst(page: Page, ref: string, info: TestInfo, opts: { height?: number; maxRatio?: number } = {}) {
-  const want = PNG.sync.read(fs.readFileSync(refPath(ref)));
+  const approving = !!process.env.APPROVE && new RegExp(process.env.APPROVE).test(ref);
+  const want = approving && !fs.existsSync(refPath(ref)) ? new PNG({ width: 1440, height: opts.height ?? 1000 }) : PNG.sync.read(fs.readFileSync(refPath(ref)));
   const h = opts.height ?? want.height;
   await page.setViewportSize({ width: 1440, height: h });
   await settle(page);

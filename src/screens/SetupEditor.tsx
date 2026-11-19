@@ -1,6 +1,8 @@
 // Frame 10 · Setup editor: a new setup (drafted from the look-alike stories, or blank) or Edit rules on an
 // existing setup. Rule groups with editable fields, × removes with Undo, "Add a rule", reorder by the grip
 // (drag, or arrow keys on the grip). Markup from handoff/prototype/SetupEdit.dc.html.
+import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { Icon } from "../components/primitives/Icon";
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -10,7 +12,7 @@ import { GROUP_NOTE, GROUPS, nameFree, saveSetup, SUGGESTION, useSuggestion, typ
 import { moveItem } from "../lib/playbook";
 import { shortDate } from "../lib/format";
 import { toast } from "../components/primitives/toast";
-import { BackIcon, backLink, ChartArt, groupHead, h1Style, PlaybookSprite, PlusIcon } from "./playbook/parts";
+import { ChartArt, groupHead, h1Style, PlaybookSprite, PlusIcon } from "./playbook/parts";
 
 type Row = { id: number; t: string };
 type Draft = Record<Group, Row[]>;
@@ -108,10 +110,17 @@ export function SetupEditor() {
     <Shell active="playbook">
       <PlaybookSprite />
       <div style={{ maxWidth: "760px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
-        <Link to="/playbook" style={backLink}>
-          <BackIcon />
-          Playbook
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: "Playbook", to: "/playbook", icon: <Icon name="book" size={16} /> },
+            ...(editing
+              ? [
+                  { label: editing.name, to: `/playbook/${slug(editing.name)}`, icon: <Icon name="filter-setup" size={16} /> },
+                  { label: "Edit rules", icon: <Icon name="pen" size={16} /> },
+                ]
+              : [{ label: "New setup", icon: <Icon name="plus" size={16} /> }]),
+          ]}
+        />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={h1Style}>{editing ? editing.name : "New setup"}</h1>

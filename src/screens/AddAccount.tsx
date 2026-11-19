@@ -1,10 +1,12 @@
 // Frame 13 · Add account: name, type, Practice, optional MT5 (login, server, read-only investor password).
 // Markup from handoff/prototype/AddAccount.dc.html; adds to the shared store and goes to Accounts.
+import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { Icon } from "../components/primitives/Icon";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
-import { AccountFields, backLinkStyle, fieldStyle, labelStyle, type AccountDraft } from "./accounts/AccountFields";
+import { AccountFields, fieldStyle, labelStyle, type AccountDraft } from "./accounts/AccountFields";
 import { useAccountMeta } from "./accounts/meta";
 import { testConnection, type Mt5Result } from "./accounts/mt5";
 import { Switch } from "./settings/Switch";
@@ -74,10 +76,7 @@ export function AddAccount() {
   return (
     <Shell active="accounts">
       <div style={{ maxWidth: "620px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
-        <Link to="/accounts" style={backLinkStyle}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
-          Accounts
-        </Link>
+        <Breadcrumbs items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: "Add an account", icon: <Icon name="plus" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={{ margin: 0, fontFamily: "Inter, sans-serif", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>Add an account</h1>

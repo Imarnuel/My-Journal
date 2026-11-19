@@ -1,6 +1,8 @@
 // Frame 09 · Setup page: stats following the account picker, rules beside the examples, tabs Examples /
 // Patterns / Lessons, the look-alike suggestion. Markup from handoff/prototype/Playbook.dc.html; numbers,
 // examples, patterns and lessons are computed from the shared store.
+import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { Icon } from "../components/primitives/Icon";
 import { Fragment, useState, type KeyboardEvent } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -13,7 +15,7 @@ import type { Entry } from "../lib/types";
 import { toast } from "../components/primitives/toast";
 import { useKit, useMenu } from "./useKit";
 import { AccountPicker } from "../components/primitives/AccountPicker";
-import { BackIcon, backLink, ChartArt, Dot, groupHead, h1Style, PencilIcon, PlaybookSprite, Sparkle } from "./playbook/parts";
+import { ChartArt, Dot, groupHead, h1Style, PencilIcon, PlaybookSprite, Sparkle } from "./playbook/parts";
 
 type Tab = "ex" | "pat" | "les";
 const TABS: { k: Tab; label: string }[] = [
@@ -108,10 +110,7 @@ export function SetupPage() {
     <Shell active="playbook">
       <PlaybookSprite />
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <Link to="/playbook" style={backLink}>
-          <BackIcon />
-          Playbook
-        </Link>
+        <Breadcrumbs items={[{ label: "Playbook", to: "/playbook", icon: <Icon name="book" size={16} /> }, { label: S, icon: <Icon name="filter-setup" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={h1Style}>{S}</h1>

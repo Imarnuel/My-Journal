@@ -40,8 +40,10 @@ let instantUntil = 0;
 export const instantNext = () => {
   instantUntil = performance.now() + 150;
 };
+/** The last input was the keyboard (set app-wide by src/components/primitives/motion.ts). */
+const lastInputKeyboard = () => typeof document !== "undefined" && document.documentElement.dataset.input === "kbd";
 /** Swap at once instead of animating: reduced motion, or a change made from the keyboard. */
-export const noMotion = () => reducedMotion() || performance.now() < instantUntil;
+export const noMotion = () => reducedMotion() || performance.now() < instantUntil || lastInputKeyboard();
 
 /**
  * Tween any value toward `target` with `lerp(from, to, k)`. The first value shows as-is; later changes animate.

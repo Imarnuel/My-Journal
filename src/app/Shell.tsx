@@ -142,7 +142,7 @@ export function Shell({ active, children, minHeight }: { active: NavKey; childre
         <nav className="nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {NAV.map((n) => (
             <Link key={n.key} to={n.to} className={active === n.key ? "on" : ""} aria-current={active === n.key ? "page" : undefined}>
-              <Icon name={n.icon} />
+              <Icon name={n.icon} size={16} />
               <span>{n.label}</span>
             </Link>
           ))}

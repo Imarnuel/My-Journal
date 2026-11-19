@@ -2,6 +2,8 @@
 // story (/story/:id). One component; only the starting state and the footer differ (01-decisions.md,
 // "Chart story"). Markup from src/screens/body/Story.body.tsx and NewStory.body.tsx; a saved story reads
 // and writes its Entry in the shared store, a new one is a draft until Save story adds it.
+import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
@@ -386,12 +388,12 @@ function StoryScreen({ id }: { id: string | null }) {
   return (
     <Shell active="log">
       <StorySprite />
-      <Link to="/log" style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-2)", textDecoration: "none", alignSelf: "flex-start", minHeight: "32px" }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M15 6l-6 6 6 6" />
-        </svg>
-        Trade log
-      </Link>
+      <Breadcrumbs
+        items={[
+          { label: "Trade log", to: "/log", icon: <Icon name="log" size={16} /> },
+          saved ? { label: s.pair, icon: <Icon name="fact-pair" size={16} /> } : { label: "New chart story", icon: <Icon name="plus" size={16} /> },
+        ]}
+      />
       <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
           {saved ? (

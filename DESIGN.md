@@ -19,3 +19,13 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
 - **Even rhythm inside a card**: 16px between the parts of a card, 12px from the card header to its first
   part, 8px from a label to its field. A label row only grows to 28px when controls sit beside the label.
 - **Inputs inside a tag field start at the same x as the other values** (no field padding).
+
+## Navigation
+- **Breadcrumbs replace "‹ Back" links.** Every page below a section shows its trail: each step is a 16px
+  icon and its name, separated by a 16px chevron (`--text-3`). Earlier steps are links in `--text-2` that
+  turn `--text-1` with a hover fill; the current page is `--text-1` and not a link. Icons are the section's
+  sidebar icon, then the item's own (pair, setup, account), or a plus for "new" pages, a pen for editing.
+  Component: `src/components/primitives/Breadcrumbs.tsx`. Why: the trail says where you are and every
+  level above is one click away, as in the owner's reference (Linear-style).
+- **Sidebar rows are roomier**: 36px tall, 4px apart, 16px icons, 10px from icon to label. Why: the
+  tighter 32px rows read cramped next to the calm main card.
