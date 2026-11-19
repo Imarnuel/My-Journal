@@ -46,6 +46,9 @@ async function store<T>(page: Page, fn: string): Promise<T> {
 const asDrawn = (page: Page) => store(page, `s.getState().updateEntry("e20", { textbook: false })`);
 
 const toast = (page: Page) => page.locator(".kstatus");
+/** The charts' order, by id, as the tiles show it. */
+const chartOrder = (page: Page) =>
+  page.getByRole("region", { name: "Charts" }).locator("figure[data-tile]").evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.chart));
 const openStory = async (page: Page, id = "e20") => {
   await page.goto(`/story/${id}`);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -454,11 +457,11 @@ test("charts: tap a thumbnail to view it large; Move left / Move right; Remove w
   await page.getByRole("button", { name: "Actions for first chart" }).click();
   await page.getByRole("menuitem", { name: "Move right" }).click();
   await expect(big).toContainText("2 of 5");
-  const caps = page.getByRole("region", { name: "Charts" }).locator("figure[data-tile] .lbl");
-  await expect(caps).toHaveText(["", "Weekly", "4H", "15m", "15m"]);
+  const caps = page.getByRole("region", { name: "Charts" }).locator("figure[data-tile]");
+  await expect.poll(() => chartOrder(page)).toEqual(["gD", "gW", "g4H", "gE", "gA"]);
   await page.getByRole("button", { name: "Actions for second chart" }).click();
   await page.getByRole("menuitem", { name: "Move left" }).click();
-  await expect(caps).toHaveText(["Weekly", "", "4H", "15m", "15m"]);
+  await expect.poll(() => chartOrder(page)).toEqual(["gW", "gD", "g4H", "gE", "gA"]);
 
   await page.getByRole("button", { name: "Actions for fifth chart" }).click();
   await expect(page.getByRole("menuitem", { name: "Move right" })).toHaveCount(0);
@@ -475,21 +478,20 @@ test("charts: drag a tile to reorder", async ({ page }) => {
   await openStory(page);
   const tiles = page.getByRole("region", { name: "Charts" }).locator("figure[data-tile]");
   await tiles.nth(0).dragTo(tiles.nth(2));
-  await expect(page.getByRole("region", { name: "Charts" }).locator("figure[data-tile] .lbl")).toHaveText(["", "4H", "Weekly", "15m", "15m"]);
+  await expect.poll(() => chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
 });
 
 // ---------- drag to reorder, in detail (DESIGN.md, Chart reordering)
 const tileEls = (page: Page) => page.getByRole("region", { name: "Charts" }).locator("figure[data-tile]");
-const captions = (page: Page) => tileEls(page).locator(".lbl");
 const centre = async (page: Page, i: number) => {
   const b = (await tileEls(page).nth(i).locator(".chart").boundingBox())!;
   return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
 };
-const ORDER = ["Weekly", "", "4H", "15m", "15m"];
+const ORDER = ["gW", "gD", "g4H", "gE", "gA"];
 
 test("reorder: the tile lifts after 6px, follows the pointer, the others make room, order saves after it settles", async ({ page }) => {
   await openStory(page);
-  await expect(captions(page)).toHaveText(ORDER);
+  await expect.poll(() => chartOrder(page)).toEqual(ORDER);
   const a = await centre(page, 0);
   const c = await centre(page, 2);
   await page.mouse.move(a.x, a.y);
@@ -507,9 +509,9 @@ test("reorder: the tile lifts after 6px, follows the pointer, the others make ro
   await expect.poll(() => shiftOf(2)).toContain("translate3d(-");
   expect(await shiftOf(3)).toBe("");
   // The order isn't saved while dragging.
-  await expect(captions(page)).toHaveText(ORDER);
+  await expect.poll(() => chartOrder(page)).toEqual(ORDER);
   await page.mouse.up();
-  await expect(captions(page)).toHaveText(["", "4H", "Weekly", "15m", "15m"]);
+  await expect.poll(() => chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
   // Everything is back in the flow, nothing left translated.
   expect(await tileEls(page).evaluateAll((els) => els.map((e) => (e as HTMLElement).style.transform))).toEqual(["", "", "", "", ""]);
   await expect(page.locator("figure[data-active]")).toHaveCount(0);
@@ -532,6 +534,42 @@ test("reorder: the grip shows on hover, stays on the dragged tile, hides on the 
   await page.mouse.up();
 });
 
+test("tile overlay: ··· sits on the thumbnail, shows on hover, keyboard focus and while its menu is open", async ({ page }) => {
+  await openStory(page);
+  const more = page.getByRole("button", { name: "Actions for second chart" });
+  const scrim = tileEls(page).nth(1).locator(".ktile-scrim");
+  await page.mouse.move(5, 5);
+  await expect(more).toHaveCSS("opacity", "0");
+  // On the image: inside the thumbnail's box, top right.
+  const t = (await tileEls(page).nth(1).locator(".chart").boundingBox())!;
+  const m = (await more.boundingBox())!;
+  expect(m.y).toBeGreaterThanOrEqual(t.y);
+  expect(m.x + m.width).toBeLessThanOrEqual(t.x + t.width);
+  await tileEls(page).nth(1).locator(".chart").hover();
+  await expect(more).toHaveCSS("opacity", "1");
+  await expect(scrim).toHaveCSS("opacity", "1");
+  await more.click();
+  await page.mouse.move(5, 5);
+  await expect(more).toHaveCSS("opacity", "1"); // menu open
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Show second chart" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(more).toBeFocused();
+  await expect(more).toHaveCSS("opacity", "1");
+  // Uploaded and sample charts without a timeframe have no caption row under them.
+  await expect(tileEls(page).nth(1).locator("figcaption")).toHaveCount(0);
+  await expect(tileEls(page).nth(0).locator("figcaption")).toHaveText("Weekly");
+});
+
+test("tile overlay on touch: the ··· is always there, no grip", async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await openStory(page);
+  await expect(page.getByRole("button", { name: "Actions for first chart" })).toHaveCSS("opacity", "1");
+  await expect(tileEls(page).nth(0).locator(".kgrip")).toHaveCSS("opacity", "0");
+  await ctx.close();
+});
+
 test("reorder: Escape puts the tile back and nothing changes", async ({ page }) => {
   await openStory(page);
   const a = await centre(page, 0);
@@ -542,7 +580,7 @@ test("reorder: Escape puts the tile back and nothing changes", async ({ page }) 
   await page.keyboard.press("Escape");
   await page.mouse.up();
   await expect(page.locator("figure[data-active]")).toHaveCount(0);
-  await expect(captions(page)).toHaveText(ORDER);
+  await expect.poll(() => chartOrder(page)).toEqual(ORDER);
 });
 
 test("reorder: a click without moving still shows the chart large, and the click ending a drag doesn't", async ({ page }) => {
@@ -559,7 +597,7 @@ test("reorder: a click without moving still shows the chart large, and the click
   await page.mouse.up();
   await expect(page.locator("figure[data-active]")).toHaveCount(0);
   await expect(big).toContainText("3 of 5");
-  await expect(captions(page)).toHaveText(ORDER);
+  await expect.poll(() => chartOrder(page)).toEqual(ORDER);
 });
 
 test("reorder: the ··· menu still opens and doesn't start a drag", async ({ page }) => {
@@ -586,10 +624,10 @@ test("reorder by touch: press and hold lifts the tile; a quick swipe is left to 
   // A swipe that moves straight away doesn't lift anything.
   await touch(page, 0, [{ dx: 20, dy: 0 }, { dx: step * 2, dy: 0 }]);
   await expect(page.locator("figure[data-active]")).toHaveCount(0);
-  await expect(captions(page)).toHaveText(ORDER);
+  await expect.poll(() => chartOrder(page)).toEqual(ORDER);
   // Hold 300ms, then drag two slots right.
   await touch(page, 0, [{ dx: 0, dy: 0, wait: 300 }, { dx: step, dy: 0 }, { dx: step * 2, dy: 0 }]);
-  await expect(captions(page)).toHaveText(["", "4H", "Weekly", "15m", "15m"]);
+  await expect.poll(() => chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
 });
 
 test("reorder with reduced motion: no lift scale, no slide, the order changes on release", async ({ page }) => {
@@ -608,7 +646,7 @@ test("reorder with reduced motion: no lift scale, no slide, the order changes on
   expect(look.slide).toBe("0s");
   await page.mouse.up();
   // Committed in the same task as the release: no settle.
-  expect(await tileEls(page).locator(".lbl").allTextContents()).toEqual(["", "4H", "Weekly", "15m", "15m"]);
+  expect(await chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
 });
 
 test("charts: the last remaining chart can't be removed", async ({ page }) => {

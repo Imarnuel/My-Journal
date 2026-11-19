@@ -178,8 +178,7 @@ Builds on `01-decisions.md` ("Reorder by dragging the whole tile, or each chart'
 in `02-look-and-feel.md`. Why: the owner wanted dragging charts to feel better; the browser's own drag gave a
 ghost image, no sign of where the tile would land, and didn't work with a finger. Source:
 `src/screens/story/useTileReorder.ts`.
-- **Shows it can be dragged**: on hover (mouse), a grip chip (the same six dots as setup rules, 16px, on
-  `--surface-3`) fades into the thumbnail's top-left corner. The cursor is a grab hand.
+- **Shows it can be dragged**: see Chart tiles below. The cursor is a grab hand.
 - **Lift**: with a mouse after 6px of movement, with a finger after a 250ms press (so a swipe still
   scrolls). The thumbnail scales to 1.04 with a floating shadow, its ··· fades out, and it follows the
   pointer 1:1 from where it was grabbed. Past the edge of the grid it follows less and less.
@@ -191,3 +190,14 @@ ghost image, no sign of where the tile would land, and didn't work with a finger
   still does. Grabbing a tile while another settles finishes that one first.
 - **Reduced motion**: no lift scale and no slide; the tile still follows the pointer and the order changes on
   release. Keyboard users keep the ··· menu (Move left, Move right).
+
+## Chart tiles
+Why: the owner didn't want a row under every thumbnail just for the ··· menu, or icons in white containers.
+- **Controls sit on the image**: on hover, a black wash (`--media-scrim`, fading out by 70% of the height)
+  fades in from the top of the thumbnail, with the grip top left and ··· top right as white icons
+  (`--on-media`) in 24px targets. Both themes use the same wash and white.
+- The wash and ··· also show while the tile's menu is open and when a control in the tile has keyboard focus.
+  While a tile is dragged, only its grip shows; the other tiles show nothing.
+- **Touch has no hover**, so the wash and ··· are always shown there; there's no grip (press and hold to drag).
+- **The caption under a thumbnail only appears when there is one** (the timeframe on sample charts), so
+  uploaded charts take no extra row.

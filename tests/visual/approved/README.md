@@ -34,3 +34,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | `states/` 12, 14, 17, 21, 22, 27, 31, 40 and the Story, NewStoryTyped, Main and story-top images | Toasts bottom right with icons; Notes tidied; Trade log rows at 12px (DESIGN.md). Only the toast, Notes card and row text changed (checked) | 2026-11-19 |
 
 | Every image in `light/`, `dark/`, `states/` and `chrome/` | Rounder corners (DESIGN.md); only corners changed (checked dashboard, trade log, menus, settings in both themes) | 2026-11-19 |
+
+| Story images and `states/` 15 to 24 | Chart tile controls moved onto the thumbnail (DESIGN.md, Chart tiles); only the tile row changed (checked) | 2026-11-19 |

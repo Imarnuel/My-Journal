@@ -119,6 +119,9 @@
   --r-menu: 16px;  /* menus and popovers */
   --r-panel: 18px; /* the main card */
   --r-dialog: 20px;
+  /* Over chart images, in both themes: white icons on a black wash (DESIGN.md, Chart tiles). */
+  --on-media: #FFFFFF;
+  --media-scrim: rgba(0,0,0,0.62);
   --h-sm: 28px;
   --h-md: 32px;
   --h-lg: 36px;

@@ -537,6 +537,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   <figure
                     key={tileKeys[i]}
                     data-tile
+                    data-chart={isImage(c) ? "image" : c}
                     className="ktile"
                     onPointerDown={tiles.onPointerDown(i)}
                     onDragStart={(e) => e.preventDefault()}
@@ -544,6 +545,7 @@ function StoryScreen({ id }: { id: string | null }) {
                     style={{ margin: 0, display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}
                   >
                     <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 2px var(--text-1)" : "none" }}>
+                      <span className="ktile-scrim" aria-hidden="true" />
                       <span className="kgrip" aria-hidden="true">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                           <circle cx="9" cy="6" r="1.5" />
@@ -562,12 +564,13 @@ function StoryScreen({ id }: { id: string | null }) {
                         </svg>
                       )}
                     </button>
-                    <figcaption style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "22px" }}>
-                      <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-                        {isImage(c) ? "" : captionOf(c)}
-                      </span>
-                      <span style={{ position: "relative", display: "inline-flex" }}>
-                        <button className="kmore" type="button" aria-label={`Actions for ${ordinal(i)} chart`} aria-haspopup="menu" aria-expanded={open ? "true" : "false"} onClick={() => menu.toggle(key)} style={{ width: "32px", height: "32px", margin: "-4px -4px", border: 0, borderRadius: "var(--r-sm)", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "12px", letterSpacing: "1px", padding: 0, position: "relative", zIndex: 5, lineHeight: "16px" }}>
+                    {!isImage(c) && captionOf(c) ? (
+                      <figcaption className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
+                        {captionOf(c)}
+                      </figcaption>
+                    ) : null}
+                    <span className="ktile-more">
+                        <button className="ktile-more-btn" type="button" aria-label={`Actions for ${ordinal(i)} chart`} aria-haspopup="menu" aria-expanded={open ? "true" : "false"} onClick={() => menu.toggle(key)}>
                           <Dots />
                         </button>
                         {open ? (
@@ -618,8 +621,7 @@ function StoryScreen({ id }: { id: string | null }) {
                             </div>
                           </>
                         ) : null}
-                      </span>
-                    </figcaption>
+                    </span>
                   </figure>
                 );
               })}
