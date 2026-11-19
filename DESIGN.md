@@ -113,3 +113,20 @@ to the pair said what "Running" says). Source: `rowFacts` in `src/lib/tradelog.t
   The whole drop zone is the file picker.
 - **The owner's own words stay**: an analysis entry shows its plan note on one line.
 - Grid cards follow the same rules: the result, or the status when there is no result, beside the pair.
+
+## Dashboard charts (restyled after Mobbin research and the dataviz guidance)
+Overrides section 13 of `02-look-and-feel.md` for R over time and R by day. Why: the owner found the black
+jagged line, the pink drawdown shading and the heavy bars noisy. References: Origin and Quicken (one line,
+soft wash), Stripe, Whop and Revolut (labels on the right, recessive guides), Gemini (line coloured by sign).
+- **R over time**: a 2px line, `--profit` above zero and `--loss` below it, with a wash of the same colour
+  between the line and zero (14% to 0). No drawdown shading or legend (the stat row shows the worst drawdown).
+  Solid hairline guides (`--border-subtle`, zero in `--border`), value labels on the right in `--text-3`.
+  The latest point is a 4px dot in the line's colour with a 2px surface ring. Still straight segments.
+- **R by day / by week**: 10px bars, rounded 4px at the value end and square at the baseline, on a `--border`
+  baseline. Hover fades the others, as before.
+- The profit/loss pair passes the dataviz validator for colour-blind separation and contrast in both themes.
+
+## Dashboard stat row
+- **Each stat label leads with a filled grey 14px icon** in the Details style: Net R (rising bars),
+  Expectancy (a balance), Win rate (a trophy), Plan followed (clipboard with a check), Trades taken (a stack).
+  Overrides section 10's "never on stat labels". Source: `src/screens/story/detailIcons.tsx`.

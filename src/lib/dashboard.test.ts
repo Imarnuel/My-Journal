@@ -49,11 +49,12 @@ describe("This month (light/02-Dashboard.png)", () => {
     const { lo, hi, step } = eqScale(p.s.pts);
     expect([lo, hi, step]).toEqual([-1, 8, 4]);
     const g = eqPaths(p.s.pts, lo, hi);
-    expect(g.line).toBe(
-      "M40.0 203.6 L67.5 224.0 L95.0 187.2 L122.5 207.6 L150.0 162.7 L177.5 183.1 L205.0 203.6 L232.5 172.9 L260.0 130.0 L287.5 150.4 L315.0 97.2 L342.5 76.8 L370.0 97.2 L397.5 117.7 L425.0 82.9 L452.5 103.4 L480.0 62.5 L507.5 82.9 L535.0 103.4 L562.5 60.4 L590.0 48.2",
-    );
-    expect(g.area.endsWith("L590.0 224.0 L40.0 224.0 Z")).toBe(true);
-    expect([g.endX.toFixed(1), g.endY.toFixed(1)]).toEqual(["590.0", "48.2"]);
+    // The plot now runs from the left edge to the value labels on the right (DESIGN.md, Dashboard charts);
+    // the heights are the prototype's, unchanged.
+    expect(g.line.startsWith("M6.0 203.6 L33.5 224.0 L61.0 187.2")).toBe(true);
+    expect(g.line.endsWith("L528.5 60.4 L556.0 48.2")).toBe(true);
+    expect(g.line.split(" L").length).toBe(21);
+    expect([g.endX.toFixed(1), g.endY.toFixed(1)]).toEqual(["556.0", "48.2"]);
     expect(eqGrid(lo, hi, step)).toEqual([0, 4, 8]);
     expect(eqTicks(p.T, "month")).toEqual([
       { i: 1, label: "2 Nov" },

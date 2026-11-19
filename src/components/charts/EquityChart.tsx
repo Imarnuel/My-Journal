@@ -1,5 +1,6 @@
-// R over time (02-look-and-feel.md section 13): cumulative R per trade, straight segments, drawdown from the
-// running peak shaded, hover readout per point. Draws in once on first load, then morphs to new data.
+// R over time: cumulative R per trade, straight segments (DESIGN.md, Dashboard charts: the line is blue above
+// zero and orange below it, a light wash of the same colour under it, hairline guides with values on the right,
+// no drawdown shading), hover readout per point. Draws in once on first load, then morphs to new data.
 // Markup and class names from handoff/prototype/Dashboard.dc.html.
 import { Fragment, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { EQ, eqGrid, eqPaths, eqScale, eqX, eqY, resample } from "../../lib/dashboard";
@@ -33,6 +34,10 @@ export function EquityChart({
   const paths = eqPaths(geo.pts, geo.lo, geo.hi);
   const grid = eqGrid(scale.lo, scale.hi, scale.step);
   const n = pts.length;
+  const zeroY = eqY(0, geo.lo, geo.hi);
+  // The wash runs from the line to zero (not to the bottom), so it reads as gain above and loss below.
+  const fillToZero = `${paths.line} L${paths.endX.toFixed(1)} ${zeroY.toFixed(1)} L${eqX(0, Math.max(1, geo.pts.length)).toFixed(1)} ${zeroY.toFixed(1)} Z`;
+  const endUp = (geo.pts[geo.pts.length - 1] ?? 0) >= 0;
 
   const lineRef = useRef<SVGPathElement>(null);
   useEffect(() => {
@@ -99,41 +104,53 @@ export function EquityChart({
         style={{ display: "block", overflow: "visible", fontFamily: "inherit" }}
       >
         <defs>
-          <linearGradient id="keqFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" style={{ stopColor: "var(--text-1)", stopOpacity: "0.07" }} />
-            <stop offset="1" style={{ stopColor: "var(--text-1)", stopOpacity: "0" }} />
+          {/* Above zero the line and its wash are profit blue; below zero, loss orange. */}
+          <clipPath id="keqUp">
+            <rect x="0" y="0" width={W} height={zeroY.toFixed(1)} />
+          </clipPath>
+          <clipPath id="keqDown">
+            <rect x="0" y={zeroY.toFixed(1)} width={W} height={(H - zeroY).toFixed(1)} />
+          </clipPath>
+          <linearGradient id="keqUpFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style={{ stopColor: "var(--profit)", stopOpacity: "0.14" }} />
+            <stop offset="1" style={{ stopColor: "var(--profit)", stopOpacity: "0" }} />
           </linearGradient>
-          <linearGradient id="keqDd" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="keqDownFill" x1="0" y1="1" x2="0" y2="0">
             <stop offset="0" style={{ stopColor: "var(--loss)", stopOpacity: "0.14" }} />
-            <stop offset="1" style={{ stopColor: "var(--loss)", stopOpacity: "0.05" }} />
+            <stop offset="1" style={{ stopColor: "var(--loss)", stopOpacity: "0" }} />
           </linearGradient>
         </defs>
         {grid.map((g) => {
           const y = eqY(g, geo.lo, geo.hi);
           return (
             <Fragment key={g}>
-              <line x1="40" y1={y.toFixed(1)} x2="600" y2={y.toFixed(1)} style={{ stroke: g === 0 ? "var(--border)" : "var(--surface-pressed)", strokeDasharray: "2 4" }} />
-              <text x="0" y={(y + 4).toFixed(1)} fontSize="12" style={{ fill: "var(--text-3)" }}>
-                {g ? fr(g, 0) : "0"}
+              <line x1={EQ.pl} y1={y.toFixed(1)} x2={W - EQ.pr + 8} y2={y.toFixed(1)} style={{ stroke: g === 0 ? "var(--border)" : "var(--border-subtle)" }} />
+              <text x={W} y={(y + 4).toFixed(1)} textAnchor="end" fontSize="12" style={{ fill: "var(--text-3)" }}>
+                {g ? fr(g, 0) : "0R"}
               </text>
             </Fragment>
           );
         })}
-        <path d={paths.area} style={{ fill: "url(#keqFill)" }} />
-        <path d={paths.dd} style={{ fill: "url(#keqDd)" }} />
-        <path
-          ref={lineRef}
-          className={drawIn ? "kdraw" : undefined}
-          pathLength={drawIn ? 1 : undefined}
-          d={paths.line}
-          fill="none"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          style={{ stroke: "var(--text-1)" }}
-        />
-        <circle cx={paths.endX.toFixed(1)} cy={paths.endY.toFixed(1)} r="9" style={{ fill: "var(--text-1)", fillOpacity: "0.08" }} />
-        <circle cx={paths.endX.toFixed(1)} cy={paths.endY.toFixed(1)} r="4" strokeWidth="2" style={{ fill: "var(--surface-2)", stroke: "var(--text-1)" }} />
+        <path d={fillToZero} clipPath="url(#keqUp)" style={{ fill: "url(#keqUpFill)" }} />
+        <path d={fillToZero} clipPath="url(#keqDown)" style={{ fill: "url(#keqDownFill)" }} />
+        {(["keqUp", "keqDown"] as const).map((c, k) => (
+          <path
+            key={c}
+            ref={k === 0 ? lineRef : undefined}
+            className={drawIn ? "kdraw" : undefined}
+            pathLength={drawIn ? 1 : undefined}
+            d={paths.line}
+            clipPath={`url(#${c})`}
+            fill="none"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            style={{ stroke: k === 0 ? "var(--profit)" : "var(--loss)" }}
+          />
+        ))}
+        {/* The latest point: filled in the line's colour with a 2px surface ring. */}
+        <circle cx={paths.endX.toFixed(1)} cy={paths.endY.toFixed(1)} r="6" style={{ fill: "var(--surface-2)" }} />
+        <circle cx={paths.endX.toFixed(1)} cy={paths.endY.toFixed(1)} r="4" style={{ fill: endUp ? "var(--profit)" : "var(--loss)" }} />
         {tk.map((k) => (
           <text key={k.label + k.x} x={k.x.toFixed(1)} y="244" textAnchor={k.anchor} fontSize="12" style={{ fill: "var(--text-3)" }}>
             {k.label}

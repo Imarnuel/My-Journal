@@ -69,7 +69,8 @@ export function periodNumbers(entries: Entry[], picked: string[], period: Period
 
 // ---------- R over time ----------
 
-export const EQ = { W: 600, H: 248, pl: 40, pr: 10, pt: 40, pb: 24 } as const;
+// Value labels sit on the right of the plot (DESIGN.md, Dashboard charts), so the line starts at the left edge.
+export const EQ = { W: 600, H: 248, pl: 6, pr: 44, pt: 40, pb: 24 } as const;
 
 /** Value range of the line: from the lowest point (or 0) up to the next multiple of 4 above the peak. */
 export function eqScale(pts: number[]): { lo: number; hi: number; step: number } {

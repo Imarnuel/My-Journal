@@ -23,6 +23,8 @@ handoff (see `DESIGN.md`). Everything else is still compared with `handoff/scree
 
 | `light/` and `dark/` 03-Main, 04-MainCal; `states/` 07 to 14 | Trade log rows read as facts only (DESIGN.md); layout unchanged (checked side by side) | 2026-11-19 |
 
+| Dashboard images refreshed | Charts restyled, stat icons (DESIGN.md); only the stat row and chart cards changed (checked) | 2026-11-19 |
+
 The other screens still compare with the handoff screenshots: the sidebar change stays within their tolerance,
 and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 

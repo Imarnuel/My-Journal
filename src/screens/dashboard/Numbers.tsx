@@ -1,5 +1,6 @@
 // The numbers (shown from 5 trades in the period): top row, R over time, R by day / week, By setup, By session,
 // Costliest mistakes. Markup from handoff/prototype/Dashboard.dc.html; values from src/lib/dashboard.ts.
+import { DetailIcon, type DetailIconName } from "../story/detailIcons";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { slug } from "../../app/routes";
@@ -13,10 +14,14 @@ import { BarsChart, type Bar } from "../../components/charts/BarsChart";
 const card = { display: "flex", flexDirection: "column", gap: "8px", padding: "16px 16px 16px", borderRadius: "12px", minWidth: "0" } as const;
 const big = { fontSize: "24px", fontWeight: "600", lineHeight: "32px", letterSpacing: "-0.025em" } as const;
 
-function Stat({ label, value, color, sub }: { label: string; value: string; color?: string; sub: string }) {
+function Stat({ label, icon, value, color, sub }: { label: string; icon: DetailIconName; value: string; color?: string; sub: string }) {
   return (
     <div className="card" style={card}>
-      <span className="lbl">{label}</span>
+      {/* Label with its filled grey icon (DESIGN.md, Dashboard stat row). */}
+      <span className="lbl" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+        <DetailIcon name={icon} />
+        {label}
+      </span>
       <span className="num" style={{ ...big, color: color ?? "var(--text-1)" }}>
         {value}
       </span>
@@ -35,11 +40,11 @@ export function StatRow({ p }: { p: PeriodNumbers }) {
   const n = useCountUp(s.n);
   return (
     <div className="card kstat" style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", padding: "16px", borderRadius: "12px" }}>
-      <Stat label="Net R" value={fr(net)} color={tone(s.net)} sub={`Worst drawdown ${fr(s.dd)}`} />
-      <Stat label="Expectancy" value={fr(ex, 2)} sub="What an average trade made" />
-      <Stat label="Win rate" value={pct(wr)} sub={`Wins avg ${s.avgWin == null ? "–" : fr(s.avgWin)}, losses ${s.avgLoss == null ? "–" : fr(s.avgLoss)}`} />
-      <Stat label="Plan followed" value={pct(pl)} sub={`${s.followed} of ${s.n} trades`} />
-      <Stat label="Trades taken" value={String(Math.round(n))} sub={`${p.watched} watched · ${p.notFilled} not filled`} />
+      <Stat label="Net R" icon="net" value={fr(net)} color={tone(s.net)} sub={`Worst drawdown ${fr(s.dd)}`} />
+      <Stat label="Expectancy" icon="expectancy" value={fr(ex, 2)} sub="What an average trade made" />
+      <Stat label="Win rate" icon="winrate" value={pct(wr)} sub={`Wins avg ${s.avgWin == null ? "–" : fr(s.avgWin)}, losses ${s.avgLoss == null ? "–" : fr(s.avgLoss)}`} />
+      <Stat label="Plan followed" icon="plan" value={pct(pl)} sub={`${s.followed} of ${s.n} trades`} />
+      <Stat label="Trades taken" icon="trades" value={String(Math.round(n))} sub={`${p.watched} watched · ${p.notFilled} not filled`} />
     </div>
   );
 }
@@ -96,12 +101,6 @@ export function Charts({
             R over time
           </h2>
           <span style={{ display: "inline-flex", alignItems: "center", gap: "12px" }}>
-            {!eqTab ? (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }} className="lbl">
-                <span aria-hidden="true" style={{ width: "8px", height: "8px", borderRadius: "2px", background: "var(--loss)", opacity: "0.35" }} />
-                Drawdown from peak
-              </span>
-            ) : null}
             <TableToggle on={eqTab} flip={flipEq} />
           </span>
         </div>

@@ -1,4 +1,5 @@
-// R by day / R by week (02-look-and-feel.md section 13): bars in profit or loss either side of a 1px baseline,
+// R by day / R by week: slim 10px bars in profit or loss either side of a 1px baseline, rounded at the value end
+// and square at the baseline (DESIGN.md, Dashboard charts),
 // readout in a reserved strip above the bars, the other bars fade while one is hovered.
 // When the data changes, each bar grows or shrinks to its new height (transform only). Markup from the prototype.
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
@@ -63,17 +64,17 @@ export function BarsChart({ bars, label }: { bars: Bar[]; label: string }) {
                 refs.current[i * 2] = el;
               }}
               className="kbar-fill"
-              style={{ height: `${b.up}px`, width: "50%", maxWidth: "14px", borderRadius: "3px 3px 1px 1px", background: b.col, transformOrigin: "bottom", ...fade(i) }}
+              style={{ height: `${b.up}px`, width: "50%", maxWidth: "10px", borderRadius: "4px 4px 0 0", background: b.col, transformOrigin: "bottom", ...fade(i) }}
             />
           </div>
-          <div style={{ height: "1px", width: "100%", background: "var(--border-strong)" }} />
+          <div style={{ height: "1px", width: "100%", background: "var(--border)" }} />
           <div style={{ height: "84px", width: "100%", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
             <div
               ref={(el) => {
                 refs.current[i * 2 + 1] = el;
               }}
               className="kbar-fill"
-              style={{ height: `${b.down}px`, width: "50%", maxWidth: "14px", borderRadius: "1px 1px 3px 3px", background: b.col, transformOrigin: "top", ...fade(i) }}
+              style={{ height: `${b.down}px`, width: "50%", maxWidth: "10px", borderRadius: "0 0 4px 4px", background: b.col, transformOrigin: "top", ...fade(i) }}
             />
           </div>
           <span className="lbl" style={{ fontSize: "12px", marginTop: "8px", whiteSpace: "nowrap", lineHeight: "16px" }}>

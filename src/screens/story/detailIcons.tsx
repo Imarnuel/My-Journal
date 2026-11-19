@@ -12,7 +12,7 @@ function Filled({ children, flip }: { children: ReactNode; flip?: boolean }) {
   );
 }
 
-export type DetailIconName = "setup" | "tags" | "plan" | "headspace" | "pair" | "long" | "short" | "status" | "account" | "date";
+export type DetailIconName = "setup" | "tags" | "plan" | "headspace" | "pair" | "long" | "short" | "status" | "account" | "date" | "net" | "expectancy" | "winrate" | "trades";
 
 export function DetailIcon({ name }: { name: DetailIconName }) {
   switch (name) {
@@ -69,6 +69,31 @@ export function DetailIcon({ name }: { name: DetailIconName }) {
       return (
         <Filled>
           <path fillRule="evenodd" d="M8 2a1 1 0 0 1 1 1v1h6V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v2H3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1zM3 11h18v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-8z" />
+        </Filled>
+      );
+    // Dashboard stat labels (DESIGN.md, Dashboard stat row): same filled grey style as the Details labels.
+    case "net": // rising bars: the period's total
+      return (
+        <Filled>
+          <path d="M3 14a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v7H3v-7zm7-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v12h-5V9zm7-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v17h-4V4z" />
+        </Filled>
+      );
+    case "expectancy": // a balance: what a trade makes on average
+      return (
+        <Filled>
+          <path d="M11 3a1 1 0 1 1 2 0v1h5.5a1 1 0 1 1 0 2h-.2l2.6 6.4a1 1 0 0 1 .1.4 3.5 3.5 0 0 1-7 0 1 1 0 0 1 .1-.4L16.7 6H13v13h3.5a1 1 0 1 1 0 2h-9a1 1 0 1 1 0-2H11V6H7.3l2.6 6.4a1 1 0 0 1 .1.4 3.5 3.5 0 0 1-7 0 1 1 0 0 1 .1-.4L5.7 6h-.2a1 1 0 0 1 0-2H11V3zm6.5 6.4-1.4 3.6h2.8l-1.4-3.6zm-11 0L5.1 13h2.8L6.5 9.4z" />
+        </Filled>
+      );
+    case "winrate": // a trophy
+      return (
+        <Filled>
+          <path fillRule="evenodd" d="M7 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1h3a1 1 0 0 1 1 1v2a5 5 0 0 1-4.4 5A5 5 0 0 1 13 15.9V18h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.1A5 5 0 0 1 7.4 12 5 5 0 0 1 3 7V5a1 1 0 0 1 1-1h3V3zm10 3v4.8A3 3 0 0 0 19 8V6h-2zM7 6H5v2a3 3 0 0 0 2 2.8V6z" />
+        </Filled>
+      );
+    case "trades": // a stack of entries
+      return (
+        <Filled>
+          <path d="M12 2.5 22 7.5l-10 5-10-5 10-5zM4.2 11.4 12 15.3l7.8-3.9L22 12.5l-10 5-10-5 2.2-1.1zm0 5L12 20.3l7.8-3.9L22 17.5l-10 5-10-5 2.2-1.1z" />
         </Filled>
       );
   }

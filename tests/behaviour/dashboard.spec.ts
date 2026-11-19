@@ -259,7 +259,8 @@ test("accessibility: no serious or critical axe violations (light and dark, char
 test("reduced motion: no draw-in, numbers and charts swap at once", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator("path.kdraw")).toHaveCSS("stroke-dashoffset", "0px");
+  // The line is drawn twice (blue above zero, orange below, DESIGN.md); neither animates.
+  expect(await page.locator("path.kdraw").evaluateAll((els) => els.map((e) => getComputedStyle(e).strokeDashoffset))).toEqual(["0px", "0px"]);
   await page.getByRole("button", { name: "3 months" }).click();
   // Without motion the value is final on the next frame.
   await expect(stat(page, "Net R")).toHaveText("+9.1R", { timeout: 200 });
