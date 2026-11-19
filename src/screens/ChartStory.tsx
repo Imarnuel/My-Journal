@@ -161,6 +161,9 @@ function StoryScreen({ id }: { id: string | null }) {
     if (story) document.title = saved ? `${story.pair} ${story.status === "Analysis" ? "Analysis" : story.dir ?? ""}`.trim() : "New chart story";
   }, [saved, story]);
 
+  // Before any early return: hooks run in the same order on every render. `move` is read at drop time.
+  const moveRef = useRef<(i: number, j: number) => void>(() => {});
+  const tileDrag = useTileReorder(tileGrid, (i, j) => moveRef.current(i, j), () => menu.close());
   if (saved && !entry && !deleted) return <Navigate to="/log" replace />;
 
   if (deleted || !story) {
@@ -207,7 +210,8 @@ function StoryScreen({ id }: { id: string | null }) {
     setSel(j);
     menu.close();
   };
-  const tiles = useTileReorder(tileGrid, move, menu.close);
+  moveRef.current = move;
+  const tiles = { onPointerDown: tileDrag.onPointerDown, onClickCapture: tileDrag.onClickCapture };
   // Keys follow the chart, not its place, so a tile keeps its element when the order changes.
   const tileKeys = charts.map((c, i) => `${c}#${charts.slice(0, i).filter((x) => x === c).length}`);
   const removeChart = (i: number) => {
