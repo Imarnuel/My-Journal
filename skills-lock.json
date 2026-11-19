@@ -8,6 +8,13 @@
       "skillPath": "skills/animation-performance/SKILL.md",
       "computedHash": "1ff92f577fc2b7781ed622fd4eb5e514c252cf5cb95c3661743cd127ee01290a"
     },
+    "animation-vocabulary": {
+      "source": "emilkowalski/skills",
+      "commit": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
+      "sourceType": "github",
+      "skillPath": "skills/animation-vocabulary/SKILL.md",
+      "computedHash": "e1d19134dc63dfb09379f7b42557b63b6123becdd36d15bae991d0b6ca5b2110"
+    },
     "emil-design-eng": {
       "source": "emilkowalski/skills",
       "commit": "64eb3deb9a5fbfa041faf783e0bc3fd635872e9c",
