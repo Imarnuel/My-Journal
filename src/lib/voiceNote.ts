@@ -33,7 +33,7 @@ const CANNED: VoiceNoteFill = {
   ok: true,
   length: "0:24",
   transcript:
-    '"Weekly and daily both bearish, so I took the [[4H supply pullback]]. Price came into last week's [[supply zone]], the fifteen minute [[broke structure]], I waited for the candle to close and got in on the [[retest]]. Felt [[calm]]. Stuck to the [[plan]]."',
+    '"Weekly and daily both bearish, so I took the [[4H supply pullback]]. Price came into last week\'s [[supply zone]], the fifteen minute [[broke structure]], I waited for the candle to close and got in on the [[retest]]. Felt [[calm]]. Stuck to the [[plan]]."',
   before: "Short from last week's 4H supply zone with weekly and daily bearish. Entered on the 15m retest after a break of structure, on plan.",
   refl: "Waiting for the candle to close kept the entry calm and on plan. Worth repeating.",
   suggested: true,

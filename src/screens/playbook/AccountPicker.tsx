@@ -3,7 +3,7 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import type { useKit } from "../useKit";
 
-export function AccountPicker({ kit }: { kit: ReturnType<typeof useKit> & { apToggle: () => void } }) {
+export function AccountPicker({ kit }: { kit: ReturnType<typeof useKit> }) {
   return (
     <div style={{ position: "relative", display: "inline-flex" }}>
       <button type="button" aria-haspopup="true" aria-expanded={kit.apOpen ? "true" : "false"} onClick={kit.apToggle} className="btn btn-g" style={{ gap: "8px", fontWeight: 500, position: "relative", zIndex: 5 }}>

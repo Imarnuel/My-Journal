@@ -1,0 +1,146 @@
+import { describe, expect, it } from "vitest";
+import type { Entry } from "./types";
+import {
+  applyVoiceNote,
+  clock,
+  entryFromStory,
+  entryPatch,
+  linkedAnalysis,
+  moveItem,
+  nextId,
+  parseR,
+  placeholderCharts,
+  sessionOf,
+  storyFromEntry,
+  tagSuggestions,
+  voiceToast,
+  type Story,
+} from "./story";
+import { readVoiceNote, transcriptRuns, type VoiceNoteFill } from "./voiceNote";
+
+const base: Entry = {
+  id: "e1", date: "2026-11-16", time: "09:45", pair: "GBPUSD", dir: "Short", status: "Taken", account: "Funded 100K", also: null,
+  setup: "4H supply pullback", session: "London", followed: true, tags: ["Retest"], mistakes: [], r: 2.1, charts: 3, chartKey: "sw2",
+  note: false, refl: null, plan: null, mt5: null, excluded: false, textbook: false,
+};
+
+const fill: VoiceNoteFill = {
+  ok: true, length: "0:24", transcript: "said", before: "B", refl: "R", suggested: true, setup: "4H supply pullback",
+  tags: [{ t: "Supply zone", k: "Good" }, { t: "Retest", k: "Good" }], followed: true, headspace: "Calm",
+};
+
+const empty = (): Story => ({ ...storyFromEntry({ ...base, setup: "Unsorted", followed: null, tags: [] }, undefined), before: "", refl: "" });
+
+describe("story rules", () => {
+  it("the session follows the time", () => {
+    expect(sessionOf("06:59")).toBe("Asia");
+    expect(sessionOf("07:00")).toBe("London");
+    expect(sessionOf("12:59")).toBe("London");
+    expect(sessionOf("13:00")).toBe("New York");
+  });
+
+  it("reads typed results with a real minus, plain numbers or R", () => {
+    expect(parseR("+2.1R")).toBe(2.1);
+    expect(parseR("−1.0R")).toBe(-1);
+    expect(parseR("-0.5")).toBe(-0.5);
+    expect(parseR(" 3 ")).toBe(3);
+    expect(parseR("")).toBeNull();
+    expect(parseR("abc")).toBeNull();
+  });
+
+  it("formats the timer as m:ss", () => {
+    expect(clock(0)).toBe("0:00");
+    expect(clock(24)).toBe("0:24");
+    expect(clock(75)).toBe("1:15");
+  });
+
+  it("moves charts and keeps the rest in order", () => {
+    expect(moveItem(["a", "b", "c", "d"], 0, 2)).toEqual(["b", "c", "a", "d"]);
+    expect(moveItem(["a", "b", "c"], 2, 1)).toEqual(["a", "c", "b"]);
+  });
+
+  it("gives sample entries placeholder charts ending with their chart key", () => {
+    expect(placeholderCharts(base)).toEqual(["sw0", "sw1", "sw2"]);
+    expect(placeholderCharts({ ...base, charts: 0 })).toEqual([]);
+    expect(placeholderCharts({ ...base, charts: 1, chartKey: null, dir: "Long", r: -1 })).toEqual(["lx0"]);
+  });
+
+  it("a voice note fills only what is empty and lists it", () => {
+    const { patch, filled, newKinds } = applyVoiceNote(empty(), fill);
+    expect(patch).toMatchObject({ before: "B", refl: "R", suggested: true, setup: "4H supply pullback", tags: ["Supply zone", "Retest"], followed: true, headspace: "Calm", voice: true });
+    expect(filled).toEqual(["setup", "2 tags", "plan", "headspace"]);
+    expect(voiceToast(filled)).toBe("From your note: notes, setup, 2 tags, plan, headspace");
+    expect(newKinds).toEqual({ "Supply zone": "Good", Retest: "Good" });
+  });
+
+  it("a voice note never overwrites a choice made by hand", () => {
+    const s = { ...empty(), before: "mine", setup: "London breakout", tags: ["retest"], followed: false, headspace: "Tired" };
+    const { patch, filled } = applyVoiceNote(s, fill);
+    expect(patch.before).toBeUndefined();
+    expect(patch.setup).toBeUndefined();
+    expect(patch.followed).toBeUndefined();
+    expect(patch.headspace).toBeUndefined();
+    expect(patch.tags).toEqual(["retest", "Supply zone"]);
+    expect(filled).toEqual(["1 tag"]);
+    const all = applyVoiceNote({ ...s, refl: "x", tags: ["Supply zone", "Retest"] }, fill);
+    expect(voiceToast(all.filled)).toBe("Notes filled from your note");
+  });
+
+  it("tag autocomplete: most used first, excludes tags already on the story, offers a new tag", () => {
+    const vocab = [{ t: "Break of structure", n: 18, k: "Good" as const }, { t: "Supply zone", n: 7, k: "Good" as const }, { t: "Retest", n: 7, k: "Good" as const }];
+    expect(tagSuggestions(vocab, ["Retest"], "").sug.map((v) => v.t)).toEqual(["Break of structure", "Supply zone"]);
+    expect(tagSuggestions(vocab, [], "sup").sug.map((v) => v.t)).toEqual(["Supply zone"]);
+    expect(tagSuggestions(vocab, [], "supply zone").canAdd).toBe(false);
+    expect(tagSuggestions(vocab, [], "revenge").canAdd).toBe(true);
+    expect(tagSuggestions(vocab, ["Break of structure", "Supply zone", "Retest"], "").none).toBe(true);
+  });
+
+  it("links the latest analysis earlier that day covering the pair", () => {
+    const a: Entry = { ...base, id: "a", status: "Analysis", dir: null, time: "07:30", pair: "GBPUSD, XAUUSD", plan: "p" };
+    const late: Entry = { ...a, id: "b", time: "10:00" };
+    const other: Entry = { ...a, id: "c", pair: "EURUSD" };
+    expect(linkedAnalysis([a, late, other], base)?.id).toBe("a");
+    expect(linkedAnalysis([a], { ...base, date: "2026-11-17" })).toBeNull();
+  });
+
+  it("the overlay applies until the story is first edited, then the entry keeps its own values", () => {
+    const overlay = { before: "Canvas note", refl: "Canvas reflection", headspace: "Calm", chartList: ["gW", "gA"], numbers: { entry: "1.2" } };
+    const s = storyFromEntry(base, overlay);
+    expect([s.before, s.refl, s.headspace, s.charts, s.numbers.entry]).toEqual(["Canvas note", "Canvas reflection", "Calm", ["gW", "gA"], "1.2"]);
+    const patch = entryPatch(base, s, { refl: "" }, () => undefined);
+    expect(patch).toMatchObject({ before: "Canvas note", refl: null, headspace: "Calm", chartList: ["gW", "gA"] });
+    const after = storyFromEntry({ ...base, ...patch }, overlay);
+    expect(after.refl).toBe("");
+    expect(after.before).toBe("Canvas note");
+  });
+
+  it("tag changes keep the entry's mistakes in step with tag kinds", () => {
+    const s = storyFromEntry({ ...base, before: "" }, undefined);
+    const p = entryPatch({ ...base, before: "" }, s, { tags: ["Retest", "Moved stop"] }, (t) => (t === "Moved stop" ? "Mistake" : "Good"));
+    expect(p).toEqual({ tags: ["Retest", "Moved stop"], mistakes: ["Moved stop"] });
+  });
+
+  it("a saved new story becomes an entry with the next id", () => {
+    expect(nextId([{ id: "e9" }, { id: "e134" }, { id: "e20" }])).toBe("e135");
+    const e = entryFromStory("e135", { ...empty(), charts: ["gW", "gE"], tags: ["Moved stop"] }, () => "Mistake");
+    expect(e).toMatchObject({ id: "e135", setup: "Unsorted", charts: 2, chartList: ["gW", "gE"], mistakes: ["Moved stop"], chartKey: "sw0" });
+  });
+});
+
+describe("voice note (simulated pipeline)", () => {
+  it("returns notes and details to fill", async () => {
+    const r = await readVoiceNote(24);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.tags.map((t) => t.t)).toEqual(["Supply zone", "Break of structure", "Retest"]);
+  });
+
+  it("splits the transcript into highlighted runs", () => {
+    expect(transcriptRuns("I took the [[retest]]. Felt [[calm]].")).toEqual([
+      { text: "I took the ", mark: false },
+      { text: "retest", mark: true },
+      { text: ". Felt ", mark: false },
+      { text: "calm", mark: true },
+      { text: ".", mark: false },
+    ]);
+  });
+});
