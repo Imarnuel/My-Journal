@@ -13,6 +13,7 @@ import type { Entry, Status, TagKind } from "../lib/types";
 import { dateTime, fr, tone } from "../lib/format";
 import {
   HEADSPACE,
+  HEADSPACE_EMOJI,
   NUMBER_FIELDS,
   STATUS_OPTS,
   applyVoiceNote,
@@ -943,13 +944,18 @@ function StoryScreen({ id }: { id: string | null }) {
               <DetailRow label="Headspace" icon={<DetailIcon name="headspace" />}>
                 <div style={{ position: "relative" }}>
                   <button type="button" className="ghost tagfield" aria-haspopup="listbox" aria-expanded={exp("head")} aria-label={`Headspace: ${s.headspace ?? "Pick one"}`} onClick={() => menu.toggle("head")} style={{ justifyContent: "space-between", position: "relative", zIndex: 5 }}>
-                    {s.headspace ? <span className="pill">{s.headspace}</span> : <span style={{ fontSize: "14px", color: "var(--text-3)" }}>Pick one</span>}
+                    {s.headspace ? (
+                      <span className="pill" style={{ gap: "4px" }}>
+                        {HEADSPACE_EMOJI[s.headspace] ? <span aria-hidden="true" style={{ fontSize: "14px", lineHeight: "16px" }}>{HEADSPACE_EMOJI[s.headspace]}</span> : null}
+                        {s.headspace}
+                      </span>
+                    ) : <span style={{ fontSize: "14px", color: "var(--text-3)" }}>Pick one</span>}
                     <Chevron />
                   </button>
                   {menu.isOpen("head") ? (
                     <>
                       <Closer onClose={menu.close} />
-                      <OptionList label="Headspace" opts={HEADSPACE.map((label) => ({ label }))} value={s.headspace} onPick={pick("headspace")} style={{ left: 0, width: "100%" }} />
+                      <OptionList label="Headspace" opts={HEADSPACE.map((label) => ({ label, lead: HEADSPACE_EMOJI[label] }))} value={s.headspace} onPick={pick("headspace")} style={{ left: 0, width: "100%" }} />
                     </>
                   ) : null}
                 </div>

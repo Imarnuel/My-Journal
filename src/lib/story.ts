@@ -47,6 +47,8 @@ export const STATUS_OPTS: { label: Status; hint: string }[] = [
   { label: "Analysis", hint: "Charts before trading" },
 ];
 export const HEADSPACE = ["Calm", "Confident", "Focused", "Rushed", "Tired", "Frustrated"];
+/** The emoji shown beside each headspace (owner's request, DESIGN.md). The word stays the value. */
+export const HEADSPACE_EMOJI: Record<string, string> = { Calm: "😌", Confident: "😎", Focused: "🧐", Rushed: "😬", Tired: "😴", Frustrated: "😤" };
 export const NUMBER_FIELDS: { key: keyof Numbers | "result"; label: string }[] = [
   { key: "entry", label: "Entry" },
   { key: "stop", label: "Stop" },

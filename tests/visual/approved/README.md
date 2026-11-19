@@ -11,6 +11,8 @@ handoff (see `DESIGN.md`). Everything else is still compared with `handoff/scree
 
 | `light/` and `dark/` 13-AddAccount, 14-EditAccount, 10-SetupEdit; `states/` 31, 35; story images refreshed | Breadcrumbs 16px above the title; story icons 14px and lighter; Re-record labelled; no result slot on entries without a result | 2026-11-19 |
 
+| Story images and states 17 to 24 refreshed | Emoji beside each headspace | 2026-11-19 |
+
 The other screens still compare with the handoff screenshots: the sidebar change stays within their tolerance,
 and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 

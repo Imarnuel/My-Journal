@@ -29,7 +29,7 @@ export function Check() {
   );
 }
 
-export type Opt = { label: string; hint?: string };
+export type Opt = { label: string; hint?: string; lead?: string };
 
 /** A choice listbox: label, optional hint, a check on the selected row. */
 export function OptionList({ opts, value, onPick, style, label, children }: { opts: Opt[]; value: string | null; onPick: (v: string) => void; style: CSSProperties; label?: string; children?: ReactNode }) {
@@ -38,7 +38,10 @@ export function OptionList({ opts, value, onPick, style, label, children }: { op
         return (
           <button key={o.label} type="button" role="option" aria-selected={sel ? "true" : "false"} onClick={() => onPick(o.label)} className="kit-opt" style={{ ...optStyle, background: sel ? "var(--surface-pressed)" : "transparent" }}>
             <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              <span>{o.label}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                {o.lead ? <Emoji char={o.lead} /> : null}
+                {o.label}
+              </span>
               {o.hint ? <span style={{ fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>{o.hint}</span> : null}
             </span>
             {sel ? <Check /> : null}
@@ -59,6 +62,15 @@ export function OptionList({ opts, value, onPick, style, label, children }: { op
       </div>
       {children}
     </div>
+  );
+}
+
+/** An emoji beside a label (Headspace, owner's request): decorative, the word carries the meaning. */
+export function Emoji({ char }: { char: string }) {
+  return (
+    <span aria-hidden="true" style={{ fontSize: "16px", lineHeight: "20px", width: "20px", textAlign: "center", flex: "none", fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}>
+      {char}
+    </span>
   );
 }
 

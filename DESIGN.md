@@ -41,3 +41,9 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
 ## Voice note
 - **Re-record is a labelled button** ("Re-record" with the mic), not a bare icon, so it can be found. It
   records a new note and, like the first one, fills only what is still empty.
+
+## Headspace
+- **Each headspace has an emoji beside its name**: Calm 😌, Confident 😎, Focused 🧐, Rushed 😬, Tired 😴,
+  Frustrated 😤, in the Headspace menu and on the chosen value. The word stays the value and carries the
+  meaning; the emoji is decorative (hidden from screen readers). This overrides the handoff's "no emoji in
+  the interface" for Headspace only. Source: `HEADSPACE_EMOJI` in `src/lib/story.ts`.
