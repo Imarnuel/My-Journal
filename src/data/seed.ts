@@ -18,6 +18,14 @@ export const seedEntries: Entry[] = (entriesJson as RawEntry[]).map((e) => {
   return { ...e, chartKey: x?.c ?? null, excluded: false, textbook: !!x?.tb };
 });
 
+const sourceOf: Record<string, Account["source"]> = {
+  "Main account": "mt5",
+  "Funded 100K": "mt5",
+  "Challenge 50K": "screenshots",
+  "Demo account": "mt5-reconnect",
+  Backtesting: "screenshots",
+};
+
 const typeOf: Record<string, string> = {
   "Main account": "Live",
   "Funded 100K": "Prop firm",
@@ -27,14 +35,17 @@ const typeOf: Record<string, string> = {
 };
 
 export const seedAccounts: Account[] = [
-  ...accountsJson.real.map((name) => ({ name, type: typeOf[name] ?? "Live", practice: false, archived: false })),
-  ...accountsJson.practice.map((name) => ({ name, type: typeOf[name] ?? "Demo", practice: true, archived: false })),
+  ...accountsJson.real.map((name) => ({ name, type: typeOf[name] ?? "Live", practice: false, archived: false, source: sourceOf[name] })),
+  ...accountsJson.practice.map((name) => ({ name, type: typeOf[name] ?? "Demo", practice: true, archived: false, source: sourceOf[name] })),
   // Archived accounts only exist in the prototype (prototype/Accounts.dc.html).
-  { name: "Challenge 25K", type: "Prop firm", practice: false, archived: true },
-  { name: "Funded 50K", type: "Prop firm", practice: false, archived: true },
+  { name: "Challenge 25K", type: "Prop firm", practice: false, archived: true, source: "screenshots", archivedNote: "failed in September \u00b7 31 chart stories" },
+  { name: "Funded 50K", type: "Prop firm", practice: false, archived: true, source: "screenshots", archivedNote: "reset in July \u00b7 22 chart stories" },
 ];
 
-export const defaultScreenshotAccount = accountsJson.default_for_screenshots;
+// accounts.json says "Main account", but the Accounts frame and its screenshot show Challenge 50K as the
+// default for screenshots. The prototype wins on what is shown (handoff README, order of authority).
+export const defaultScreenshotAccount = "Challenge 50K";
+void accountsJson.default_for_screenshots;
 
 export const seedTags: Tag[] = tagsJson.vocab_with_counts as Tag[];
 

@@ -6,6 +6,16 @@ import { seedAccounts, seedEntries, seedTags, seedWeeks, TODAY } from "./seed";
 
 export type Appearance = "system" | "light" | "dark";
 
+export type Rules = { Context: string[]; Entry: string[]; Exit: string[] };
+export type Setup = { name: string; chart: string; rules: Rules; archived: boolean };
+
+/** Setups on the canvas (prototype/PlaybookHome.dc.html). Screens fill in rules from their frames. */
+const seedSetups: Setup[] = [
+  { name: "4H supply pullback", chart: "sw0", rules: { Context: [], Entry: [], Exit: [] }, archived: false },
+  { name: "London breakout", chart: "lw1", rules: { Context: [], Entry: [], Exit: [] }, archived: false },
+  { name: "Asian range fade", chart: "sx2", rules: { Context: [], Entry: [], Exit: [] }, archived: false },
+];
+
 type State = {
   today: string;
   entries: Entry[];
@@ -15,6 +25,11 @@ type State = {
   /** Accounts ticked in the account picker. Default: real (non-practice, non-archived) accounts. */
   picked: string[];
   appearance: Appearance;
+  setups: Setup[];
+  /** Set-once rules and preferences (Accounts rules, Settings). Keys are owned by the screen that sets them. */
+  settings: Record<string, unknown>;
+  setSetting: (key: string, value: unknown) => void;
+  setSetups: (fn: (s: Setup[]) => Setup[]) => void;
 
   updateEntry: (id: string, patch: Partial<Entry>) => void;
   addEntry: (e: Entry) => void;
@@ -62,6 +77,10 @@ export const useStore = create<State>((set, get) => ({
   weeks: seedWeeks,
   picked: realAccounts(seedAccounts),
   appearance: typeof window === "undefined" ? "light" : initialAppearance(),
+  setups: seedSetups,
+  settings: {},
+  setSetting: (key, value) => set((s) => ({ settings: { ...s.settings, [key]: value } })),
+  setSetups: (fn) => set((s) => ({ setups: fn(s.setups) })),
 
   updateEntry: (id, patch) => set((s) => ({ entries: s.entries.map((e) => (e.id === id ? { ...e, ...patch } : e)) })),
   addEntry: (e) => set((s) => ({ entries: [e, ...s.entries] })),

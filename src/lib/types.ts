@@ -26,13 +26,24 @@ export type Entry = {
   mt5: string | null;
   excluded: boolean;
   textbook: boolean;
+  // Fields the sample doesn't carry (05-data-and-calculations.md); filled by the chart story screens.
+  before?: string | null; // Before / during note
+  suggested?: boolean; // reflection is a "Suggested reflection" (Keep / Delete) until kept or edited
+  headspace?: string | null;
+  transcript?: string | null;
+  chartList?: string[]; // chart keys or image URLs, in the user's order
+  numbers?: { entry?: string; stop?: string; target?: string; exit?: string; size?: string };
+  shortTrade?: "ask" | "counted" | "left-out"; // very short trade prompt (Count it / Leave it out)
 };
 
+export type AccountSource = "mt5" | "mt5-reconnect" | "screenshots";
 export type Account = {
   name: string;
   type: string; // Live, Prop firm, Demo, Backtest, or own
   practice: boolean;
   archived: boolean;
+  source: AccountSource; // where trade numbers come from
+  archivedNote?: string; // e.g. "failed in September · 31 chart stories"
 };
 
 export type Week = { monday: string; takeaway: string | null; watched: number; not_filled: number };
