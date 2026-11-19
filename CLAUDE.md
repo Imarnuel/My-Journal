@@ -81,6 +81,13 @@ Library choices: the build plan names Radix UI primitives, Motion, lucide-react 
 5. Passes axe (no serious issues), keyboard-only use, and `prefers-reduced-motion`.
 6. Motion checked against `review-animations/STANDARDS.md`: transform/opacity only, no `ease-in` on entering UI, interruptible, nothing on keyboard-triggered actions.
 
+## Live preview for the owner
+The owner looks at the app at https://claude.ai/artifact/Lnqrd7dbSJgF2Q8DRExLt6 (private claude.ai page).
+After every change the owner should see, and before reporting it done: run `npm run build:artifact`, then
+republish `dist-artifact/journal.html` with files `assets/app.js` and `assets/app.css` to that URL (Artifact
+tool, `url` set to the link above when it's a new session). That build routes in memory (the page can't own
+the address bar) and inlines the fonts.
+
 ## Tooling
 - Vite + React + TypeScript (strict), Tailwind, Vitest for units, Playwright for e2e and visual diffs (`--trace off`). Chromium is preinstalled; never run `playwright install`.
 - `npm run dev`, `npm test` (units), `npm run e2e` (Playwright).
