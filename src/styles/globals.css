@@ -1,0 +1,12 @@
+@import "@fontsource-variable/inter/opsz.css";
+@import "./tokens.css";
+@import "./canvas.css";
+
+@tailwind components;
+@tailwind utilities;
+
+html, body { margin: 0; background: var(--bg-app); }
+#root { min-height: 100dvh; }
+/* Hover styles only on devices that hover (mobile-native: no sticky hover after tap). */
+html { -webkit-tap-highlight-color: transparent; }
+button { touch-action: manipulation; }

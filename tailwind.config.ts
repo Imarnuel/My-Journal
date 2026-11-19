@@ -1,0 +1,75 @@
+// Tailwind theme for the trading journal. Uses Tailwind's default type and spacing scales,
+// limited to the steps the design uses. Colours, radii and shadows come from tokens.css variables.
+import type { Config } from "tailwindcss";
+
+export default {
+  darkMode: ["selector", '[data-theme="dark"]'],
+  content: ["./index.html", "./src/**/*.{ts,tsx,html}"],
+  // No preflight: the prototype renders on browser defaults, so the build does too (pixel parity).
+  corePlugins: { preflight: false },
+  theme: {
+    // Four sizes only (Tailwind defaults): text-xs, text-sm, text-base, text-2xl.
+    fontSize: {
+      xs: ["12px", { lineHeight: "16px" }],
+      sm: ["14px", { lineHeight: "20px" }],
+      base: ["16px", { lineHeight: "24px" }],
+      "2xl": ["24px", { lineHeight: "32px", letterSpacing: "-0.025em" }],
+    },
+    fontWeight: { normal: "400", medium: "500", semibold: "600" },
+    // Eight spacing steps only: 0.5 1 2 3 4 6 8 12 (2 4 8 12 16 24 32 48px), plus 0 and px.
+    spacing: { 0: "0", px: "1px", 0.5: "2px", 1: "4px", 2: "8px", 3: "12px", 4: "16px", 6: "24px", 8: "32px", 12: "48px",
+      // control heights (not spacing): use as h-7 / h-8 / h-9 and row height
+      7: "28px", 9: "36px", "row": "34px" },
+    extend: {
+      fontFamily: { sans: ["Inter Variable", "Inter", "system-ui", "sans-serif"] },
+      colors: {
+        "bg-app": "var(--bg-app)",
+        "surface-1": "var(--surface-1)",
+        "surface-2": "var(--surface-2)",
+        "surface-3": "var(--surface-3)",
+        "surface-inset": "var(--surface-inset)",
+        "surface-hover": "var(--surface-hover)",
+        "surface-pressed": "var(--surface-pressed)",
+        "border-subtle": "var(--border-subtle)",
+        "border": "var(--border)",
+        "border-strong": "var(--border-strong)",
+        "highlight": "var(--highlight)",
+        "highlight-strong": "var(--highlight-strong)",
+        "text-1": "var(--text-1)",
+        "text-2": "var(--text-2)",
+        "text-3": "var(--text-3)",
+        "text-disabled": "var(--text-disabled)",
+        "profit": "var(--profit)",
+        "loss": "var(--loss)",
+        "attention": "var(--attention)",
+        "voice": "var(--voice)",
+        "voice-border": "var(--voice-border)",
+        "focus": "var(--focus)",
+        "inverse-bg": "var(--inverse-bg)",
+        "inverse-fg": "var(--inverse-fg)",
+        "inverse-border": "var(--inverse-border)",
+        "card-edge": "var(--card-edge)",
+        "card-edge-hover": "var(--card-edge-hover)",
+        "sidebar-bg": "var(--sidebar-bg)",
+        "btn-p-bg": "var(--btn-p-bg)",
+        "btn-p-bg-hover": "var(--btn-p-bg-hover)",
+        "btn-p-fg": "var(--btn-p-fg)",
+        "btn-p-shadow": "var(--btn-p-shadow)",
+        "btn-g-bg": "var(--btn-g-bg)",
+        "btn-g-bg-hover": "var(--btn-g-bg-hover)",
+        "btn-g-shadow": "var(--btn-g-shadow)",
+        "btn-v-bg": "var(--btn-v-bg)",
+        "btn-v-fg": "var(--btn-v-fg)",
+        "medal-bg": "var(--medal-bg)",
+        "medal-shadow": "var(--medal-shadow)",
+        "medal-glyph": "var(--medal-glyph)",
+        "medal-glyph-2": "var(--medal-glyph-2)",
+        "skeleton": "var(--skeleton)"
+      },
+      borderRadius: { xs: "var(--r-xs)", sm: "var(--r-sm)", md: "var(--r-md)", card: "var(--r-card)", menu: "var(--r-menu)", panel: "var(--r-panel)", dialog: "var(--r-dialog)" },
+      boxShadow: { card: "var(--shadow-card)", float: "var(--shadow-float)", dialog: "var(--shadow-dialog)" },
+      transitionDuration: { instant: "80ms", fast: "140ms", base: "220ms", slow: "320ms" },
+      transitionTimingFunction: { out: "cubic-bezier(0.16, 1, 0.3, 1)", in: "cubic-bezier(0.4, 0, 1, 1)", standard: "cubic-bezier(0.2, 0, 0, 1)" },
+    },
+  },
+} satisfies Config;
