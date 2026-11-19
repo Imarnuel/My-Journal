@@ -17,6 +17,8 @@ handoff (see `DESIGN.md`). Everything else is still compared with `handoff/scree
 
 | `light/` and `dark/` 02-Dashboard; `states/` 01 to 06 | Dashboard notices redesigned (DESIGN.md); everything below them matches the handoff screenshot shifted 38px down (checked) | 2026-11-19 |
 
+| Dashboard images refreshed | Edit and clear buttons on this week's focus | 2026-11-19 |
+
 The other screens still compare with the handoff screenshots: the sidebar change stays within their tolerance,
 and `tests/visual/chrome.spec.ts` checks the sidebar itself exactly.
 

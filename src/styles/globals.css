@@ -165,3 +165,12 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 }
 /* Phone: chart card grids (Recent chart stories, a week's trades) go to two columns. */
 @media (max-width: 640px) { .kcards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 16px !important; } }
+
+/* This week's focus, owned by the owner (DESIGN.md): edit and clear as quiet icon buttons; with no focus,
+   one quiet line to set it. */
+.kfocus-actions { flex: none; align-self: flex-start; display: flex; gap: 4px; }
+.kicon-btn { width: 32px; padding: 0 !important; }
+.app .kfocus-set { align-self: flex-start; color: var(--text-3) !important; margin-left: 12px; }
+.app .kfocus-set svg { color: var(--text-3) !important; }
+@media (hover: hover) and (pointer: fine) { .app .kfocus-set:hover, .app .kfocus-set:hover svg { color: var(--text-1) !important; } }
+@media (max-width: 640px) { .kfocus-actions { margin-left: 48px; } }

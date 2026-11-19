@@ -1,11 +1,12 @@
 // The no-charts notice (an MT5 trade with no charts: drop, paste or choose charts; it leaves once a chart is added)
 // and "This week's focus" (the latest review's takeaway, linking to that review). Markup from the prototype.
-import { useEffect, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { useStore } from "../../data/store";
 import type { Entry } from "../../lib/types";
-import { fr, shortDate, tone } from "../../lib/format";
+import { fr, mondayOf, shortDate, tone, weekRange } from "../../lib/format";
+import type { WeekFocus } from "../../lib/focus";
 import { plural } from "../../lib/dashboard";
 import { toast } from "../../components/primitives/toast";
 import { reducedMotion } from "../../components/charts/tween";
@@ -132,31 +133,149 @@ export function NoChartsNotice({ trades }: { trades: Entry[] }) {
   );
 }
 
-export function Focus({ focus }: { focus: { monday: string; takeaway: string; from: string } | null }) {
-  if (!focus) return null;
-  // Redesigned (DESIGN.md, Dashboard notices): a small label on top, the owner's own words as the content,
-  // and where they were written as an attribution link underneath.
+const Target = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1" />
+  </svg>
+);
+
+/**
+ * This week's focus, owned by the owner (DESIGN.md): shows their focus for the week, or last week's review
+ * takeaway when they haven't set one. Edit it in place, clear it (Undo), or set one when there is none.
+ * With no focus there is no card, only a quiet "Set a focus for this week".
+ */
+export function Focus({ focus }: { focus: WeekFocus | null }) {
+  const today = useStore((s) => s.today);
+  const own = useStore((s) => s.focus);
+  const setFocus = useStore((s) => s.setFocus);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const field = useRef<HTMLTextAreaElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const monday = mondayOf(today);
+
+  const start = (ev: { currentTarget: HTMLElement }) => {
+    opener.current = ev.currentTarget;
+    setDraft(focus?.text ?? "");
+    setEditing(true);
+    requestAnimationFrame(() => {
+      const f = field.current;
+      if (f) {
+        f.focus({ preventScroll: true });
+        f.setSelectionRange(f.value.length, f.value.length);
+      }
+    });
+  };
+  const done = () => {
+    setEditing(false);
+    requestAnimationFrame(() => (document.getElementById("focus-edit") ?? document.getElementById("focus-set") ?? opener.current)?.focus({ preventScroll: true }));
+  };
+  const save = () => {
+    const text = draft.trim();
+    setFocus({ monday, text: text || null });
+    done();
+  };
+  const clear = () => {
+    const before = own;
+    setFocus({ monday, text: null });
+    toast("Focus cleared", () => setFocus(before));
+  };
+
+  if (editing)
+    return (
+      <section aria-labelledby="focus-h" className="card knotice">
+        <span className="knote-tile" aria-hidden="true">
+          <Target />
+        </span>
+        <form
+          className="knotice-body"
+          style={{ flex: "1 1 320px", minWidth: 0, display: "flex", flexDirection: "column", gap: "8px" }}
+          onSubmit={(ev) => {
+            ev.preventDefault();
+            save();
+          }}
+        >
+          <label id="focus-h" htmlFor="focus-field" style={{ fontSize: "12px", fontWeight: 500, lineHeight: "16px", color: "var(--text-2)" }}>
+            This week's focus
+          </label>
+          <textarea
+            id="focus-field"
+            ref={field}
+            rows={2}
+            value={draft}
+            onChange={(ev) => setDraft(ev.target.value)}
+            onKeyDown={(ev) => {
+              if (ev.key === "Enter" && !ev.shiftKey) {
+                ev.preventDefault();
+                save();
+              } else if (ev.key === "Escape") {
+                ev.preventDefault();
+                done();
+              }
+            }}
+            placeholder="One thing to keep in mind when you trade this week"
+            style={{ display: "block", margin: 0, width: "100%", boxSizing: "border-box", border: "1px solid var(--border-strong)", background: "var(--surface-inset)", borderRadius: "8px", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)", maxWidth: "72ch" }}
+          />
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", maxWidth: "72ch" }}>
+            <button type="submit" className="btn btn-g">
+              Save
+            </button>
+            <button type="button" className="btn btn-q" onClick={done}>
+              Cancel
+            </button>
+            <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px", marginLeft: "auto" }}>{`For ${weekRange(monday)}`}</span>
+          </div>
+        </form>
+      </section>
+    );
+
+  if (!focus)
+    return (
+      <button id="focus-set" type="button" className="btn btn-q kfocus-set" onClick={start}>
+        <Target />
+        Set a focus for this week
+      </button>
+    );
+
   return (
     <section aria-labelledby="focus-h" className="card knotice">
       <span className="knote-tile" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="5" />
-          <circle cx="12" cy="12" r="1" />
-        </svg>
+        <Target />
       </span>
       <div className="knotice-body" style={{ flex: "1 1 320px", minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
         <h2 id="focus-h" style={{ margin: 0, fontSize: "12px", fontWeight: 500, lineHeight: "16px", color: "var(--text-2)" }}>
           This week's focus
         </h2>
-        <blockquote style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px", color: "var(--text-1)", maxWidth: "72ch", textWrap: "pretty" }}>{`“${focus.takeaway}”`}</blockquote>
-        <Link to={`/review/${focus.monday}`} className="kcite">
-          {focus.from}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M5 12h14" />
-            <path d="M13 6l6 6-6 6" />
+        <blockquote style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px", color: "var(--text-1)", maxWidth: "72ch", textWrap: "pretty" }}>{`“${focus.text}”`}</blockquote>
+        {focus.source === "review" && focus.reviewMonday ? (
+          <Link to={`/review/${focus.reviewMonday}`} className="kcite">
+            {focus.from}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="M13 6l6 6-6 6" />
+            </svg>
+          </Link>
+        ) : (
+          <span className="kcite" style={{ cursor: "default" }}>
+            {focus.from}
+          </span>
+        )}
+      </div>
+      <div className="kfocus-actions">
+        <button id="focus-edit" type="button" className="btn btn-q kicon-btn" aria-label="Edit this week's focus" title="Edit" onClick={start}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
           </svg>
-        </Link>
+        </button>
+        <button type="button" className="btn btn-q kicon-btn" aria-label="Clear this week's focus" title="Clear" onClick={clear}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     </section>
   );

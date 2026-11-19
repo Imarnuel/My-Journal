@@ -95,7 +95,7 @@ test("period: one pressed at a time, every number follows", async ({ page }) => 
 
 test("fewer than 5 trades: the numbers give way, and the button widens the period", async ({ page }) => {
   await open(page);
-  await page.getByRole("button", { name: "This week" }).click();
+  await page.getByRole("button", { name: "This week", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
   await expect(page.getByText("2 trades logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.")).toBeVisible();
   await expect(page.locator(".kstat")).toHaveCount(0);
@@ -265,7 +265,7 @@ test("reduced motion: no draw-in, numbers and charts swap at once", async ({ pag
   // Without motion the value is final on the next frame.
   await expect(stat(page, "Net R")).toHaveText("+9.1R", { timeout: 200 });
   await expect(page.getByText("8 of 12 weeks up")).toBeVisible();
-  await page.getByRole("button", { name: "This week" }).click();
+  await page.getByRole("button", { name: "This week", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
 });
 

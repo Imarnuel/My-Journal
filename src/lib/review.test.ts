@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { seedAccounts, seedEntries, seedWeeks, TODAY } from "../data/seed";
 import { realAccounts, useStore } from "../data/store";
 import { fr } from "./format";
-import { latestFocus } from "./dashboard";
+import { weekFocus } from "./focus";
 import { mistakeWhere, monthKey, pastWeeks, tradedWeeks, watchedLine, weekParam, weekReview, weekTitle } from "./review";
 
 const real = realAccounts(seedAccounts);
@@ -117,13 +117,14 @@ describe("past weeks", () => {
 });
 
 describe("this week's focus (dashboard)", () => {
-  // The review writes with setTakeaway; the dashboard reads the store's weeks with latestFocus (src/lib/dashboard.ts).
-  it("is the latest reviewed week's takeaway and follows what the review saves", () => {
-    expect(latestFocus(seedWeeks, TODAY)?.takeaway).toBe("Leave the stop where I planned it. No moving it to breakeven before 1R.");
+  // The review writes with setTakeaway; the dashboard reads last week's takeaway with weekFocus (src/lib/focus.ts)
+  // when the owner hasn't set their own focus. Older takeaways never come back (DESIGN.md).
+  it("is last week's takeaway, follows what the review saves, and doesn't fall back to older weeks", () => {
+    expect(weekFocus(seedWeeks, null, TODAY)?.text).toBe("Leave the stop where I planned it. No moving it to breakeven before 1R.");
     const { setTakeaway } = useStore.getState();
     setTakeaway("2026-11-09", "Wait for the close.");
-    expect(latestFocus(useStore.getState().weeks, TODAY)).toMatchObject({ monday: "2026-11-09", takeaway: "Wait for the close." });
+    expect(weekFocus(useStore.getState().weeks, null, TODAY)).toMatchObject({ text: "Wait for the close.", reviewMonday: "2026-11-09" });
     setTakeaway("2026-11-09", "");
-    expect(latestFocus(useStore.getState().weeks, TODAY)?.monday).toBe("2026-11-02");
+    expect(weekFocus(useStore.getState().weeks, null, TODAY)).toBeNull();
   });
 });

@@ -83,3 +83,13 @@ as one calm zone before the numbers. Source: `src/screens/dashboard/Notices.tsx`
 - The dashboard's breakdown tables scroll sideways inside their own card on a phone, and chart card grids
   (Recent chart stories, a week's trades) go to two columns, so no page is wider than the screen. The phone
   test now compares with the phone's real width (390px), which is what exposed this.
+
+## This week's focus belongs to the owner
+Replaces "the latest review's takeaway". Source: `src/lib/focus.ts`, `Focus` in `src/screens/dashboard/Notices.tsx`.
+- **The owner sets, edits or clears it** for the current week, in place on the Dashboard card (pen and ×
+  icon buttons; Enter saves, Escape cancels; clearing has Undo). An empty save clears it.
+- **If the owner hasn't set one, last week's review takeaway fills it in**, the way a voice note only fills
+  empty fields, with "From your review of …" linking to that review. Once edited it reads "Set by you for …".
+- **It lasts for its week.** It never falls back to an older takeaway, so a stale rule is never shown as this
+  week's. Why: the owner's focus isn't always a lesson from last week, and nothing should pile up.
+- **No focus means no card**, only one quiet "Set a focus for this week" line where the card would be.
