@@ -133,3 +133,35 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 /* Segmented controls: the selected label is medium (500) like the others (DESIGN.md, owner's request);
    the raised fill marks the choice, so the label doesn't change weight or width. */
 .kseg-track button[aria-pressed="true"], .kseg-track [role="tab"][aria-selected="true"] { font-weight: 500 !important; }
+
+/* Dashboard notices (DESIGN.md): one anatomy for both. Leading visual, text column, a quiet action. */
+.knotice { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 16px 16px 24px; border-radius: 12px; }
+.knotice-link { flex: none; gap: 4px !important; }
+.knote-tile { flex: none; align-self: flex-start; width: 32px; height: 32px; border-radius: var(--r-md); background: var(--surface-inset);
+  box-shadow: 0 0 0 1px var(--border-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-2); }
+/* The drop slot is drawn where the chart goes: 16:9, dashed, and it is the file picker. */
+.kslot { position: relative; flex: none; width: 112px; height: 63px; box-sizing: border-box; border-radius: var(--r-md);
+  border: 1.5px dashed var(--border-strong); background: var(--surface-inset); color: var(--text-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  font-size: 12px; font-weight: 500; line-height: 16px; cursor: pointer;
+  transition: border-color var(--d-instant), background var(--d-instant), color var(--d-instant); }
+.kslot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.kslot.over { border-style: solid; border-color: var(--text-1); background: var(--surface-hover); color: var(--text-1); }
+.kslot:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .kslot:hover { border-color: var(--text-3); color: var(--text-1); } }
+.app .kcite { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; line-height: 16px;
+  color: var(--text-3); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .app .kcite:hover { color: var(--text-1); } }
+/* Phone: the text stays beside its tile; the drop slot and link move under the text. */
+@media (max-width: 640px) {
+  .knotice { padding: 16px !important; }
+  .knotice-body { flex: 1 1 calc(100% - 48px) !important; }
+  .knotice .kslot { margin-left: 48px; }
+}
+/* Phone: the dashboard's breakdown tables keep their columns and scroll sideways inside their own card,
+   so the page itself never gets wider than the screen (it was zooming the whole page out). */
+@media (max-width: 640px) {
+  section[aria-labelledby="bsh"], section[aria-labelledby="ssh"], section[aria-labelledby="msh"] { min-width: 0; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+}
+/* Phone: chart card grids (Recent chart stories, a week's trades) go to two columns. */
+@media (max-width: 640px) { .kcards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 16px !important; } }

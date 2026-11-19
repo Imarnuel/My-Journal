@@ -62,3 +62,24 @@ two disagree. Each rule says why, so it can be applied to places the owner didn'
 - **The selected segment's label is medium (500)**, the same weight as the others; the raised fill alone
   marks the choice. This overrides the handoff's 600 on a selected segment. Why: the owner prefers the calmer
   weight, and the labels no longer change width as the selection moves.
+
+## Dashboard notices (redesigned after Mobbin research)
+Both cards at the top of the Dashboard share one anatomy, sit 16px apart (they belong together), and read
+as one calm zone before the numbers. Source: `src/screens/dashboard/Notices.tsx`.
+- **Leading 32px icon tile** (`--surface-inset`, hairline ring, `--text-2` icon), top-aligned with the title,
+  so both cards' text columns line up.
+- **No-charts notice**: title (14/500); the trade's facts on their own line (pair, direction chip, result in
+  its colour, date and time, account, "from MT5", with `--text-disabled` dots); the instruction under them in
+  `--text-3`. On the right, the drop slot drawn where the chart goes (112 × 63, 16:9, dashed `--border-strong`,
+  "Add chart"): it is the file picker and the drop target (solid `--text-1` border while a file is over it),
+  and paste anywhere still works. Then a quiet "Trade log →" link. References: Oyster task rows, Airwallex
+  and WeTransfer drop targets.
+- **This week's focus**: a small label (12/500 `--text-2`), the owner's takeaway as the content (16/500
+  `--text-1`, curly quotes, 72ch at most), and where it was written as an attribution link under it
+  (12px `--text-3`, trailing arrow). References: Open's quote with attribution, Codecademy's small label.
+- **Phone**: the text stays beside its tile; the drop slot and link move to the next line.
+
+## Phone fixes found while checking the redesign
+- The dashboard's breakdown tables scroll sideways inside their own card on a phone, and chart card grids
+  (Recent chart stories, a week's trades) go to two columns, so no page is wider than the screen. The phone
+  test now compares with the phone's real width (390px), which is what exposed this.

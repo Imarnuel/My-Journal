@@ -56,68 +56,75 @@ export function NoChartsNotice({ trades }: { trades: Entry[] }) {
       {e ? (
         <motion.div
           key="nocharts"
-          initial={rm ? { opacity: 0 } : { opacity: 0, height: 0, marginBottom: -32 }}
+          initial={rm ? { opacity: 0 } : { opacity: 0, height: 0, marginBottom: -16 }}
           animate={rm ? { opacity: 1 } : { opacity: 1, height: "auto", marginBottom: 0 }}
-          exit={rm ? { opacity: 0, transition: { duration: 0.12 } } : { opacity: 0, height: 0, marginBottom: -32 }}
+          exit={rm ? { opacity: 0, transition: { duration: 0.12 } } : { opacity: 0, height: 0, marginBottom: -16 }}
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          style={{ overflow: "hidden" }}
+          style={{ overflow: "hidden", padding: "1px 1px 2px", margin: "-1px -1px -2px" }}
         >
-          <section
-            aria-label="Trade without charts"
-            style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px 24px", padding: "16px 24px", borderRadius: "12px", border: "1px solid var(--border)", background: "var(--surface-2)" }}
-          >
-            <div className="knote" style={{ flex: "1 1 380px", minWidth: "0", display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span className="knote-ic">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="2.5" />
-                  <circle cx="9" cy="9" r="1.8" />
-                  <path d="M21 15l-5-5L5 21" />
-                </svg>
-              </span>
-              <h2 style={{ margin: "0", fontSize: "14px", fontWeight: "500", lineHeight: "20px" }}>{trades.length === 1 ? "1 trade has no charts yet" : `${plural(trades.length, "trade")} have no charts yet`}</h2>
-              <span className="meta">
-                {`${e.pair} · ${e.dir ?? ""} · ${shortDate(e.date)} · ${e.account} ·`}{" "}
-                <span className="num" style={{ color: tone(e.r), fontWeight: "500" }}>
+          {/* Redesigned (DESIGN.md, Dashboard notices): icon tile, then the title, the trade's facts on their own
+              line and the instruction quieter; on the right the drop slot, drawn where the chart goes, and a
+              quiet link. */}
+          <section aria-labelledby="nochart-h" className="card knotice">
+            <span className="knote-tile" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2.5" />
+                <circle cx="9" cy="9" r="1.8" />
+                <path d="M21 15l-5-5L5 21" />
+              </svg>
+            </span>
+            <div className="knotice-body" style={{ flex: "1 1 320px", minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
+              <h2 id="nochart-h" style={{ margin: 0, fontSize: "14px", fontWeight: 500, lineHeight: "20px" }}>
+                {trades.length === 1 ? "1 trade has no charts yet" : `${plural(trades.length, "trade")} have no charts yet`}
+              </h2>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", fontSize: "14px", lineHeight: "20px", color: "var(--text-2)" }}>
+                <span style={{ color: "var(--text-1)", fontWeight: 500 }}>{e.pair}</span>
+                {e.dir ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "6px", padding: "0 8px", lineHeight: "18px" }}>{e.dir}</span> : null}
+                <span className="num" style={{ color: tone(e.r), fontWeight: 500 }}>
                   {fr(e.r ?? 0)}
-                </span>{" "}
-                from MT5. No screenshot? Scroll back on your chart and take one now. It still counts.
-              </span>
+                </span>
+                <span aria-hidden="true" style={{ color: "var(--text-disabled)" }}>·</span>
+                <span>{`${shortDate(e.date)}, ${e.time}`}</span>
+                <span aria-hidden="true" style={{ color: "var(--text-disabled)" }}>·</span>
+                <span>{e.account}</span>
+                <span aria-hidden="true" style={{ color: "var(--text-disabled)" }}>·</span>
+                <span>from MT5</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-3)" }}>No screenshot? Scroll back on your chart and take one now. It still counts.</p>
             </div>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <label
-                onDragOver={(ev) => {
-                  ev.preventDefault();
-                  setOver(true);
+            <label
+              className={over ? "kslot over" : "kslot"}
+              onDragOver={(ev) => {
+                ev.preventDefault();
+                setOver(true);
+              }}
+              onDragLeave={() => setOver(false)}
+              onDrop={drop}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2.5" />
+                <circle cx="9" cy="9" r="1.8" />
+                <path d="M21 15l-5-5L5 21" />
+              </svg>
+              <span>Add chart</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                aria-label={`Drop, paste or choose charts for ${e.pair}, ${shortDate(e.date)}`}
+                onChange={(ev) => {
+                  add(images(ev.target.files));
+                  ev.target.value = "";
                 }}
-                onDragLeave={() => setOver(false)}
-                onDrop={drop}
-                style={{
-                  position: "relative", font: "inherit", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500", color: "var(--text-1)",
-                  border: "1.5px dashed var(--border-strong)", borderRadius: "8px", padding: "0 16px", minHeight: "32px", cursor: "copy",
-                  background: over ? "var(--surface-inset)" : undefined,
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="2.5" />
-                  <circle cx="9" cy="9" r="1.8" />
-                  <path d="M21 15l-5-5L5 21" />
-                </svg>
-                Drop, paste or choose charts
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(ev) => {
-                    add(images(ev.target.files));
-                    ev.target.value = "";
-                  }}
-                  style={{ position: "absolute", width: "1px", height: "1px", opacity: "0" }}
-                />
-              </label>
-              <Link to="/log" className="btn btn-q">
-                Trade log
-              </Link>
-            </div>
+              />
+            </label>
+            <Link to="/log" className="btn btn-q knotice-link">
+              Trade log
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="M13 6l6 6-6 6" />
+              </svg>
+            </Link>
           </section>
         </motion.div>
       ) : null}
@@ -127,20 +134,30 @@ export function NoChartsNotice({ trades }: { trades: Entry[] }) {
 
 export function Focus({ focus }: { focus: { monday: string; takeaway: string; from: string } | null }) {
   if (!focus) return null;
+  // Redesigned (DESIGN.md, Dashboard notices): a small label on top, the owner's own words as the content,
+  // and where they were written as an attribution link underneath.
   return (
-    <section aria-label="This week's focus" className="card" style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "8px 12px", padding: "16px 16px", borderRadius: "12px" }}>
-      <span className="lbl" style={{ fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap", lineHeight: "16px" }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <section aria-labelledby="focus-h" className="card knotice">
+      <span className="knote-tile" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="9" />
           <circle cx="12" cy="12" r="5" />
           <circle cx="12" cy="12" r="1" />
         </svg>
-        This week's focus
       </span>
-      <span style={{ fontSize: "14px", color: "var(--text-1)" }}>{`“${focus.takeaway}”`}</span>
-      <Link to={`/review/${focus.monday}`} className="lbl" style={{ fontSize: "12px", color: "var(--text-2)", marginLeft: "auto", lineHeight: "16px" }}>
-        {focus.from}
-      </Link>
+      <div className="knotice-body" style={{ flex: "1 1 320px", minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
+        <h2 id="focus-h" style={{ margin: 0, fontSize: "12px", fontWeight: 500, lineHeight: "16px", color: "var(--text-2)" }}>
+          This week's focus
+        </h2>
+        <blockquote style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px", color: "var(--text-1)", maxWidth: "72ch", textWrap: "pretty" }}>{`“${focus.takeaway}”`}</blockquote>
+        <Link to={`/review/${focus.monday}`} className="kcite">
+          {focus.from}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12h14" />
+            <path d="M13 6l6 6-6 6" />
+          </svg>
+        </Link>
+      </div>
     </section>
   );
 }

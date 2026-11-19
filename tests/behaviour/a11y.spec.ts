@@ -46,7 +46,9 @@ test.describe("phone", () => {
     test(`phone: ${r} has no horizontal page scroll`, async ({ page }) => {
       await page.goto(r);
       await page.waitForTimeout(150);
-      const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
-      expect(sw, "page width").toBeLessThanOrEqual(iw + 1);
+      // Compare with the phone's own width (390): a page wider than that makes the browser zoom it out,
+      // which also widens innerWidth, so comparing with innerWidth alone hides the bug.
+      const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+      expect(sw, "page width").toBeLessThanOrEqual(390);
     });
 });

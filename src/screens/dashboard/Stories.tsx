@@ -29,7 +29,7 @@ export function Recent({ stories }: { stories: Entry[] }) {
           </svg>
         </Link>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "12px" }}>
+      <div className="kcards" style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "12px" }}>
         {stories.map((e) => {
           const ch = firstChart(e);
           const alt = `${e.pair} ${(e.dir ?? "").toLowerCase()} chart`;

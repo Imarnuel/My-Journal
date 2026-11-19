@@ -199,7 +199,7 @@ export function WeeklyReview() {
                     </svg>
                   </Link>
                 </div>
-                <ol style={{ margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "16px 12px" }}>
+                <ol className="kcards" style={{ margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "16px 12px" }}>
                   {w.trades.map((e) => (
                     <TradeCard key={e.id} e={e} />
                   ))}

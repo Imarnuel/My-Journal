@@ -53,8 +53,13 @@ export function Dashboard() {
   return (
     <Shell active="dashboard">
       <Header sub={subtitle(period, today)} period={period} setPeriod={pick} kit={kit} />
-      <NoChartsNotice trades={noCharts} />
-      <Focus focus={focus} />
+      {/* The two notices belong together: 16px apart, one zone before the numbers. */}
+      {noCharts.length || focus ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <NoChartsNotice trades={noCharts} />
+          <Focus focus={focus} />
+        </div>
+      ) : null}
       {p.enough ? (
         <>
           <StatRow p={p} />

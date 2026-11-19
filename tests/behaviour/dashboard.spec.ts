@@ -198,9 +198,11 @@ test("keyboard: arrow keys read the chart points", async ({ page }) => {
 
 test("no-charts notice: choosing a chart adds it to that trade, the card leaves, Undo brings it back", async ({ page }) => {
   await open(page);
-  const card = page.getByRole("region", { name: "Trade without charts" });
-  await expect(card).toContainText("1 trade has no charts yet");
-  await expect(card).toContainText("EURUSD · Long · 16 Nov · Main account · +0.6R from MT5.");
+  const card = page.getByRole("region", { name: "1 trade has no charts yet" });
+  // Redesigned (DESIGN.md): the trade's facts on their own line, the instruction under them.
+  await expect(card).toContainText("EURUSDLong+0.6R·16 Nov, 11:10·Main account·from MT5");
+  await expect(card).toContainText("No screenshot? Scroll back on your chart and take one now. It still counts.");
+  await expect(card.getByLabel("Drop, paste or choose charts for EURUSD, 16 Nov")).toBeAttached();
   await card.locator("input[type=file]").setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: PNG_1PX });
   await expect(page.getByRole("status")).toContainText("Chart added to EURUSD");
   await expect(card).toHaveCount(0);
@@ -208,13 +210,13 @@ test("no-charts notice: choosing a chart adds it to that trade, the card leaves,
   const story = page.locator("section[aria-labelledby=rch] a[href='/story/e19']");
   await expect(story.locator("img")).toHaveCount(1);
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect(page.getByRole("region", { name: "Trade without charts" })).toContainText("1 trade has no charts yet");
+  await expect(page.getByRole("region", { name: "1 trade has no charts yet" })).toBeVisible();
   await expect(page.locator("section[aria-labelledby=rch] a[href='/story/e19']")).toHaveCount(0);
 });
 
 test("no-charts notice: dropping an image works too", async ({ page }) => {
   await open(page);
-  const zone = page.getByText("Drop, paste or choose charts");
+  const zone = page.locator(".kslot");
   const dt = await page.evaluateHandle((b64) => {
     const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
     const d = new DataTransfer();
@@ -223,7 +225,7 @@ test("no-charts notice: dropping an image works too", async ({ page }) => {
   }, PNG_1PX.toString("base64"));
   await zone.dispatchEvent("drop", { dataTransfer: dt });
   await expect(page.getByRole("status")).toContainText("Chart added to EURUSD");
-  await expect(page.getByRole("region", { name: "Trade without charts" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "1 trade has no charts yet" })).toHaveCount(0);
 });
 
 test("links: focus to its review, setups to their pages, Unsorted to the playbook, stories, new story", async ({ page }) => {
