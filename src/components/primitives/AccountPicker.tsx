@@ -1,9 +1,11 @@
-// The account picker in the playbook headers (frames 08 and 09). It changes numbers only, never examples.
-import { Fragment } from "react";
+// The account picker (behaviour kit): tick accounts in or out, "Only" on hover, Reset to the real accounts,
+// at least one stays ticked. Only where numbers are filtered: Dashboard, Playbook, setup page, Weekly review.
+// It changes numbers only, never examples or recency. Markup from the prototype frames.
+import { Fragment, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
-import type { useKit } from "../useKit";
+import type { useKit } from "../../screens/useKit";
 
-export function AccountPicker({ kit }: { kit: ReturnType<typeof useKit> }) {
+export function AccountPicker({ kit, onKeyDownCapture }: { kit: ReturnType<typeof useKit>; onKeyDownCapture?: (e: KeyboardEvent) => void }) {
   return (
     <div style={{ position: "relative", display: "inline-flex" }}>
       <button type="button" aria-haspopup="true" aria-expanded={kit.apOpen ? "true" : "false"} onClick={kit.apToggle} className="btn btn-g" style={{ gap: "8px", fontWeight: 500, position: "relative", zIndex: 5 }}>
@@ -21,7 +23,7 @@ export function AccountPicker({ kit }: { kit: ReturnType<typeof useKit> }) {
       {kit.apOpen ? (
         <>
           <button type="button" aria-label="Close menu" tabIndex={-1} onClick={kit.kClose} style={{ position: "fixed", inset: 0, zIndex: 4, background: "transparent", border: 0, padding: 0, cursor: "default" }} />
-          <fieldset className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", right: 0, width: "300px", margin: 0, textAlign: "left" }}>
+          <fieldset className="kmenu" onKeyDownCapture={onKeyDownCapture} style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", right: 0, width: "300px", margin: 0, textAlign: "left" }}>
             <legend style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>Accounts to include</legend>
             {kit.apRows.map((a) => (
               <Fragment key={a.name}>

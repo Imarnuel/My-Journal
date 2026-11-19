@@ -1,7 +1,8 @@
 // The shared shell (03-screens.md): sidebar on the window ground, the main card, skip link, one toast region.
 // Markup and inline values match the prototype frames exactly.
-import { useEffect, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { slideSegments, trackInputModality } from "../components/primitives/motion";
 import { Icon, type IconName } from "../components/primitives/Icon";
 import { focusFirstItem, noteTrigger, onMenuKeyDown } from "../components/primitives/menuKeys";
 import { useToast } from "../components/primitives/toast";
@@ -32,14 +33,33 @@ export function Wordmark() {
 }
 
 export function Toasts() {
-  const t = useToast((s) => s.toast);
+  const live = useToast((s) => s.toast);
   const runUndo = useToast((s) => s.runUndo);
+  // Keep the last toast on screen briefly while it leaves (fade and drop 8px, faster than it arrived).
+  const [shown, setShown] = useState(live);
+  const [leaving, setLeaving] = useState(false);
+  useEffect(() => {
+    if (live) {
+      setShown(live);
+      setLeaving(false);
+      return;
+    }
+    if (!shown) return;
+    setLeaving(true);
+    const id = window.setTimeout(() => {
+      setShown(null);
+      setLeaving(false);
+    }, 160);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live]);
+  const t = live ?? shown;
   if (!t) return null;
   return (
     <div
       key={t.id}
       role="status"
-      className="kstatus"
+      className={leaving && !live ? "kstatus leaving" : "kstatus"}
       style={{ position: "fixed", zIndex: 20, left: "50%", bottom: "calc(28px + env(safe-area-inset-bottom, 0px))", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "16px", padding: "12px 12px 12px 16px", background: "var(--inverse-bg)", color: "var(--inverse-fg)", borderRadius: "12px", boxShadow: "0 16px 40px rgba(0,0,0,0.5)", fontSize: "14px", whiteSpace: "nowrap" }}
     >
       <span>{t.msg}</span>
@@ -75,10 +95,45 @@ function useMenuKeyboard() {
   }, []);
 }
 
+/** Shared motion for the whole page: sliding segmented controls and keyboard-aware entrances. */
+function useSharedMotion() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => trackInputModality(), []);
+  useEffect(() => (ref.current ? slideSegments(ref.current) : undefined), []);
+  return ref;
+}
+
+/** Page changes inside the app: the content cross-fades with a 4px upward drift over --d-slow.
+ *  Runs on every route change without remounting the screen (its state is kept). Skipped for keyboard
+ *  navigation and on the first load; reduced motion makes it a short fade. */
+// Each screen mounts its own Shell, so the last shown path is app-wide. Comparing paths (not "has run")
+// keeps the first load still, including React's development double-mount.
+let lastPath: string | null = null;
+
+function usePageTransition() {
+  const page = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const from = lastPath;
+    lastPath = pathname;
+    if (from === null || from === pathname) return;
+    const el = page.current;
+    if (!el || document.documentElement.dataset.input === "kbd") return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.animate(
+      reduce ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }],
+      { duration: reduce ? 120 : 320, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+  }, [pathname]);
+  return page;
+}
+
 export function Shell({ active, children, minHeight }: { active: NavKey; children: ReactNode; minHeight?: number }) {
   useMenuKeyboard();
+  const ref = useSharedMotion();
+  const page = usePageTransition();
   return (
-    <div className="app" style={{ minHeight: minHeight ? `${minHeight}px` : "100dvh", fontSize: "14px", lineHeight: "20px", display: "flex", flexWrap: "wrap" }}>
+    <div ref={ref} className="app" style={{ minHeight: minHeight ? `${minHeight}px` : "100dvh", fontSize: "14px", lineHeight: "20px", display: "flex", flexWrap: "wrap" }}>
       <a className="kskip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
         Skip to main content
       </a>
@@ -95,7 +150,7 @@ export function Shell({ active, children, minHeight }: { active: NavKey; childre
       </aside>
       <main style={{ flex: "999 1 560px", minWidth: 0, boxSizing: "border-box", padding: "8px 8px 8px 0", display: "flex" }}>
         <div className="panel" id="main" tabIndex={-1} style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: "32px 32px 48px" }}>
-          <div style={{ maxWidth: "1080px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>{children}</div>
+          <div ref={page} style={{ maxWidth: "1080px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>{children}</div>
         </div>
       </main>
       <Toasts />

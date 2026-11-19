@@ -12,7 +12,7 @@ import { fr, shortDate, tone } from "../lib/format";
 import type { Entry } from "../lib/types";
 import { toast } from "../components/primitives/toast";
 import { useKit, useMenu } from "./useKit";
-import { AccountPicker } from "./playbook/AccountPicker";
+import { AccountPicker } from "../components/primitives/AccountPicker";
 import { BackIcon, backLink, ChartArt, Dot, groupHead, h1Style, PencilIcon, PlaybookSprite, Sparkle } from "./playbook/parts";
 
 type Tab = "ex" | "pat" | "les";

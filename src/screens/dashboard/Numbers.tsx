@@ -89,7 +89,7 @@ export function Charts({
   const barTitle = byWeek ? "R by week" : "R by day";
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 3fr) minmax(0, 2fr)", gap: "24px" }}>
+    <div className="kgrid-2" style={{ display: "grid", gridTemplateColumns: "minmax(0, 3fr) minmax(0, 2fr)", gap: "24px" }}>
       <section aria-labelledby="eqh" className="card" style={sectionCard}>
         <div style={headRow}>
           <h2 id="eqh" style={h2}>
@@ -307,7 +307,7 @@ export function BySetup({ rows, thumbs }: { rows: Row[]; thumbs: Record<string, 
 
 export function SessionsAndMistakes({ sessions, mistakes, untagged, n }: { sessions: Row[]; mistakes: { tag: string; n: number; r: number; pct: number }[]; untagged: number; n: number }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "24px" }}>
+    <div className="kgrid-2" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "24px" }}>
       <section aria-labelledby="ssh" className="card" style={{ ...listCard, minWidth: "0" }}>
         <div style={listHead}>
           <h2 id="ssh" style={h2}>

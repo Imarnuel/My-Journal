@@ -11,7 +11,7 @@ import { isStory, setupStats, spark, unsortedOf } from "../lib/playbook";
 import { fr } from "../lib/format";
 import { toast } from "../components/primitives/toast";
 import { useKit, useMenu } from "./useKit";
-import { AccountPicker } from "./playbook/AccountPicker";
+import { AccountPicker } from "../components/primitives/AccountPicker";
 import { ArchiveIcon, ChartArt, closeMenuBtn, Dot, h1Style, PencilIcon, PlaybookSprite, PlusIcon, Sparkle } from "./playbook/parts";
 
 const optStyle = { font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "8px", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%" } as const;

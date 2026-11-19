@@ -50,3 +50,43 @@ button, [role="button"], [role="tab"], .pill, .btn {
   .acct-row > :nth-child(2), .acct-row > :nth-child(3) { grid-column: 1; }
   .acct-row > :nth-child(4) { grid-column: 2; grid-row: 1 / span 3; }
 }
+
+/* ---- Shared motion (02-look-and-feel.md section 12; src/components/primitives/motion.ts) ---- */
+/* Segmented controls: one thumb slides under the pressed segment; the segment itself goes transparent. */
+.kseg-thumb {
+  position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none;
+  border-radius: 6px; background: var(--surface-3);
+  box-shadow: inset 0 1px 0 var(--highlight), 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.25);
+  transition: transform var(--d-fast) var(--ease-standard), width var(--d-fast) var(--ease-standard);
+}
+.kseg-track[role="tablist"] > .kseg-thumb { box-shadow: inset 0 1px 0 var(--highlight), 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.12); }
+.kseg-track.has-thumb > button, .kseg-track.has-thumb > [role="tab"] { position: relative; z-index: 1; }
+.kseg-track.has-thumb button[aria-pressed="true"], .kseg-track.has-thumb [role="tab"][aria-selected="true"] { background: transparent !important; box-shadow: none !important; }
+
+/* Keyboard-initiated menus and dialogs appear at once (never animate keyboard actions). */
+html[data-input="kbd"] .kmenu, html[data-input="kbd"] .kdialog, html[data-input="kbd"] .kscrim { animation: none !important; }
+
+/* Theme change: colours cross-fade, nothing moves. */
+html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
+  transition: background-color var(--d-slow) var(--ease-standard), color var(--d-slow) var(--ease-standard),
+    border-color var(--d-slow) var(--ease-standard), box-shadow var(--d-slow) var(--ease-standard), fill var(--d-slow), stroke var(--d-slow) !important;
+}
+
+
+/* Toasts leave faster than they arrive: fade and drop 8px. */
+@keyframes kdrop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 8px); } }
+.kstatus.leaving { animation: kdrop calc(var(--d-base) * 0.7) var(--ease-in) forwards; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .kseg-thumb { transition: none; }
+  .kstatus.leaving { animation: kfade 120ms linear reverse forwards; }
+}
+
+/* Narrow widths (02-look-and-feel.md section 11, Stat groups): a stat group wraps to two columns and its
+   dividers become row hairlines; side-by-side card pairs stack. */
+@media (max-width: 640px) {
+  .kstat { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 16px !important; }
+  .kstat > div { padding: 2px 4px !important; }
+  .kstat > div + div::before { left: 0; right: 0; top: -8px; bottom: auto; width: auto; height: 1px; }
+  .kstat > div:nth-child(2)::before { display: none; }
+  .kgrid-2 { grid-template-columns: minmax(0, 1fr) !important; }
+}

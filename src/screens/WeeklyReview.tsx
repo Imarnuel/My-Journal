@@ -9,7 +9,7 @@ import { fr, shortDate, tone } from "../lib/format";
 import { mistakeWhere, pastWeeks, tradedWeeks, watchedLine, weekParam, weekReview, weekTitle } from "../lib/review";
 import type { Entry } from "../lib/types";
 import { useKit, useMenu } from "./useKit";
-import { AccountPicker } from "./review/AccountPicker";
+import { AccountPicker } from "../components/primitives/AccountPicker";
 import { PastWeeks } from "./review/PastWeeks";
 
 const h2 = { margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const;

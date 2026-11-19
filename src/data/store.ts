@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
 import { seedAccounts, seedEntries, seedTags, seedWeeks, TODAY } from "./seed";
+import { fadeTheme } from "../components/primitives/motion";
 
 export type Appearance = "system" | "light" | "dark";
 
@@ -122,7 +123,7 @@ export const useStore = create<State>((set, get) => ({
   setTags: (tags) => set({ tags }),
   tagKind: (t) => get().tags.find((x) => x.t === t)?.k,
   setAppearance: (a) => {
-    applyTheme(a);
+    fadeTheme(() => applyTheme(a));
     set({ appearance: a });
   },
 }));
