@@ -133,7 +133,7 @@ export function SetupEditor() {
                 const out = leftOut.includes(e.id);
                 const cap = `${e.pair} · ${shortDate(e.date)}`;
                 return (
-                  <figure key={e.id} style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px", flex: 1, minWidth: 0, opacity: out ? 0.45 : 1, transition: "opacity var(--d-fast) var(--ease-standard)" }}>
+                  <figure key={e.id} style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px", flex: 1, minWidth: 0, opacity: out ? 0.45 : 1 }}>
                     <button
                       type="button"
                       aria-pressed={out ? "false" : "true"}

@@ -1,6 +1,6 @@
 // Playbook home, setup page and setup editor: behaviour from 01-decisions.md (Playbook, Small samples,
 // Behaviour kit) and 03-screens.md, plus the states 25 to 31 compared with handoff/screenshots/states.
-import { expect, test, type Page } from "@playwright/test";
+import { devices, expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { diffAgainst } from "../visual/compare";
 
@@ -445,4 +445,16 @@ test.describe("setup editor", () => {
     await undo(page).click();
     await expect(page.getByLabel("Rule", { exact: true })).toHaveCount(6);
   });
+});
+
+test.describe("phone", () => {
+  const { defaultBrowserType: _ignored, ...iphone } = devices["iPhone 13"];
+  void _ignored;
+  test.use(iphone);
+  for (const url of ["/playbook", "/playbook/4h-supply-pullback", "/playbook/new?draft=suggestion"])
+    test(`no horizontal scroll on ${url}`, async ({ page }) => {
+      await page.goto(url);
+      const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
+      expect(sw).toBeLessThanOrEqual(iw);
+    });
 });

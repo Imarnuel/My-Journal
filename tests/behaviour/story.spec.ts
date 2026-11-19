@@ -499,6 +499,15 @@ test("charts: + Add is a file picker; a dropped image becomes a chart", async ({
   }, png.toString("base64"));
   await page.getByRole("region", { name: "Charts" }).dispatchEvent("drop", { dataTransfer: dt });
   await expect(page.getByText("6 of 6")).toBeVisible();
+
+  // a pasted image becomes a chart too
+  await page.evaluate((b64) => {
+    const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const d = new DataTransfer();
+    d.items.add(new File([bin], "paste.png", { type: "image/png" }));
+    document.dispatchEvent(new ClipboardEvent("paste", { clipboardData: d, bubbles: true }));
+  }, png.toString("base64"));
+  await expect(page.getByText("7 of 7")).toBeVisible();
 });
 
 // ---------- saving and navigation
