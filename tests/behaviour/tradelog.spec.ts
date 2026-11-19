@@ -14,6 +14,9 @@ import { MAX_RATIO, settle } from "../visual/compare";
  */
 async function diffViewport(page: Page, ref: string, info: TestInfo, maxRatio = MAX_RATIO) {
   const want = PNG.sync.read(fs.readFileSync(path.join("handoff/screenshots", ref)));
+  // The states are drawn at the top of the page. Under load Playwright may scroll an element into view
+  // before clicking it (layout still settling), so put the page back at the top before capturing.
+  await page.evaluate(() => window.scrollTo(0, 0));
   await settle(page);
   const got = PNG.sync.read(await page.screenshot());
   const { width: W, height: H } = want;

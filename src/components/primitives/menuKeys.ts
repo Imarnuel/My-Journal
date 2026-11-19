@@ -36,7 +36,7 @@ export function closeOpenMenu(): boolean {
   const closer = document.querySelector<HTMLElement>('[aria-label="Close menu"]');
   if (closer) closer.click();
   else t?.click();
-  requestAnimationFrame(() => t?.focus());
+  requestAnimationFrame(() => t?.focus({ preventScroll: true }));
   return true;
 }
 
@@ -59,13 +59,13 @@ export function onMenuKeyDown(e: KeyboardEvent) {
     e.preventDefault();
     const d = e.key === "ArrowDown" ? 1 : -1;
     const next = i < 0 ? (d > 0 ? 0 : list.length - 1) : (i + d + list.length) % list.length;
-    list[next].focus();
+    list[next].focus({ preventScroll: true });
     return;
   }
   if (e.key === "Home" || e.key === "End") {
     if (inField || !list.length) return;
     e.preventDefault();
-    list[e.key === "Home" ? 0 : list.length - 1].focus();
+    list[e.key === "Home" ? 0 : list.length - 1].focus({ preventScroll: true });
     return;
   }
   if (e.key.length === 1 && !inField && !e.metaKey && !e.ctrlKey && !e.altKey) {
@@ -73,7 +73,7 @@ export function onMenuKeyDown(e: KeyboardEvent) {
     typed = now - typedAt > 700 ? e.key.toLowerCase() : typed + e.key.toLowerCase();
     typedAt = now;
     const hit = list.find((el) => (el.textContent || "").trim().toLowerCase().startsWith(typed));
-    if (hit) hit.focus();
+    if (hit) hit.focus({ preventScroll: true });
   }
 }
 
@@ -83,6 +83,6 @@ export function focusFirstItem() {
     const menu = openMenu();
     if (!menu) return;
     const sel = menu.querySelector<HTMLElement>('[aria-selected="true"], [aria-checked="true"]');
-    (sel ?? items(menu)[0])?.focus();
+    (sel ?? items(menu)[0])?.focus({ preventScroll: true });
   });
 }

@@ -24,7 +24,7 @@ type Props = {
 /** After choosing closes the menu, focus goes back to its trigger instead of being lost. */
 export function returnFocus(trigger: HTMLElement | null) {
   requestAnimationFrame(() => {
-    if (trigger && (!document.activeElement || document.activeElement === document.body)) trigger.focus();
+    if (trigger && (!document.activeElement || document.activeElement === document.body)) trigger.focus({ preventScroll: true });
   });
 }
 

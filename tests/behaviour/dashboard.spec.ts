@@ -285,8 +285,18 @@ test("numbers count to the new value on a change (not on first load)", async ({ 
 
 test("keyboard: a period chosen from the keyboard swaps the numbers at once (no count-up)", async ({ page }) => {
   await open(page);
+  // Record every value the number passes through: from the keyboard it goes straight to the new one.
+  // (Asserted on the values seen, not on a timeout, so it holds on a slow machine.)
+  await page.evaluate(() => {
+    const el = [...document.querySelectorAll(".kstat > div")].find((d) => d.textContent?.startsWith("Trades taken"))!.querySelector(".num")!;
+    const w = window as unknown as { seen: string[] };
+    w.seen = [];
+    new MutationObserver(() => w.seen.push(el.textContent ?? "")).observe(el, { characterData: true, subtree: true, childList: true });
+  });
   await page.getByRole("button", { name: "3 months" }).focus();
   await page.keyboard.press("Enter");
-  await expect(stat(page, "Trades taken")).toHaveText("53", { timeout: 100 });
+  await expect(stat(page, "Trades taken")).toHaveText("53");
+  const seen = await page.evaluate(() => (window as unknown as { seen: string[] }).seen);
+  expect([...new Set(seen)]).toEqual(["53"]);
   await expect(page.getByRole("button", { name: "3 months" })).toHaveAttribute("aria-pressed", "true");
 });
