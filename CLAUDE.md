@@ -31,7 +31,7 @@ If something isn't covered anywhere, it's in `06-open-items.md` or it's a gap: a
 Traders who quit journaling because it felt like work. The owner has ADHD. Frictionless is the deciding principle. Calm screens, nothing that nags, nothing that piles up, done is the default.
 
 ## Non-negotiables
-- **Match the screenshots.** Every screen at 1440px wide must match `screenshots/light/` and `screenshots/dark/`. Compare with a visual diff, not by eye alone.
+- **Match the screenshots.** Every screen at 1440px wide must match `screenshots/light/` and `screenshots/dark/`, or the owner's approved image in `tests/visual/approved/` where one exists (it replaces the handoff screenshot once the owner has changed that screen). Compare with a visual diff, not by eye alone.
 - **Copy is exact.** Use the wording in `07-screens-inventory.md` and the prototype. Sentence case. Results always in R with a sign and a real minus (−, U+2212), never money.
 - **Tokens only.** Colours, shadows, radii, heights and motion come from `src/styles/tokens.css`. No raw hex in components.
 - **Type: four sizes only.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight). Weights 400 and 500; 600 only at 24px and the primary button (a selected segment stays 500, DESIGN.md). Geist everywhere (DESIGN.md), tabular figures on.
@@ -84,8 +84,8 @@ Library choices: the build plan names Radix UI primitives, Motion, lucide-react 
 - Work in phases from the build plan. Each phase ends with its checks passing; commit and push after each slice. Don't stop to ask permission between slices.
 
 ## Definition of done for a screen
-1. Visual diff against `screenshots/light/NN-Screen.png` and `screenshots/dark/NN-Screen.png` at 1440 × frame height shows no layout difference (anti-aliasing noise only).
-2. Every state in `screenshots/states/` for that screen is reproduced.
+1. Visual diff against `screenshots/light/NN-Screen.png` and `screenshots/dark/NN-Screen.png` (or the approved image in `tests/visual/approved/` that replaces it) at 1440 × frame height shows no layout difference (anti-aliasing noise only).
+2. Every state in `screenshots/states/` for that screen is reproduced (or its approved image; state 19 is retired, see DESIGN.md › Chart tiles).
 3. Every control in the inventory works as `01-decisions.md` describes, including Undo and keyboard use.
 4. Numbers match the screenshots when seeded with `data/entries.json` and "today" set to 16 November 2026.
 5. Passes axe (no serious issues), keyboard-only use, and `prefers-reduced-motion`.

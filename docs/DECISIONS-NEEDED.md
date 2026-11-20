@@ -25,4 +25,4 @@ yes or a different answer. Reply with the numbers you want changed, e.g. "3: use
 
 ## Not built because there's no back end yet (open item 7)
 17. MT5 sync (Test connection is a stand-in that always succeeds), the voice-note pipeline (a simulated result in `src/lib/voiceNote.ts`), chart reading, accounts and sign-in, storage.
-18. **Persistence**: edits live in memory and reset on reload (only Appearance survives). Next step options: save to the browser (IndexedDB) now, or wait for the back end.
+18. **Persistence**: settled. The journal saves to the browser (IndexedDB, falling back to localStorage) until there is a back end. Source: `src/data/persist.ts`.

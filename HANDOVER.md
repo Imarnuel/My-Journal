@@ -15,7 +15,7 @@ Written 20 November 2026, at the end of the first build session.
   changes something `CLAUDE.md` states, update that line in the same commit.
 - Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl` (not merged to `main`; no
   pull request has been opened). Keep committing to that branch unless the owner says otherwise.
-- All checks pass: 87 unit tests (`npm test`), 325 browser tests (`npm run e2e`).
+- All checks pass: 90 unit tests (`npm test`), 325 browser tests (`npm run e2e`).
 
 ## How the owner works
 - The owner looks at the app on the live preview: https://claude.ai/artifact/Lnqrd7dbSJgF2Q8DRExLt6
@@ -34,7 +34,7 @@ Written 20 November 2026, at the end of the first build session.
 | --- | --- |
 | Design handoff (docs, screenshots, prototype, data) | `handoff/` |
 | Owner's corrections (top authority) | `DESIGN.md` |
-| Project rules and skills table | `CLAUDE.md` (its radius and font lines are superseded by `DESIGN.md`) |
+| Project rules and skills table | `CLAUDE.md` (kept in line with `DESIGN.md`) |
 | App shell, routes, toasts | `src/app/` (`Shell.tsx`, `routes.ts`) |
 | Screens | `src/screens/` (one file per screen, folders for their parts) |
 | Chart story (new and saved; the largest file) | `src/screens/ChartStory.tsx`, `src/screens/story/` |
@@ -45,7 +45,7 @@ Written 20 November 2026, at the end of the first build session.
 | Tokens (colours, radii, motion, font) | `src/styles/tokens.css`; extra rules in `globals.css`; the prototype's stylesheet in `canvas.css` |
 | Charts (hand-drawn SVG) | `src/components/charts/` |
 | Prototype ports kept for reference | `src/screens/body/`, `logic/`, `views/` (see `docs/PORTING.md`) |
-| Questions sent to the owner during the build | `docs/DECISIONS-NEEDED.md` (partly stale: persistence to the browser is now built) |
+| Questions sent to the owner during the build | `docs/DECISIONS-NEEDED.md` (1 to 16 still unanswered; 17 waits for the back end; 18 settled) |
 
 ## Tests and reference images
 - Visual tests compare each screen at 1440px with a reference image. Approved images in

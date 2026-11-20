@@ -107,19 +107,15 @@ reason, replace it.
   weight, and the labels no longer change width as the selection moves.
 
 ## Dashboard notices (redesigned after Mobbin research)
-Both cards at the top of the Dashboard share one anatomy, sit 16px apart (they belong together), and read
-as one calm zone before the numbers. Source: `src/screens/dashboard/Notices.tsx`.
-- **Leading 32px icon tile** (`--surface-inset`, hairline ring, `--text-2` icon), top-aligned with the title,
-  so both cards' text columns line up.
+The no-charts notice is the only card above the numbers (see "No weekly focus on the Dashboard" below).
+Source: `src/screens/dashboard/Notices.tsx`.
+- **Leading 32px icon tile** (`--surface-inset`, hairline ring, `--text-2` icon), top-aligned with the title.
 - **No-charts notice**: title (14/500); the trade's facts on their own line (pair, direction chip, result in
   its colour, date and time, account, "from MT5", with `--text-disabled` dots); the instruction under them in
   `--text-3`. On the right, the drop slot drawn where the chart goes (112 × 63, 16:9, dashed `--border-strong`,
   "Add chart"): it is the file picker and the drop target (solid `--text-1` border while a file is over it),
   and paste anywhere still works. Then a quiet "Trade log →" link. References: Oyster task rows, Airwallex
   and WeTransfer drop targets.
-- **This week's focus**: a small label (12/500 `--text-2`), the owner's takeaway as the content (16/500
-  `--text-1`, curly quotes, 72ch at most), and where it was written as an attribution link under it
-  (12px `--text-3`, trailing arrow). References: Open's quote with attribution, Codecademy's small label.
 - **Phone**: the text stays beside its tile; the drop slot and link move to the next line.
 
 ## Phone fixes found while checking the redesign
@@ -127,21 +123,13 @@ as one calm zone before the numbers. Source: `src/screens/dashboard/Notices.tsx`
   (Recent chart stories, a week's trades) go to two columns, so no page is wider than the screen. The phone
   test now compares with the phone's real width (390px), which is what exposed this.
 
-## This week's focus belongs to the owner
-Replaces "the latest review's takeaway". Source: `src/lib/focus.ts`, `Focus` in `src/screens/dashboard/Notices.tsx`.
-- **The owner sets, edits or clears it** for the current week, in place on the Dashboard card (pen and ×
-  icon buttons; Enter saves, Escape cancels; clearing has Undo). An empty save clears it.
-- **If the owner hasn't set one, last week's review takeaway fills it in**, the way a voice note only fills
-  empty fields, with "From your review of …" linking to that review. Once edited it reads "Set by you for …".
-- **It lasts for its week.** It never falls back to an older takeaway, so a stale rule is never shown as this
-  week's. Why: the owner's focus isn't always a lesson from last week, and nothing should pile up.
-- **No focus means no card**, only one quiet "Set a focus for this week" line where the card would be.
-
 ## No weekly focus on the Dashboard
 - **"This week's focus" is removed from the Dashboard** (owner's decision, after trying an owned, editable
   version). The weekly takeaway lives in the Weekly review, where it's written and read back ("The week
   before, you said"). The Dashboard shows what happened; the no-charts notice is the only card above the
-  numbers, because it asks for an action. This supersedes the two focus sections above.
+  numbers, because it asks for an action.
+- What was tried first, so it isn't proposed again: a focus card on the Dashboard showing last week's review
+  takeaway, then a version the owner could set, edit and clear for the week. Both were removed.
 
 ## Trade log rows read as facts only
 Overrides `01-decisions.md` ("…or a one-line hint for running, watched, not-filled and chart-less entries").
@@ -223,12 +211,12 @@ ghost image, no sign of where the tile would land, and didn't work with a finger
 `src/screens/story/useTileReorder.ts`.
 - **Shows it can be dragged**: see Chart tiles below. The cursor is a grab hand.
 - **Lift**: with a mouse after 6px of movement, with a finger after a 250ms press (so a swipe still
-  scrolls). The thumbnail scales to 1.04 with a floating shadow, its ··· fades out, and it follows the
-  pointer 1:1 from where it was grabbed. Past the edge of the grid it follows less and less.
+  scrolls). The thumbnail scales to 1.04 with a floating shadow, its trash hides (only the grip shows), and it
+  follows the pointer 1:1 from where it was grabbed. Past the edge of the grid it follows less and less.
 - **Make room**: the other tiles slide to where they'll be (`--d-base`, `--ease-standard`), so the gap shows
   where it will land.
 - **Drop**: it settles into its slot with the drag spring (stiffness 420, damping 34, no overshoot), carrying
-  the release speed, then the order is saved and the moved chart shows large (as Move left/right do).
+  the release speed, then the order is saved and the moved chart shows large (as moving it with the arrow keys does).
 - **Cancel**: Escape puts it back at once. A click that ends a drag doesn't select the chart; a plain click
   still does. Grabbing a tile while another settles finishes that one first.
 - **Reduced motion**: no lift scale and no slide; the tile still follows the pointer and the order changes on
