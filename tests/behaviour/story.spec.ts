@@ -363,15 +363,15 @@ test("frame 16: Prices on this screenshot are too small to read; Type the number
 
 // ---------- tags
 
-test("tags: autocomplete with counts, Enter, Backspace, × with Undo, a new tag asks its kind", async ({ page }) => {
+test("tags: autocomplete, most used first and no counts (DESIGN.md), Enter, Backspace, × with Undo, a new tag asks its kind", async ({ page }) => {
   await page.goto("/new");
   const input = page.getByRole("combobox", { name: "Add a tag" });
   await expect(input).toHaveAttribute("placeholder", "Add a tag");
   await input.click();
   await expect(page.getByRole("listbox", { name: "Matching tags" }).getByRole("option")).toHaveCount(5);
-  await expect(page.getByRole("option", { name: /Break of structure.*used 18 times/ })).toBeVisible();
+  await expect(page.getByRole("listbox", { name: "Matching tags" }).getByRole("option")).toHaveText(["Break of structure", "Trend continuation", "Liquidity sweep", "Entered before close", "Supply zone"]);
   await input.fill("supp");
-  await expect(page.getByRole("option", { name: /Supply zone.*used 7 times/ })).toBeVisible();
+  await expect(page.getByRole("option", { name: "Supply zone", exact: true })).toBeVisible();
   await input.press("Enter");
   const pills = page.getByRole("group", { name: "Tags" }).locator(".pill");
   await expect(pills).toHaveText(["Supply zone"]);

@@ -33,7 +33,6 @@ import {
   sessionOf,
   storyFromEntry,
   tagSuggestions,
-  usedLabel,
   voiceToast,
   type Numbers,
   type Story,
@@ -880,7 +879,6 @@ function StoryScreen({ id }: { id: string | null }) {
                         {ts.sug.map((o) => (
                           <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => addTag(o.t)} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" }}>
                             <span>{o.t}</span>
-                            <span style={{ fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>{usedLabel(o.n)}</span>
                           </button>
                         ))}
                         {ts.canAdd ? (

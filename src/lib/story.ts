@@ -291,7 +291,6 @@ export function tagSuggestions(vocab: Tag[], have: string[], q: string) {
   return { sug, canAdd: !!ql && !exact, none: !ql && !sug.length, ql };
 }
 
-export const usedLabel = (n: number) => `used ${n} ${n === 1 ? "time" : "times"}`;
 
 /** The analysis an entry was planned in: the latest Analysis entry earlier that day covering its pair. */
 export function linkedAnalysis(entries: Entry[], e: Pick<Entry, "id" | "date" | "time" | "pair" | "status">): Entry | null {
