@@ -8,6 +8,6 @@ export default defineConfig(({ mode }) => ({
   ...(mode === "artifact"
     ? { base: "./", build: { assetsInlineLimit: 1_000_000, rollupOptions: { output: { entryFileNames: "assets/app.js", assetFileNames: "assets/app[extname]" } } } }
     : {}),
-  server: { port: 5173, strictPort: true },
+  server: { port: mode === "real" ? 5174 : 5173, strictPort: true },
   test: { environment: "node", include: ["src/**/*.test.ts"] },
 })) as never;

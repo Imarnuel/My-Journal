@@ -6,6 +6,7 @@ import { idbStorage, persistOptions, toDataUrl } from "./persist";
 import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
 import { SAMPLE_BOS_IDS, SAMPLE_BOS_TAG, seedAccounts, seedEntries, seedTags, seedWeeks, SHORT_TRADE, TODAY } from "./seed";
 import { fadeTheme } from "../components/primitives/motion";
+import { localDate, REAL } from "../app/mode";
 
 export type Appearance = "system" | "light" | "dark";
 
@@ -111,14 +112,15 @@ function initialAppearance(): Appearance {
 export const useStore = create<State>()(
   persist(
   (set, get) => ({
-  today: TODAY,
-  entries: seedEntries,
-  accounts: seedAccounts,
-  tags: seedTags,
-  weeks: seedWeeks,
-  picked: realAccounts(seedAccounts),
+  // The real journal starts empty on today's date; the sample one is frozen on the canvas's Monday.
+  today: REAL ? localDate() : TODAY,
+  entries: REAL ? [] : seedEntries,
+  accounts: REAL ? [] : seedAccounts,
+  tags: REAL ? [] : seedTags,
+  weeks: REAL ? [] : seedWeeks,
+  picked: REAL ? [] : realAccounts(seedAccounts),
   appearance: typeof window === "undefined" ? "light" : initialAppearance(),
-  setups: seedSetups,
+  setups: REAL ? [] : seedSetups,
   settings: {},
   setSetting: (key, value) => set((s) => ({ settings: { ...s.settings, [key]: value } })),
   setSetups: (fn) => set((s) => ({ setups: fn(s.setups) })),
@@ -144,7 +146,8 @@ export const useStore = create<State>()(
         picked: renamed ? s.picked.map((p) => (p === name ? patch.name! : p)) : s.picked,
       };
     }),
-  addAccount: (a) => set((s) => ({ accounts: [...s.accounts, a] })),
+  // A new real account joins the picked accounts, so its trades count at once (practice ones stay out).
+  addAccount: (a) => set((s) => ({ accounts: [...s.accounts, a], picked: a.practice || a.archived || s.picked.includes(a.name) ? s.picked : [...s.picked, a.name] })),
   removeAccount: (name) => set((s) => ({ accounts: s.accounts.filter((a) => a.name !== name), picked: s.picked.filter((p) => p !== name) })),
   restoreAccount: (a, index) =>
     set((s) => {

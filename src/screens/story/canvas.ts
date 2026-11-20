@@ -1,6 +1,9 @@
 // Values the chart story frames show that the sample data (handoff/data) doesn't carry.
 // From handoff/prototype/Story.dc.html and NewStory.dc.html (INIT.saved and INIT.new).
 import type { Story, StoryExtras } from "../../lib/story";
+import { sessionOf } from "../../lib/story";
+import { localDate, localTime, REAL } from "../../app/mode";
+import { useStore } from "../../data/store";
 
 /** Chart captions are read from the chart's legend; for the frame's drawings they are known. */
 export const CAPTION: Record<string, string> = { gW: "Weekly", gD: "", g4H: "4H", gE: "15m", gA: "15m" };
@@ -32,7 +35,7 @@ export const CANVAS_EXTRAS: Record<string, StoryExtras> = {
  * yet (handoff/docs/06-open-items.md, Back end).
  */
 export function newStoryStart(): Story {
-  return {
+  return REAL ? blankStory() : {
     pair: "GBPUSD",
     dir: "Short",
     status: "Taken",
@@ -44,6 +47,42 @@ export function newStoryStart(): Story {
     r: 2.1,
     rByHand: false,
     charts: ["gW", "gD", "g4H", "gE"],
+    before: "",
+    refl: "",
+    suggested: false,
+    setup: null,
+    tags: [],
+    followed: null,
+    headspace: null,
+    voice: false,
+    voiceLen: null,
+    transcript: "",
+    textbook: false,
+    excluded: false,
+    closeTime: null,
+  };
+}
+
+/**
+ * Where New chart story starts in the real journal: nothing read, nothing set, dated now (until a
+ * screenshot or the owner gives it a date), on the first real account if there is one.
+ */
+function blankStory(): Story {
+  const now = new Date();
+  const time = localTime(now);
+  const accounts = useStore.getState().accounts.filter((a) => !a.archived);
+  return {
+    pair: "",
+    dir: null,
+    status: "Taken",
+    account: (accounts.find((a) => !a.practice) ?? accounts[0])?.name ?? "",
+    date: localDate(now),
+    time,
+    session: sessionOf(time),
+    numbers: { entry: "", stop: "", target: "", exit: "", size: "" },
+    r: null,
+    rByHand: false,
+    charts: [],
     before: "",
     refl: "",
     suggested: false,

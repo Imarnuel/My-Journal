@@ -4,8 +4,10 @@
 // that fails too the app still works for the visit. Uploaded chart images are turned from temporary
 // blob: URLs into data URLs so they can be saved with their entry.
 import { createJSONStorage, type StateStorage } from "zustand/middleware";
+import { REAL } from "../app/mode";
 
-const DB = "journal";
+// The real journal keeps its own database, so it never meets the sample one (DESIGN.md › Real app).
+const DB = REAL ? "journal-real" : "journal";
 const STORE = "kv";
 export const DATA_VERSION = 1;
 

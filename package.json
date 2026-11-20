@@ -10,7 +10,9 @@
     "test": "vitest run",
     "e2e": "playwright test --trace off",
     "proto": "cd handoff/prototype && python3 -m http.server 8765",
-    "build:artifact": "tsc -b && vite build --mode artifact --outDir dist-artifact && python3 scripts/artifact-page.py"
+    "build:artifact": "tsc -b && vite build --mode artifact --outDir dist-artifact && python3 scripts/artifact-page.py",
+    "dev:real": "vite --mode real --port 5174",
+    "build:real": "tsc -b && vite build --mode real --outDir dist-real"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

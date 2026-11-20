@@ -12,11 +12,19 @@ export default defineConfig({
   workers: 4,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:5173",
     trace: "off",
     viewport: { width: 1440, height: 1000 },
     // The preinstalled Chromium (this project pins a newer @playwright/test than the bundled browser).
     launchOptions: executablePath ? { executablePath } : {},
   },
-  webServer: { command: "npx vite --port 5173 --strictPort", url: "http://localhost:5173", reuseExistingServer: true, timeout: 60_000 },
+  // The sample journal (design preview) is tested everywhere; tests/real runs against the owner's real
+  // journal build (`--mode real`: empty, today's date, no sample stand-ins). DESIGN.md › Real app.
+  projects: [
+    { name: "sample", testIgnore: "real/**", use: { baseURL: "http://localhost:5173" } },
+    { name: "real", testMatch: "real/**/*.spec.ts", use: { baseURL: "http://localhost:5174" } },
+  ],
+  webServer: [
+    { command: "npx vite --port 5173 --strictPort", url: "http://localhost:5173", reuseExistingServer: true, timeout: 60_000 },
+    { command: "npx vite --mode real --port 5174 --strictPort", url: "http://localhost:5174", reuseExistingServer: true, timeout: 60_000 },
+  ],
 });

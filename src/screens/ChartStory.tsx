@@ -43,6 +43,7 @@ import { readVoiceNote, transcriptRuns } from "../lib/voiceNote";
 import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
 import { CANVAS_EXTRAS, PAIRS, captionOf, newStoryStart } from "./story/canvas";
+import { REAL } from "../app/mode";
 import { useStoryExtras } from "./story/extras";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText } from "./story/parts";
 
@@ -682,7 +683,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   Record again
                 </button>
               </ProblemCard>
-            ) : !s.voice && !recording ? (
+            ) : !REAL && !s.voice && !recording ? (
               <button type="button" onClick={startRec} style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
                 <span className="kvoice" style={{ flex: "none", width: "48px", height: "48px", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Mic />

@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { persistOptions } from "../../data/persist";
+import { REAL } from "../../app/mode";
 
 export type AccountMeta = { added?: string; server?: string; login?: string };
 
@@ -18,7 +19,7 @@ const seed: Record<string, AccountMeta> = { "Funded 100K": { added: "2026-10-02"
 export const useAccountMeta = create<S>()(
   persist(
     (set) => ({
-  meta: seed,
+  meta: REAL ? {} : seed,
   setMeta: (name, m) => set((s) => ({ meta: { ...s.meta, [name]: { ...s.meta[name], ...m } } })),
   renameMeta: (from, to) =>
     set((s) => {

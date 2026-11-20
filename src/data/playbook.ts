@@ -3,6 +3,7 @@
 // carries out rename / archive / delete / create so every story's `setup` follows (Trade log and Dashboard agree).
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { REAL } from "../app/mode";
 import { persistOptions } from "./persist";
 import { useStore, type Rules, type Setup } from "./store";
 
@@ -53,7 +54,7 @@ type PB = {
 };
 
 export const usePlaybook = create<PB>()(
-  persist((): PB => ({ examples: SEED_EXAMPLES, suggestHidden: false, suggestUsed: false, archivedOpen: false }), { name: "journal:playbook", ...persistOptions }),
+  persist((): PB => ({ examples: REAL ? [] : SEED_EXAMPLES, suggestHidden: false, suggestUsed: false, archivedOpen: false }), { name: "journal:playbook", ...persistOptions }),
 );
 
 const emptyRules = (r: Rules) => !r.Context.length && !r.Entry.length && !r.Exit.length;

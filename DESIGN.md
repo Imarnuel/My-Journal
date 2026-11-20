@@ -341,3 +341,22 @@ question 10 is under Voice note.
 ### Restoring shows a toast (question 14)
 - **Restoring an archived setup shows "London breakout restored" with Undo**, the same as restoring an
   account. One behaviour per kind of control.
+
+## Real app (the owner's own journal)
+The owner chose to make the journal usable for real trades on their own devices before any back end
+(2026-11-20). Source: `src/app/mode.ts`; tests in `tests/real/`.
+- **Two builds of one app.** The design preview (`npm run build:artifact`) and the dev server stay the
+  sample journal: 135 sample trades, frozen on Monday 16 November 2026, so the owner can judge the design.
+  The real journal (`npm run build:real`, `npm run dev:real`) starts empty, runs on today's date and has
+  no sample stand-ins: no sample prices, no prefilled GBPUSD New chart story, no example setups, no sample
+  account details. No new buttons or settings switch between them (the owner's choice).
+- **Its own web address**, installable on computer and phone (the owner's choice); hosted free, the owner
+  creates the hosting account. Until there is a back end, data stays on each device, in its own browser
+  database (`journal-real`), apart from the sample one.
+- **Talk it through is hidden in the real journal** until voice notes work there: notes are typed. Voice
+  notes come next, as browser speech recognition plus Claude Sonnet 5.5 (the owner's choices), through a
+  small server function on the same host so no key sits in the page.
+- **Connect MT5 stays, marked as waiting** until sync exists (the owner's choice); the wording is to be
+  shown to the owner before it ships.
+- **A new real account joins the picked accounts** at once (practice accounts stay out), so its trades count
+  without pressing Reset. This applies to the sample journal too.

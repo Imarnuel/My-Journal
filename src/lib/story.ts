@@ -5,6 +5,7 @@ import type { Dir, Entry, Session, Status, Tag, TagKind } from "./types";
 import type { VoiceNoteFill } from "./voiceNote";
 import { MINUS } from "./format";
 import { sampleNumbers } from "../data/samplePrices";
+import { REAL } from "../app/mode";
 
 export type Numbers = { entry: string; stop: string; target: string; exit: string; size: string };
 /** A number in the story's numbers line: a price, the size, or the result. */
@@ -146,7 +147,8 @@ const blankNumbers: Numbers = { entry: "", stop: "", target: "", exit: "", size:
 export function storyFromEntry(e: Entry, overlay: StoryExtras | undefined, extras: { voiceLen?: string; closeTime?: string } = {}): Story {
   const o = e.before === undefined ? overlay : undefined;
   // Sample trades have no prices; stand-ins fill them until MT5 sync exists (DESIGN.md, Sample prices).
-  const n = { ...blankNumbers, ...(e.numbers ? {} : sampleNumbers(e)), ...(o?.numbers ?? {}), ...(e.numbers ?? {}) };
+  // Never in the real journal: an entry there shows only the numbers the owner gave it.
+  const n = { ...blankNumbers, ...(e.numbers || REAL ? {} : sampleNumbers(e)), ...(o?.numbers ?? {}), ...(e.numbers ?? {}) };
   return {
     pair: e.pair,
     dir: e.dir,
@@ -158,7 +160,7 @@ export function storyFromEntry(e: Entry, overlay: StoryExtras | undefined, extra
     numbers: n,
     r: e.r,
     rByHand: !!e.rByHand,
-    charts: e.chartList ?? o?.chartList ?? placeholderCharts(e),
+    charts: e.chartList ?? o?.chartList ?? (REAL ? [] : placeholderCharts(e)),
     before: e.before ?? o?.before ?? (e.status === "Analysis" ? e.plan ?? "" : ""),
     refl: e.refl ?? o?.refl ?? "",
     suggested: !!(e.suggested ?? o?.suggested),
