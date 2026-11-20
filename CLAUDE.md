@@ -32,7 +32,7 @@ Traders who quit journaling because it felt like work. The owner has ADHD. Frict
 - **Match the screenshots.** Every screen at 1440px wide must match `screenshots/light/` and `screenshots/dark/`. Compare with a visual diff, not by eye alone.
 - **Copy is exact.** Use the wording in `07-screens-inventory.md` and the prototype. Sentence case. Results always in R with a sign and a real minus (−, U+2212), never money.
 - **Tokens only.** Colours, shadows, radii, heights and motion come from `src/styles/tokens.css`. No raw hex in components.
-- **Type: four sizes only.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight). Weights 400, 500, and 600 only at 24px, the primary button and a selected segment. Inter everywhere, tabular figures on.
+- **Type: four sizes only.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight). Weights 400, 500, and 600 only at 24px, the primary button and a selected segment. Geist everywhere (DESIGN.md), tabular figures on.
 - **Spacing: eight steps only.** Tailwind `0.5 1 2 3 4 6 8 12` (2 4 8 12 16 24 32 48px).
 - **Controls are 32px tall** (segments 28px, menu rows 34px). Radius 8px on controls, 12px on cards and menus, 14px on the main card.
 - **Light is the default theme.** Dark is a full equal. Appearance: System, Light, Dark.

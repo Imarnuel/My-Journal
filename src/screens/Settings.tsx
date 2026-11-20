@@ -70,7 +70,7 @@ export function Settings() {
       <div style={{ maxWidth: "760px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px" }}>
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-            <h1 style={{ margin: 0, fontFamily: "Inter, sans-serif", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>Settings</h1>
+            <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>Settings</h1>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }} />
         </header>

@@ -214,3 +214,8 @@ any more, and state 19 (a chart's menu open) is retired.
 Why: in the story's tag menu "used 18 times" was reading with nothing to act on, and it made long tag names
 wrap. The menu still lists the most used tags first. The counts stay in Settings > Your tags, where they help
 decide what to rename, merge or remove.
+
+## Typeface: Geist
+Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`. Why: the owner's choice. Geist Variable, self-hosted
+from `@fontsource-variable/geist` (latin and latin-ext), set once in `--font-sans`; nothing names a font
+directly. Sizes, weights, line heights and tracking are unchanged; tabular figures stay on (Geist has them).

@@ -21,7 +21,7 @@ export default {
       // control heights (not spacing): use as h-7 / h-8 / h-9 and row height
       7: "28px", 9: "36px", "row": "34px" },
     extend: {
-      fontFamily: { sans: ["Inter Variable", "Inter", "system-ui", "sans-serif"] },
+      fontFamily: { sans: ["var(--font-sans)"] },
       colors: {
         "bg-app": "var(--bg-app)",
         "surface-1": "var(--surface-1)",

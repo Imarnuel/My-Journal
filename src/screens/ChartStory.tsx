@@ -410,7 +410,7 @@ function StoryScreen({ id }: { id: string | null }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
           {saved ? (
             <>
-              <h1 style={{ margin: 0, fontFamily: "Inter, sans-serif", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em", display: "flex", alignItems: "center", gap: "12px" }}>
+              <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em", display: "flex", alignItems: "center", gap: "12px" }}>
                 {s.pair}{" "}
                 {dirChip ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>{dirChip}</span> : null}
                 {s.textbook ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-1)", background: "var(--surface-pressed)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>Textbook example</span> : null}
@@ -421,7 +421,7 @@ function StoryScreen({ id }: { id: string | null }) {
             </>
           ) : (
             <>
-              <h1 style={{ margin: 0, fontFamily: "Inter, sans-serif", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>New chart story</h1>
+              <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>New chart story</h1>
               <p className="meta" style={{ margin: 0 }}>
                 Drop the charts and talk it through. Your note fills the tags.
               </p>
