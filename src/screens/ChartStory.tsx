@@ -115,6 +115,9 @@ function StoryScreen({ id }: { id: string | null }) {
   const tileGrid = useRef<HTMLDivElement>(null);
   const replaceInput = useRef<HTMLInputElement>(null);
   const numBtns = useRef<Partial<Record<NumKey, HTMLButtonElement | null>>>({});
+  const numGrid = useRef<HTMLDivElement>(null);
+  // While a number is edited, the columns keep the widths they had, so nothing else moves.
+  const [numCols, setNumCols] = useState<string | null>(null);
 
   useEffect(
     () => () => {
@@ -366,6 +369,8 @@ function StoryScreen({ id }: { id: string | null }) {
   // The numbers you can edit, in line order. A result is only typed on a taken trade.
   const numKeys = NUMBER_FIELDS.map((f) => f.key).filter((k) => k !== "result" || s.status === "Taken");
   const editNum = (k: NumKey | null) => {
+    if (k && !editingRef.current && numGrid.current) setNumCols(getComputedStyle(numGrid.current).gridTemplateColumns);
+    if (!k) setNumCols(null);
     editingRef.current = k;
     setEditingNum(k);
     setResDraft(null);
@@ -1039,7 +1044,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 ) : null}
               </span>
             </div>
-            <div role="group" aria-label="Numbers" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", fontSize: "14px", color: "var(--text-2)", paddingTop: "4px" }}>
+            <div ref={numGrid} role="group" aria-label="Numbers" className="knums" style={numCols ? { gridTemplateColumns: numCols } : undefined}>
               {numKeys.map((k, i) => {
                 const isRes = k === "result";
                 const label = NUMBER_FIELDS.find((f) => f.key === k)!.label;
@@ -1059,7 +1064,6 @@ function StoryScreen({ id }: { id: string | null }) {
                         autoComplete="off"
                         enterKeyHint="done"
                         value={isRes ? resDraft ?? value : value}
-                        style={{ width: `${Math.max((isRes ? resDraft ?? value : value).length, 6) + 2}ch` }}
                         onChange={(e) => (isRes ? setResult(e.target.value) : setPrice(k, e.target.value))}
                         onBlur={() => editingRef.current === k && editNum(null)}
                         onKeyDown={(e) => {

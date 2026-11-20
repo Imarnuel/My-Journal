@@ -260,12 +260,18 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 
 /* Editing numbers (DESIGN.md, Editing numbers): each number in the line is a button with the dashed
    underline the facts use; clicking it edits it in place. */
-.app .knum { font: inherit; font-size: 14px; color: var(--text-2); background: transparent; border: 0; padding: 2px 0; cursor: pointer; }
+/* Two rows, three columns, so Entry sits over Exit, Stop over Size and Target over the result. */
+.app .knums { display: grid; grid-template-columns: repeat(3, max-content); align-items: center; justify-items: start; gap: 4px 0;
+  padding-top: 4px; font-size: 14px; color: var(--text-2); }
+.app .knum { text-align: left; font: inherit; font-size: 14px; color: var(--text-2); background: transparent; border: 0; padding: 2px 24px 2px 0; cursor: pointer; }
+/* The 24px after each number is the room its input needs, so editing one doesn't push the next column. */
 .app .knum-v { color: var(--text-1); border-bottom: 1px dashed var(--border-strong); font-variant-numeric: tabular-nums; }
 @media (hover: hover) and (pointer: fine) { .app .knum:hover .knum-v { border-bottom-style: solid; } }
-/* In place: the number becomes a small input of the same type and size, so the line doesn't move. */
-.app .knum-in { box-sizing: border-box; height: 24px; margin: -2px 0 -2px 2px; padding: 0 4px; align-self: center; font: inherit; font-size: 14px; color: var(--text-1);
+/* In place: the number becomes a small input in the room its column had (fields elsewhere pad 12px; this one 4px). */
+.app .knums input.knum-in { box-sizing: border-box; flex: 1 1 0; min-width: 0; width: 0; height: 24px; margin: -2px 0 -2px 2px; padding: 0 4px !important; align-self: center; font: inherit; font-size: 14px; color: var(--text-1);
   font-variant-numeric: tabular-nums; background: var(--surface-inset); border: 1px solid var(--border-strong); border-radius: var(--r-sm); }
 .app .knum-empty { display: inline-block; min-width: 6ch; }
-.app .knum-edit { display: inline-flex; align-items: center; gap: 4px; cursor: text; }
-.app .knum-in:focus-visible { outline-offset: 0; border-color: transparent; } /* the ring is the border */
+/* Phones: the same pairs side by side, three rows of two (Entry | Exit, Stop | Size, Target | R), so it fits. */
+@media (max-width: 640px) { .app .knums { grid-template-columns: repeat(2, max-content); grid-template-rows: repeat(3, auto); grid-auto-flow: column; } }
+.app .knum-edit { display: flex; align-items: center; gap: 4px; justify-self: stretch; padding-right: 8px; cursor: text; }
+.app .knums input.knum-in:focus-visible { outline-offset: 0; border-color: transparent; } /* the ring is the border */

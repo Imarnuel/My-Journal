@@ -225,6 +225,11 @@ Overrides `01-decisions.md` ("…a numbers line with 'Edit numbers', which opens
 owner wanted to see the numbers as they were and edit each one where it is, without an "Edit numbers"
 action. Same on New chart story and the chart story page. Source: `ChartStory.tsx`, `rFromPrices` in
 `src/lib/story.ts`.
+- **Two rows, three columns**: Entry over Exit, Stop over Size, Target over the result, 24px between columns.
+  While a number is edited the columns keep their widths, and its input fits in the room its column had, so
+  nothing else moves.
+- **On phones** the same pairs sit side by side in three rows of two (Entry | Exit, Stop | Size, Target | R),
+  so the line fits the screen.
 - **The line always shows every number**: Entry, Stop, Target, Exit, Size, then the result. Each value has
   the facts' dashed underline (solid on hover). An empty one shows its label and an empty underlined slot,
   so there's always something to click. No "Edit numbers" button.
