@@ -237,3 +237,15 @@ action. Same on New chart story and the chart story page. Source: `ChartStory.ts
   whenever you edit entry, stop or exit; while you edit, "Result from entry, stop and exit" shows under the
   line. Typing a result keeps yours (prices then leave it alone); clearing it hands it back to the prices.
   Opening a story never changes a result; MT5 results only change when you edit a price.
+
+## Sample prices
+Why: the owner wanted the numbers prefilled in the preview. The handoff's sample trades carry a result in R
+but no entry, stop, target, exit or size; in real use MT5 sync or the chart reader fills them, and that back
+end isn't designed yet (`06-open-items.md`, Back end). Source: `src/data/samplePrices.ts`.
+- A sample trade with no numbers gets stand-in prices when it's read: a realistic level for its pair, a stop
+  12 to 35 pips away (gold $4 to $12) on the right side, a target 2 to 3 times the risk, and an exit that
+  gives exactly the trade's recorded R. Same trade, same prices, every time.
+- Taken trades get all five; running trades no exit; watched and not-filled entries get entry, stop and
+  target; analysis entries get none. The designed GBPUSD story keeps its own prices.
+- Once a story is edited its numbers are stored with it, and stand-ins never replace them. Trades you add
+  start with your own numbers only.

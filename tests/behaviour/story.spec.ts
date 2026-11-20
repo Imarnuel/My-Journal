@@ -420,11 +420,18 @@ test("Plan: Followed / Not followed, click again to clear", async ({ page }) => 
 
 // ---------- numbers
 
-test("numbers: always shown, empty ones as a slot; no Edit numbers button", async ({ page }) => {
-  await openStory(page, "e19"); // a trade with no prices typed yet
-  for (const l of ["Entry", "Stop", "Target", "Exit", "Size"]) await expect(page.getByRole("button", { name: `${l} empty` })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Result +0.6R" })).toBeVisible();
+test("numbers: sample trades come with prices that give their R (DESIGN.md, Sample prices)", async ({ page }) => {
+  await openStory(page, "e19"); // EURUSD long, +0.6R in the sample
+  for (const n of ["Entry 1.08288", "Stop 1.07972", "Target 1.09236", "Exit 1.08478", "Size 0.50 lots", "Result +0.6R"]) await expect(page.getByRole("button", { name: n })).toBeVisible();
   await expect(page.getByRole("button", { name: "Edit numbers" })).toHaveCount(0);
+});
+
+test("numbers: always shown; empty ones show their label and a slot to click", async ({ page }) => {
+  await openStory(page, "e19");
+  await store(page, `s.getState().updateEntry("e19", { numbers: { entry: "", stop: "", target: "", exit: "", size: "" } })`);
+  for (const l of ["Entry", "Stop", "Target", "Exit", "Size"]) await expect(page.getByRole("button", { name: `${l} empty` })).toBeVisible();
+  await page.getByRole("button", { name: "Stop empty" }).click();
+  await expect(facts(page).getByLabel("Stop", { exact: true })).toBeFocused();
 });
 
 test("numbers: click one to edit it in place; Enter keeps, Escape puts it back, Tab goes to the next", async ({ page }) => {

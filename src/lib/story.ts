@@ -4,6 +4,7 @@
 import type { Dir, Entry, Session, Status, Tag, TagKind } from "./types";
 import type { VoiceNoteFill } from "./voiceNote";
 import { MINUS } from "./format";
+import { sampleNumbers } from "../data/samplePrices";
 
 export type Numbers = { entry: string; stop: string; target: string; exit: string; size: string };
 /** A number in the story's numbers line: a price, the size, or the result. */
@@ -144,7 +145,8 @@ const blankNumbers: Numbers = { entry: "", stop: "", target: "", exit: "", size:
  */
 export function storyFromEntry(e: Entry, overlay: StoryExtras | undefined, extras: { voiceLen?: string; closeTime?: string } = {}): Story {
   const o = e.before === undefined ? overlay : undefined;
-  const n = { ...blankNumbers, ...(o?.numbers ?? {}), ...(e.numbers ?? {}) };
+  // Sample trades have no prices; stand-ins fill them until MT5 sync exists (DESIGN.md, Sample prices).
+  const n = { ...blankNumbers, ...(e.numbers ? {} : sampleNumbers(e)), ...(o?.numbers ?? {}), ...(e.numbers ?? {}) };
   return {
     pair: e.pair,
     dir: e.dir,
