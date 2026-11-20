@@ -9,6 +9,10 @@ Written 20 November 2026, at the end of the first build session.
   Accounts (add, edit, archive) and Settings (appearance, review day, reminder, sessions, your tags).
 - Since the build, the owner has made about 30 design corrections. Every one is a section in `DESIGN.md`
   with its reason. `DESIGN.md` wins over everything else, including `CLAUDE.md` and the handoff.
+- `DESIGN.md` opens with "Principles (every screen)": the general rules behind those corrections. Apply them
+  to new work before the owner has to correct it. `src/styles/taste.test.ts` checks the ones code can show.
+- `CLAUDE.md` now agrees with `DESIGN.md` (radii, segment weight, icons). Keep it that way: when a correction
+  changes something `CLAUDE.md` states, update that line in the same commit.
 - Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl` (not merged to `main`; no
   pull request has been opened). Keep committing to that branch unless the owner says otherwise.
 - All checks pass: 87 unit tests (`npm test`), 325 browser tests (`npm run e2e`).

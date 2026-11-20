@@ -15,9 +15,11 @@ The full design handoff lives in `handoff/`. Every path below is relative to it 
 Keep `handoff/docs/07-screens-inventory.md`, `handoff/screenshots/` and `handoff/prototype/` open while building each screen. Run the prototype with `cd handoff/prototype && python3 -m http.server 8765`.
 
 ## Order of authority
-0. `DESIGN.md` (root): the owner's corrections after the handoff. It wins over everything below. When the
-   owner corrects a design choice, add the rule there with its reason, and approve the new reference images
-   (`tests/visual/approved/README.md`).
+0. `DESIGN.md` (root): the owner's corrections after the handoff. It wins over everything below, including
+   this file. When the owner corrects a design choice, add the rule there with its reason, and approve the new
+   reference images (`tests/visual/approved/README.md`). Read its "Principles (every screen)" first.
+   **Keep this file in step:** if a correction changes anything stated in this file (a value, a weight, a
+   rule), update the line here in the same commit so the two never disagree.
 1. `01-decisions.md` wins on behaviour.
 2. The prototype and screenshots win on exact pixels, layout and copy.
 3. `02-look-and-feel.md` explains the system behind those values and covers motion, hover, focus and phone.
@@ -32,13 +34,13 @@ Traders who quit journaling because it felt like work. The owner has ADHD. Frict
 - **Match the screenshots.** Every screen at 1440px wide must match `screenshots/light/` and `screenshots/dark/`. Compare with a visual diff, not by eye alone.
 - **Copy is exact.** Use the wording in `07-screens-inventory.md` and the prototype. Sentence case. Results always in R with a sign and a real minus (−, U+2212), never money.
 - **Tokens only.** Colours, shadows, radii, heights and motion come from `src/styles/tokens.css`. No raw hex in components.
-- **Type: four sizes only.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight). Weights 400, 500, and 600 only at 24px, the primary button and a selected segment. Geist everywhere (DESIGN.md), tabular figures on.
+- **Type: four sizes only.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight). Weights 400 and 500; 600 only at 24px and the primary button (a selected segment stays 500, DESIGN.md). Geist everywhere (DESIGN.md), tabular figures on.
 - **Spacing: eight steps only.** Tailwind `0.5 1 2 3 4 6 8 12` (2 4 8 12 16 24 32 48px).
-- **Controls are 32px tall** (segments 28px, menu rows 34px). Radius 8px on controls, 12px on cards and menus, 14px on the main card.
+- **Controls are 32px tall** (segments 28px, menu rows 34px). Radii come from the `--r-*` tokens only: 7px chips, 8px small buttons and segments, 10px controls and fields, 12px segment tracks, 16px cards and menus, 18px the main card, 20px dialogs (DESIGN.md › Rounder corners). `src/styles/taste.test.ts` fails on a hard-coded radius.
 - **Light is the default theme.** Dark is a full equal. Appearance: System, Light, Dark.
 - **One behaviour per kind of control** (the behaviour kit in `01-decisions.md`): one menu open at a time, click outside closes, destructive actions happen at once with an Undo toast for 6 seconds, no confirm dialogs.
 - **AI only pre-fills.** Every field can be set by hand. A voice note never overwrites a choice made by hand.
-- **Icons:** Lucide, 16px, stroke 1.8, using the names in `design-tokens/icons/ICONS.md`. Only where `02-look-and-feel.md` section 10 says.
+- **Icons:** Lucide, 16px, stroke 1.8, using the names in `design-tokens/icons/ICONS.md`, where `02-look-and-feel.md` section 10 or DESIGN.md says. DESIGN.md adds icons in several places and sets the filled 14px Details and stat icons.
 - **Accessibility as drawn:** skip link, labelled fields, 24px minimum targets, focus rings, "View as table" on charts, reduced motion.
 - **Never build anything on the "Declined or removed" list** in `01-decisions.md`.
 

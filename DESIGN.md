@@ -3,6 +3,49 @@
 Corrections the owner made after the handoff. They win over `handoff/docs/02-look-and-feel.md` where the
 two disagree. Each rule says why, so it can be applied to places the owner didn't point at.
 
+## Principles (every screen)
+General rules behind the owner's corrections. Apply them to every screen, including ones the owner hasn't
+looked at yet; the sections below are the specific cases they came from. A reason marked *inferred* was
+written by Claude from the corrections, not said by the owner: if the owner later gives a different
+reason, replace it.
+
+- **Every line of text leads to an action or a decision.** Never add hints, counts, captions or
+  explanations that repeat what's already shown. Put supporting detail where it's acted on (tag counts live
+  in Settings › Your tags, not in the tag menu).
+  Why (*inferred*): extra text is something to read with nothing to do, and on a calm screen it reads as clutter.
+  <!-- 2026-11-19/20: "If it's something that requires users' action, let us look for a brief way to communicate it" · "of what use is 'used 18 times'" · "remove this week focus on the dashboard" -->
+- **Values you can change show as values and edit in place.** They carry the dashed underline and become an
+  input on click, never behind an "Edit" button, a separate form or a mode. Enter keeps, Escape puts back,
+  and nothing else on the screen moves while one is edited.
+  Why: the owner wants to see the value as it is and change it where it is.
+  <!-- 2026-11-20: "display as they used to display, but they become an editable input on click… instead of having 'edit numbers' as an action" -->
+- **Actions on an image sit on the image.** Chart thumbnails and screenshots show their controls as white
+  icons (`--on-media`) on the `--media-scrim` gradient, on hover or focus and always on touch. Never a row
+  under the image just for controls, and never icons inside chip containers on an image.
+  Why: a row under every picture wastes space and repeats.
+  <!-- 2026-11-20: "why can't we just have it over the image thumbnail… a white icon that overlays on the image… a black overlay" -->
+- **Anything you can act on looks like it.** A grip for draggable, a pen for edit, a chevron for expand, the
+  dashed underline for an editable value, a trailing arrow for a link to another page. Never rely on finding
+  it by trying.
+  Why: "so the user knows" it can be used.
+  <!-- 2026-11-19/20: "add the drag icon on hover so the user knows its draggable" · "'What you said' doesn't look interactive" · "add edit icon beside Edit numbers" -->
+- **Values that pair across lines line up in a grid.** Label and value sets, numbers and facts that repeat
+  over two or more lines sit in columns, never wrapped freely. A label sits 8px from what it labels.
+  Why (*inferred*): aligned columns can be compared at a glance; ragged ones have to be read one by one.
+  <!-- 2026-11-20: "align the entry with the exit, stop with the size, and target with the R" · earlier: "label far from input" -->
+- **In rows and cards only the headline is 14px.** The identifying line (pair, direction chip, result) is
+  14px; supporting facts, badges and meta are 12px, and their icons are lighter than their text. Applies to
+  every list row and card (trade log, playbook, weekly review, recent chart stories).
+  Why (*inferred*): the eye should land on what the item is, then the details.
+  <!-- 2026-11-19: "every other text asides the pair needs to use a font size of 12px" · "Suggested pill too big" · "icons… smaller and a bit lighter" -->
+- **The preview shows every feature filled in and believable.** When the sample data lacks a field, add a
+  realistic stand-in that agrees with the data around it (as sample prices give each trade's recorded R),
+  and record it here.
+  Why (*inferred*): the owner judges the design from the preview, and an empty field there hides what it will look like.
+  <!-- 2026-11-20: "I can't see the numbers prefilled" → "1. do that" -->
+- **Checked automatically:** `src/styles/taste.test.ts` fails on an em dash in app text, a hard-coded control
+  or card radius (use the `--r-*` tokens), or a typeface named directly (use `var(--font-sans)`).
+
 ## Icons
 - **Story Details labels have icons**: Setup (book), Tags (tag), Plan (clipboard with a check), Headspace
   (face), before the label, 8px gap. Why: the labels are scanned, and an icon makes each row findable at a
