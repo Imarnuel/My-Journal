@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { slug } from "../app/routes";
 import { useStore } from "../data/store";
-import { defaultScreenshotAccount } from "../data/seed";
 import type { Account } from "../lib/types";
 import { ChoiceSelect } from "../components/primitives/ChoiceSelect";
 import { toast } from "../components/primitives/toast";
@@ -46,14 +45,13 @@ function Source({ a }: { a: Account }) {
 }
 
 export function Accounts() {
-  const menu = useMenu<"dflt" | "copy">();
+  const menu = useMenu<"copy">();
   const accounts = useStore((s) => s.accounts);
   const settings = useStore((s) => s.settings);
   const setSetting = useStore((s) => s.setSetting);
   const updateAccount = useStore((s) => s.updateAccount);
   const active = accounts.filter((a) => !a.archived);
   const archived = accounts.filter((a) => a.archived);
-  const dflt = (settings.defaultAccount as string) ?? defaultScreenshotAccount;
   const copy = (settings.copiedTrades as string) ?? "Attach to both";
   const arcOpen = !!settings.accountsArchivedOpen;
 
@@ -90,7 +88,7 @@ export function Accounts() {
               >
                 <span style={{ fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "4px" }}>
                   {a.name}
-                  {a.name === dflt ? <span style={badge}>Default for screenshots</span> : a.practice ? <span style={badge}>Practice</span> : null}
+                  {a.practice ? <span style={badge}>Practice</span> : null}
                 </span>
                 <span style={{ fontSize: "14px", color: "var(--text-2)" }}>{a.type}</span>
                 <span style={{ fontSize: "14px", color: "var(--text-2)", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -153,21 +151,6 @@ export function Accounts() {
           <span className="lbl">Set once, never asked again</span>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px 24px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)", marginTop: "12px" }}>
-          <span style={{ fontSize: "14px" }}>Screenshots with no MT5 match go to</span>
-          <ChoiceSelect
-            name="Screenshots with no MT5 match go to"
-            value={dflt}
-            options={active.map((a) => a.name)}
-            open={menu.isOpen("dflt")}
-            onToggle={() => menu.toggle("dflt")}
-            onClose={menu.close}
-            onPick={(o) => {
-              setSetting("defaultAccount", o);
-              menu.close();
-            }}
-          />
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px 24px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)" }}>
           <span style={{ fontSize: "14px" }}>When one trade shows up on two accounts</span>
           <ChoiceSelect
             name="When one trade shows up on two accounts"

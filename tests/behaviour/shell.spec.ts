@@ -17,13 +17,12 @@ test("sidebar marks the current page", async ({ page }) => {
   await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Accounts" })).toHaveAttribute("aria-current", "page");
 });
 
-test("choice menu: opens, one at a time, Escape closes and returns focus, choosing sets the value", async ({ page }) => {
+test("choice menu: opens, click outside closes, Escape closes and returns focus, choosing sets the value", async ({ page }) => {
   await page.goto("/accounts");
-  const dflt = page.getByRole("button", { name: "Screenshots with no MT5 match go to: Challenge 50K" });
   const copy = page.getByRole("button", { name: "Copied trades: Attach to both" });
-  await dflt.click();
-  await expect(page.getByRole("listbox", { name: "Screenshots with no MT5 match go to" })).toBeVisible();
-  await copy.click({ force: true }); // a click outside closes the open menu first
+  await copy.click();
+  await expect(page.getByRole("listbox", { name: "Copied trades" })).toBeVisible();
+  await page.getByRole("heading", { level: 1 }).click({ force: true }); // a click outside closes the menu
   await expect(page.locator(".kmenu")).toHaveCount(0);
   await copy.click();
   await expect(page.locator(".kmenu")).toHaveCount(1);
@@ -42,15 +41,13 @@ test("choice menu: opens, one at a time, Escape closes and returns focus, choosi
 
 test("keyboard: Enter opens a menu with focus on the selected option; typing jumps", async ({ page }) => {
   await page.goto("/accounts");
-  const dflt = page.getByRole("button", { name: /Screenshots with no MT5 match go to/ });
-  await dflt.focus();
+  await page.getByRole("button", { name: /Copied trades/ }).focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("option", { name: "Challenge 50K" })).toBeFocused();
-  await page.keyboard.press("b");
-  await expect(page.getByRole("option", { name: "Backtesting" })).toBeFocused();
+  await expect(page.getByRole("option", { name: "Attach to both" })).toBeFocused();
+  await page.keyboard.press("o");
+  await expect(page.getByRole("option", { name: "Only the first account" })).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("button", { name: "Screenshots with no MT5 match go to: Backtesting" })).toBeVisible();
-  await expect(page.getByText("Default for screenshots")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Copied trades: Only the first account" })).toBeVisible();
 });
 
 test("archived accounts: Restore happens at once with an Undo toast that restores exactly", async ({ page }) => {

@@ -42,10 +42,7 @@ export const seedAccounts: Account[] = [
   { name: "Funded 50K", type: "Prop firm", practice: false, archived: true, source: "screenshots", archivedNote: "reset in July \u00b7 22 chart stories" },
 ];
 
-// accounts.json says "Main account", but the Accounts frame and its screenshot show Challenge 50K as the
-// default for screenshots. The prototype wins on what is shown (handoff README, order of authority).
-export const defaultScreenshotAccount = "Challenge 50K";
-void accountsJson.default_for_screenshots;
+// accounts.json also names a "default for screenshots"; the owner removed that idea (DESIGN.md › Accounts).
 
 export const seedTags: Tag[] = tagsJson.vocab_with_counts as Tag[];
 

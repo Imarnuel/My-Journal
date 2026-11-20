@@ -285,3 +285,14 @@ end isn't designed yet (`06-open-items.md`, Back end). Source: `src/data/sampleP
   target; analysis entries get none. The designed GBPUSD story keeps its own prices.
 - Once a story is edited its numbers are stored with it, and stand-ins never replace them. Trades you add
   start with your own numbers only.
+
+## Accounts: no default for screenshots
+Overrides the Accounts and Add account frames and `accounts.json`'s `default_for_screenshots`. Why: the owner
+said "there's nothing like default for screenshot, for now at least" (2026-11-20, answering open question 1).
+Source: `src/screens/Accounts.tsx`, `AddAccount.tsx`.
+- **No "Default for screenshots" badge** on any account; only practice accounts carry a badge ("Practice").
+- **When logging has one row**: "When one trade shows up on two accounts". The "Screenshots with no MT5 match
+  go to" row is gone.
+- **Add account without MT5** shows only "You'll confirm each trade's numbers from your screenshot instead."
+  The "Make this the default…" checkbox is gone.
+- A chart story's account is chosen on the story itself, as before.

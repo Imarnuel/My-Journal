@@ -4,7 +4,7 @@ Everything below was built "as drawn" or with the smallest reasonable choice, an
 yes or a different answer. Reply with the numbers you want changed, e.g. "3: use Whenever you trade".
 
 ## Sample data that disagrees with the frames
-1. **Default account for screenshots.** `data/accounts.json` says Main account; the Accounts frame shows Challenge 50K. Built: Challenge 50K (the frame).
+1. **Default account for screenshots.** Answered 2026-11-20: there is no default for screenshots, for now. Removed (DESIGN.md › Accounts: no default for screenshots).
 2. **Funded 100K story count.** Edit account frame says "46 chart stories"; the data has 80 entries on that account. Built: computed (80).
 3. **e20 pinned as textbook?** `playbook-examples.json` pins it; frame 07 draws it unpinned. Built: pinned (the data).
 4. **USDCHF very short trade** (#48240, −0.1R, 8 seconds) appears on the Trade log but isn't in the 134 entries. Built: held by the Trade log only. Should it be a real entry, and does it count in the 134?

@@ -48,3 +48,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | Story images and `states/` 20 | Numbers edit in place, no Edit numbers button (DESIGN.md, Editing numbers) | 2026-11-20 |
 
 | Story images and `states/` 15 to 24 | Numbers on a three-column grid (DESIGN.md, Editing numbers) | 2026-11-20 |
+
+| `light/` and `dark/` 12-Accounts; `states/` 34 | No default for screenshots: badge and the "Screenshots with no MT5 match go to" row removed (DESIGN.md) | 2026-11-20 |

@@ -21,8 +21,6 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
   const accounts = useStore((s) => s.accounts);
   const entries = useStore((s) => s.entries);
   const today = useStore((s) => s.today);
-  const settings = useStore((s) => s.settings);
-  const setSetting = useStore((s) => s.setSetting);
   const updateAccount = useStore((s) => s.updateAccount);
   const meta = useAccountMeta((s) => s.meta[account.name]) ?? {};
   const renameMeta = useAccountMeta((s) => s.renameMeta);
@@ -45,10 +43,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
       return;
     }
     updateAccount(account.name, { name, type: d.type.trim() || account.type, practice: d.practice });
-    if (name !== account.name) {
-      renameMeta(account.name, name);
-      if (settings.defaultAccount === account.name) setSetting("defaultAccount", name);
-    }
+    if (name !== account.name) renameMeta(account.name, name);
     nav("/accounts");
   };
 

@@ -17,7 +17,6 @@ export function AddAccount() {
   const accounts = useStore((s) => s.accounts);
   const today = useStore((s) => s.today);
   const addAccount = useStore((s) => s.addAccount);
-  const setSetting = useStore((s) => s.setSetting);
   const setMeta = useAccountMeta((s) => s.setMeta);
 
   const [d, setD] = useState<AccountDraft>({ name: "", type: "Prop firm", own: "", ownOpen: false, practice: false });
@@ -28,7 +27,6 @@ export function AddAccount() {
   const [password, setPassword] = useState("");
   const [testing, setTesting] = useState(false);
   const [connected, setConnected] = useState<Mt5Result | null>(null);
-  const [makeDefault, setMakeDefault] = useState(true);
   const nameRef = useRef<HTMLInputElement>(null);
   const loginRef = useRef<HTMLInputElement>(null);
   const serverRef = useRef<HTMLInputElement>(null);
@@ -68,7 +66,6 @@ export function AddAccount() {
     const synced = mt5 && (!!connected || (!!login.trim() && !!server.trim()));
     addAccount({ name, type: d.type.trim() || "Live", practice: d.practice, archived: false, source: synced ? "mt5" : "screenshots" });
     setMeta(name, { added: today, ...(synced ? { login: login.trim(), server: server.trim() } : {}) });
-    if (!mt5 && makeDefault) setSetting("defaultAccount", name);
     e.preventDefault();
     nav("/accounts");
   };
@@ -143,13 +140,7 @@ export function AddAccount() {
               )}
             </div>
           ) : (
-            <>
-              <label style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "14px", cursor: "pointer", minHeight: "44px" }}>
-                <input type="checkbox" checked={makeDefault} onChange={(e) => setMakeDefault(e.target.checked)} style={{ width: "20px", height: "20px", accentColor: "var(--text-1)" }} />
-                Make this the default for screenshots with no MT5 match
-              </label>
-              <p className="lbl" style={{ margin: 0 }}>You'll confirm each trade's numbers from your screenshot instead.</p>
-            </>
+            <p className="lbl" style={{ margin: 0 }}>You'll confirm each trade's numbers from your screenshot instead.</p>
           )}
         </section>
 

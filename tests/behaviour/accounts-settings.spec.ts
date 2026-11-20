@@ -137,16 +137,15 @@ test("add account: adds to the store and goes to Accounts; without a name it sta
   await expect(page.getByText("Prop firm · added 16 November · 0 chart stories")).toBeVisible();
 });
 
-test("add account: without MT5 it can become the default for screenshots", async ({ page }) => {
+test("add account: without MT5 it reads from screenshots, and there is no default for screenshots", async ({ page }) => {
   await page.goto("/accounts/new");
   await page.getByRole("switch", { name: "Connect MT5" }).click();
   await expect(page.getByLabel("Login")).toHaveCount(0);
-  const cb = page.getByRole("checkbox", { name: "Make this the default for screenshots with no MT5 match" });
-  await expect(cb).toBeChecked();
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
   await page.getByLabel("Name").fill("Notebook");
   await page.getByRole("link", { name: "Add account" }).click();
-  await expect(page.getByRole("link", { name: /Notebook/ })).toContainText("Default for screenshots");
-  await expect(page.getByRole("button", { name: "Screenshots with no MT5 match go to: Notebook" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Notebook/ })).toContainText("Your screenshots");
+  await expect(page.getByText(/default for screenshots|no MT5 match go to/i)).toHaveCount(0);
 });
 
 test("add account: the Accounts link goes back", async ({ page }) => {
