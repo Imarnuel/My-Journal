@@ -6,6 +6,8 @@ import type { VoiceNoteFill } from "./voiceNote";
 import { MINUS } from "./format";
 
 export type Numbers = { entry: string; stop: string; target: string; exit: string; size: string };
+/** A number in the story's numbers line: a price, the size, or the result. */
+export type NumKey = keyof Numbers | "result";
 
 /** Everything the story form shows. A saved story is read from its Entry; a new one lives in a draft. */
 export type Story = {

@@ -220,24 +220,20 @@ Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`. Why: the owner's choic
 from `@fontsource-variable/geist` (latin and latin-ext), set once in `--font-sans`; nothing names a font
 directly. Sizes, weights, line heights and tracking are unchanged; tabular figures stay on (Geist has them).
 
-## Edit numbers has a pen
-On a trade's story, "Edit numbers" leads with the 16px `pen-line` icon used for Rename and Edit rules, so it
-reads as an action. While the numbers are open the button says "Done" without an icon.
-
 ## Editing numbers
-Overrides `01-decisions.md` ("…with 'Edit numbers', which opens six live inputs") in how it opens and what
-the result does. Why: the owner wanted a better experience; the numbers showed twice, there were two "Done"
-buttons, the fields didn't look like fields and the result had to be typed although the prices give it.
-Same on New chart story and the chart story page. Source: `ChartStory.tsx`, `rFromPrices` in `src/lib/story.ts`.
-- **The line is the editor**: "Edit numbers" (or clicking any number in the line, which has the facts'
-  dashed underline) swaps the line for six fields in the same place, with that field focused and its value
-  selected. Nothing shows twice.
-- **Fields look like fields**: bordered and inset like the note fields, 32px, labels 4px above. Prices get
-  the number keypad on phones.
+Overrides `01-decisions.md` ("…a numbers line with 'Edit numbers', which opens six live inputs"). Why: the
+owner wanted to see the numbers as they were and edit each one where it is, without an "Edit numbers"
+action. Same on New chart story and the chart story page. Source: `ChartStory.tsx`, `rFromPrices` in
+`src/lib/story.ts`.
+- **The line always shows every number**: Entry, Stop, Target, Exit, Size, then the result. Each value has
+  the facts' dashed underline (solid on hover). An empty one shows its label and an empty underlined slot,
+  so there's always something to click. No "Edit numbers" button.
+- **Click a number to edit it in place**: it becomes a small inset input, 24px, in the same line, with the
+  value selected so typing replaces it. Only one number is a field at a time.
+- **Keys**: Enter, or clicking away, keeps it. Escape puts back what was there. Tab and Shift+Tab go straight
+  into the next or previous number, already editable, so a whole trade types in one go. Changes save as you
+  type.
 - **The result works itself out**: (exit − entry) / (entry − stop), the same sum for a long and a short,
-  whenever you edit entry, stop or exit, and "Result from entry, stop and exit" says so. Typing a result
-  keeps yours (prices then leave it alone); clearing it hands it back to the prices. Opening a story never
-  changes a result; MT5 results only change when you edit a price.
-- **Keyboard**: Enter moves to the next field; Enter on Result, or Escape, closes and puts focus back on
-  "Edit numbers". Changes save as you type.
-- **One meaning per word**: the fields close with "Close"; "Done" only means leaving the story.
+  whenever you edit entry, stop or exit; while you edit, "Result from entry, stop and exit" shows under the
+  line. Typing a result keeps yours (prices then leave it alone); clearing it hands it back to the prices.
+  Opening a story never changes a result; MT5 results only change when you edit a price.

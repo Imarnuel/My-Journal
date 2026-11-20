@@ -258,11 +258,14 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
   .ktiles[data-reordering] .ktile[data-shifting] { transition: none; }
 }
 
-/* Editing numbers (DESIGN.md, Editing numbers). Closed: each number in the line is a button with the
-   dashed underline the facts use. Open: bordered, inset fields like the note fields, 32px tall. */
+/* Editing numbers (DESIGN.md, Editing numbers): each number in the line is a button with the dashed
+   underline the facts use; clicking it edits it in place. */
 .app .knum { font: inherit; font-size: 14px; color: var(--text-2); background: transparent; border: 0; padding: 2px 0; cursor: pointer; }
 .app .knum-v { color: var(--text-1); border-bottom: 1px dashed var(--border-strong); font-variant-numeric: tabular-nums; }
 @media (hover: hover) and (pointer: fine) { .app .knum:hover .knum-v { border-bottom-style: solid; } }
-.app .kfield { margin: 0; width: 100%; box-sizing: border-box; min-height: 32px; padding: 0 8px; font: inherit; font-size: 14px; color: var(--text-1);
-  background: var(--surface-inset); border: 1px solid var(--border); border-radius: var(--r-md); font-variant-numeric: tabular-nums; }
-.app .kfield:focus { border-color: var(--border-strong); }
+/* In place: the number becomes a small input of the same type and size, so the line doesn't move. */
+.app .knum-in { box-sizing: border-box; height: 24px; margin: -2px 0 -2px 2px; padding: 0 4px; align-self: center; font: inherit; font-size: 14px; color: var(--text-1);
+  font-variant-numeric: tabular-nums; background: var(--surface-inset); border: 1px solid var(--border-strong); border-radius: var(--r-sm); }
+.app .knum-empty { display: inline-block; min-width: 6ch; }
+.app .knum-edit { display: inline-flex; align-items: center; gap: 4px; cursor: text; }
+.app .knum-in:focus-visible { outline-offset: 0; border-color: transparent; } /* the ring is the border */

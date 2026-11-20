@@ -93,11 +93,11 @@ test("state 18: Story, More menu open", async ({ page }, info) => {
   await diffViewport(page, "states/18-story-more-menu-open.png", info);
 });
 
-test("state 20: Edit numbers opens six live inputs", async ({ page }, info) => {
+test("state 20: a number edits in place (DESIGN.md, Editing numbers)", async ({ page }, info) => {
   await openStory(page);
   await asDrawn(page);
-  await page.getByRole("button", { name: "Edit numbers" }).click();
-  for (const l of ["Entry", "Stop", "Target", "Exit", "Size", "Result"]) await expect(facts(page).getByLabel(l, { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Exit 1.26482" }).click();
+  await expect(facts(page).getByLabel("Exit", { exact: true })).toBeFocused();
   await diffViewport(page, "states/20-story-edit-numbers-open.png", info);
 });
 
@@ -420,58 +420,73 @@ test("Plan: Followed / Not followed, click again to clear", async ({ page }) => 
 
 // ---------- numbers
 
-test("Edit numbers: the line becomes six fields; nothing shows twice; Close puts the line back", async ({ page }) => {
-  await openStory(page);
-  await page.getByRole("button", { name: "Edit numbers" }).click();
-  await expect(facts(page).getByLabel("Entry", { exact: true })).toBeFocused();
-  await expect(page.getByRole("button", { name: "Entry 1.26840" })).toHaveCount(0); // the read-only line is gone
+test("numbers: always shown, empty ones as a slot; no Edit numbers button", async ({ page }) => {
+  await openStory(page, "e19"); // a trade with no prices typed yet
+  for (const l of ["Entry", "Stop", "Target", "Exit", "Size"]) await expect(page.getByRole("button", { name: `${l} empty` })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Result +0.6R" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Edit numbers" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(facts(page).getByLabel("Entry", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Edit numbers" })).toBeFocused();
 });
 
-test("Edit numbers: clicking a number opens the fields with it focused; Enter moves on, Escape closes", async ({ page }) => {
+test("numbers: click one to edit it in place; Enter keeps, Escape puts it back, Tab goes to the next", async ({ page }) => {
   await openStory(page);
   await page.getByRole("button", { name: "Stop 1.27010" }).click();
   const stop = facts(page).getByLabel("Stop", { exact: true });
   await expect(stop).toBeFocused();
+  // Only that number turns into a field; the rest stay as text.
+  await expect(facts(page).getByRole("textbox")).toHaveCount(1);
   // The whole value is selected, so typing replaces it.
-  expect(await stop.evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd])).toEqual([0, 7]);
+  await page.keyboard.type("1.27100");
   await page.keyboard.press("Enter");
-  await expect(facts(page).getByLabel("Target", { exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Stop 1.27100" })).toBeFocused();
+  // Escape puts back what was there.
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("9");
   await page.keyboard.press("Escape");
-  await expect(facts(page).getByLabel("Target", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Edit numbers" })).toBeFocused();
-  // Enter on the last field closes too.
-  await page.getByRole("button", { name: "Result +2.1R" }).click();
-  await expect(facts(page).getByLabel("Result", { exact: true })).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(facts(page).getByLabel("Result", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Stop 1.27100" })).toBeFocused();
+  // Tab goes straight into the next number, editable.
+  await page.getByRole("button", { name: "Entry 1.26840" }).click();
+  await page.keyboard.press("Tab");
+  await expect(stop).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(facts(page).getByLabel("Target", { exact: true })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(stop).toBeFocused();
+  // Clicking away keeps it and goes back to the line.
+  await page.getByRole("heading", { level: 1 }).click();
+  await expect(facts(page).getByRole("textbox")).toHaveCount(0);
+  const e = await store<{ numbers: { stop: string } }>(page, `return s.getState().entries.find((e) => e.id === "e20")`);
+  expect(e.numbers.stop).toBe("1.27100");
 });
 
-test("Edit numbers: the result works itself out from the prices, a typed result is kept, clearing hands it back", async ({ page }) => {
+test("numbers: the result works itself out from the prices, a typed result is kept, clearing hands it back", async ({ page }) => {
   await openStory(page);
   // Opening the story leaves its result alone (MT5 results only change when you edit a price).
   expect(await store<number>(page, `return s.getState().entries.find((e) => e.id === "e20").r`)).toBe(2.1);
   await page.getByRole("button", { name: "Exit 1.26482" }).click();
-  const result = facts(page).getByLabel("Result", { exact: true });
   await facts(page).getByLabel("Exit", { exact: true }).fill("1.26300"); // short: (1.26840 − 1.26300) / 0.00170
-  await expect(result).toHaveValue("+3.2R");
+  // The result beside it updates as you type, and says where it came from while you edit.
+  await expect(page.getByRole("button", { name: "Result +3.2R" })).toBeVisible();
   await expect(facts(page)).toContainText("Result from entry, stop and exit");
   await expect(page.locator("header .num")).toHaveText("+3.2R");
+  await page.keyboard.press("Enter");
+  await expect(facts(page)).not.toContainText("Result from entry, stop and exit");
   // Typed by hand: kept, and prices no longer change it.
+  await page.getByRole("button", { name: "Result +3.2R" }).click();
+  const result = facts(page).getByLabel("Result", { exact: true });
   await result.fill("+3.0R");
   await expect(facts(page)).not.toContainText("Result from entry, stop and exit");
+  await page.keyboard.press("Enter");
+  await page.getByRole("button", { name: "Exit 1.26300" }).click();
   await facts(page).getByLabel("Exit", { exact: true }).fill("1.27010");
-  await expect(result).toHaveValue("+3.0R");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("button", { name: "Result +3.0R" })).toBeVisible();
   let e = await store<{ r: number; rByHand: boolean; numbers: { exit: string } }>(page, `return s.getState().entries.find((e) => e.id === "e20")`);
   expect(e).toMatchObject({ r: 3, rByHand: true, numbers: { exit: "1.27010" } });
   // Cleared: back to the prices (exit at the stop is −1R).
+  await page.getByRole("button", { name: "Result +3.0R" }).click();
   await result.fill("");
-  await facts(page).getByLabel("Exit", { exact: true }).focus();
-  await expect(result).toHaveValue("−1.0R");
-  await expect(facts(page)).toContainText("Result from entry, stop and exit");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("button", { name: "Result −1.0R" })).toBeVisible();
   e = await store(page, `return s.getState().entries.find((e) => e.id === "e20")`);
   expect(e).toMatchObject({ r: -1, rByHand: false });
 });
@@ -805,11 +820,10 @@ for (const [name, go] of [
     },
   ],
   [
-    "Story with the More menu and numbers open",
+    "Story with a number being edited",
     async (p: Page, q: string) => {
       await p.goto(`/story/e20?${q}`);
-      await p.getByRole("button", { name: "Edit numbers" }).click();
-      await p.getByRole("button", { name: "More actions" }).click();
+      await p.getByRole("button", { name: "Exit 1.26482" }).click();
     },
   ],
   [

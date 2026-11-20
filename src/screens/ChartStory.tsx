@@ -6,7 +6,6 @@ import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { useTileReorder } from "./story/useTileReorder";
-import { PencilIcon } from "./playbook/parts";
 import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -17,6 +16,7 @@ import {
   HEADSPACE,
   HEADSPACE_EMOJI,
   NUMBER_FIELDS,
+  type NumKey,
   STATUS_OPTS,
   applyVoiceNote,
   clock,
@@ -102,7 +102,10 @@ function StoryScreen({ id }: { id: string | null }) {
   const [tagQ, setTagQ] = useState("");
   const [kindFor, setKindFor] = useState<string | null>(null);
   const [dtDraft, setDtDraft] = useState<string | null>(null);
-  const [numOpen, setNumOpen] = useState(false);
+  // Which number is being edited in place (DESIGN.md, Editing numbers), and what it was, for Escape.
+  const [editingNum, setEditingNum] = useState<NumKey | null>(null);
+  const editingRef = useRef<NumKey | null>(null);
+  const numBefore = useRef<Pick<Story, "numbers" | "r" | "rByHand"> | null>(null);
   const [resDraft, setResDraft] = useState<string | null>(null);
   const [deleted, setDeleted] = useState<{ e: Entry; index: number } | null>(null);
   const [voiceError, setVoiceError] = useState(false);
@@ -111,8 +114,7 @@ function StoryScreen({ id }: { id: string | null }) {
   const playT = useRef<ReturnType<typeof setInterval>>(undefined);
   const tileGrid = useRef<HTMLDivElement>(null);
   const replaceInput = useRef<HTMLInputElement>(null);
-  const numRefs = useRef<Partial<Record<keyof Numbers | "result", HTMLInputElement | null>>>({});
-  const editNumBtn = useRef<HTMLButtonElement>(null);
+  const numBtns = useRef<Partial<Record<NumKey, HTMLButtonElement | null>>>({});
 
   useEffect(
     () => () => {
@@ -361,15 +363,19 @@ function StoryScreen({ id }: { id: string | null }) {
   const autoR = rFromPrices(s.numbers, s.dir);
   // Say where the result came from only when it truly is the worked-out one.
   const autoResult = !s.rByHand && autoR != null && s.r != null && Math.round(autoR * 10) === Math.round(s.r * 10);
-  const openNumbers = (k: keyof Numbers | "result" = "entry") => {
-    setNumOpen(true);
+  // The numbers you can edit, in line order. A result is only typed on a taken trade.
+  const numKeys = NUMBER_FIELDS.map((f) => f.key).filter((k) => k !== "result" || s.status === "Taken");
+  const editNum = (k: NumKey | null) => {
+    editingRef.current = k;
+    setEditingNum(k);
     setResDraft(null);
-    requestAnimationFrame(() => numRefs.current[k]?.focus());
+    numBefore.current = k ? { numbers: s.numbers, r: s.r, rByHand: s.rByHand } : null;
   };
-  const closeNumbers = () => {
-    setNumOpen(false);
-    setResDraft(null);
-    requestAnimationFrame(() => editNumBtn.current?.focus());
+  /** Enter, Escape or done: back to the line, focus on the number you were editing. */
+  const leaveNum = (k: NumKey, revert: boolean) => {
+    if (revert && numBefore.current) update(numBefore.current);
+    editNum(null);
+    requestAnimationFrame(() => numBtns.current[k]?.focus());
   };
   const setPrice = (k: keyof Numbers, v: string) => {
     const numbers = { ...s.numbers, [k]: v };
@@ -644,7 +650,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   className="btn btn-q"
                   onClick={() => {
                     setUnreadable(false);
-                    openNumbers("entry");
+                    editNum("entry");
                   }}
                 >
                   Type the numbers
@@ -1033,78 +1039,71 @@ function StoryScreen({ id }: { id: string | null }) {
                 ) : null}
               </span>
             </div>
-            {numOpen ? (
-              <div role="group" aria-label="Numbers" style={{ display: "flex", flexDirection: "column", gap: "8px", paddingTop: "4px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px 8px" }}>
-                  {NUMBER_FIELDS.map((f, i) => {
-                    const isRes = f.key === "result";
-                    return (
-                      <label key={f.key} style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
-                        <span style={{ fontSize: "12px", lineHeight: "16px", color: "var(--text-2)" }}>{f.label}</span>
-                        <input
-                          ref={(el) => {
-                            numRefs.current[f.key] = el;
-                          }}
-                          className="kfield num"
-                          type="text"
-                          inputMode={f.key === "size" ? "text" : "decimal"}
-                          autoComplete="off"
-                          enterKeyHint={i === NUMBER_FIELDS.length - 1 ? "done" : "next"}
-                          value={isRes ? resDraft ?? (s.r != null ? fr(s.r) : "") : s.numbers[f.key as keyof Numbers]}
-                          onFocus={(e) => e.currentTarget.select()}
-                          onChange={(e) => (isRes ? setResult(e.target.value) : setPrice(f.key as keyof Numbers, e.target.value))}
-                          onBlur={() => isRes && setResDraft(null)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Escape") {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              closeNumbers();
-                            } else if (e.key === "Enter") {
-                              e.preventDefault();
-                              const next = NUMBER_FIELDS[i + 1];
-                              if (next) numRefs.current[next.key]?.focus();
-                              else closeNumbers();
-                            }
-                          }}
-                        />
-                      </label>
-                    );
-                  })}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-                  <span style={{ fontSize: "12px", lineHeight: "16px", color: "var(--text-3)" }}>{autoResult ? "Result from entry, stop and exit" : ""}</span>
-                  <button type="button" className="btn btn-q" onClick={closeNumbers} style={{ minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
-                    Close
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", fontSize: "14px", color: "var(--text-2)", paddingTop: "4px" }}>
-                {(["entry", "stop", "target", "exit"] as const)
-                  .filter((k) => s.numbers[k])
-                  .map((k) => (
-                    <button key={k} type="button" className="knum" onClick={() => openNumbers(k)}>
-                      {`${k[0].toUpperCase()}${k.slice(1)} `}
-                      <span className="knum-v">{s.numbers[k]}</span>
-                    </button>
-                  ))}
-                {s.status === "Taken" ? (
-                  <button type="button" className="knum" onClick={() => openNumbers("result")} aria-label={`Result ${resVal}`}>
-                    <span className="knum-v" style={{ color: resCol, fontWeight: 500 }}>
-                      {resVal}
+            <div role="group" aria-label="Numbers" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", fontSize: "14px", color: "var(--text-2)", paddingTop: "4px" }}>
+              {numKeys.map((k, i) => {
+                const isRes = k === "result";
+                const label = NUMBER_FIELDS.find((f) => f.key === k)!.label;
+                const value = isRes ? (s.r != null ? fr(s.r) : "") : s.numbers[k];
+                if (editingNum === k) {
+                  return (
+                    <label key={k} className="knum knum-edit">
+                      {isRes ? null : <span>{label}</span>}
+                      <input
+                        ref={(el) => {
+                          if (el && document.activeElement !== el) requestAnimationFrame(() => (el.focus(), el.select()));
+                        }}
+                        aria-label={label}
+                        className="knum-in"
+                        type="text"
+                        inputMode={k === "size" ? "text" : "decimal"}
+                        autoComplete="off"
+                        enterKeyHint="done"
+                        value={isRes ? resDraft ?? value : value}
+                        style={{ width: `${Math.max((isRes ? resDraft ?? value : value).length, 6) + 2}ch` }}
+                        onChange={(e) => (isRes ? setResult(e.target.value) : setPrice(k, e.target.value))}
+                        onBlur={() => editingRef.current === k && editNum(null)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === "Escape") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            leaveNum(k, e.key === "Escape");
+                          } else if (e.key === "Tab") {
+                            // Tab goes straight into the next number, so a whole trade types in one go.
+                            const next = numKeys[i + (e.shiftKey ? -1 : 1)];
+                            e.preventDefault();
+                            if (next) editNum(next);
+                            else leaveNum(k, false);
+                          }
+                        }}
+                      />
+                    </label>
+                  );
+                }
+                return (
+                  <button
+                    key={k}
+                    ref={(el) => {
+                      numBtns.current[k] = el;
+                    }}
+                    type="button"
+                    className="knum"
+                    aria-label={value ? (isRes ? `Result ${resVal}` : undefined) : `${label} empty`}
+                    onClick={() => editNum(k)}
+                  >
+                    {isRes ? null : `${label} `}
+                    <span className={value ? "knum-v" : "knum-v knum-empty"} style={isRes && value ? { color: resCol, fontWeight: 500 } : undefined}>
+                      {isRes ? resVal : value || "\u00a0"}
                     </span>
                   </button>
-                ) : (
-                  <span className="num" style={{ color: resCol, fontWeight: 500 }}>
-                    {resVal}
-                  </span>
-                )}
-                <button ref={editNumBtn} type="button" className="btn btn-q" aria-expanded="false" onClick={() => openNumbers("entry")} style={{ minHeight: "28px", padding: "0 4px", fontSize: "14px" }}>
-                  <PencilIcon />
-                  Edit numbers
-                </button>
-              </div>
-            )}
+                );
+              })}
+              {s.status !== "Taken" ? (
+                <span className="num" style={{ color: resCol, fontWeight: 500 }}>
+                  {resVal}
+                </span>
+              ) : null}
+            </div>
+            {editingNum && autoResult ? <span style={{ fontSize: "12px", lineHeight: "16px", color: "var(--text-3)" }}>Result from entry, stop and exit</span> : null}
           </section>
 
           {saved ? (

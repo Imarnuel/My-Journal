@@ -44,3 +44,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | Story images and `states/` 20 | Pen icon on "Edit numbers" (DESIGN.md); only that button changed | 2026-11-20 |
 
 | `states/` 20 and story images | Editing numbers redesigned (DESIGN.md) | 2026-11-20 |
+
+| Story images and `states/` 20 | Numbers edit in place, no Edit numbers button (DESIGN.md, Editing numbers) | 2026-11-20 |
