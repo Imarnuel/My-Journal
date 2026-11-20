@@ -45,7 +45,7 @@ Written 20 November 2026, at the end of the first build session.
 | Tokens (colours, radii, motion, font) | `src/styles/tokens.css`; extra rules in `globals.css`; the prototype's stylesheet in `canvas.css` |
 | Charts (hand-drawn SVG) | `src/components/charts/` |
 | Prototype ports kept for reference | `src/screens/body/`, `logic/`, `views/` (see `docs/PORTING.md`) |
-| Questions sent to the owner during the build | `docs/DECISIONS-NEEDED.md` (1 to 16 still unanswered; 17 waits for the back end; 18 settled) |
+| Questions sent to the owner during the build | `docs/DECISIONS-NEEDED.md` (1 to 16 answered 2026-11-20; 17 waits for the back end; 18 settled) |
 
 ## Tests and reference images
 - Visual tests compare each screen at 1440px with a reference image. Approved images in
