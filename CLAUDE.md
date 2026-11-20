@@ -58,6 +58,7 @@ The installed skills live in `.agents/skills/` (linked into `.claude/skills/`). 
 | Adding a dependency the build plan doesn't name | read `.agents/skills/pick-ui-library/SKILL.md` |
 | Finishing a feature with motion | read `.agents/skills/review-animations/STANDARDS.md` and check against it |
 | Auditing motion across the app | `improve-animations`, `find-animation-opportunities`, `remove-animations` |
+| Redesigning a section, or asked to make something look better | `anthropic-skills:mobbin-ui-research` (see Working rules) |
 
 `pick-ui-library`, `review-animations`, `prototype` and `learn-taste` can only be invoked by the user (`/name`), but their files are plain guidance: read them directly when the table says so. Suggest `/learn-taste` at the end of a session with several design corrections. `write-swift` doesn't apply.
 
@@ -69,6 +70,13 @@ Library choices: the build plan names Radix UI primitives, Motion, lucide-react 
 - If a screen needs text the design doesn't have, ask. Don't invent.
 
 ## Working rules
+- **Research before a visual redesign.** When the owner asks to make a section look better, restyle it, or
+  find inspiration, search Mobbin first (`mobbin-ui-research` skill, web platform), as a senior product
+  designer would. Show the owner the references you'd draw from, each with its Mobbin link, and say what
+  you'd take from each. Then propose one direction that fits this app's own style (tokens, calm, Geist,
+  DESIGN.md principles), never a copy of another app, and build it on the owner's yes. Record the references
+  in the DESIGN.md section for the change. Small, exact corrections ("make it 12px") don't need research.
+  <!-- 2026-11-20, the owner: "add the Mobbin research as a standing instruction"; earlier: "check mobbin for inspiration… you're a senior product designer with 20+ years of experience" -->
 - Think in systems: one rule per kind of surface and control, applied on every screen. If you fix something on one screen, fix it everywhere it appears.
 - Design behaviour, not just looks: every control needs its trigger, result, every state, and what persists. The prototype shows them; click through it.
 - After any change, check every affected screen against the screenshots and the decisions list before reporting.
