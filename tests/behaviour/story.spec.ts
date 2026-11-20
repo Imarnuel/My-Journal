@@ -79,7 +79,7 @@ test("state 16: recording with timer, Cancel and Stop", async ({ page }, info) =
 test("state 17: Stop fills the notes and empty Details, toast lists them with Undo", async ({ page }, info) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(toast(page)).toContainText("Filled from your note: setup, 3 tags, plan and headspace");
   await page.mouse.move(5, 990);
   await diffViewport(page, "states/17-newstory-after-voice-note-filled.png", info);
@@ -246,7 +246,7 @@ test("Talk it through: Cancel records nothing", async ({ page }) => {
 test("voice note: Undo restores exactly; it never overwrites what was set by hand", async ({ page }) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(page.locator("#nB")).toHaveValue(/Short from last week's 4H supply zone/);
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(page.locator("#nB")).toHaveValue("");
@@ -263,7 +263,7 @@ test("voice note: Undo restores exactly; it never overwrites what was set by han
   await page.getByRole("button", { name: "Headspace" }).click();
   await page.getByRole("option", { name: "Tired" }).click();
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(toast(page)).toContainText("Filled from your note: 3 tags");
   await expect(page.locator("#nB")).toHaveValue("My own words.");
   await expect(page.getByRole("button", { name: "Setup" })).toContainText("London breakout");
@@ -275,7 +275,7 @@ test("voice note: Undo restores exactly; it never overwrites what was set by han
 test("Suggested reflection: Keep makes it yours, Delete has Undo, editing makes it yours", async ({ page }) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(page.getByText("Inferred from your note")).toBeVisible();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(page.locator("#nR")).toHaveValue("");
@@ -294,7 +294,7 @@ test("re-record fills only what is still empty", async ({ page }) => {
   await page.locator("#nB").fill("Kept as typed.");
   await page.getByRole("button", { name: "Re-record" }).click();
   await expect(page.getByText(/Listening/)).toBeVisible();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(toast(page)).toContainText("Both notes filled from your voice note");
   await expect(page.locator("#nB")).toHaveValue("Kept as typed.");
   await expect(page.locator("#nR")).toHaveValue(/Waiting for the candle/);
@@ -332,7 +332,7 @@ test("notes are editable in place and a saved story saves them at once", async (
 test("frame 16: Couldn't make out your note; Record again records, Type instead focuses Before / during", async ({ page }) => {
   await page.goto("/new?voice=unclear");
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(page.getByText("Couldn't make out your note")).toBeVisible();
   await expect(page.getByText("Too much background noise. Nothing was filled in, so nothing wrong was saved.")).toBeVisible();
   await expect(page.locator("#nB")).toHaveValue("");
@@ -340,7 +340,7 @@ test("frame 16: Couldn't make out your note; Record again records, Type instead 
   await page.getByRole("button", { name: "Type instead" }).click();
   await expect(page.locator("#nB")).toBeFocused();
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await page.getByRole("button", { name: "Record again" }).click();
   await expect(page.getByText(/Listening/)).toBeVisible();
 });
@@ -420,18 +420,60 @@ test("Plan: Followed / Not followed, click again to clear", async ({ page }) => 
 
 // ---------- numbers
 
-test("Edit numbers: live inputs; Result updates the header and the shared store", async ({ page }) => {
+test("Edit numbers: the line becomes six fields; nothing shows twice; Close puts the line back", async ({ page }) => {
   await openStory(page);
   await page.getByRole("button", { name: "Edit numbers" }).click();
-  await facts(page).getByLabel("Exit", { exact: true }).fill("1.27010");
-  await facts(page).getByLabel("Result", { exact: true }).fill("−1.0R");
-  await expect(page.locator("header .num")).toHaveText("−1.0R");
-  await expect(facts(page)).toContainText("Exit 1.27010");
-  await page.getByRole("button", { name: "Done", exact: true }).first().click();
+  await expect(facts(page).getByLabel("Entry", { exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Entry 1.26840" })).toHaveCount(0); // the read-only line is gone
+  await expect(page.getByRole("button", { name: "Edit numbers" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(facts(page).getByLabel("Entry", { exact: true })).toHaveCount(0);
-  const e = await store<{ r: number; numbers: { exit: string } }>(page, `return s.getState().entries.find((e) => e.id === "e20")`);
-  expect(e.r).toBe(-1);
-  expect(e.numbers.exit).toBe("1.27010");
+  await expect(page.getByRole("button", { name: "Edit numbers" })).toBeFocused();
+});
+
+test("Edit numbers: clicking a number opens the fields with it focused; Enter moves on, Escape closes", async ({ page }) => {
+  await openStory(page);
+  await page.getByRole("button", { name: "Stop 1.27010" }).click();
+  const stop = facts(page).getByLabel("Stop", { exact: true });
+  await expect(stop).toBeFocused();
+  // The whole value is selected, so typing replaces it.
+  expect(await stop.evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd])).toEqual([0, 7]);
+  await page.keyboard.press("Enter");
+  await expect(facts(page).getByLabel("Target", { exact: true })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(facts(page).getByLabel("Target", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Edit numbers" })).toBeFocused();
+  // Enter on the last field closes too.
+  await page.getByRole("button", { name: "Result +2.1R" }).click();
+  await expect(facts(page).getByLabel("Result", { exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(facts(page).getByLabel("Result", { exact: true })).toHaveCount(0);
+});
+
+test("Edit numbers: the result works itself out from the prices, a typed result is kept, clearing hands it back", async ({ page }) => {
+  await openStory(page);
+  // Opening the story leaves its result alone (MT5 results only change when you edit a price).
+  expect(await store<number>(page, `return s.getState().entries.find((e) => e.id === "e20").r`)).toBe(2.1);
+  await page.getByRole("button", { name: "Exit 1.26482" }).click();
+  const result = facts(page).getByLabel("Result", { exact: true });
+  await facts(page).getByLabel("Exit", { exact: true }).fill("1.26300"); // short: (1.26840 − 1.26300) / 0.00170
+  await expect(result).toHaveValue("+3.2R");
+  await expect(facts(page)).toContainText("Result from entry, stop and exit");
+  await expect(page.locator("header .num")).toHaveText("+3.2R");
+  // Typed by hand: kept, and prices no longer change it.
+  await result.fill("+3.0R");
+  await expect(facts(page)).not.toContainText("Result from entry, stop and exit");
+  await facts(page).getByLabel("Exit", { exact: true }).fill("1.27010");
+  await expect(result).toHaveValue("+3.0R");
+  let e = await store<{ r: number; rByHand: boolean; numbers: { exit: string } }>(page, `return s.getState().entries.find((e) => e.id === "e20")`);
+  expect(e).toMatchObject({ r: 3, rByHand: true, numbers: { exit: "1.27010" } });
+  // Cleared: back to the prices (exit at the stop is −1R).
+  await result.fill("");
+  await facts(page).getByLabel("Exit", { exact: true }).focus();
+  await expect(result).toHaveValue("−1.0R");
+  await expect(facts(page)).toContainText("Result from entry, stop and exit");
+  e = await store(page, `return s.getState().entries.find((e) => e.id === "e20")`);
+  expect(e).toMatchObject({ r: -1, rByHand: false });
 });
 
 // ---------- charts
@@ -693,7 +735,7 @@ test("Save story adds the entry to the store and opens the saved story", async (
   await page.goto("/new");
   const n = await store<number>(page, `return s.getState().entries.length`);
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await page.getByRole("button", { name: "Save story" }).click();
   await expect(page).toHaveURL(/\/story\/e\d+$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("GBPUSD");
@@ -750,7 +792,7 @@ for (const [name, go] of [
     async (p: Page, q: string) => {
       await p.goto(`/new?${q}`);
       await p.getByRole("button", { name: "Talk it through" }).click();
-      await p.getByRole("button", { name: "Stop" }).click();
+      await p.getByRole("button", { name: "Stop", exact: true }).click();
       await p.getByRole("button", { name: "What you said" }).click();
     },
   ],
@@ -775,7 +817,7 @@ for (const [name, go] of [
     async (p: Page, q: string) => {
       await p.goto(`/new?voice=unclear&charts=unreadable&${q}`);
       await p.getByRole("button", { name: "Talk it through" }).click();
-      await p.getByRole("button", { name: "Stop" }).click();
+      await p.getByRole("button", { name: "Stop", exact: true }).click();
       await p.getByText("Couldn't make out your note").waitFor();
     },
   ],
@@ -799,7 +841,7 @@ test("reduced motion: recording, menus and toasts still work", async ({ page }) 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop" }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(toast(page)).toBeVisible();
   await page.getByRole("button", { name: "Headspace" }).click();
   await page.getByRole("option", { name: "Focused" }).click();

@@ -223,3 +223,21 @@ directly. Sizes, weights, line heights and tracking are unchanged; tabular figur
 ## Edit numbers has a pen
 On a trade's story, "Edit numbers" leads with the 16px `pen-line` icon used for Rename and Edit rules, so it
 reads as an action. While the numbers are open the button says "Done" without an icon.
+
+## Editing numbers
+Overrides `01-decisions.md` ("…with 'Edit numbers', which opens six live inputs") in how it opens and what
+the result does. Why: the owner wanted a better experience; the numbers showed twice, there were two "Done"
+buttons, the fields didn't look like fields and the result had to be typed although the prices give it.
+Same on New chart story and the chart story page. Source: `ChartStory.tsx`, `rFromPrices` in `src/lib/story.ts`.
+- **The line is the editor**: "Edit numbers" (or clicking any number in the line, which has the facts'
+  dashed underline) swaps the line for six fields in the same place, with that field focused and its value
+  selected. Nothing shows twice.
+- **Fields look like fields**: bordered and inset like the note fields, 32px, labels 4px above. Prices get
+  the number keypad on phones.
+- **The result works itself out**: (exit − entry) / (entry − stop), the same sum for a long and a short,
+  whenever you edit entry, stop or exit, and "Result from entry, stop and exit" says so. Typing a result
+  keeps yours (prices then leave it alone); clearing it hands it back to the prices. Opening a story never
+  changes a result; MT5 results only change when you edit a price.
+- **Keyboard**: Enter moves to the next field; Enter on Result, or Escape, closes and puts focus back on
+  "Edit numbers". Changes save as you type.
+- **One meaning per word**: the fields close with "Close"; "Done" only means leaving the story.

@@ -42,3 +42,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | Every image | Typeface changed to Geist (DESIGN.md); checked dashboard and story in both themes | 2026-11-20 |
 
 | Story images and `states/` 20 | Pen icon on "Edit numbers" (DESIGN.md); only that button changed | 2026-11-20 |
+
+| `states/` 20 and story images | Editing numbers redesigned (DESIGN.md) | 2026-11-20 |

@@ -144,3 +144,23 @@ describe("voice note (simulated pipeline)", () => {
     ]);
   });
 });
+
+describe("result from the prices (DESIGN.md, Editing numbers)", () => {
+  it("works out R the same way for a short and a long", async () => {
+    const { rFromPrices } = await import("./story");
+    // The canvas trade: short 1.26840, stop 1.27010, exit 1.26482 is +2.1R.
+    expect(rFromPrices({ entry: "1.26840", stop: "1.27010", exit: "1.26482" }, "Short")).toBe(2.11);
+    expect(rFromPrices({ entry: "1.1000", stop: "1.0950", exit: "1.1100" }, "Long")).toBe(2);
+    expect(rFromPrices({ entry: "1.1000", stop: "1.0950", exit: "1.0950" }, "Long")).toBe(-1);
+    expect(rFromPrices({ entry: "1.1000", stop: "1.0950", exit: "1.1000" }, "Long")).toBe(0);
+  });
+  it("accepts a decimal comma and gives nothing for a missing price, no risk or a stop on the wrong side", async () => {
+    const { rFromPrices, parsePrice } = await import("./story");
+    expect(parsePrice("1,26840")).toBe(1.2684);
+    expect(parsePrice("0.50 lots")).toBeNull();
+    expect(rFromPrices({ entry: "1.1", stop: "", exit: "1.2" }, "Long")).toBeNull();
+    expect(rFromPrices({ entry: "1.1", stop: "1.1", exit: "1.2" }, "Long")).toBeNull();
+    expect(rFromPrices({ entry: "1.1", stop: "1.2", exit: "1.0" }, "Long")).toBeNull();
+    expect(rFromPrices({ entry: "1.1", stop: "1.2", exit: "1.0" }, null)).toBe(1);
+  });
+});

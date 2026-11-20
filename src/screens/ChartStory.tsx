@@ -30,6 +30,7 @@ import {
   niceTag,
   ordinal,
   parseR,
+  rFromPrices,
   prevOf,
   sessionOf,
   storyFromEntry,
@@ -110,7 +111,8 @@ function StoryScreen({ id }: { id: string | null }) {
   const playT = useRef<ReturnType<typeof setInterval>>(undefined);
   const tileGrid = useRef<HTMLDivElement>(null);
   const replaceInput = useRef<HTMLInputElement>(null);
-  const firstNum = useRef<HTMLInputElement>(null);
+  const numRefs = useRef<Partial<Record<keyof Numbers | "result", HTMLInputElement | null>>>({});
+  const editNumBtn = useRef<HTMLButtonElement>(null);
 
   useEffect(
     () => () => {
@@ -354,7 +356,36 @@ function StoryScreen({ id }: { id: string | null }) {
   const dirChip = s.status === "Analysis" ? "Analysis" : s.dir;
   const resVal = s.status === "Taken" ? (s.r != null ? fr(s.r) : "No result yet") : s.status;
   const resCol = s.status !== "Taken" || s.r == null ? "var(--text-2)" : tone(s.r);
-  const numLine = (["entry", "stop", "target", "exit"] as const).filter((k) => s.numbers[k]).map((k) => `${k[0].toUpperCase()}${k.slice(1)} ${s.numbers[k]}`);
+  // Editing numbers (DESIGN.md): the line becomes the editor; the result works itself out from the prices
+  // unless it was typed by hand.
+  const autoR = rFromPrices(s.numbers, s.dir);
+  // Say where the result came from only when it truly is the worked-out one.
+  const autoResult = !s.rByHand && autoR != null && s.r != null && Math.round(autoR * 10) === Math.round(s.r * 10);
+  const openNumbers = (k: keyof Numbers | "result" = "entry") => {
+    setNumOpen(true);
+    setResDraft(null);
+    requestAnimationFrame(() => numRefs.current[k]?.focus());
+  };
+  const closeNumbers = () => {
+    setNumOpen(false);
+    setResDraft(null);
+    requestAnimationFrame(() => editNumBtn.current?.focus());
+  };
+  const setPrice = (k: keyof Numbers, v: string) => {
+    const numbers = { ...s.numbers, [k]: v };
+    const patch: Partial<Story> = { numbers };
+    if ((k === "entry" || k === "stop" || k === "exit") && !s.rByHand) {
+      const r = rFromPrices(numbers, s.dir);
+      if (r != null) patch.r = r;
+    }
+    update(patch);
+  };
+  const setResult = (v: string) => {
+    setResDraft(v);
+    // Clearing the result hands it back to the prices; anything typed is kept as yours.
+    if (v.trim() === "") update({ rByHand: false, r: autoR });
+    else update({ r: parseR(v), rByHand: true });
+  };
   const acctNames = accounts.filter((a) => !a.archived).map((a) => a.name);
   const setupNames = setups.filter((x) => !x.archived).map((x) => x.name);
 
@@ -613,8 +644,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   className="btn btn-q"
                   onClick={() => {
                     setUnreadable(false);
-                    setNumOpen(true);
-                    requestAnimationFrame(() => firstNum.current?.focus());
+                    openNumbers("entry");
                   }}
                 >
                   Type the numbers
@@ -1003,61 +1033,78 @@ function StoryScreen({ id }: { id: string | null }) {
                 ) : null}
               </span>
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", fontSize: "14px", color: "var(--text-2)", paddingTop: "4px" }}>
-              {numLine.map((x) => (
-                <span key={x} className="num">
-                  {x}
-                </span>
-              ))}
-              <span className="num" style={{ color: resCol, fontWeight: 500 }}>
-                {resVal}
-              </span>
-              <button
-                type="button"
-                className="btn btn-q"
-                aria-expanded={numOpen ? "true" : "false"}
-                onClick={() => {
-                  setNumOpen(!numOpen);
-                  setResDraft(null);
-                }}
-                style={{ minHeight: "28px", padding: "0 4px", fontSize: "14px" }}
-              >
-                {numOpen ? (
-                  "Done"
-                ) : (
-                  <>
-                    <PencilIcon />
-                    Edit numbers
-                  </>
-                )}
-              </button>
-            </div>
             {numOpen ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "8px 8px", paddingTop: "8px" }}>
-                {NUMBER_FIELDS.map((f, i) => (
-                  <label key={f.key} style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
-                    <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-                      {f.label}
-                    </span>
-                    <input
-                      ref={i === 0 ? firstNum : undefined}
-                      className="ghost num"
-                      type="text"
-                      value={f.key === "result" ? resDraft ?? (s.r != null ? fr(s.r) : "") : s.numbers[f.key as keyof Numbers]}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (f.key === "result") {
-                          setResDraft(v);
-                          update({ r: parseR(v) });
-                        } else update({ numbers: { ...s.numbers, [f.key]: v } });
-                      }}
-                      placeholder="Type it"
-                      style={{ margin: 0, width: "100%", boxSizing: "border-box", padding: "0 8px", fontSize: "14px", fontWeight: 500, minHeight: "32px" }}
-                    />
-                  </label>
-                ))}
+              <div role="group" aria-label="Numbers" style={{ display: "flex", flexDirection: "column", gap: "8px", paddingTop: "4px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px 8px" }}>
+                  {NUMBER_FIELDS.map((f, i) => {
+                    const isRes = f.key === "result";
+                    return (
+                      <label key={f.key} style={{ display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}>
+                        <span style={{ fontSize: "12px", lineHeight: "16px", color: "var(--text-2)" }}>{f.label}</span>
+                        <input
+                          ref={(el) => {
+                            numRefs.current[f.key] = el;
+                          }}
+                          className="kfield num"
+                          type="text"
+                          inputMode={f.key === "size" ? "text" : "decimal"}
+                          autoComplete="off"
+                          enterKeyHint={i === NUMBER_FIELDS.length - 1 ? "done" : "next"}
+                          value={isRes ? resDraft ?? (s.r != null ? fr(s.r) : "") : s.numbers[f.key as keyof Numbers]}
+                          onFocus={(e) => e.currentTarget.select()}
+                          onChange={(e) => (isRes ? setResult(e.target.value) : setPrice(f.key as keyof Numbers, e.target.value))}
+                          onBlur={() => isRes && setResDraft(null)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              closeNumbers();
+                            } else if (e.key === "Enter") {
+                              e.preventDefault();
+                              const next = NUMBER_FIELDS[i + 1];
+                              if (next) numRefs.current[next.key]?.focus();
+                              else closeNumbers();
+                            }
+                          }}
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                  <span style={{ fontSize: "12px", lineHeight: "16px", color: "var(--text-3)" }}>{autoResult ? "Result from entry, stop and exit" : ""}</span>
+                  <button type="button" className="btn btn-q" onClick={closeNumbers} style={{ minHeight: "28px", padding: "0 8px", fontSize: "14px" }}>
+                    Close
+                  </button>
+                </div>
               </div>
-            ) : null}
+            ) : (
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px", fontSize: "14px", color: "var(--text-2)", paddingTop: "4px" }}>
+                {(["entry", "stop", "target", "exit"] as const)
+                  .filter((k) => s.numbers[k])
+                  .map((k) => (
+                    <button key={k} type="button" className="knum" onClick={() => openNumbers(k)}>
+                      {`${k[0].toUpperCase()}${k.slice(1)} `}
+                      <span className="knum-v">{s.numbers[k]}</span>
+                    </button>
+                  ))}
+                {s.status === "Taken" ? (
+                  <button type="button" className="knum" onClick={() => openNumbers("result")} aria-label={`Result ${resVal}`}>
+                    <span className="knum-v" style={{ color: resCol, fontWeight: 500 }}>
+                      {resVal}
+                    </span>
+                  </button>
+                ) : (
+                  <span className="num" style={{ color: resCol, fontWeight: 500 }}>
+                    {resVal}
+                  </span>
+                )}
+                <button ref={editNumBtn} type="button" className="btn btn-q" aria-expanded="false" onClick={() => openNumbers("entry")} style={{ minHeight: "28px", padding: "0 4px", fontSize: "14px" }}>
+                  <PencilIcon />
+                  Edit numbers
+                </button>
+              </div>
+            )}
           </section>
 
           {saved ? (

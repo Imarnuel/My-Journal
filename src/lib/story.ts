@@ -18,6 +18,8 @@ export type Story = {
   session: Session;
   numbers: Numbers;
   r: number | null;
+  /** The result was typed by hand; editing the prices then leaves it alone. */
+  rByHand: boolean;
   charts: string[]; // chart keys (placeholder drawings) or image URLs, in the user's order
   before: string;
   refl: string;
@@ -71,6 +73,30 @@ export function parseR(s: string): number | null {
   const t = s.trim().replace(MINUS, "-").replace(/r$/i, "").trim();
   if (!t || !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(t)) return null;
   return Number(t);
+}
+
+/** A price as typed: "1.26840", or "1,26840" with a decimal comma. Anything else is null. */
+export function parsePrice(s: string): number | null {
+  const t = s.trim().replace(",", ".");
+  if (!t || !/^(\d+\.?\d*|\.\d+)$/.test(t)) return null;
+  return Number(t);
+}
+
+/**
+ * The result in R from the prices (DESIGN.md, Editing numbers): (exit − entry) / (entry − stop), which is
+ * the same sum for a long and a short. Null when a price is missing, there's no risk, or the stop is on the
+ * wrong side for the direction. Two decimals, like expectancy.
+ */
+export function rFromPrices(n: Pick<Numbers, "entry" | "stop" | "exit">, dir: Dir | null): number | null {
+  const entry = parsePrice(n.entry);
+  const stop = parsePrice(n.stop);
+  const exit = parsePrice(n.exit);
+  if (entry == null || stop == null || exit == null) return null;
+  const risk = entry - stop;
+  if (risk === 0) return null;
+  if ((dir === "Long" && risk < 0) || (dir === "Short" && risk > 0)) return null;
+  const r = (exit - entry) / risk;
+  return Math.round(r * 100) / 100 || 0;
 }
 
 /** m:ss for the recording timer and playback. */
@@ -127,6 +153,7 @@ export function storyFromEntry(e: Entry, overlay: StoryExtras | undefined, extra
     session: e.session,
     numbers: n,
     r: e.r,
+    rByHand: !!e.rByHand,
     charts: e.chartList ?? o?.chartList ?? placeholderCharts(e),
     before: e.before ?? o?.before ?? (e.status === "Analysis" ? e.plan ?? "" : ""),
     refl: e.refl ?? o?.refl ?? "",
@@ -156,6 +183,7 @@ export function entryPatch(e: Entry, cur: Story, p: Partial<Story>, kindOf: (t: 
   if (e.before === undefined) {
     Object.assign(out, { before: cur.before, refl: cur.refl || null, suggested: cur.suggested, headspace: cur.headspace, transcript: cur.transcript || null, chartList: cur.charts, numbers: cur.numbers });
   }
+  if ("rByHand" in p) out.rByHand = p.rByHand!;
   if ("pair" in p) out.pair = p.pair!;
   if ("dir" in p) out.dir = p.dir!;
   if ("status" in p) out.status = p.status!;
@@ -220,6 +248,7 @@ export function entryFromStory(id: string, s: Story, kindOf: (t: string) => TagK
     transcript: s.transcript || null,
     chartList: s.charts,
     numbers: s.numbers,
+    rByHand: s.rByHand,
   };
 }
 

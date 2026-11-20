@@ -42,6 +42,7 @@ export function newStoryStart(): Story {
     session: "London",
     numbers: { entry: "1.26840", stop: "1.27010", target: "1.26480", exit: "1.26482", size: "0.50 lots" },
     r: 2.1,
+    rByHand: false,
     charts: ["gW", "gD", "g4H", "gE"],
     before: "",
     refl: "",

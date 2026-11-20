@@ -33,6 +33,7 @@ export type Entry = {
   transcript?: string | null;
   chartList?: string[]; // chart keys or image URLs, in the user's order
   numbers?: { entry?: string; stop?: string; target?: string; exit?: string; size?: string };
+  rByHand?: boolean; // the result was typed, so editing the prices doesn't work it out again (DESIGN.md, Editing numbers)
   shortTrade?: "ask" | "counted" | "left-out"; // very short trade prompt (Count it / Leave it out)
 };
 

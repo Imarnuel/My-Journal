@@ -13,7 +13,7 @@ for (const theme of ["light", "dark"] as const) {
   test(`06-NewStoryTyped ${theme} (after the voice note)`, async ({ page }, info) => {
     await page.goto(`/new?theme=${theme}`);
     await page.getByRole("button", { name: "Talk it through" }).click();
-    await page.getByRole("button", { name: "Stop" }).click();
+    await page.getByRole("button", { name: "Stop", exact: true }).click();
     await expect(page.getByText("Suggested", { exact: true })).toBeVisible();
     await toastGone(page);
     await page.locator("body").click({ position: { x: 5, y: 900 } });
