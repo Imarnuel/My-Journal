@@ -2,12 +2,48 @@
 // Screens read from here and never keep their own copy of the numbers.
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { persistOptions, toDataUrl } from "./persist";
+import { idbStorage, persistOptions, toDataUrl } from "./persist";
 import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
-import { seedAccounts, seedEntries, seedTags, seedWeeks, TODAY } from "./seed";
+import { SAMPLE_BOS_IDS, SAMPLE_BOS_TAG, seedAccounts, seedEntries, seedTags, seedWeeks, SHORT_TRADE, TODAY } from "./seed";
 import { fadeTheme } from "../components/primitives/motion";
 
 export type Appearance = "system" | "light" | "dark";
+
+/**
+ * Version of the saved journal data. 2 (2026-11-20): the very short USDCHF trade became a real entry and two
+ * sample trades got the "BOS" tag (the owner's answers to open questions 4 and 6).
+ */
+const STORE_VERSION = 2;
+type Saved = { entries?: Entry[]; tags?: Tag[] } & Record<string, unknown>;
+
+/**
+ * Bring data saved by an older version up to date without losing anything the owner changed: add what's
+ * missing, never overwrite. The short trade keeps the answer saved by the old Trade log prompt, if any.
+ */
+export async function migrateData(saved: Saved, from: number): Promise<Saved> {
+  if (from >= 2 || !saved.entries) return saved;
+  let entries = saved.entries;
+  if (!entries.some((e) => e.id === SHORT_TRADE.id)) {
+    let short: Entry = SHORT_TRADE;
+    try {
+      const old = await idbStorage.getItem("journal:tradelog");
+      const answer = old ? (JSON.parse(old as string)?.state?.short as Partial<Entry> | undefined) : undefined;
+      if (answer?.shortTrade) short = { ...short, shortTrade: answer.shortTrade, excluded: !!answer.excluded };
+      await idbStorage.removeItem("journal:tradelog");
+    } catch {
+      /* keep the default: it counts and the prompt asks again */
+    }
+    entries = [...entries, short];
+  }
+  const tags = saved.tags ?? [];
+  // Only when the owner hasn't already got a BOS tag of their own, or merged the drawn BOS prompt already.
+  const merged = ((saved.settings as Record<string, unknown> | undefined)?.mergedLookalikes as string[] | undefined) ?? [];
+  if (!tags.some((t) => t.t === SAMPLE_BOS_TAG.t) && !merged.some((k) => k.startsWith("BOS>"))) {
+    entries = entries.map((e) => (SAMPLE_BOS_IDS.includes(e.id) && !e.tags.includes("BOS") ? { ...e, tags: [...e.tags, "BOS"] } : e));
+    return { ...saved, entries, tags: [...tags, SAMPLE_BOS_TAG] };
+  }
+  return { ...saved, entries };
+}
 
 export type Rules = { Context: string[]; Entry: string[]; Exit: string[] };
 export type Setup = { name: string; chart: string; rules: Rules; archived: boolean };
@@ -134,6 +170,8 @@ export const useStore = create<State>()(
   {
     name: "journal:data",
     ...persistOptions,
+    version: STORE_VERSION,
+    migrate: (saved, from) => migrateData(saved as Saved, from),
     // Only the data is saved; actions are recreated, and Appearance has its own key (read before first paint).
     partialize: (s) => ({ entries: s.entries, accounts: s.accounts, tags: s.tags, weeks: s.weeks, picked: s.picked, setups: s.setups, settings: s.settings }),
   },

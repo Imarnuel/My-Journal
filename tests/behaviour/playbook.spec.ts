@@ -122,8 +122,12 @@ test.describe("playbook home", () => {
     await diffAgainst(page, "states/27-playbook-archived-setups-open.png", info);
     await page.getByRole("button", { name: "Restore" }).click();
     await expect(card(page, "London breakout")).toBeVisible();
+    await expect(status(page)).toContainText("London breakout restored");
     await expect(page.getByRole("button", { name: "Archived setups (0)" })).toBeVisible();
     await expect(page.getByText("Nothing archived. Archive a setup you've stopped trading; its stories and examples stay.")).toBeVisible();
+    await undo(page).click();
+    await expect(card(page, "London breakout")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Archived setups (1)" })).toBeVisible();
   });
 
   test("archive Undo restores exactly", async ({ page }) => {
@@ -294,6 +298,17 @@ test.describe("setup page", () => {
     await page.getByRole("tab", { name: /Lessons/ }).click();
     await page.getByRole("link", { name: "XAUUSD · 12 Nov" }).click();
     await expect(page).toHaveURL(/\/story\/e15$/);
+  });
+
+  test("Lessons: the tab counts every reflection; five show, then Show more", async ({ page }) => {
+    await page.goto(URL);
+    await expect(page.getByRole("tab", { name: /Lessons/ })).toContainText("10");
+    await page.getByRole("tab", { name: /Lessons/ }).click();
+    const items = page.locator("#panel-les li");
+    await expect(items).toHaveCount(5);
+    await page.getByRole("button", { name: "Show 5 more of 5" }).click();
+    await expect(items).toHaveCount(10);
+    await expect(page.getByRole("button", { name: /Show \d+ more/ })).toHaveCount(0);
   });
 
   test("Not now hides the suggestion everywhere; Undo brings it back", async ({ page }) => {

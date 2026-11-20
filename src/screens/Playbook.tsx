@@ -327,7 +327,14 @@ export function Playbook() {
             <div key={a.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 4px", borderTop: "1px solid var(--border-subtle)" }}>
               <span style={{ fontSize: "14px" }}>{a.name}</span>
               <span className="lbl">{`${storiesIn(a.name)} stories kept`}</span>
-              <button type="button" className="btn btn-q" onClick={() => setArchived(a.name, false)}>
+              <button
+                type="button"
+                className="btn btn-q"
+                onClick={() => {
+                  setArchived(a.name, false);
+                  toast(`${a.name} restored`, () => setArchived(a.name, true), "restored");
+                }}
+              >
                 Restore
               </button>
             </div>

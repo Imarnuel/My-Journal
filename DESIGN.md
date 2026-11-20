@@ -84,6 +84,9 @@ reason, replace it.
 ## Voice note
 - **Re-record is a labelled button** ("Re-record" with the mic), not a bare icon, so it can be found. It
   records a new note and, like the first one, fills only what is still empty.
+- **When a note can't be made out, the card offers only "Record again".** No "Type instead": the two note
+  boxes (Before / during, Reflection) sit right below it and can always be typed in. Why: the owner pointed out
+  the typing boxes are already there, so the button repeated them (open question 10, 2026-11-20).
 
 ## Headspace
 - **Each headspace has an emoji beside its name**: Calm 😌, Confident 😎, Focused 🧐, Rushed 😬, Tired 😴,
@@ -296,3 +299,44 @@ Source: `src/screens/Accounts.tsx`, `AddAccount.tsx`.
 - **Add account without MT5** shows only "You'll confirm each trade's numbers from your screenshot instead."
   The "Make this the default…" checkbox is gone.
 - A chart story's account is chosen on the story itself, as before.
+
+## Answers to the build's open questions (2026-11-20)
+The owner answered `docs/DECISIONS-NEEDED.md` one question at a time. Those kept as built are listed there;
+the ones below changed something. Question 1 has its own section above (Accounts: no default for screenshots),
+question 10 is under Voice note.
+
+### Very short trade (question 4)
+- **The USDCHF trade that closed after 8 seconds (MT5 #48240, −0.1R) is a real entry**, not something only
+  the Trade log prompt holds. It shows in the log and, as `01-decisions.md` says, counts in every number
+  unless the owner picks "Leave it out" (Undo either way). So the sample journal has 135 entries and this
+  month's Net R reads +7.5R rather than the frame's +7.6R. Why: "Count it" and "Leave it out" must really
+  do what they say. Source: `SHORT_TRADE` in `src/data/seed.ts`.
+- **A very short trade isn't asked for charts**: the Dashboard's no-charts notice skips it (it stays on the
+  EURUSD trade). The Trade log already asks one question about it, and one question at a time is enough.
+  *Claude's call, flagged to the owner for a yes.*
+- Unit tests still check every designed number against the handoff's own 134 entries (`handoffEntries`).
+
+### Sample BOS tag (question 6)
+- **Two sample trades carry a "BOS" tag** (AUDUSD 21 Oct, NZDUSD 6 Oct), so Settings › Your tags lists
+  "BOS" (2) and its "looks like Break of structure" prompt is real: Merge moves both trades to Break of
+  structure (18 to 20), with Undo. Why: the preview shows every feature working (Principles). Source:
+  `SAMPLE_BOS_IDS` in `src/data/seed.ts`.
+- Journals saved before this get the short trade and the BOS tags added once, without touching anything the
+  owner changed (`migrateData` in `src/data/store.ts`, saved data version 2).
+
+### Start screen (question 9)
+- "What to expect" opens with **"Whenever you trade"**, not "Every trading day". Why: the user may not trade
+  every day, and nothing should imply a routine to fall behind on.
+
+### Lessons tab (question 11)
+- **Every reflection in the setup is listed, newest first, five at a time**, with "Show 5 more of 5" under
+  them (the Examples tab's pattern). The tab count is the real total ("Lessons 10"). Why: lists never cut
+  history off.
+
+### Weekly review with no trades (question 13)
+- When the ticked accounts have no traded week, the page shows its title, the account picker and one line,
+  **"No trades on these accounts yet"** (16/500, centred), in place of the review and the empty Past weeks.
+
+### Restoring shows a toast (question 14)
+- **Restoring an archived setup shows "London breakout restored" with Undo**, the same as restoring an
+  account. One behaviour per kind of control.

@@ -62,7 +62,7 @@ export function TradeLog() {
   const updateEntry = useStore((s) => s.updateEntry);
   const removeEntry = useStore((s) => s.removeEntry);
   const restoreEntry = useStore((s) => s.restoreEntry);
-  const { filters: f, sort, limit, short, setFilters, setSort, setLimit, setShort } = useTradeLog();
+  const { filters: f, sort, limit, setFilters, setSort, setLimit } = useTradeLog();
 
   const [picking, setPicking] = useState(false);
   const [pFrom, setPFrom] = useState("");
@@ -152,12 +152,11 @@ export function TradeLog() {
   });
 
   // ---- The very short trade prompt (one at a time, above the list, hidden while filtering) ----
-  const asking = [...entries.filter((e) => e.shortTrade === "ask" && SHORT_SECONDS[e.id] != null), short].find((e) => e.shortTrade === "ask");
-  const inStore = !!asking && entries.some((e) => e.id === asking.id);
+  const asking = entries.find((e) => e.shortTrade === "ask" && SHORT_SECONDS[e.id] != null);
   const answer = (e: Entry, a: "counted" | "left-out") => {
     const was = { shortTrade: e.shortTrade, excluded: e.excluded };
     const patch = { shortTrade: a, excluded: a === "left-out" ? true : e.excluded };
-    const apply = (p: Partial<Entry>) => (inStore ? updateEntry(e.id, p) : setShort(p));
+    const apply = (p: Partial<Entry>) => updateEntry(e.id, p);
     apply(patch);
     act(a === "counted" ? `${e.pair} counts in your stats` : `${e.pair} left out of your stats`, () => apply(was), a === "counted" ? "done" : "hidden");
   };

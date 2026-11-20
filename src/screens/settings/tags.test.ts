@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { seedEntries, seedTags } from "../../data/seed";
+import { handoffEntries, handoffTags } from "../../data/seed";
 import type { Entry } from "../../lib/types";
 import { findLookalikes, mergeTags, renameTag, retagEntries, tagMix, usedLabel, validRename } from "./tags";
 
@@ -7,8 +7,8 @@ const entry = (id: string, tags: string[], mistakes: string[] = []) => ({ id, ta
 
 describe("Settings tags", () => {
   it("kind breakdown matches the frame with the sample tags", () => {
-    expect(seedTags).toHaveLength(13);
-    expect(tagMix(seedTags)).toBe("7 good · 3 mistakes · 3 neutral");
+    expect(handoffTags).toHaveLength(13);
+    expect(tagMix(handoffTags)).toBe("7 good · 3 mistakes · 3 neutral");
     expect(tagMix([{ t: "a", n: 1, k: "Mistake" }])).toBe("0 good · 1 mistake · 0 neutral");
   });
 
@@ -30,14 +30,14 @@ describe("Settings tags", () => {
   });
 
   it("sample data: Break of structure is on 18 entries", () => {
-    expect(retagEntries(seedEntries, "Break of structure", "x").patches).toHaveLength(18);
+    expect(retagEntries(handoffEntries, "Break of structure", "x").patches).toHaveLength(18);
   });
 
   it("rename keeps a unique, non-empty name", () => {
-    expect(validRename(seedTags, "Retest", "Retest of zone")).toBe(true);
-    expect(validRename(seedTags, "Retest", "  ")).toBe(false);
-    expect(validRename(seedTags, "Retest", "supply zone")).toBe(false);
-    expect(renameTag(seedTags, "Retest", " Retest of zone ").find((t) => t.n === 7 && t.t.startsWith("Retest"))?.t).toBe("Retest of zone");
+    expect(validRename(handoffTags, "Retest", "Retest of zone")).toBe(true);
+    expect(validRename(handoffTags, "Retest", "  ")).toBe(false);
+    expect(validRename(handoffTags, "Retest", "supply zone")).toBe(false);
+    expect(renameTag(handoffTags, "Retest", " Retest of zone ").find((t) => t.n === 7 && t.t.startsWith("Retest"))?.t).toBe("Retest of zone");
   });
 
   it("merge keeps one tag with both counts", () => {
@@ -48,6 +48,6 @@ describe("Settings tags", () => {
   it("look-alikes: abbreviations and spelling variants, none in the sample tags", () => {
     expect(findLookalikes(["Break of structure", "BOS", "Retest"])).toEqual([{ from: "BOS", into: "Break of structure" }]);
     expect(findLookalikes(["Supply zones", "supply zone"])).toEqual([{ from: "supply zone", into: "Supply zones" }]);
-    expect(findLookalikes(seedTags.map((t) => t.t))).toEqual([]);
+    expect(findLookalikes(handoffTags.map((t) => t.t))).toEqual([]);
   });
 });

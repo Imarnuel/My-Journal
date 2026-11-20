@@ -1,6 +1,6 @@
 // Frame 01 · Start: first run (connect an account, add setups, log the first trade). No sidebar item.
 // Markup from handoff/prototype/Start.dc.html; step 1 names the first account in the shared store.
-// "Every trading day" is built as drawn; 06-open-items.md item 3 suggests "Whenever you trade" (owner to decide).
+// "Whenever you trade", not the frame's "Every trading day": the owner's answer to 06-open-items.md item 3 (DESIGN.md).
 import { Link } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
@@ -12,7 +12,7 @@ const title = { fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const
 const expectRow = { display: "grid", gridTemplateColumns: "160px minmax(0, 1fr)", gap: "16px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)" } as const;
 
 const EXPECT: [string, string][] = [
-  ["Every trading day", "One chart story per trade or setup: its screenshots, and a note if you like."],
+  ["Whenever you trade", "One chart story per trade or setup: its screenshots, and a note if you like."],
   ["Every week", "A short look back at your week's charts and reflections, and one thing to do differently. Only if you traded."],
   ["After about 20 trades", "Your first setup patterns, marked as early signals until there's enough data to trust."],
 ];

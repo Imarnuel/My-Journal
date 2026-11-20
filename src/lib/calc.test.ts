@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { seedEntries, TODAY } from "../data/seed";
+import { handoffEntries, TODAY } from "../data/seed";
 import { costliest, countStatus, counted, groupBy, noMistake, periodStart, rBy, stats } from "./calc";
 import { fr, pct } from "./format";
 
@@ -7,7 +7,7 @@ const REAL = ["Main account", "Funded 100K", "Challenge 50K"];
 
 describe("dashboard, This month, real accounts (screenshots/light/02-Dashboard.png)", () => {
   const from = periodStart("month", TODAY);
-  const T = counted(seedEntries, REAL, from, TODAY);
+  const T = counted(handoffEntries, REAL, from, TODAY);
   const s = stats(T);
 
   it("top row", () => {
@@ -21,8 +21,8 @@ describe("dashboard, This month, real accounts (screenshots/light/02-Dashboard.p
     expect(pct(s.planRate!)).toBe("70%");
     expect(s.followed).toBe(14);
     expect(s.n).toBe(20);
-    expect(countStatus(seedEntries, "Watched", REAL, from, TODAY)).toBe(8);
-    expect(countStatus(seedEntries, "Not filled", REAL, from, TODAY)).toBe(2);
+    expect(countStatus(handoffEntries, "Watched", REAL, from, TODAY)).toBe(8);
+    expect(countStatus(handoffEntries, "Not filled", REAL, from, TODAY)).toBe(2);
   });
 
   it("R by day", () => {

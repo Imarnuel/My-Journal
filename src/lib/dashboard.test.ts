@@ -1,7 +1,7 @@
 // Dashboard numbers for every period, checked against the prototype (handoff/prototype/Dashboard.dc.html)
 // and the screenshots (light/02-Dashboard.png, states/02-dashboard-period-3-months.png).
 import { describe, expect, it } from "vitest";
-import { seedEntries, seedTags, TODAY } from "../data/seed";
+import { handoffEntries, handoffTags, TODAY } from "../data/seed";
 import type { Entry, TagKind } from "./types";
 import { fr, pct } from "./format";
 import {
@@ -10,7 +10,7 @@ import {
 } from "./dashboard";
 
 const REAL = ["Main account", "Funded 100K", "Challenge 50K"];
-const kindOf = (t: string): TagKind | undefined => seedTags.find((x) => x.t === t)?.k;
+const kindOf = (t: string): TagKind | undefined => handoffTags.find((x) => x.t === t)?.k;
 const SETUPS = [{ name: "4H supply pullback" }, { name: "London breakout" }, { name: "Asian range fade" }];
 
 const top = (p: ReturnType<typeof periodNumbers>) => [
@@ -40,7 +40,7 @@ describe("period line", () => {
 });
 
 describe("This month (light/02-Dashboard.png)", () => {
-  const p = periodNumbers(seedEntries, REAL, "month", TODAY);
+  const p = periodNumbers(handoffEntries, REAL, "month", TODAY);
   it("top row", () => {
     expect(p.enough).toBe(true);
     expect(top(p)).toEqual(["+7.6R", "−2.0R", "+0.38R", "50%", "+1.8R", "−1.0R", "14 of 20", 8, 2]);
@@ -92,13 +92,13 @@ describe("This month (light/02-Dashboard.png)", () => {
     expect(m.untagged).toBe(14);
   });
   it("one account only", () => {
-    const q = periodNumbers(seedEntries, ["Main account"], "month", TODAY);
+    const q = periodNumbers(handoffEntries, ["Main account"], "month", TODAY);
     expect(top(q)).toEqual(["−0.4R", "−3.0R", "−0.08R", "40%", "+1.3R", "−1.0R", "3 of 5", 0, 1]);
   });
 });
 
 describe("3 months (states/02-dashboard-period-3-months.png)", () => {
-  const p = periodNumbers(seedEntries, REAL, "3m", TODAY);
+  const p = periodNumbers(handoffEntries, REAL, "3m", TODAY);
   it("top row", () => {
     expect(p.from).toBe("2026-08-17");
     expect(top(p)).toEqual(["+9.1R", "−4.0R", "+0.17R", "43%", "+1.7R", "−1.0R", "42 of 53", 16, 6]);
@@ -140,7 +140,7 @@ describe("3 months (states/02-dashboard-period-3-months.png)", () => {
 });
 
 describe("This week (fewer than 5 trades)", () => {
-  const p = periodNumbers(seedEntries, REAL, "week", TODAY);
+  const p = periodNumbers(handoffEntries, REAL, "week", TODAY);
   it("too few for numbers", () => {
     expect(p.from).toBe("2026-11-16");
     expect(p.T.length).toBe(2);
@@ -155,19 +155,19 @@ describe("This week (fewer than 5 trades)", () => {
 
 describe("recency and notice", () => {
   it("recent chart stories ignore period and accounts", () => {
-    expect(recentStories(seedEntries).map((e) => `${e.pair} ${e.status}`)).toEqual([
+    expect(recentStories(handoffEntries).map((e) => `${e.pair} ${e.status}`)).toEqual([
       "AUDUSD Running", "EURJPY Watched", "GBPUSD Taken", "GBPUSD Taken", "EURJPY Taken", "NZDUSD Not filled",
     ]);
   });
   it("no-charts notice: MT5 trades without charts", () => {
-    const n = noChartTrades(seedEntries);
+    const n = noChartTrades(handoffEntries);
     expect(n.map((e) => e.id)).toEqual(["e19"]);
-    const after = seedEntries.map((e): Entry => (e.id === "e19" ? { ...e, charts: 1 } : e));
+    const after = handoffEntries.map((e): Entry => (e.id === "e19" ? { ...e, charts: 1 } : e));
     expect(noChartTrades(after)).toEqual([]);
     expect(recentStories(after).map((e) => e.id).slice(0, 3)).toEqual(["e24", "e25", "e19"]);
   });
   it("mistakes come from tag kinds", () => {
-    const e = seedEntries.find((x) => x.id === "e18")!;
+    const e = handoffEntries.find((x) => x.id === "e18")!;
     expect(mistakesOf(e, kindOf).sort()).toEqual(["Chased entry", "Moved stop"]);
     expect(mistakesOf({ ...e, tags: [...e.tags, "Supply zone"] }, kindOf).sort()).toEqual(["Chased entry", "Moved stop"]);
   });

@@ -1,7 +1,7 @@
 // Weekly review numbers against the screenshots (light/11-Review.png, states/32 and 33), seeded with
 // data/entries.json and today = 16 November 2026, real accounts ticked.
 import { describe, expect, it } from "vitest";
-import { seedAccounts, seedEntries, TODAY } from "../data/seed";
+import { seedAccounts, handoffEntries, TODAY } from "../data/seed";
 import { realAccounts } from "../data/store";
 import { fr } from "./format";
 import { mistakeWhere, monthKey, pastWeeks, tradedWeeks, watchedLine, weekParam, weekReview, weekTitle } from "./review";
@@ -10,19 +10,19 @@ const real = realAccounts(seedAccounts);
 
 describe("weeks", () => {
   it("opens on the latest traded week; the week in progress isn't listed", () => {
-    const w = tradedWeeks(seedEntries, real, TODAY);
+    const w = tradedWeeks(handoffEntries, real, TODAY);
     expect(w[0]).toBe("2026-11-09");
     expect(w).not.toContain("2026-11-16");
-    expect(tradedWeeks(seedEntries, real, "2026-11-20")[0]).toBe("2026-11-09");
-    expect(tradedWeeks(seedEntries, real, "2026-11-23")[0]).toBe("2026-11-16");
+    expect(tradedWeeks(handoffEntries, real, "2026-11-20")[0]).toBe("2026-11-09");
+    expect(tradedWeeks(handoffEntries, real, "2026-11-23")[0]).toBe("2026-11-16");
   });
 
   it("lists every traded week with no limit", () => {
-    expect(tradedWeeks(seedEntries, real, TODAY)).toHaveLength(30);
+    expect(tradedWeeks(handoffEntries, real, TODAY)).toHaveLength(30);
   });
 
   it("the account picker changes which weeks appear", () => {
-    expect(tradedWeeks(seedEntries, ["Demo account"], TODAY)).toEqual(["2026-11-09", "2026-11-02", "2026-10-19"]);
+    expect(tradedWeeks(handoffEntries, ["Demo account"], TODAY)).toEqual(["2026-11-09", "2026-11-02", "2026-10-19"]);
   });
 
   it("labels", () => {
@@ -36,7 +36,7 @@ describe("weeks", () => {
 });
 
 describe("the week of 9 to 13 November", () => {
-  const w = weekReview(seedEntries, real, "2026-11-09");
+  const w = weekReview(handoffEntries, real, "2026-11-09");
 
   it("Net, trades taken, plan followed", () => {
     expect(fr(w.net)).toBe("+3.4R");
@@ -61,12 +61,12 @@ describe("the week of 9 to 13 November", () => {
   });
 
   it("the account picker changes every number", () => {
-    const d = weekReview(seedEntries, ["Demo account"], "2026-11-09");
+    const d = weekReview(handoffEntries, ["Demo account"], "2026-11-09");
     expect([d.n, fr(d.net), d.watched, d.notFilled]).toEqual([1, "+2.4R", 0, 0]);
   });
 
   it("excluded trades never count", () => {
-    const ex = seedEntries.map((e) => (e.id === "e9" ? { ...e, excluded: true } : e));
+    const ex = handoffEntries.map((e) => (e.id === "e9" ? { ...e, excluded: true } : e));
     const x = weekReview(ex, real, "2026-11-09");
     expect([x.n, fr(x.net)]).toEqual([10, "+0.8R"]);
     expect(tradedWeeks(ex, real, TODAY)[0]).toBe("2026-11-09");
@@ -74,7 +74,7 @@ describe("the week of 9 to 13 November", () => {
 });
 
 describe("the week of 14 to 18 September (state 33)", () => {
-  const w = weekReview(seedEntries, real, "2026-09-14");
+  const w = weekReview(handoffEntries, real, "2026-09-14");
   it("numbers", () => {
     expect([fr(w.net), w.n, `${w.followed} of ${w.n}`, watchedLine(w.watched, w.notFilled)]).toEqual(["+0.6R", 2, "2 of 2", "Nothing watched or missed"]);
     expect(w.mistakes).toEqual([]);
@@ -84,7 +84,7 @@ describe("the week of 14 to 18 September (state 33)", () => {
 });
 
 describe("past weeks", () => {
-  const months = pastWeeks(seedEntries, real, TODAY);
+  const months = pastWeeks(handoffEntries, real, TODAY);
 
   it("month rows match the screenshot", () => {
     expect(months.map((m) => `${m.yearHead ? `${m.year} / ` : ""}${m.name} ${m.sub}`)).toEqual([

@@ -228,9 +228,12 @@ export function recentStories(entries: Entry[], k = 6): Entry[] {
     .slice(0, k);
 }
 
-/** Trades known from MT5 that have no charts yet, newest first. */
+/**
+ * Trades known from MT5 that have no charts yet, newest first. A very short trade isn't asked for charts:
+ * the Trade log already asks whether it counts, and one question at a time is enough (DESIGN.md).
+ */
 export function noChartTrades(entries: Entry[]): Entry[] {
-  return entries.filter((e) => e.status === "Taken" && e.charts === 0 && !!e.mt5).sort((a, b) => byTime(b, a));
+  return entries.filter((e) => e.status === "Taken" && e.charts === 0 && !!e.mt5 && !e.shortTrade).sort((a, b) => byTime(b, a));
 }
 
 

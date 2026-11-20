@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { seedEntries, TODAY } from "../data/seed";
+import { handoffEntries, TODAY } from "../data/seed";
 import {
   anyFilter,
   applyFilters,
@@ -17,7 +17,7 @@ import {
 } from "./tradelog";
 import type { Entry } from "./types";
 
-const E = seedEntries;
+const E = handoffEntries;
 const f = (p: Partial<Filters>): Filters => ({ ...NO_FILTERS, ...p });
 const byId = (id: string) => E.find((e) => e.id === id)!;
 

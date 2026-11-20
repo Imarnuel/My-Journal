@@ -6,7 +6,7 @@ import { useStore } from "../../data/store";
 import { usePref } from "../../data/settings";
 import { toast } from "../../components/primitives/toast";
 import type { Tag } from "../../lib/types";
-import { FRAME_LOOKALIKES, findLookalikes, mergeTags, pairKey, renameTag, retagEntries, tagMix, usedLabel, validRename, type Lookalike, type TagPatch } from "./tags";
+import { findLookalikes, mergeTags, pairKey, renameTag, retagEntries, tagMix, usedLabel, validRename, type Lookalike, type TagPatch } from "./tags";
 
 const line = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 0", borderTop: "1px solid var(--border-subtle)" } as const;
 
@@ -52,7 +52,7 @@ export function YourTags() {
 
   const names = [...new Set([...tags.map((t) => t.t), ...entries.flatMap((e) => [...e.tags, ...e.mistakes])])];
   const seen = new Set<string>();
-  const pairs = [...findLookalikes(names), ...FRAME_LOOKALIKES]
+  const pairs = findLookalikes(names)
     .filter((p) => tags.some((t) => t.t === p.into) && !merged.includes(pairKey(p)))
     .filter((p) => (seen.has(pairKey(p)) ? false : (seen.add(pairKey(p)), true)));
 

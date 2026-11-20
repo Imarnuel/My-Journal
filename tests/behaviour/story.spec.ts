@@ -329,7 +329,7 @@ test("notes are editable in place and a saved story saves them at once", async (
 
 // ---------- frame 16 states
 
-test("frame 16: Couldn't make out your note; Record again records, Type instead focuses Before / during", async ({ page }) => {
+test("frame 16: Couldn't make out your note; Record again records; no Type instead (the note boxes are below)", async ({ page }) => {
   await page.goto("/new?voice=unclear");
   await page.getByRole("button", { name: "Talk it through" }).click();
   await page.getByRole("button", { name: "Stop", exact: true }).click();
@@ -337,10 +337,7 @@ test("frame 16: Couldn't make out your note; Record again records, Type instead 
   await expect(page.getByText("Too much background noise. Nothing was filled in, so nothing wrong was saved.")).toBeVisible();
   await expect(page.locator("#nB")).toHaveValue("");
   await expect(page.getByRole("button", { name: "Setup" })).toContainText("Pick a setup");
-  await page.getByRole("button", { name: "Type instead" }).click();
-  await expect(page.locator("#nB")).toBeFocused();
-  await page.getByRole("button", { name: "Talk it through" }).click();
-  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Type instead" })).toHaveCount(0);
   await page.getByRole("button", { name: "Record again" }).click();
   await expect(page.getByText(/Listening/)).toBeVisible();
 });

@@ -9,7 +9,7 @@ import { Shell } from "../app/Shell";
 import { slug } from "../app/routes";
 import { useStore } from "../data/store";
 import { GROUP_NOTE, GROUPS, hideSuggestion, SUGGESTION, usePlaybook, useSuggestion } from "../data/playbook";
-import { EX_BATCH, EX_FILTERS, examplesOf, filterExamples, lessonsOf, patterns, setupStats, spark, type ExFilter } from "../lib/playbook";
+import { EX_BATCH, EX_FILTERS, examplesOf, filterExamples, LESSONS_BATCH, lessonsOf, patterns, setupStats, spark, type ExFilter } from "../lib/playbook";
 import { fr, shortDate, tone } from "../lib/format";
 import type { Entry } from "../lib/types";
 import { toast } from "../components/primitives/toast";
@@ -84,6 +84,7 @@ export function SetupPage() {
   const [tab, setTab] = useState<Tab>("ex");
   const [f, setF] = useState<ExFilter>("All");
   const [lim, setLim] = useState(EX_BATCH);
+  const [lesLim, setLesLim] = useState(LESSONS_BATCH);
 
   const setup = setups.find((s) => slug(s.name) === param);
   if (!setup) return <Navigate to="/playbook" replace />;
@@ -263,7 +264,7 @@ export function SetupPage() {
             <section id="panel-les" role="tabpanel" aria-labelledby="tab-les" style={{ display: "flex", flexDirection: "column" }}>
               <span className="lbl">From your reflections on stories in this setup</span>
               <ul style={{ margin: "8px 0 0", padding: 0 }}>
-                {lessons.map((l) => (
+                {lessons.slice(0, lesLim).map((l) => (
                   <li key={l.id} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "2px", padding: "12px 0", borderTop: "1px solid var(--border-subtle)" }}>
                     <span style={{ fontSize: "14px" }}>{`“${l.refl}”`}</span>
                     <Link to={`/story/${l.id}`} className="lbl" style={{ color: "var(--text-3)" }}>
@@ -272,6 +273,11 @@ export function SetupPage() {
                   </li>
                 ))}
               </ul>
+              {lessons.length > lesLim ? (
+                <button type="button" className="btn btn-g" onClick={() => setLesLim(lesLim + LESSONS_BATCH)} style={{ alignSelf: "center", marginTop: "16px" }}>
+                  {`Show ${Math.min(LESSONS_BATCH, lessons.length - lesLim)} more of ${lessons.length - lesLim}`}
+                </button>
+              ) : null}
             </section>
           ) : null}
         </section>

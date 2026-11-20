@@ -215,3 +215,13 @@ test("reduced motion: picking a week and the picker still work", async ({ page }
   await page.keyboard.press("Escape");
   await expect(page.locator(".kmenu")).toHaveCount(0);
 });
+
+test("no traded week on the ticked accounts: one line instead of the review and Past weeks", async ({ page }) => {
+  await page.goto("/review");
+  await page.getByRole("button", { name: "3 accounts" }).click();
+  await page.getByRole("button", { name: "Show only Backtesting" }).click();
+  await page.mouse.click(10, 990); // outside
+  await expect(page.getByText("No trades on these accounts yet")).toBeVisible();
+  await expect(pastWeeks(page)).toHaveCount(0);
+  await expect(subtitle(page)).toHaveCount(0);
+});

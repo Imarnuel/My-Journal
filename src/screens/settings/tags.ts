@@ -75,8 +75,3 @@ export function findLookalikes(names: string[]): Lookalike[] {
 
 export const pairKey = (p: Lookalike) => `${p.from}>${p.into}`;
 
-/**
- * The look-alike pair drawn on the Settings frame. The sample data has no "BOS" tag, so the frame's prompt
- * is kept here until the data carries one (reported to the lead); merging it updates any entries that have it.
- */
-export const FRAME_LOOKALIKES: Lookalike[] = [{ from: "BOS", into: "Break of structure" }];

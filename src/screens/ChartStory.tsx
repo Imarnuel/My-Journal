@@ -681,16 +681,6 @@ function StoryScreen({ id }: { id: string | null }) {
                   <Mic />
                   Record again
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-q"
-                  onClick={() => {
-                    setVoiceError(false);
-                    document.getElementById("nB")?.focus();
-                  }}
-                >
-                  Type instead
-                </button>
               </ProblemCard>
             ) : !s.voice && !recording ? (
               <button type="button" onClick={startRec} style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>

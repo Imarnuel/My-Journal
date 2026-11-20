@@ -117,11 +117,12 @@ export function patterns(T: Entry[]): Split[] {
   ];
 }
 
-export const LESSONS_SHOWN = 5;
+/** Lessons show five at a time, then "Show more" (owner's answer, DESIGN.md › Lessons tab; frame 09 shows five). */
+export const LESSONS_BATCH = 5;
 
-/** Lessons: the latest reflections on stories in the setup (frame 09 shows five). */
+/** Lessons: every reflection on stories in the setup, newest first. Lists never cut history off. */
 export const lessonsOf = (entries: Entry[], setup: string) =>
-  entries.filter((e) => e.setup === setup && !!e.refl).sort(byDayDesc).slice(0, LESSONS_SHOWN);
+  entries.filter((e) => e.setup === setup && !!e.refl).sort(byDayDesc);
 
 /** Chart stories that fit no setup yet. */
 export const unsortedOf = (entries: Entry[]) => entries.filter((e) => e.setup === "Unsorted" && isStory(e)).sort(byDayDesc);
