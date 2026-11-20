@@ -15,7 +15,7 @@ Written 20 November 2026, at the end of the first build session.
   changes something `CLAUDE.md` states, update that line in the same commit.
 - Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl` (not merged to `main`; no
   pull request has been opened). Keep committing to that branch unless the owner says otherwise.
-- All checks pass: 90 unit tests (`npm test`), 325 browser tests (`npm run e2e`).
+- All checks pass: 97 unit tests (`npm test`), 327 browser tests (`npm run e2e`). One story test ("numbers: click one to edit it in place…") is flaky, about 1 run in 5, also before 2026-11-20: worth fixing.
 
 ## How the owner works
 - The owner looks at the app on the live preview: https://claude.ai/artifact/Lnqrd7dbSJgF2Q8DRExLt6

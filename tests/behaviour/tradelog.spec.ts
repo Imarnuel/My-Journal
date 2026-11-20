@@ -60,7 +60,7 @@ test("state 07: Date filter open, counts beside every option", async ({ page }, 
   await page.goto("/log");
   await page.getByRole("button", { name: "Date: All time" }).click();
   const menu = page.getByRole("listbox", { name: "Date" });
-  await expect(menu.getByRole("option")).toHaveText([/All time\s*134/, /This week\s*5/, /Last week\s*15/, /This month\s*34/, /Last 3 months\s*80/, /Pick dates/]);
+  await expect(menu.getByRole("option")).toHaveText([/All time\s*135/, /This week\s*6/, /Last week\s*15/, /This month\s*35/, /Last 3 months\s*81/, /Pick dates/]);
   await diffViewport(page, "states/07-tradelog-date-filter-open.png", info);
 });
 
@@ -99,7 +99,7 @@ test("state 10: row menu open", async ({ page }, info) => {
 
 test("state 11: Change date dialog", async ({ page }, info) => {
   await page.goto("/log");
-  await more(page, 3).click();
+  await more(page, 4).click();
   await page.getByRole("menuitem", { name: "Change date" }).click();
   await expect(page.getByRole("dialog", { name: "Change date" })).toBeVisible();
   await expect(page.getByLabel("Date and time")).toHaveValue("2026-11-16T09:45");
@@ -108,9 +108,9 @@ test("state 11: Change date dialog", async ({ page }, info) => {
 
 test("state 12: Exclude from stats, the row says so, Undo toast", async ({ page }, info) => {
   await page.goto("/log");
-  await more(page, 3).click();
+  await more(page, 4).click();
   await page.getByRole("menuitem", { name: "Exclude from stats" }).click();
-  await expect(rows(page).nth(3)).toContainText("Excluded from stats");
+  await expect(rows(page).nth(4)).toContainText("Excluded from stats");
   await expect(toast(page)).toContainText("left out of your stats");
   await page.mouse.move(0, 999);
   await diffViewport(page, "states/12-tradelog-excluded-with-undo-toast.png", info);
@@ -130,7 +130,7 @@ test("state 14: Count it on the very short trade, toast with Undo", async ({ pag
   await page.getByRole("button", { name: "Count it" }).click();
   await expect(page.getByText("USDCHF closed 8 seconds after opening")).toHaveCount(0);
   await expect(toast(page)).toContainText("USDCHF counts in your stats");
-  await expect(count(page)).toHaveText("134 entries");
+  await expect(count(page)).toHaveText("135 entries");
   await page.mouse.move(0, 999);
   await diffViewport(page, "states/14-tradelog-short-trade-counted-toast.png", info);
 });
@@ -172,7 +172,7 @@ test("filters: choosing sets the value, counts follow the other filters, zero op
   await expect(page.getByRole("button", { name: "Status: Taken" })).toBeVisible();
 
   await page.getByRole("button", { name: "Clear filters" }).click();
-  await expect(count(page)).toHaveText("134 entries");
+  await expect(count(page)).toHaveText("135 entries");
   await expect(page.getByRole("button", { name: "Setup: Any setup" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Clear filters" })).toHaveCount(0);
 });
@@ -186,7 +186,7 @@ test("a filter set that matches nothing says so and offers Clear filters", async
   await expect(count(page)).toHaveText("0 entries");
   await expect(page.getByText("No entries match these filters")).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).last().click();
-  await expect(count(page)).toHaveText("134 entries");
+  await expect(count(page)).toHaveText("135 entries");
 });
 
 test("date presets and pair filter (an analysis on two pairs counts for both)", async ({ page }) => {
@@ -194,7 +194,7 @@ test("date presets and pair filter (an analysis on two pairs counts for both)", 
   await page.getByRole("button", { name: "Date: All time" }).click();
   await page.getByRole("option", { name: /This week/ }).click();
   await expect(page.getByRole("button", { name: "Date: This week" })).toBeVisible();
-  await expect(count(page)).toHaveText("5 entries");
+  await expect(count(page)).toHaveText("6 entries");
   await page.getByRole("button", { name: "Pair: Any pair" }).click();
   await expect(page.getByRole("option", { name: /^XAUUSD/ })).toContainText("1");
   await page.getByRole("option", { name: /^XAUUSD/ }).click();
@@ -219,10 +219,10 @@ test("sort: Best R first and Oldest first", async ({ page }) => {
 test("Show older entries loads 12 more at a time", async ({ page }) => {
   await page.goto("/log");
   await expect(rows(page)).toHaveCount(12);
-  await expect(page.getByText("Showing 12 of 134")).toBeVisible();
+  await expect(page.getByText("Showing 12 of 135")).toBeVisible();
   await page.getByRole("button", { name: "Show older entries" }).click();
   await expect(rows(page)).toHaveCount(24);
-  await expect(page.getByText("Showing 24 of 134")).toBeVisible();
+  await expect(page.getByText("Showing 24 of 135")).toBeVisible();
 });
 
 // ---- Menus: one at a time, outside click, Escape, keyboard ---------------------------------------
@@ -280,54 +280,54 @@ test("keyboard: row menu, Change date, Escape returns focus to the more button",
 
 test("Exclude from stats becomes Include in stats; Undo restores exactly", async ({ page }) => {
   await page.goto("/log");
-  await more(page, 3).click();
+  await more(page, 4).click();
   await page.getByRole("menuitem", { name: "Exclude from stats" }).click();
-  await expect(rows(page).nth(3)).toContainText("Excluded from stats");
-  await more(page, 3).click();
+  await expect(rows(page).nth(4)).toContainText("Excluded from stats");
+  await more(page, 4).click();
   await expect(page.getByRole("menuitem", { name: "Include in stats" })).toBeVisible();
   await page.getByRole("menuitem", { name: "Include in stats" }).click();
   await expect(toast(page)).toContainText("is back in your stats");
-  await expect(rows(page).nth(3)).not.toContainText("Excluded from stats");
+  await expect(rows(page).nth(4)).not.toContainText("Excluded from stats");
   await toast(page).getByRole("button", { name: "Undo" }).click();
-  await expect(rows(page).nth(3)).toContainText("Excluded from stats");
+  await expect(rows(page).nth(4)).toContainText("Excluded from stats");
 });
 
 test("Delete happens at once; Undo puts the entry back in its place", async ({ page }) => {
   await page.goto("/log");
-  await expect(rows(page).nth(2)).toContainText("EURUSD");
-  await more(page, 2).click();
+  await expect(rows(page).nth(3)).toContainText("EURUSD");
+  await more(page, 3).click();
   await page.getByRole("menuitem", { name: "Delete" }).click();
-  await expect(count(page)).toHaveText("133 entries");
-  await expect(rows(page).nth(2)).toContainText("GBPUSD");
+  await expect(count(page)).toHaveText("134 entries");
+  await expect(rows(page).nth(3)).toContainText("GBPUSD");
   await expect(toast(page)).toContainText("trade deleted");
   await toast(page).getByRole("button", { name: "Undo" }).click();
-  await expect(count(page)).toHaveText("134 entries");
-  await expect(rows(page).nth(2)).toContainText("EURUSD");
-  await expect(rows(page).nth(2)).toContainText("Mon 16 Nov, 11:10");
+  await expect(count(page)).toHaveText("135 entries");
+  await expect(rows(page).nth(3)).toContainText("EURUSD");
+  await expect(rows(page).nth(3)).toContainText("Mon 16 Nov, 11:10");
 });
 
 test("Change date moves the entry to its new place; Cancel changes nothing; Undo restores", async ({ page }) => {
   await page.goto("/log");
-  await more(page, 0).click();
+  await more(page, 1).click();
   await page.getByRole("menuitem", { name: "Change date" }).click();
   await page.getByRole("button", { name: "Cancel" }).click();
-  await expect(rows(page).first()).toContainText("Mon 16 Nov, 15:20");
-  await more(page, 0).click();
+  await expect(rows(page).nth(1)).toContainText("Mon 16 Nov, 15:20");
+  await more(page, 1).click();
   await page.getByRole("menuitem", { name: "Change date" }).click();
   await page.getByLabel("Date and time").fill("2026-11-12T12:00");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(toast(page)).toContainText(" moved to ");
-  await expect(rows(page).first()).toContainText("EURJPY");
+  await expect(rows(page).nth(1)).toContainText("EURJPY");
   const moved = rows(page).filter({ hasText: "AUDUSD" }).filter({ hasText: "Thu 12 Nov, 12:00" });
   await expect(moved).toHaveCount(1);
   await toast(page).getByRole("button", { name: "Undo" }).click();
-  await expect(rows(page).first()).toContainText("AUDUSD");
-  await expect(rows(page).first()).toContainText("Mon 16 Nov, 15:20");
+  await expect(rows(page).nth(1)).toContainText("AUDUSD");
+  await expect(rows(page).nth(1)).toContainText("Mon 16 Nov, 15:20");
 });
 
 test("MT5 trade without charts: the drop zone is a file picker; the chosen image shows in the row", async ({ page }) => {
   await page.goto("/log");
-  const row = rows(page).nth(2);
+  const row = rows(page).nth(3);
   // Facts only (DESIGN.md): the ticket is a fact and the drop zone is the signal, no instruction sentence.
   await expect(row).toContainText("MT5 #48231");
   await expect(row).not.toContainText("No screenshot?");
@@ -340,16 +340,22 @@ test("MT5 trade without charts: the drop zone is a file picker; the chosen image
   await expect(row).toContainText("Trend continuation, Liquidity sweep"); // now reads as a taken trade with charts
   // The same chart leads the card in Grid view, from the shared store.
   await page.getByRole("button", { name: "Grid view" }).click();
-  await expect(rows(page).nth(2).getByRole("img", { name: "Your chart" })).toBeVisible();
+  await expect(rows(page).nth(3).getByRole("img", { name: "Your chart" })).toBeVisible();
 });
 
-test("very short trade: Leave it out, Undo brings the prompt back", async ({ page }) => {
+test("very short trade: a real entry; Leave it out marks its row, Undo brings the prompt back", async ({ page }) => {
   await page.goto("/log");
+  // It is the newest entry, and it counts until it's left out (DESIGN.md › Very short trade).
+  await expect(rows(page).first()).toContainText("USDCHF");
+  await expect(rows(page).first()).not.toContainText("Excluded from stats");
+  await expect(rows(page).first().getByText("Drop, paste or choose charts")).toHaveCount(0); // not asked for charts
   await page.getByRole("button", { name: "Leave it out" }).click();
   await expect(toast(page)).toContainText("USDCHF left out of your stats");
   await expect(page.getByText("USDCHF closed 8 seconds after opening")).toHaveCount(0);
+  await expect(rows(page).first()).toContainText("Excluded from stats");
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(page.getByText("USDCHF closed 8 seconds after opening")).toBeVisible();
+  await expect(rows(page).first()).not.toContainText("Excluded from stats");
 });
 
 // ---- Views and navigation -----------------------------------------------------------------------
@@ -365,13 +371,13 @@ test("List / Grid toggle keeps the view in the URL", async ({ page }) => {
 
 test("navigation: rows open the story, Add a note opens the story, New chart story goes to /new", async ({ page }) => {
   await page.goto("/log");
-  await rows(page).first().getByRole("link", { name: "AUDUSD" }).click();
+  await rows(page).nth(1).getByRole("link", { name: "AUDUSD" }).click();
   await expect(page).toHaveURL(/\/story\/e24$/);
   await page.goto("/log");
-  await rows(page).nth(2).getByRole("link", { name: /Add a note/ }).click();
+  await rows(page).nth(3).getByRole("link", { name: /Add a note/ }).click();
   await expect(page).toHaveURL(/\/story\/e19$/);
   await page.goto("/log?view=grid");
-  await rows(page).nth(3).getByRole("link", { name: "GBPUSD" }).click();
+  await rows(page).nth(4).getByRole("link", { name: "GBPUSD" }).click();
   await expect(page).toHaveURL(/\/story\/e20$/);
   await page.goto("/log");
   await page.getByRole("link", { name: "New chart story" }).click();
@@ -381,7 +387,7 @@ test("navigation: rows open the story, Add a note opens the story, New chart sto
 test("edits in the shared store show at once (one dataset)", async ({ page }) => {
   await page.goto("/log");
   await setStore(page, `s.getState().updateEntry("e24", { pair: "NZDJPY" });`);
-  await expect(rows(page).first()).toContainText("NZDJPY");
+  await expect(rows(page).nth(1)).toContainText("NZDJPY");
 });
 
 // ---- Frame 16 states that belong here ---------------------------------------------------------

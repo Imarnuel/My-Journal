@@ -24,7 +24,7 @@ test.describe("playbook home", () => {
     await expect(card(page, "London breakout")).toContainText("Early signal");
     await expect(card(page, "Asian range fade")).toContainText("−0.13R");
     await expect(page.getByRole("img", { name: /^Cumulative R, last 20 trades, ending at [+−]\d+\.\dR$/ }).first()).toBeVisible();
-    await expect(unsorted(page)).toHaveText("Unsorted (21)");
+    await expect(unsorted(page)).toHaveText("Unsorted (22)");
     await expect(page.getByText("4 of them look alike: daily bullish, Asian low swept, then a 15m break of structure.")).toBeVisible();
   });
 
@@ -35,7 +35,7 @@ test.describe("playbook home", () => {
     await expect(page.getByRole("button", { name: "Challenge 50K", exact: true })).toBeVisible();
     await expect(card(page, "4H supply pullback")).toContainText("9 taken");
     await expect(card(page, "4H supply pullback")).toContainText("Trend appears after 10 trades");
-    await expect(unsorted(page)).toHaveText("Unsorted (21)");
+    await expect(unsorted(page)).toHaveText("Unsorted (22)");
     // One menu at a time: a click outside closes the picker; another setup's menu replaces the open one.
     await page.mouse.click(700, 960);
     await expect(page.locator(".kmenu")).toHaveCount(0);
@@ -146,9 +146,9 @@ test.describe("playbook home", () => {
     await page.getByRole("menuitem", { name: "Delete setup" }).click();
     await expect(status(page)).toContainText("London breakout deleted. 28 stories moved to Unsorted");
     await expect(card(page, "London breakout")).toHaveCount(0);
-    await expect(unsorted(page)).toHaveText("Unsorted (49)");
+    await expect(unsorted(page)).toHaveText("Unsorted (50)");
     await undo(page).click();
-    await expect(unsorted(page)).toHaveText("Unsorted (21)");
+    await expect(unsorted(page)).toHaveText("Unsorted (22)");
     const names = await page.locator('a.card[href^="/playbook/"] > span:nth-child(2) > span:first-child').allTextContents();
     expect(names).toEqual(["4H supply pullback", "London breakout", "Asian range fade"]);
     await expect(card(page, "London breakout")).toContainText("17 taken · 7 watched");
@@ -195,7 +195,7 @@ test.describe("playbook home", () => {
     await expect(page.getByText("Price sweeps the Asian session low")).toBeVisible();
     await expect(page.getByText("Example setup. Yours replace it on day one.")).toHaveCount(0);
     await page.getByRole("link", { name: "Playbook", exact: true }).first().click();
-    await expect(unsorted(page)).toHaveText("Unsorted (17)");
+    await expect(unsorted(page)).toHaveText("Unsorted (18)");
     await expect(card(page, "Asian low sweep")).toContainText("Too few trades for numbers");
     await expect(page.getByRole("button", { name: "Name this setup" })).toHaveCount(0);
   });
@@ -321,7 +321,7 @@ test.describe("setup page", () => {
     await page.getByRole("button", { name: "Not now" }).click();
     await page.getByRole("link", { name: "Playbook", exact: true }).first().click();
     await expect(page.getByRole("button", { name: "Name this setup" })).toHaveCount(0);
-    await expect(unsorted(page)).toHaveText("Unsorted (21)");
+    await expect(unsorted(page)).toHaveText("Unsorted (22)");
   });
 
   test("Name this setup goes to the drafted editor; Edit goes to the rules", async ({ page }) => {
@@ -413,7 +413,7 @@ test.describe("setup editor", () => {
     await page.getByRole("button", { name: "Save setup" }).click();
     await expect(page.getByRole("tab", { name: /Examples/ })).toContainText("3");
     await page.getByRole("link", { name: "Playbook", exact: true }).first().click();
-    await expect(unsorted(page)).toHaveText("Unsorted (18)");
+    await expect(unsorted(page)).toHaveText("Unsorted (19)");
   });
 
   test("Save needs a name that isn't taken", async ({ page }) => {

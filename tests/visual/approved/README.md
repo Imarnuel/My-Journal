@@ -50,3 +50,7 @@ then look at every regenerated image against the handoff screenshot before commi
 | Story images and `states/` 15 to 24 | Numbers on a three-column grid (DESIGN.md, Editing numbers) | 2026-11-20 |
 
 | `light/` and `dark/` 12-Accounts; `states/` 34 | No default for screenshots: badge and the "Screenshots with no MT5 match go to" row removed (DESIGN.md) | 2026-11-20 |
+
+| `light/` and `dark/` 02-Dashboard, 03-Main, 04-MainCal; `states/` 01 to 14 | The very short USDCHF trade is a real entry (DESIGN.md, question 4): it heads the Trade log (no drop zone), and the Dashboard's numbers include it (+7.5R, 21 trades, 14 of 21 followed) | 2026-11-20 |
+
+| `light/` and `dark/` 01-Start, 08-PlaybookHome, 09-Playbook, 15-Settings; `states/` 25, 27 to 30, 39 | "Whenever you trade"; Unsorted (22); "Lessons 10" with Show more; sample BOS tag in Your tags (DESIGN.md, questions 6, 9, 11); only those words and the Lessons list changed (checked) | 2026-11-20 |

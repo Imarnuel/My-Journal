@@ -3,7 +3,7 @@
 import { useRef, useState, type ClipboardEvent, type DragEvent, type MouseEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Entry } from "../../lib/types";
-import { isImage, rowFacts, thumbs } from "../../lib/tradelog";
+import { isImage, rowFacts, thumbs, type Thumbs } from "../../lib/tradelog";
 import { returnFocus } from "./FilterMenu";
 import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcLink, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash } from "./icons";
 
@@ -205,6 +205,12 @@ function useOpenOnClick(to: string) {
   };
 }
 
+/**
+ * An entry without charts shows the drop zone, except a very short trade: the prompt above the list already
+ * asks one question about it, and it isn't asked for charts anywhere (DESIGN.md › Very short trade).
+ */
+const asksCharts = (e: Entry, t: Thumbs) => t.n === 0 && !e.shortTrade;
+
 export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
   const f = rowFacts(e);
   const t = thumbs(e);
@@ -241,7 +247,7 @@ export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
         ) : null}
       </div>
       <div style={{ flex: "1 1 300px", minWidth: 0, display: "flex", gap: "8px", alignItems: "center", position: "relative" }}>
-        {t.n === 0 ? <DropZone a={a} /> : null}
+        {asksCharts(e, t) ? <DropZone a={a} /> : null}
         {t.list.map((c, i) => (
           <div key={`${i}-${c}`} className="chart" style={{ flex: 1, minWidth: 0 }}>
             <Chart c={c} />
@@ -269,7 +275,7 @@ export function GridCard({ e, a }: { e: Entry; a: RowActions }) {
   const open = useOpenOnClick(story(e));
   return (
     <li className="card tcard" onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "var(--r-card)", minWidth: 0 }}>
-      {t.n === 0 ? <DropZone a={a} grid /> : null}
+      {asksCharts(e, t) ? <DropZone a={a} grid /> : null}
       {t.grid ? (
         <span className="chart" style={{ display: "block" }}>
           <Chart c={t.grid} />

@@ -312,7 +312,7 @@ test("state 39: Manage tags lists every tag with its kind and use count", async 
   await page.goto("/settings?theme=system");
   await page.getByRole("button", { name: "Manage tags" }).click();
   const list = page.getByRole("list", { name: "Your tags" });
-  await expect(list.getByRole("listitem")).toHaveCount(13);
+  await expect(list.getByRole("listitem")).toHaveCount(14); // the handoff's 13 and the sample "BOS" (DESIGN.md)
   await expect(list.getByRole("listitem").first()).toContainText("Good");
   await expect(list.getByRole("listitem").first()).toContainText("used 18 times");
   await expect(page.getByRole("button", { name: "Done" })).toHaveAttribute("aria-expanded", "true");
@@ -345,11 +345,11 @@ test("settings: removing a tag happens at once; Undo restores the tag and every 
   await page.getByRole("button", { name: "Manage tags" }).click();
   await page.getByRole("button", { name: "Remove Chased entry" }).click();
   await expect(page.getByRole("status")).toContainText("“Chased entry” removed from 7 stories");
-  await expect(page.getByText("Tags (12)")).toBeVisible();
-  await expect(page.getByText(/7 good · 2 mistakes · 3 neutral/)).toBeVisible();
+  await expect(page.getByText("Tags (13)")).toBeVisible();
+  await expect(page.getByText(/8 good · 2 mistakes · 3 neutral/)).toBeVisible();
   expect(await store<number>(page, `(s) => s.entries.filter((e) => e.tags.includes("Chased entry") || e.mistakes.includes("Chased entry")).length`)).toBe(0);
   await page.getByRole("status").getByRole("button", { name: "Undo" }).click();
-  await expect(page.getByText("Tags (13)")).toBeVisible();
+  await expect(page.getByText("Tags (14)")).toBeVisible();
   expect(await store<string>(page, snap)).toBe(before);
 });
 
@@ -357,6 +357,7 @@ test("state 40: Merge look-alike tags shows an Undo toast; Undo brings the promp
   await page.goto("/settings?theme=system");
   const prompt = page.getByText('"BOS" and "Break of structure" look like the same tag');
   await expect(prompt).toBeVisible();
+  await expect(page.getByText("Tags (14)")).toBeVisible();
   await page.getByRole("button", { name: "Merge" }).click();
   await expect(prompt).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("Merged into “Break of structure”");
@@ -368,14 +369,17 @@ test("state 40: Merge look-alike tags shows an Undo toast; Undo brings the promp
   await expect(prompt).toBeVisible();
 });
 
-test("settings: Merge updates old stories that carry the look-alike tag", async ({ page }) => {
+test("settings: Merge moves the sample trades tagged BOS to Break of structure; Undo puts them back", async ({ page }) => {
   await page.goto("/settings");
-  // Give two sample entries the look-alike tag, as a voice note might have.
-  await store(page, `(s) => { s.updateEntry("e24", { tags: ["BOS"] }); s.updateEntry(s.entries.find((e) => e.tags.includes("Break of structure")).id, { tags: ["Break of structure", "BOS"] }); }`);
+  const counts = `(s) => [s.entries.filter((e) => e.tags.includes("BOS")).length, s.entries.filter((e) => e.tags.includes("Break of structure")).length]`;
+  expect(await store<number[]>(page, counts)).toEqual([2, 18]);
+  // An entry carrying both keeps one "Break of structure".
+  await store(page, `(s) => s.updateEntry(s.entries.find((e) => e.tags.includes("Break of structure")).id, { tags: ["Break of structure", "BOS"] })`);
   await page.getByRole("button", { name: "Merge" }).click();
-  expect(await store<number[]>(page, `(s) => [s.entries.filter((e) => e.tags.includes("BOS")).length, s.entries.filter((e) => e.tags.includes("Break of structure")).length]`)).toEqual([0, 19]);
+  expect(await store<number[]>(page, counts)).toEqual([0, 20]);
   await page.getByRole("status").getByRole("button", { name: "Undo" }).click();
-  expect(await store<string[]>(page, `(s) => s.entries.find((e) => e.id === "e24").tags`)).toEqual(["BOS"]);
+  expect(await store<string[]>(page, `(s) => s.entries.find((e) => e.id === "e42").tags`)).toContain("BOS");
+  expect(await store<number[]>(page, counts)).toEqual([3, 18]);
 });
 
 test("appearance: the switch flips data-theme on <html> at once and persists across reload", async ({ page }) => {

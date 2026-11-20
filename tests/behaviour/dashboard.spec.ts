@@ -27,8 +27,8 @@ test.describe("states (handoff/screenshots/states)", () => {
     await open(page);
     await page.getByRole("button", { name: "3 months" }).click();
     await expect(page.getByRole("heading", { name: "R by week" })).toBeVisible();
-    await expect(stat(page, "Net R")).toHaveText("+9.1R");
-    await expect(stat(page, "Trades taken")).toHaveText("53");
+    await expect(stat(page, "Net R")).toHaveText("+9.0R");
+    await expect(stat(page, "Trades taken")).toHaveText("54");
     await page.waitForTimeout(400); // let the line and bars finish morphing
     await diffAgainst(page, "states/02-dashboard-period-3-months.png", info, { height: 1000 });
   });
@@ -75,7 +75,7 @@ test("period: one pressed at a time, every number follows", async ({ page }) => 
   const seg = page.getByRole("group", { name: "Period" });
   await expect(seg.getByRole("button", { name: "This month" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText("November so far · 2 to 16 November · all figures in R")).toBeVisible();
-  await expect(stat(page, "Net R")).toHaveText("+7.6R");
+  await expect(stat(page, "Net R")).toHaveText("+7.5R");
   await expect(page.getByText("7 of 11 days up")).toBeVisible();
 
   await seg.getByRole("button", { name: "3 months" }).click();
@@ -84,11 +84,11 @@ test("period: one pressed at a time, every number follows", async ({ page }) => 
   await expect(page.getByText("Last 3 months · 17 August to 16 November · all figures in R")).toBeVisible();
   await expect(stat(page, "Expectancy")).toHaveText("+0.17R");
   await expect(stat(page, "Win rate")).toHaveText("43%");
-  await expect(stat(page, "Plan followed")).toHaveText("79%");
+  await expect(stat(page, "Plan followed")).toHaveText("78%");
   await expect(page.getByText("8 of 12 weeks up")).toBeVisible();
   await expect(page.getByText("16 watched · 6 not filled")).toBeVisible();
   await expect(page.locator("section[aria-labelledby=bsh] a").filter({ hasText: "4H supply pullback" })).toContainText("25");
-  await expect(page.getByText("42 of 53 trades had no mistake tagged.")).toBeVisible();
+  await expect(page.getByText("43 of 54 trades had no mistake tagged.")).toBeVisible();
   // The chart morphed instead of redrawing from zero.
   await expect(page.locator(".kdraw")).toHaveCount(0);
 });
@@ -97,13 +97,13 @@ test("fewer than 5 trades: the numbers give way, and the button widens the perio
   await open(page);
   await page.getByRole("button", { name: "This week", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
-  await expect(page.getByText("2 trades logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.")).toBeVisible();
+  await expect(page.getByText("3 trades logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.")).toBeVisible();
   await expect(page.locator(".kstat")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "R over time" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Recent chart stories" })).toBeVisible();
   await page.getByRole("button", { name: "Show this month" }).click();
   await expect(page.getByRole("button", { name: "This month" })).toHaveAttribute("aria-pressed", "true");
-  await expect(stat(page, "Net R")).toHaveText("+7.6R");
+  await expect(stat(page, "Net R")).toHaveText("+7.5R");
 });
 
 test("account picker: tick, Only, at least one stays, Reset; numbers change, recency doesn't", async ({ page }) => {
@@ -115,8 +115,8 @@ test("account picker: tick, Only, at least one stays, Reset; numbers change, rec
   await page.getByRole("button", { name: "3 accounts" }).click();
   await page.getByRole("button", { name: "Show only Main account" }).click();
   await expect(page.getByRole("button", { name: "Main account" }).and(page.locator("[aria-haspopup]"))).toBeVisible();
-  await expect(stat(page, "Net R")).toHaveText("−0.4R");
-  await expect(stat(page, "Trades taken")).toHaveText("5");
+  await expect(stat(page, "Net R")).toHaveText("−0.5R");
+  await expect(stat(page, "Trades taken")).toHaveText("6");
   // At least one stays ticked.
   const main = page.getByRole("checkbox", { name: "Main account" });
   await main.uncheck({ force: true }).catch(() => {});
@@ -127,7 +127,7 @@ test("account picker: tick, Only, at least one stays, Reset; numbers change, rec
   await expect(recent.first()).toHaveAttribute("href", firstStory!);
   await page.getByRole("button", { name: "Reset" }).click();
   await expect(page.getByRole("button", { name: "3 accounts" })).toBeVisible();
-  await expect(stat(page, "Net R")).toHaveText("+7.6R");
+  await expect(stat(page, "Net R")).toHaveText("+7.5R");
   await expect(recent).toHaveCount(6);
   await expect(recent.first()).toHaveAttribute("href", firstStory!);
 });
@@ -156,9 +156,9 @@ test("View as table and Show chart swap each chart for its numbers and back", as
   const eq = page.locator("section[aria-labelledby=eqh]");
   await eq.getByRole("button", { name: "View as table" }).click();
   const rows = page.getByRole("table", { name: "Each trade in the period, oldest first" }).getByRole("row");
-  await expect(rows).toHaveCount(21);
+  await expect(rows).toHaveCount(22);
   await expect(rows.nth(1)).toContainText("2 Nov · EURUSD−1.0R−1.0R");
-  await expect(rows.last()).toContainText("16 Nov · EURUSD+0.6R+7.6R");
+  await expect(rows.last()).toContainText("16 Nov · USDCHF−0.1R+7.5R");
   await expect(eq.getByRole("img")).toHaveCount(0);
   await eq.getByRole("button", { name: "Show chart" }).click();
   await expect(eq.getByRole("img")).toHaveCount(1);
@@ -178,16 +178,16 @@ test("View as table and Show chart swap each chart for its numbers and back", as
 
 test("keyboard: arrow keys read the chart points", async ({ page }) => {
   await open(page);
-  const svg = page.getByRole("img", { name: /Cumulative R, trade by trade, ending at \+7\.6R\. Deepest drawdown −2\.0R\./ });
+  const svg = page.getByRole("img", { name: /Cumulative R, trade by trade, ending at \+7\.5R\. Deepest drawdown −2\.0R\./ });
   await svg.focus();
   await page.keyboard.press("End");
   const last = page.locator(".kpt").last().locator(".kpt-on");
   await expect(last).toHaveCSS("opacity", "1");
-  await expect(last).toContainText("16 Nov · EURUSD");
+  await expect(last).toContainText("16 Nov · USDCHF");
   await page.keyboard.press("ArrowLeft");
-  await expect(page.locator(".kpt").nth(19).locator(".kpt-on")).toHaveCSS("opacity", "1");
+  await expect(page.locator(".kpt").nth(20).locator(".kpt-on")).toHaveCSS("opacity", "1");
   await page.keyboard.press("Escape");
-  await expect(page.locator(".kpt").nth(19).locator(".kpt-on")).toHaveCSS("opacity", "0");
+  await expect(page.locator(".kpt").nth(20).locator(".kpt-on")).toHaveCSS("opacity", "0");
 
   const bars = page.getByRole("img", { name: /^R by trading day: 2 Nov \+0\.8R/ });
   await bars.focus();
@@ -264,7 +264,7 @@ test("reduced motion: no draw-in, numbers and charts swap at once", async ({ pag
   expect(await page.locator("path.kdraw").evaluateAll((els) => els.map((e) => getComputedStyle(e).strokeDashoffset))).toEqual(["0px", "0px"]);
   await page.getByRole("button", { name: "3 months" }).click();
   // Without motion the value is final on the next frame.
-  await expect(stat(page, "Net R")).toHaveText("+9.1R", { timeout: 200 });
+  await expect(stat(page, "Net R")).toHaveText("+9.0R", { timeout: 200 });
   await expect(page.getByText("8 of 12 weeks up")).toBeVisible();
   await page.getByRole("button", { name: "This week", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
@@ -272,7 +272,7 @@ test("reduced motion: no draw-in, numbers and charts swap at once", async ({ pag
 
 test("numbers count to the new value on a change (not on first load)", async ({ page }) => {
   await page.goto("/");
-  await expect(stat(page, "Net R")).toHaveText("+7.6R");
+  await expect(stat(page, "Net R")).toHaveText("+7.5R");
   await page.evaluate(() => {
     const el = [...document.querySelectorAll(".kstat > div")].find((d) => d.textContent?.startsWith("Trades taken"))!.querySelector(".num")!;
     const w = window as unknown as { seen: string[] };
@@ -280,10 +280,10 @@ test("numbers count to the new value on a change (not on first load)", async ({ 
     new MutationObserver(() => w.seen.push(el.textContent ?? "")).observe(el, { characterData: true, subtree: true, childList: true });
   });
   await page.getByRole("button", { name: "3 months" }).click(); // a pointer click animates
-  await expect(stat(page, "Trades taken")).toHaveText("53");
+  await expect(stat(page, "Trades taken")).toHaveText("54");
   const seen = await page.evaluate(() => (window as unknown as { seen: string[] }).seen);
   expect(new Set(seen).size).toBeGreaterThan(2); // passed through values between 20 and 53
-  expect(seen[seen.length - 1]).toBe("53");
+  expect(seen[seen.length - 1]).toBe("54");
 });
 
 test("keyboard: a period chosen from the keyboard swaps the numbers at once (no count-up)", async ({ page }) => {
@@ -298,8 +298,8 @@ test("keyboard: a period chosen from the keyboard swaps the numbers at once (no 
   });
   await page.getByRole("button", { name: "3 months" }).focus();
   await page.keyboard.press("Enter");
-  await expect(stat(page, "Trades taken")).toHaveText("53");
+  await expect(stat(page, "Trades taken")).toHaveText("54");
   const seen = await page.evaluate(() => (window as unknown as { seen: string[] }).seen);
-  expect([...new Set(seen)]).toEqual(["53"]);
+  expect([...new Set(seen)]).toEqual(["54"]);
   await expect(page.getByRole("button", { name: "3 months" })).toHaveAttribute("aria-pressed", "true");
 });

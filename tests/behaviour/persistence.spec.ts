@@ -12,20 +12,20 @@ async function reload(page: Page) {
 
 test("a fresh browser starts from the sample data", async ({ page }) => {
   await page.goto("/log");
-  await expect(page.getByText("134 entries")).toBeVisible();
+  await expect(page.getByText("135 entries")).toBeVisible();
 });
 
 test("a deleted entry stays deleted after reload, and the dashboard agrees", async ({ page }) => {
   await page.goto("/log");
-  await expect(page.getByText("134 entries")).toBeVisible();
-  await page.getByRole("button", { name: /More actions/ }).nth(3).click();
+  await expect(page.getByText("135 entries")).toBeVisible();
+  await page.getByRole("button", { name: /More actions/ }).nth(4).click();
   await page.getByRole("menuitem", { name: "Delete" }).click();
-  await expect(page.getByText("133 entries")).toBeVisible();
+  await expect(page.getByText("134 entries")).toBeVisible();
   await reload(page);
-  await expect(page.getByText("133 entries")).toBeVisible();
-  // GBPUSD +2.1R on 16 Nov was the 4th row: This month drops from +7.6R to +5.5R.
+  await expect(page.getByText("134 entries")).toBeVisible();
+  // GBPUSD +2.1R on 16 Nov was the 5th row (after the very short USDCHF): This month drops from +7.5R to +5.4R.
   await page.goto("/");
-  await expect(page.locator(".kstat")).toContainText("+5.5R");
+  await expect(page.locator(".kstat")).toContainText("+5.4R");
 });
 
 test("the weekly takeaway is saved and shows in the next week's review after reload", async ({ page }) => {

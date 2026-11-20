@@ -312,7 +312,8 @@ question 10 is under Voice note.
   month's Net R reads +7.5R rather than the frame's +7.6R. Why: "Count it" and "Leave it out" must really
   do what they say. Source: `SHORT_TRADE` in `src/data/seed.ts`.
 - **A very short trade isn't asked for charts**: the Dashboard's no-charts notice skips it (it stays on the
-  EURUSD trade). The Trade log already asks one question about it, and one question at a time is enough.
+  EURUSD trade), and its Trade log row and Grid card have no drop zone. The Trade log already asks one
+  question about it, and one question at a time is enough. Charts can still be added from its story.
   *Claude's call, flagged to the owner for a yes.*
 - Unit tests still check every designed number against the handoff's own 134 entries (`handoffEntries`).
 
