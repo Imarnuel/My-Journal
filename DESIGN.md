@@ -219,3 +219,7 @@ decide what to rename, merge or remove.
 Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`. Why: the owner's choice. Geist Variable, self-hosted
 from `@fontsource-variable/geist` (latin and latin-ext), set once in `--font-sans`; nothing names a font
 directly. Sizes, weights, line heights and tracking are unchanged; tabular figures stay on (Geist has them).
+
+## Edit numbers has a pen
+On a trade's story, "Edit numbers" leads with the 16px `pen-line` icon used for Rename and Edit rules, so it
+reads as an action. While the numbers are open the button says "Done" without an icon.

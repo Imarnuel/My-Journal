@@ -40,3 +40,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | Story images and `states/` 15 to 24 | Trash replaces the chart menu (DESIGN.md, Chart tiles); state 19 retired. Only the tile row and hint changed (checked) | 2026-11-19 |
 
 | Every image | Typeface changed to Geist (DESIGN.md); checked dashboard and story in both themes | 2026-11-20 |
+
+| Story images and `states/` 20 | Pen icon on "Edit numbers" (DESIGN.md); only that button changed | 2026-11-20 |

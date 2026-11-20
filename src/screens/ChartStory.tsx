@@ -6,6 +6,7 @@ import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { useTileReorder } from "./story/useTileReorder";
+import { PencilIcon } from "./playbook/parts";
 import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -1021,7 +1022,14 @@ function StoryScreen({ id }: { id: string | null }) {
                 }}
                 style={{ minHeight: "28px", padding: "0 4px", fontSize: "14px" }}
               >
-                {numOpen ? "Done" : "Edit numbers"}
+                {numOpen ? (
+                  "Done"
+                ) : (
+                  <>
+                    <PencilIcon />
+                    Edit numbers
+                  </>
+                )}
               </button>
             </div>
             {numOpen ? (
