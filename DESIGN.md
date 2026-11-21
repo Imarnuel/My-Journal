@@ -438,6 +438,14 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
     Only pair and direction fill, and the direction only when every tool's readable prices give the same one
     (the owner's choice: "Pair and direction only"). The owner types the prices of the position they took.
     Not "too small to read".
+- **Several charts in one story** (2026-11-21, the owner: "build them, keep it silent"). Charts are read in the
+  order they are added; one rule per fact (`applyChartRead` in `ChartStory.tsx`):
+  - A chart of another pair than the story's fills nothing (a wrong upload, or DXY for context).
+  - A chart whose box points against the story's direction fills nothing (likely another trade).
+  - Prices come as one set from one chart, only while entry, stop and target are all empty: never mixed
+    across charts or with a price typed by hand.
+  - The first chart with a box wins; later charts never overwrite. Changing a fact is the owner's, by hand.
+  - A skipped chart is silent: no message, nothing changes (the owner's choice).
 - **Fills only what is still empty** (pair, direction, entry, stop, target); a pair chosen by hand stays. The
   facts line says "Reading your chart…" (shimmer) and the empty facts pulse softly while reading (no clipping,
   so the facts' menus still open); filled facts glow; the toast reads "Read from your chart: pair, direction

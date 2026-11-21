@@ -424,27 +424,40 @@ function StoryScreen({ id }: { id: string | null }) {
       if (res.ok) applyChartRead(res);
     });
   };
+  /**
+   * Fill the story from one chart's reading (DESIGN.md › Chart reading, "Several charts"). One rule per fact:
+   * a chart of another pair fills nothing; a box that contradicts the story's direction fills no prices; prices
+   * come as one set from one chart, only while all three are empty (never mixed across charts or with typed
+   * ones); the first chart with a box wins. A skipped chart is silent (the owner's choice).
+   */
   const applyChartRead = (r: ChartRead) => {
     const cur = storyRef.current;
     if (!cur) return;
+    const key = (p: string) => p.replace(/[^a-z0-9]/gi, "").toUpperCase();
+    const storyPairs = cur.pair ? cur.pair.split(",").map(key).filter(Boolean) : [];
+    if (r.pair && storyPairs.length && !storyPairs.includes(key(r.pair))) return; // another pair: nothing
+    if (r.dir && cur.dir && r.dir !== cur.dir) return; // the box contradicts the story: no direction or prices
     const patch: Partial<Story> = {};
     const filled: string[] = [];
     if (!cur.pair && r.pair) (patch.pair = r.pair), filled.push("pair");
     if (!cur.dir && r.dir) (patch.dir = r.dir), filled.push("direction");
-    const nums = { ...cur.numbers };
+    const n = cur.numbers;
+    const pricesEmpty = !n.entry && !n.stop && !n.target;
     let prices = 0;
-    for (const k of ["entry", "stop", "target"] as const) if (!nums[k] && r[k]) (nums[k] = r[k]!), prices++;
-    if (prices) patch.numbers = nums;
+    if (pricesEmpty && r.entry && r.stop) {
+      patch.numbers = { ...n, entry: r.entry, stop: r.stop, target: r.target ?? "" };
+      prices = r.target ? 3 : 2;
+    }
     if (!Object.keys(patch).length) {
       // Nothing new to fill. A position box whose prices can't be read gets the designed card (frame 16).
-      if (r.unreadable && !cur.numbers.entry) setUnreadable(true);
+      if (r.unreadable && pricesEmpty) setUnreadable(true);
       return;
     }
     const prev = prevOf(cur, patch);
     update(patch);
     setJustFilled(new Set(["facts"]));
     readTimers.current.push(setTimeout(() => setJustFilled(new Set()), 1400));
-    if (prices) filled.push(prices === 1 ? "1 price" : `${prices} prices`);
+    if (prices) filled.push(`${prices} prices`);
     toastA(`Read from your chart: ${listOf(filled)}`, () => update(prev), "added");
   };
   /** A field's voice moment: shimmer while the note is read (only if still empty), glow just after. */
