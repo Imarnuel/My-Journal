@@ -21,7 +21,12 @@ export default defineConfig({
   // journal build (`--mode real`: empty, today's date, no sample stand-ins). DESIGN.md › Real app.
   projects: [
     { name: "sample", testIgnore: "real/**", use: { baseURL: "http://localhost:5173" } },
-    { name: "real", testMatch: "real/**/*.spec.ts", use: { baseURL: "http://localhost:5174" } },
+    {
+      name: "real",
+      testMatch: "real/**/*.spec.ts",
+      // A fake microphone for voice notes (Chromium's built-in test device; no real audio needed).
+      use: { baseURL: "http://localhost:5174", launchOptions: { ...(executablePath ? { executablePath } : {}), args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] } },
+    },
   ],
   webServer: [
     { command: "npx vite --port 5173 --strictPort", url: "http://localhost:5173", reuseExistingServer: true, timeout: 60_000 },

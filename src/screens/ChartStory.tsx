@@ -39,12 +39,16 @@ import {
   type Numbers,
   type Story,
 } from "../lib/story";
-import { readVoiceNote, transcriptRuns } from "../lib/voiceNote";
+import { readVoiceNote, transcriptRuns, type VoiceNoteResult } from "../lib/voiceNote";
+import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
+import type { VoiceContext } from "../lib/voicePrompt";
+import { loadVoiceAudio, saveVoiceAudio } from "../data/voiceAudio";
 import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
 import { CANVAS_EXTRAS, PAIRS, captionOf, newStoryStart } from "./story/canvas";
-import { localDate, localTime, REAL, VOICE } from "../app/mode";
-import { DEFAULT_SESSIONS } from "../data/settings";
+import { localDate, localTime, REAL } from "../app/mode";
+import { useVoice } from "../app/useVoice";
+import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText } from "./story/parts";
 
@@ -93,6 +97,10 @@ function StoryScreen({ id }: { id: string | null }) {
     () => (saved ? (entry ? storyFromEntry(entry, CANVAS_EXTRAS[entry.id], extrasById[entry.id]) : null) : draft),
     [saved, entry, extrasById, draft],
   );
+  // The story as of the latest render, for answers that arrive later (a voice note read by Gemini).
+  const VOICE = useVoice();
+  const storyRef = useRef<Story | null>(story);
+  storyRef.current = story;
 
   // UI state
   const [sel, setSel] = useState<number | null>(null);
@@ -111,7 +119,17 @@ function StoryScreen({ id }: { id: string | null }) {
   const numBefore = useRef<Pick<Story, "numbers" | "r" | "rByHand"> | null>(null);
   const [resDraft, setResDraft] = useState<string | null>(null);
   const [deleted, setDeleted] = useState<{ e: Entry; index: number } | null>(null);
-  const [voiceError, setVoiceError] = useState(false);
+  // Why the last voice note gave nothing (frame 16's "unclear", or the real journal's other cases).
+  const [voiceError, setVoiceError] = useState<VoiceProblem | null>(null);
+  // Real journal: the microphone recorder, the last recording (kept for Try again), Gemini reading it,
+  // and the story's own recording for playback (DESIGN.md › Real app).
+  const recorder = useRef<Recorder | null>(null);
+  const lastRec = useRef<Recording | null>(null);
+  const pendingAudio = useRef<Blob | null>(null);
+  const saving = useRef(false); // Save story runs once per press
+  const [reading, setReading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const audioEl = useRef<HTMLAudioElement | null>(null);
   const [unreadable, setUnreadable] = useState(() => query("charts") === "unreadable");
   const recT = useRef<ReturnType<typeof setInterval>>(undefined);
   const playT = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -126,9 +144,18 @@ function StoryScreen({ id }: { id: string | null }) {
     () => () => {
       clearInterval(recT.current);
       clearInterval(playT.current);
+      recorder.current?.cancel();
+      audioEl.current?.pause();
     },
     [],
   );
+  // A saved story's recording, if one was kept.
+  useEffect(() => {
+    if (!REAL || !saved || !id) return;
+    let live = true;
+    loadVoiceAudio(id).then((u) => live && setAudioUrl(u));
+    return () => void (live = false);
+  }, [saved, id]);
 
   const kindOf = (t: string) => pendingKinds[t] ?? tagKind(t);
 
@@ -276,17 +303,28 @@ function StoryScreen({ id }: { id: string | null }) {
   };
 
   // ---- notes
-  const startRec = () => {
+  const startRec = async () => {
     clearInterval(playT.current);
     clearInterval(recT.current);
+    audioEl.current?.pause();
     setPlaying(false);
-    setVoiceError(false);
+    setVoiceError(null);
+    if (REAL) {
+      try {
+        recorder.current = await startRecorder();
+      } catch {
+        setVoiceError("mic");
+        return;
+      }
+    }
     setRecording(true);
     setRecSec(0);
     recT.current = setInterval(() => setRecSec((x) => x + 1), 1000);
   };
   const cancelRec = () => {
     clearInterval(recT.current);
+    recorder.current?.cancel();
+    recorder.current = null;
     setRecording(false);
     setRecSec(0);
   };
@@ -296,19 +334,64 @@ function StoryScreen({ id }: { id: string | null }) {
     setRecording(false);
     setRecSec(0);
     setSaid(false);
-    const res = await readVoiceNote(secs);
+    let rec: Recording | undefined;
+    if (REAL && recorder.current) {
+      rec = await recorder.current.stop();
+      recorder.current = null;
+      lastRec.current = rec;
+    }
+    await readAndFill(secs, rec);
+  };
+  /** Read a note and fill what is still empty, from the story as it is when the answer arrives. */
+  const readAndFill = async (secs: number, rec?: Recording) => {
+    setVoiceError(null);
+    setReading(true);
+    const res: VoiceNoteResult = await readVoiceNote(secs, rec, rec ? voiceContext() : undefined);
+    setReading(false);
     if (!res.ok) {
-      setVoiceError(true);
+      setVoiceError(res.reason);
       return;
     }
-    const { patch, filled, newKinds } = applyVoiceNote(s, res);
-    const prev = prevOf(s, patch);
+    lastRec.current = null;
+    const cur = storyRef.current ?? s;
+    const { patch, filled, newKinds } = applyVoiceNote(cur, res);
+    const prev = prevOf(cur, patch);
     registerKinds(newKinds);
     update(patch);
+    if (rec) keepRecording(rec.blob);
     toastA(voiceToast(filled), () => update(prev), "voice");
+  };
+  /** Keep the recording with the story, unless Settings › Voice notes › Keep recordings is off. */
+  const keepRecording = (blob: Blob) => {
+    const keep = (useStore.getState().settings.keepRecordings as boolean | undefined) ?? SETTINGS_DEFAULTS.keepRecordings;
+    audioEl.current?.pause();
+    audioEl.current = null;
+    if (!keep) {
+      setAudioUrl(null);
+      return;
+    }
+    setAudioUrl(URL.createObjectURL(blob));
+    if (saved && id) void saveVoiceAudio(id, blob);
+    else pendingAudio.current = blob;
   };
   const len = s.voiceLen;
   const togglePlay = () => {
+    if (REAL && audioUrl) {
+      const a = audioEl.current ?? (audioEl.current = new Audio(audioUrl));
+      a.ontimeupdate = () => setPSec(Math.floor(a.currentTime));
+      a.onended = () => {
+        setPlaying(false);
+        setPSec(0);
+      };
+      if (playing) {
+        a.pause();
+        setPlaying(false);
+      } else {
+        void a.play();
+        setPlaying(true);
+      }
+      return;
+    }
     if (playing) {
       clearInterval(playT.current);
       setPlaying(false);
@@ -432,12 +515,16 @@ function StoryScreen({ id }: { id: string | null }) {
     removeEntry(all[index].id);
   };
 
-  const saveStory = () => {
+  const saveStory = async () => {
+    if (saving.current) return; // one story per press, even while the recording is written
+    saving.current = true;
     const nid = nextId(useStore.getState().entries);
     const fresh = Object.entries(pendingKinds).filter(([t]) => !useStore.getState().tags.some((x) => x.t === t));
     if (fresh.length) setTags([...useStore.getState().tags, ...fresh.map(([t, k]) => ({ t, n: 1, k }))]);
     addEntry(entryFromStory(nid, s, kindOf));
     if (s.voiceLen) setExtras(nid, { voiceLen: s.voiceLen });
+    // The recording is written before the story page opens, so the page finds it.
+    if (pendingAudio.current) await saveVoiceAudio(nid, pendingAudio.current);
     nav(`/story/${nid}`);
     toastA(`${s.pair} saved to your trade log`);
   };
@@ -688,12 +775,24 @@ function StoryScreen({ id }: { id: string | null }) {
                 Optional
               </span>
             </div>
-            {voiceError && !recording ? (
-              <ProblemCard title="Couldn't make out your note" text="Too much background noise. Nothing was filled in, so nothing wrong was saved.">
-                <button type="button" className="btn btn-g" onClick={startRec}>
-                  <Mic />
-                  Record again
-                </button>
+            {reading ? (
+              // Gemini reads the note (real journal); the notes stay editable meanwhile.
+              <div role="status" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
+                <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--voice)" }} />
+                <span style={{ fontSize: "14px", fontWeight: 500 }}>{VOICE_COPY.reading}</span>
+              </div>
+            ) : voiceError && !recording ? (
+              <ProblemCard title={VOICE_COPY[voiceError].title} text={VOICE_COPY[voiceError].text}>
+                {(voiceError === "offline" || voiceError === "failed") && lastRec.current ? (
+                  <button type="button" className="btn btn-g" onClick={() => lastRec.current && readAndFill(lastRec.current.seconds, lastRec.current)}>
+                    Try again
+                  </button>
+                ) : (
+                  <button type="button" className="btn btn-g" onClick={startRec}>
+                    <Mic />
+                    Record again
+                  </button>
+                )}
               </ProblemCard>
             ) : VOICE && !s.voice && !recording ? (
               <button type="button" onClick={startRec} style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
@@ -778,6 +877,7 @@ function StoryScreen({ id }: { id: string | null }) {
               <>
                 {/* The voice note row: one height (28px controls), 14px control labels, 12px for the length. */}
                 <div className="kvoice-row">
+                  {REAL && !audioUrl ? null : (
                   <button type="button" className="kplay" aria-label={playing ? "Pause your voice note" : "Play your voice note"} onClick={togglePlay}>
                     {playing ? (
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -790,6 +890,7 @@ function StoryScreen({ id }: { id: string | null }) {
                       </svg>
                     )}
                   </button>
+                  )}
                   <span className="kvoice-len">{playText}</span>
                   <button type="button" className="btn btn-q kbtn-sm" aria-expanded={said ? "true" : "false"} onClick={() => setSaid(!said)}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1172,4 +1273,29 @@ function screenshotTime(files: File[]): Pick<Story, "date" | "time" | "session">
   const d = new Date(ms);
   const time = localTime(d);
   return { date: localDate(d), time, session: sessionOf(time, sessionTimes()) };
+}
+
+type VoiceProblem = Exclude<VoiceNoteResult, { ok: true }>["reason"];
+
+/**
+ * Voice note wording. "unclear" is frame 16's; the rest are the real journal's, approved by the owner
+ * (DESIGN.md › Real app, voice notes).
+ */
+const VOICE_COPY: Record<VoiceProblem, { title: string; text: string }> & { reading: string } = {
+  reading: "Reading your note…",
+  unclear: { title: "Couldn't make out your note", text: "Too much background noise. Nothing was filled in, so nothing wrong was saved." },
+  mic: { title: "The microphone is off", text: "Allow the microphone for this site in your browser, then record again." },
+  offline: { title: "You're offline", text: "Your recording is kept. Try again when you're back online." },
+  failed: { title: "Couldn't read your note just now", text: "Your recording is kept. Try again in a moment." },
+};
+
+/** What the voice note server needs to map a note onto the user's own setups, tags and language. */
+function voiceContext(): VoiceContext {
+  const st = useStore.getState();
+  return {
+    setups: st.setups.filter((x) => !x.archived).map((x) => x.name),
+    tags: [...st.tags].sort((a, b) => b.n - a.n).map((t) => ({ t: t.t, k: t.k })),
+    headspaces: HEADSPACE,
+    language: (st.settings.voiceLanguage as string | undefined) ?? SETTINGS_DEFAULTS.voiceLanguage,
+  };
 }

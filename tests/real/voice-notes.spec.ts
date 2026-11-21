@@ -1,0 +1,103 @@
+// Voice notes in the real journal (DESIGN.md › Real app): a real recording (Chromium's fake microphone) goes
+// to /api/voice-note, faked here; the server function itself is unit tested (src/lib/voicePrompt.test.ts).
+import { expect, test, type Page, type Route } from "@playwright/test";
+
+const fill = {
+  ok: true,
+  length: "0:03",
+  transcript: "Took the [[London breakout]] on the retest, felt [[calm]].",
+  before: "Long on the London breakout retest.",
+  refl: "Waiting for the retest paid.",
+  suggested: true,
+  setup: null,
+  tags: [{ t: "Retest", k: "Good" }],
+  followed: true,
+  headspace: "Calm",
+};
+
+/** Fake the server: ready, and answer each POST with the next reply in the list. */
+async function server(page: Page, replies: unknown[], ready = true) {
+  const posts: string[] = [];
+  await page.route("**/api/voice-note", async (route: Route) => {
+    if (route.request().method() === "GET") return route.fulfill({ json: { ready } });
+    posts.push(route.request().postData() ?? "");
+    const r = replies.shift() ?? fill;
+    await new Promise((f) => setTimeout(f, 300)); // Gemini takes a moment
+    return route.fulfill({ json: r });
+  });
+  return posts;
+}
+
+async function talk(page: Page) {
+  await page.getByRole("button", { name: /Talk it through/ }).click();
+  await expect(page.getByText(/Listening/)).toBeVisible();
+  await page.waitForTimeout(1200);
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+}
+
+test("hidden until the server is set up", async ({ page }) => {
+  await server(page, [], false);
+  await page.goto("/new");
+  await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Talk it through/ })).toHaveCount(0);
+});
+
+test("record, read, fill what is empty; the recording plays", async ({ page }) => {
+  const posts = await server(page, [fill]);
+  await page.goto("/new");
+  await page.locator("#nR").fill("My own reflection.");
+  await talk(page);
+  await expect(page.getByText("Reading your note…")).toBeVisible();
+  await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
+  await expect(page.locator("#nR")).toHaveValue("My own reflection."); // set by hand: never overwritten
+  await expect(page.getByRole("status").filter({ hasText: "Filled from your note" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
+  const sent = JSON.parse(posts[0]);
+  expect(sent.mime).toMatch(/^audio\//);
+  expect(sent.audio.length).toBeGreaterThan(100);
+  expect(sent.context.headspaces).toContain("Calm");
+});
+
+test("the service fails: the recording is kept and Try again reads it", async ({ page }) => {
+  const posts = await server(page, [{ ok: false, reason: "failed" }, fill]);
+  await page.goto("/new");
+  await talk(page);
+  await expect(page.getByText("Couldn't read your note just now")).toBeVisible();
+  await expect(page.getByText("Your recording is kept. Try again in a moment.")).toBeVisible();
+  await page.getByRole("button", { name: "Try again" }).click();
+  await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
+  expect(posts.length).toBe(2);
+  expect(posts[1]).toBe(posts[0]); // the same recording, sent again
+});
+
+test("no understandable speech: the designed message, Record again", async ({ page }) => {
+  await server(page, [{ ok: false, reason: "unclear" }]);
+  await page.goto("/new");
+  await talk(page);
+  await expect(page.getByText("Couldn't make out your note")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Record again" })).toBeVisible();
+});
+
+test("the microphone is blocked: say so, Record again", async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("denied", "NotAllowedError"));
+  });
+  await server(page, []);
+  await page.goto("/new");
+  await page.getByRole("button", { name: /Talk it through/ }).click();
+  await expect(page.getByText("The microphone is off")).toBeVisible();
+  await expect(page.getByText("Allow the microphone for this site in your browser, then record again.")).toBeVisible();
+});
+
+test("a saved story keeps its recording", async ({ page }) => {
+  await server(page, [fill]);
+  await page.goto("/new");
+  await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
+  await page.locator('#main input[type="file"]').first().setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("89504e470d0a1a0a", "hex") });
+  await talk(page);
+  await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
+  await page.getByRole("button", { name: "Save story" }).click();
+  await expect(page).toHaveURL(/\/story\//);
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
+});

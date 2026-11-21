@@ -19,7 +19,7 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== location.origin || url.pathname.startsWith("/.netlify/")) return; // server functions: never cached
+  if (url.origin !== location.origin || url.pathname.startsWith("/.netlify/") || url.pathname.startsWith("/api/")) return; // server functions: never cached
   if (req.mode === "navigate") {
     e.respondWith(
       fetch(req)

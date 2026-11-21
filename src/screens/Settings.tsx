@@ -9,7 +9,8 @@ import { ChoiceSelect } from "../components/primitives/ChoiceSelect";
 import { useMenu } from "./useKit";
 import { Switch } from "./settings/Switch";
 import { YourTags } from "./settings/YourTags";
-import { REAL, VOICE } from "../app/mode";
+import { REAL } from "../app/mode";
+import { useVoice } from "../app/useVoice";
 
 const APPEARANCE: { label: string; value: Appearance }[] = [
   { label: "System", value: "system" },
@@ -42,6 +43,7 @@ export function Settings() {
   const [rday, setRday] = usePref("reviewDay");
   const [remind, setRemind] = usePref("reminderOn");
   const [rtime, setRtime] = usePref("reminderTime");
+  const VOICE = useVoice();
   const [tz, setTz] = usePref("timeZone");
   const [sess, setSess] = usePref("sessions");
   const [lang, setLang] = usePref("voiceLanguage");

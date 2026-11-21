@@ -396,6 +396,23 @@ The owner chose to make the journal usable for real trades on their own devices 
   doesn't cover API use, and Gemini hears audio itself, so no browser speech step), via a small server
   function on the same host so no key sits in the page. On the free tier Google may use what is sent to
   improve its products; the owner was told.
+- **Voice notes (Gemini, the owner's choice).** The app records the note (`src/lib/recorder.ts`) and posts it
+  with the owner's setups, tags (with kinds), the headspace list and Settings' language to the edge function
+  `netlify/edge-functions/voice-note.ts` (path `/api/voice-note`). It asks Gemini's Interactions API
+  (`gemini-4-hydrogen`, free tier; `GEMINI_MODEL` overrides) for JSON in a fixed shape whose setup and headspace
+  can only be the owner's own (`src/lib/voicePrompt.ts`), never stores the request, and checks every value
+  again before answering. The story then fills only what is still empty, from the story as it is when the
+  answer arrives, with the toast and Undo as before. The key is the Netlify variable `GEMINI_API_KEY`; it never
+  reaches the page.
+  - Talk it through and Settings › Voice notes appear by themselves once the server says it is ready (a key is
+    set); the last answer is remembered, so they also show offline (`src/app/useVoice.ts`).
+  - The recording is kept with the story in the browser (`src/data/voiceAudio.ts`) and plays from the voice
+    row, unless Keep recordings is off; then there is no play button.
+  - Wording (proposed 2026-11-21, awaiting the owner's yes): "Reading your note…" while Gemini reads;
+    "The microphone is off" / "Allow the microphone for this site in your browser, then record again." with
+    Record again; "You're offline" / "Your recording is kept. Try again when you're back online." and
+    "Couldn't read your note just now" / "Your recording is kept. Try again in a moment." with Try again (the
+    same recording is sent again). "Couldn't make out your note" stays frame 16's.
 - **Connect MT5 stays, marked as waiting** until sync exists (the owner's choice). Add account asks for
   login and server only, under the line "MT5 sync isn't built yet. Your login and server are kept, and trade
   numbers fill in once it is." (no investor password, no Test connection); both are needed while MT5 is on.
