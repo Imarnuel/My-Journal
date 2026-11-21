@@ -385,7 +385,8 @@ The owner chose to make the journal usable for real trades on their own devices 
   no sample stand-ins: no sample prices, no prefilled GBPUSD New chart story, no example setups, no sample
   account details. No new buttons or settings switch between them (the owner's choice).
 - **Its own web address**, installable on computer and phone (the owner's choice); hosted free on Netlify,
-  which the owner connects to GitHub. Netlify builds the `main` branch (`netlify.toml`); finished, tested work
+  which the owner connected to GitHub: https://my-journal-rlfv.netlify.app (public: the data never leaves the
+  device, and a login would get in the way of the installed app). Netlify builds the `main` branch (`netlify.toml`); finished, tested work
   moves from the working branch to `main`. Installable: `public/manifest.webmanifest`, icons drawn from the
   sidebar's logo mark (`scripts/app-icon.svg`, rendered by `scripts/app-icons.mjs`), and an offline worker
   (`public/sw.js`, real build only) so the app opens without a connection; the data itself is in the browser. Until there is a back end, data stays on each device, in its own browser

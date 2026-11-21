@@ -19,3 +19,9 @@
   for = "/sw.js"
   [headers.values]
     Cache-Control = "no-cache"
+
+# The install file with its proper type (browsers are lenient, but this is the standard one).
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"

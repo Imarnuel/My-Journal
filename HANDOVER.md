@@ -17,6 +17,11 @@ Written 20 November 2026, at the end of the first build session.
   pull request has been opened). Keep committing to that branch unless the owner says otherwise.
 - All checks pass: 97 unit tests (`npm test`), 327 browser tests (`npm run e2e`). One story test ("numbers: click one to edit it in place…") is flaky, about 1 run in 5, also before 2026-11-20: worth fixing.
 
+## The real journal
+- Live at https://my-journal-rlfv.netlify.app (Netlify, builds `main`; see DESIGN.md › Real app). Work on the
+  working branch; when a change is finished, tested and the owner has seen it in the preview, push it to
+  `main` (`git push origin HEAD:main`) and Netlify republishes. `npm run dev:real` runs it locally.
+
 ## How the owner works
 - The owner looks at the app on the live preview: https://claude.ai/artifact/Lnqrd7dbSJgF2Q8DRExLt6
   After any visible change: `npm run build:artifact`, then republish `dist-artifact/journal.html` with files
