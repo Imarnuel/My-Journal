@@ -25,7 +25,9 @@ export const SETTINGS_DEFAULTS = {
   timeZone: (REAL && detectedZone()) || "Lagos (UTC+1)",
   sessions: DEFAULT_SESSIONS,
   voiceLanguage: "English",
-  keepRecordings: true,
+  // The real journal keeps only the written notes (the owner, 2026-11-21: "keep only the written notes for
+  // now"; recordings fill storage quickly). The switch in Settings turns keeping back on. DESIGN.md › Real app.
+  keepRecordings: !REAL,
   /** Look-alike tag pairs already merged or no longer relevant ("from>into"). */
   mergedLookalikes: [] as string[],
 };

@@ -474,8 +474,13 @@ The owner chose to make the journal usable for real trades on their own devices 
     tags with their kinds, plan and headspace.
   - Talk it through and Settings › Voice notes appear by themselves once the server says it is ready (a key is
     set); the last answer is remembered, so they also show offline (`src/app/useVoice.ts`).
-  - The recording is kept with the story in the browser (`src/data/voiceAudio.ts`) and plays from the voice
-    row, unless Keep recordings is off; then there is no play button.
+  - **Only the written notes are kept** (the owner, 2026-11-21: "keep only the written notes for now"; why:
+    "the transcription is the most important thing, not the audio. audio makes us run into storage issues
+    quickly"). Keep recordings starts off in the real journal (`src/data/settings.ts`), so a story keeps its
+    notes, details and "What you said", with no play button. Turning Keep recordings on keeps each new
+    recording with its story in the browser (`src/data/voiceAudio.ts`), playable from the voice row.
+    Recordings kept before this change stay with their stories. The preview's sample stories keep
+    their designed play button (they have no real audio).
   - Wording (approved by the owner 2026-11-21): "Reading your note…" while Gemini reads;
     "The microphone is off" / "Allow the microphone for this site in your browser, then record again." with
     Record again; "You're offline" / "Your recording is kept. Try again when you're back online." and

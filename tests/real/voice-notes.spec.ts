@@ -42,7 +42,7 @@ test("hidden until the server is set up", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Talk it through/ })).toHaveCount(0);
 });
 
-test("record, read, fill what is empty; the recording plays", async ({ page }) => {
+test("record, read, fill what is empty; only the written notes are kept", async ({ page }) => {
   const posts = await server(page, [fill]);
   await page.goto("/new");
   await page.locator("#nR").fill("My own reflection.");
@@ -58,7 +58,8 @@ test("record, read, fill what is empty; the recording plays", async ({ page }) =
   await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
   await expect(page.locator("#nR")).toHaveValue("My own reflection."); // set by hand: never overwritten
   await expect(page.getByRole("status").filter({ hasText: "Filled from your note" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /What you said/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play your voice note" })).toHaveCount(0); // no recording kept
   const sent = JSON.parse(posts[0]);
   expect(sent.mime).toMatch(/^audio\//);
   expect(sent.audio.length).toBeGreaterThan(100);
@@ -96,8 +97,7 @@ test("the microphone is blocked: say so, Record again", async ({ page }) => {
   await expect(page.getByText("Allow the microphone for this site in your browser, then record again.")).toBeVisible();
 });
 
-test("a saved story keeps its recording", async ({ page }) => {
-  await server(page, [fill]);
+async function saveTalkedStory(page: Page) {
   await page.goto("/new");
   await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
   await page.locator('#main input[type="file"]').first().setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("89504e470d0a1a0a", "hex") });
@@ -106,6 +106,19 @@ test("a saved story keeps its recording", async ({ page }) => {
   await page.getByRole("button", { name: "Save story" }).click();
   await expect(page).toHaveURL(/\/story\//);
   await page.reload();
+}
+
+test("a saved story keeps only the written notes; Keep recordings on keeps the recording too", async ({ page }) => {
+  await server(page, [fill, fill]);
+  await saveTalkedStory(page);
+  await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
+  await expect(page.getByRole("button", { name: /What you said/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play your voice note" })).toHaveCount(0);
+  await page.goto("/settings");
+  const keep = page.getByRole("switch", { name: "Keep recordings" });
+  await expect(keep).toHaveAttribute("aria-checked", "false");
+  await keep.click();
+  await saveTalkedStory(page);
   await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
 });
 
