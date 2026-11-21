@@ -122,6 +122,35 @@ test("a saved story keeps only the written notes; Keep recordings on keeps the r
   await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
 });
 
+/** The recordings kept in the real journal's browser database. */
+const keptRecordings = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<string[]>((resolve) => {
+        const req = indexedDB.open("journal-real", 1);
+        req.onsuccess = () => {
+          const r = req.result.transaction("kv").objectStore("kv").getAllKeys();
+          r.onsuccess = () => resolve(r.result.map(String).filter((k) => k.startsWith("voice:")));
+        };
+      }),
+  );
+
+test("a deleted story's recording goes when the journal next opens", async ({ page }) => {
+  await server(page, [fill]);
+  await page.goto("/settings");
+  await page.getByRole("switch", { name: "Keep recordings" }).click();
+  await saveTalkedStory(page);
+  await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
+  expect(await keptRecordings(page)).toHaveLength(1);
+  await page.getByRole("button", { name: "More actions" }).click();
+  await page.getByRole("menuitem", { name: "Delete story" }).click();
+  await expect(page.getByText("Story deleted")).toBeVisible();
+  expect(await keptRecordings(page)).toHaveLength(1); // Undo could still bring it back
+  await page.goto("/log");
+  await page.reload();
+  await expect.poll(() => keptRecordings(page)).toHaveLength(0);
+});
+
 test("slow: steps give way to reassurance; the time limit keeps the recording to play or try again", async ({ page }) => {
   await page.clock.install();
   await page.route("**/api/voice-note", async (route) => {

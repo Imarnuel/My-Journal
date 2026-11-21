@@ -89,6 +89,20 @@ export const idbStorage: StateStorage = {
   },
 };
 
+/** Every saved key that starts with `prefix` (IndexedDB, or the localStorage fallback). Never throws. */
+export async function keysWith(prefix: string): Promise<string[]> {
+  try {
+    const keys = (await tx("readonly", (s) => s.getAllKeys())) as IDBValidKey[];
+    return keys.map(String).filter((k) => k.startsWith(prefix));
+  } catch {
+    try {
+      return Object.keys(localStorage).filter((k) => k.startsWith(prefix));
+    } catch {
+      return [];
+    }
+  }
+}
+
 export const storage = createJSONStorage(() => idbStorage);
 
 /** Common options for every persisted store. */

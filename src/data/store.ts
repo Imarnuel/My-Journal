@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { idbStorage, persistOptions, toDataUrl } from "./persist";
+import { sweepVoiceAudio } from "./voiceAudio";
 import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
 import { SAMPLE_BOS_IDS, SAMPLE_BOS_TAG, seedAccounts, seedEntries, seedTags, seedWeeks, SHORT_TRADE, TODAY } from "./seed";
 import { fadeTheme } from "../components/primitives/motion";
@@ -12,9 +13,10 @@ export type Appearance = "system" | "light" | "dark";
 
 /**
  * Version of the saved journal data. 2 (2026-11-20): the very short USDCHF trade became a real entry and two
- * sample trades got the "BOS" tag (the owner's answers to open questions 4 and 6).
+ * sample trades got the "BOS" tag (the owner's answers to open questions 4 and 6). 3 (2026-11-21): the voice
+ * recordings kept until then are cleared once.
  */
-const STORE_VERSION = 2;
+const STORE_VERSION = 3;
 type Saved = { entries?: Entry[]; tags?: Tag[] } & Record<string, unknown>;
 
 /**
@@ -22,6 +24,9 @@ type Saved = { entries?: Entry[]; tags?: Tag[] } & Record<string, unknown>;
  * missing, never overwrite. The short trade keeps the answer saved by the old Trade log prompt, if any.
  */
 export async function migrateData(saved: Saved, from: number): Promise<Saved> {
+  // Version 3: the owner chose to keep only the written notes (2026-11-21), and asked for the recordings kept
+  // until then to be cleared, once (DESIGN.md › Real app).
+  if (from < 3) await sweepVoiceAudio(() => false);
   if (from >= 2 || !saved.entries) return saved;
   let entries = saved.entries;
   if (!entries.some((e) => e.id === SHORT_TRADE.id)) {

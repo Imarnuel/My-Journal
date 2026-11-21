@@ -1,9 +1,10 @@
 // Voice note recordings of the real journal, kept in the browser's database apart from the journal data
 // (one record per story, so the journal itself stays small). Settings › Voice notes › Keep recordings off
 // means none are kept. DESIGN.md › Real app.
-import { idbStorage } from "./persist";
+import { idbStorage, keysWith } from "./persist";
 
-const key = (id: string) => `voice:${id}`;
+const PREFIX = "voice:";
+const key = (id: string) => `${PREFIX}${id}`;
 
 const toDataUrl = (blob: Blob) =>
   new Promise<string>((resolve, reject) => {
@@ -37,4 +38,14 @@ export async function removeVoiceAudio(id: string): Promise<void> {
   } catch {
     /* nothing to remove */
   }
+}
+
+/**
+ * Remove every kept recording whose story isn't kept (DESIGN.md › Real app): run when the journal opens, so a
+ * deleted story's recording goes once its Undo can no longer bring it back (an Undo never outlives the visit).
+ */
+export async function sweepVoiceAudio(isKept: (id: string) => boolean): Promise<number> {
+  const gone = (await keysWith(PREFIX)).filter((k) => !isKept(k.slice(PREFIX.length)));
+  await Promise.all(gone.map((k) => idbStorage.removeItem(k)));
+  return gone.length;
 }

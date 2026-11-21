@@ -479,7 +479,11 @@ The owner chose to make the journal usable for real trades on their own devices 
     quickly"). Keep recordings starts off in the real journal (`src/data/settings.ts`), so a story keeps its
     notes, details and "What you said", with no play button. Turning Keep recordings on keeps each new
     recording with its story in the browser (`src/data/voiceAudio.ts`), playable from the voice row.
-    Recordings kept before this change stay with their stories. The preview's sample stories keep
+    The recordings kept before this change were cleared once (the owner's choice; data version 3 in
+    `src/data/store.ts`). A deleted story's recording is removed the next time the journal opens
+    (`sweepVoiceAudio` in `src/data/voiceAudio.ts`, run from `src/main.tsx` once the journal has loaded): one
+    rule for every way of deleting (story page, trade log, an account's trades), and an Undo never outlives the
+    visit, so nothing Undo could restore is lost. The preview's sample stories keep
     their designed play button (they have no real audio).
   - Wording (approved by the owner 2026-11-21): "Reading your note…" while Gemini reads;
     "The microphone is off" / "Allow the microphone for this site in your browser, then record again." with

@@ -8,6 +8,7 @@ import { useStore } from "./data/store";
 import { usePlaybook } from "./data/playbook";
 import { useStoryExtras } from "./screens/story/extras";
 import { useAccountMeta } from "./screens/accounts/meta";
+import { sweepVoiceAudio } from "./data/voiceAudio";
 
 type Persisted = { persist: { hasHydrated: () => boolean; onFinishHydration: (fn: () => void) => () => void } };
 
@@ -36,6 +37,13 @@ Promise.race([Promise.all(stores.map(hydrated)), new Promise((r) => setTimeout(r
       </Router>
     </StrictMode>,
   );
+});
+
+// Recordings of deleted stories go once the journal has really loaded (never on the one-second fallback, when
+// the stories may not be read yet). DESIGN.md › Real app.
+Promise.all(stores.map(hydrated)).then(() => {
+  const ids = new Set(useStore.getState().entries.map((e) => e.id));
+  void sweepVoiceAudio((id) => ids.has(id));
 });
 
 // The real journal works offline once loaded (public/sw.js). Only in its production build: never in the
