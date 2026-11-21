@@ -127,3 +127,13 @@ test("Dashboard with no trades: the counts only, nothing made up", async ({ page
   await expect(page.getByText(/^Best /)).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toHaveCount(0);
 });
+
+test.describe("Settings in New York", () => {
+  test.use({ timezoneId: "America/New_York" });
+  test("the time zone is detected; no voice settings or reminder promises yet", async ({ page }) => {
+    await page.goto("/settings");
+    await expect(page.getByRole("button", { name: /^Time zone: / })).toHaveAccessibleName("Time zone: New York (UTC−5)");
+    await expect(page.getByRole("heading", { name: "Voice notes" })).toHaveCount(0);
+    await expect(page.getByText("One reminder that day")).toHaveCount(0);
+  });
+});

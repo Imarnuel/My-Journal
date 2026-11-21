@@ -9,7 +9,7 @@ import { ChoiceSelect } from "../components/primitives/ChoiceSelect";
 import { useMenu } from "./useKit";
 import { Switch } from "./settings/Switch";
 import { YourTags } from "./settings/YourTags";
-import { REAL } from "../app/mode";
+import { REAL, VOICE } from "../app/mode";
 
 const APPEARANCE: { label: string; value: Appearance }[] = [
   { label: "System", value: "system" },
@@ -100,7 +100,8 @@ export function Settings() {
         <section aria-labelledby="set-review" style={{ display: "flex", flexDirection: "column" }}>
           <h2 id="set-review" style={h2}>Weekly review</h2>
           <div style={{ marginTop: "12px" }}>
-            <Row title="Review day" hint="One reminder that day, only if you traded that week.">
+            {/* No reminders can be sent in the real journal yet, so it doesn't promise one (DESIGN.md › Real app). */}
+            <Row title="Review day" hint={REAL ? undefined : "One reminder that day, only if you traded that week."}>
               {select("rday", "Review day", rday, REVIEW_DAYS, setRday)}
             </Row>
           </div>
@@ -124,7 +125,7 @@ export function Settings() {
           <p className="meta" style={{ margin: "4px 0 0" }}>Shown in your time zone. They shift automatically when clocks change.</p>
           <div style={{ marginTop: "12px" }}>
             <Row title="Time zone" hint="Detected from your computer. Sessions and days are worked out from it.">
-              {select("tz", "Time zone", tz, TIME_ZONES, setTz)}
+              {select("tz", "Time zone", tz, TIME_ZONES.includes(tz) ? TIME_ZONES : [tz, ...TIME_ZONES], setTz)}
             </Row>
             <div style={{ marginTop: "8px" }}>
               {sess.map((x, i) => (
@@ -159,6 +160,8 @@ export function Settings() {
 
         <YourTags />
 
+        {/* Voice note settings show where voice notes work (DESIGN.md › Real app). */}
+        {VOICE ? (
         <section aria-labelledby="set-voice" style={{ display: "flex", flexDirection: "column" }}>
           <h2 id="set-voice" style={h2}>Voice notes</h2>
           <div style={{ marginTop: "12px" }}>
@@ -168,6 +171,7 @@ export function Settings() {
             </Row>
           </div>
         </section>
+        ) : null}
       </div>
     </Shell>
   );

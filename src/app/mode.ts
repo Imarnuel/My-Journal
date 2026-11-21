@@ -11,3 +11,27 @@ export const localDate = (d: Date = new Date()) => `${d.getFullYear()}-${pad(d.g
 
 /** A local time as HH:MM. */
 export const localTime = (d: Date = new Date()) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+/**
+ * Voice notes in the real journal: hidden until the real pipeline ships (Talk it through, Settings › Voice
+ * notes). The sample journal keeps its simulated voice note. DESIGN.md › Real app.
+ */
+export const VOICE_IN_REAL = false;
+export const VOICE = !REAL || VOICE_IN_REAL;
+
+/** The user's own time zone as Settings shows it: "Lagos (UTC+1)", "New York (UTC−5)". */
+export function detectedZone(now: Date = new Date()): string | null {
+  try {
+    const iana = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!iana) return null;
+    const city = iana.split("/").pop()!.replace(/_/g, " ");
+    const off = new Intl.DateTimeFormat("en-GB", { timeZone: iana, timeZoneName: "shortOffset" })
+      .formatToParts(now)
+      .find((p) => p.type === "timeZoneName")?.value; // "GMT+1", "GMT-5", "GMT"
+    const utc = !off || off === "GMT" ? "UTC+0" : off.replace("GMT", "UTC").replace("-", "\u2212");
+    return `${city} (${utc})`;
+  } catch {
+    return null;
+  }
+}
+

@@ -1,6 +1,7 @@
 // Settings preferences (frame 15, handoff/docs/01-decisions.md "Settings"): keys and defaults.
 // Values live in the shared store's `settings` (setSetting); this file only names them and holds the defaults.
 import { useStore } from "./store";
+import { detectedZone, REAL } from "../app/mode";
 
 export type SessionTimes = [name: string, start: string, end: string][];
 
@@ -20,7 +21,8 @@ export const SETTINGS_DEFAULTS = {
   reviewDay: "Saturday",
   reminderOn: true,
   reminderTime: "8:00 pm",
-  timeZone: "Lagos (UTC+1)",
+  // The real journal starts on the user's own zone (Settings says "Detected from your computer").
+  timeZone: (REAL && detectedZone()) || "Lagos (UTC+1)",
   sessions: DEFAULT_SESSIONS,
   voiceLanguage: "English",
   keepRecordings: true,

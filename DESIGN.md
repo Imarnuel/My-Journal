@@ -411,7 +411,10 @@ The owner chose to make the journal usable for real trades on their own devices 
   - Accounts with none: the empty-state card "No accounts yet", "Add each account you trade. Practice
     accounts stay out of your numbers.", Add account; the practice line under the list is hidden then, so it
     isn't said twice.
-  - Settings: the Reminders section is hidden until reminders can be sent.
+  - Settings: the Reminders section is hidden until reminders can be sent; Review day has no "One reminder
+    that day…" line; the Voice notes section shows only where voice notes work (`VOICE` in mode.ts).
+  - Time zone is really detected (Intl), e.g. "New York (UTC−5)", and listed first if it isn't one of the
+    usual zones (2026-11-21).
 - **Date and time come from the screenshot**: a new story takes the oldest dropped, pasted or chosen
   screenshot's file time, until the owner sets the date by hand, which then stays.
 - **Sessions follow Settings › Time and sessions** (both journals): a story's session is the one open at its
