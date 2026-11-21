@@ -172,6 +172,28 @@ because the counts already show which period has trades. Source: `Header` in `sr
   months" button.
 - The motion checks for the sliding segment thumb now use the chart story's Plan control.
 
+## Dashboard with few trades
+Overrides frame 16's "Dashboard · fewer than 5 trades" card and `01-decisions.md` ("…the numbers give way to
+'Too few trades to read yet'"). Why: the owner didn't want the "Your numbers start after 5 trades" card
+(2026-11-21) and chose to see the numbers as far as they go. Source: `src/screens/Dashboard.tsx`, `StatRow`.
+- **The numbers always show.** Net R, Plan followed and Trades taken count from the first trade; Expectancy
+  and Win rate read "–" in `--text-3` with "Too few to rate" under them until the period has 5 trades (the
+  small-samples rule still holds for rates, here and in the breakdown tables). The charts and tables show
+  what there is.
+- **No trades in the period: only the counts.** Charts and tables are left out rather than drawn empty.
+- **R by day / week: one day has no separate worst**, and best and worst take the colour of their sign.
+
+## Field shadow
+Why: the owner asked for "very subtle" drop shadows on text inputs and dropdowns, "like it's done in modern
+designs" (2026-11-21): fields sit a hair above the page. One token, `--shadow-field` (`src/styles/tokens.css`):
+light `0 1px 2px rgba(15,17,21,0.05)`, dark `0 1px 2px rgba(0,0,0,0.28)`.
+- **Every boxed text field** (the inset fields: names, login and server, dates and times, the note boxes, the
+  takeaway, dialog name fields) and **every dropdown button** (Trade log filters and sort, the Dashboard
+  period; the account picker and the Settings and Accounts menus already had the secondary button's soft
+  shadow). One rule in `src/styles/globals.css`; dropdown buttons opt in with `kfield`.
+- **Edit-in-place values stay flat**: the story's facts and numbers, ghost rows, the tag input. They show as
+  values, not boxes (Principles).
+
 ## Dashboard stat row
 - **Each stat label leads with a filled grey 14px icon** in the Details style: Net R (rising bars),
   Expectancy (a balance), Win rate (a trophy), Plan followed (clipboard with a check), Trades taken (a stack).

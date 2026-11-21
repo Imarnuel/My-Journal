@@ -1,9 +1,8 @@
-// Recent chart stories (the last 6 with charts, whatever the period or accounts), the fewer-than-5-trades state
-// (frame 16, "Your numbers start after 5 trades"), and the page footnote.
+// Recent chart stories (the last 6 with charts, whatever the period or accounts) and the page footnote.
+// (The fewer-than-5-trades card is gone: the numbers show as far as they go, DESIGN.md.)
 import { Link } from "react-router-dom";
 import type { Entry } from "../../lib/types";
 import { fr, tone } from "../../lib/format";
-import { plural } from "../../lib/dashboard";
 
 const SPRITE = /^[ls][wx][0-2]$/;
 
@@ -61,36 +60,6 @@ export function Recent({ stories }: { stories: Entry[] }) {
             </Link>
           );
         })}
-      </div>
-    </section>
-  );
-}
-
-/**
- * Frame 16, "Dashboard · fewer than 5 trades": replaces the numbers until the period has 5 trades. No
- * "Show 3 months" button: the period dropdown shows each period's count (DESIGN.md › Dashboard period).
- */
-export function TooFew({ n }: { n: number }) {
-  return (
-    <section
-      aria-labelledby="tfh"
-      className="card"
-      style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}
-    >
-      <h2 id="tfh" style={{ margin: 0, fontSize: "16px", fontWeight: "500", lineHeight: "24px" }}>
-        Your numbers start after 5 trades
-      </h2>
-      <p className="meta" style={{ margin: "0" }}>
-        {`${plural(n, "trade")} logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.`}
-      </p>
-      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-        <Link to="/new" className="btn btn-g">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-          New chart story
-        </Link>
       </div>
     </section>
   );

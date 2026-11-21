@@ -117,3 +117,13 @@ test("Settings: no reminder the real app can't send", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Appearance" })).toBeVisible();
   await expect(page.getByText("One gentle reminder")).toHaveCount(0);
 });
+
+test("Dashboard with no trades: the counts only, nothing made up", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".kstat")).toBeVisible();
+  await expect(page.locator(".kstat").getByText("Too few to rate")).toHaveCount(2);
+  await expect(page.getByRole("heading", { name: "R over time" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "By setup" })).toHaveCount(0);
+  await expect(page.getByText(/^Best /)).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toHaveCount(0);
+});

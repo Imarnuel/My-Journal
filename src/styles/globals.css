@@ -275,3 +275,9 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 @media (max-width: 640px) { .app .knums { grid-template-columns: repeat(2, max-content); grid-template-rows: repeat(3, auto); grid-auto-flow: column; } }
 .app .knum-edit { display: flex; align-items: center; gap: 4px; justify-self: stretch; padding-right: 8px; cursor: text; }
 .app .knums input.knum-in:focus-visible { outline-offset: 0; border-color: transparent; } /* the ring is the border */
+
+/* Fields carry a very subtle shadow (DESIGN.md › Field shadow): every boxed text field (the inset fields) and
+   dropdown button. Edit-in-place values (the story's numbers, ghost rows, tag inputs) stay flat. */
+.app :is(input, textarea)[style*="--surface-inset"]:not(.knum-in),
+.app .kfield { box-shadow: var(--shadow-field); }
+

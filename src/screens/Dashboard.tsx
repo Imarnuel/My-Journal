@@ -12,7 +12,7 @@ import { useKit, useMenu } from "./useKit";
 import { Header } from "./dashboard/Header";
 import { NoChartsNotice } from "./dashboard/Notices";
 import { BySetup, Charts, SessionsAndMistakes, StatRow } from "./dashboard/Numbers";
-import { Footnote, Recent, TooFew } from "./dashboard/Stories";
+import { Footnote, Recent } from "./dashboard/Stories";
 
 export function Dashboard() {
   const menu = useMenu<"ap" | "period">();
@@ -57,25 +57,26 @@ export function Dashboard() {
     <Shell active="dashboard">
       <Header sub={subtitle(period, today)} period={period} setPeriod={pick} counts={counts} periodMenu={periodMenu} kit={kit} />
       <NoChartsNotice trades={noCharts} />
-      {p.enough ? (
+      {/* The numbers always show, as far as they go: rates wait for 5 trades (DESIGN.md › Dashboard with few trades). */}
+      <StatRow p={p} />
+      {/* With no trades in the period, charts and tables have nothing to show: only the counts above. */}
+      {p.T.length ? (
         <>
-          <StatRow p={p} />
-          <Charts
-            p={p}
-            period={period}
-            eqTab={eqTab}
-            barTab={barTab}
-            flipEq={() => setEqTab((x) => !x)}
-            flipBar={() => setBarTab((x) => !x)}
-            drawIn={!drawn}
-            onDrawn={onDrawn}
-          />
-          <BySetup rows={setupRows} thumbs={thumbs} />
-          <SessionsAndMistakes sessions={sessRows} mistakes={mist.rows} untagged={mist.untagged} n={p.s.n} />
+      <Charts
+        p={p}
+        period={period}
+        eqTab={eqTab}
+        barTab={barTab}
+        flipEq={() => setEqTab((x) => !x)}
+        flipBar={() => setBarTab((x) => !x)}
+        drawIn={!drawn}
+        onDrawn={onDrawn}
+      />
+      <BySetup rows={setupRows} thumbs={thumbs} />
+      <SessionsAndMistakes sessions={sessRows} mistakes={mist.rows} untagged={mist.untagged} n={p.s.n} />
         </>
-      ) : (
-        <TooFew n={p.T.length} />
-      )}
+      ) : null}
+
       <Recent stories={recent} />
       <Footnote />
     </Shell>

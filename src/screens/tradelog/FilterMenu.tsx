@@ -39,6 +39,7 @@ export function FilterMenu({ name, icon, label, aria, active, open, onToggle, on
         aria-expanded={open ? "true" : "false"}
         aria-label={aria}
         onClick={onToggle}
+        className="kfield"
         style={{ font: "inherit", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", background: active || open ? "var(--surface-pressed)" : "transparent", border: `1px solid ${active ? "var(--border-strong)" : "var(--border)"}`, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", position: "relative", zIndex: 5 }}
       >
         <span style={{ color: "var(--text-2)", display: "flex" }}>{icon}</span>

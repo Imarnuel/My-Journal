@@ -1,4 +1,4 @@
-// The numbers (shown from 5 trades in the period): top row, R over time, R by day / week, By setup, By session,
+// The numbers (shown from the first trade; rates from 5, DESIGN.md): top row, R over time, R by day / week, By setup, By session,
 // Costliest mistakes. Markup from handoff/prototype/Dashboard.dc.html; values from src/lib/dashboard.ts.
 import { DetailIcon, type DetailIconName } from "../story/detailIcons";
 import { Fragment } from "react";
@@ -41,9 +41,10 @@ export function StatRow({ p }: { p: PeriodNumbers }) {
   return (
     <div className="card kstat" style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", padding: "16px", borderRadius: "var(--r-card)" }}>
       <Stat label="Net R" icon="net" value={fr(net)} color={tone(s.net)} sub={`Worst drawdown ${fr(s.dd)}`} />
-      <Stat label="Expectancy" icon="expectancy" value={fr(ex, 2)} sub="What an average trade made" />
-      <Stat label="Win rate" icon="winrate" value={pct(wr)} sub={`Wins avg ${s.avgWin == null ? "–" : fr(s.avgWin)}, losses ${s.avgLoss == null ? "–" : fr(s.avgLoss)}`} />
-      <Stat label="Plan followed" icon="plan" value={pct(pl)} sub={`${s.followed} of ${s.n} trades`} />
+      {/* Fewer than 5 trades: rates and averages wait, the counts show (01-decisions.md "Small samples"). */}
+      <Stat label="Expectancy" icon="expectancy" value={s.expectancy == null ? "–" : fr(ex, 2)} color={s.expectancy == null ? "var(--text-3)" : undefined} sub={s.expectancy == null ? "Too few to rate" : "What an average trade made"} />
+      <Stat label="Win rate" icon="winrate" value={s.winRate == null ? "–" : pct(wr)} color={s.winRate == null ? "var(--text-3)" : undefined} sub={s.winRate == null ? "Too few to rate" : `Wins avg ${s.avgWin == null ? "–" : fr(s.avgWin)}, losses ${s.avgLoss == null ? "–" : fr(s.avgLoss)}`} />
+      <Stat label="Plan followed" icon="plan" value={s.planRate == null ? "–" : pct(pl)} color={s.planRate == null ? "var(--text-3)" : undefined} sub={`${s.followed} of ${s.n} trades`} />
       <Stat label="Trades taken" icon="trades" value={String(Math.round(n))} sub={`${p.watched} watched · ${p.notFilled} not filled`} />
     </div>
   );
@@ -179,20 +180,23 @@ export function Charts({
           </div>
         )}
         <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", marginTop: "auto", paddingTop: "12px", borderTop: "1px solid var(--border-subtle)" }}>
+          {/* Results take the colour of their sign; with one day (or week) there is no separate worst. */}
           <span className="lbl">
             Best{" "}
-            <span className="num" style={{ color: "var(--profit)", fontWeight: "500" }}>
+            <span className="num" style={{ color: tone(best.r), fontWeight: "500" }}>
               {fr(best.r)}
             </span>{" "}
             · {wk + shortDate(best.k)}
           </span>
-          <span className="lbl">
-            Worst{" "}
-            <span className="num" style={{ color: "var(--loss)", fontWeight: "500" }}>
-              {fr(worst.r)}
-            </span>{" "}
-            · {wk + shortDate(worst.k)}
-          </span>
+          {groups.length > 1 ? (
+            <span className="lbl">
+              Worst{" "}
+              <span className="num" style={{ color: tone(worst.r), fontWeight: "500" }}>
+                {fr(worst.r)}
+              </span>{" "}
+              · {wk + shortDate(worst.k)}
+            </span>
+          ) : null}
         </div>
       </section>
     </div>

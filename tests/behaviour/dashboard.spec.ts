@@ -105,13 +105,22 @@ test("period: one pressed at a time, every number follows", async ({ page }) => 
   await expect(page.locator(".kdraw")).toHaveCount(0);
 });
 
-test("fewer than 5 trades: the numbers give way, and the button widens the period", async ({ page }) => {
+test("fewer than 5 trades: the numbers show as far as they go; rates read Too few to rate", async ({ page }) => {
   await open(page);
   await choosePeriod(page, "This week");
-  await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
-  await expect(page.getByText("3 trades logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.")).toBeVisible();
-  await expect(page.locator(".kstat")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "R over time" })).toHaveCount(0);
+  // No "Your numbers start after 5 trades" card (the owner removed it, DESIGN.md › Dashboard with few trades).
+  await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toHaveCount(0);
+  await expect(stat(page, "Net R")).toHaveText("+2.6R");
+  await expect(stat(page, "Expectancy")).toHaveText("–");
+  await expect(stat(page, "Win rate")).toHaveText("–");
+  await expect(stat(page, "Plan followed")).toHaveText("67%");
+  await expect(stat(page, "Trades taken")).toHaveText("3");
+  await expect(page.locator(".kstat").getByText("Too few to rate")).toHaveCount(2);
+  await expect(page.getByRole("heading", { name: "R over time" })).toBeVisible();
+  // One trading day: a best day, and no separate worst.
+  const day = page.locator("section[aria-labelledby=dayh]");
+  await expect(day).toContainText("Best +2.6R");
+  await expect(day).not.toContainText("Worst");
   await expect(page.getByRole("heading", { name: "Recent chart stories" })).toBeVisible();
   // No "Show this month" button: the dropdown already shows each period's count (DESIGN.md).
   await expect(page.getByRole("button", { name: /^Show (this month|3 months)$/ })).toHaveCount(0);
@@ -282,7 +291,7 @@ test("reduced motion: no draw-in, numbers and charts swap at once", async ({ pag
   await expect(stat(page, "Net R")).toHaveText("+9.0R", { timeout: 200 });
   await expect(page.getByText("8 of 12 weeks up")).toBeVisible();
   await choosePeriod(page, "This week");
-  await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
+  await expect(stat(page, "Trades taken")).toHaveText("3", { timeout: 200 });
 });
 
 test("numbers count to the new value on a change (not on first load)", async ({ page }) => {
