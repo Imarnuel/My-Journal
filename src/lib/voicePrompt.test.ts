@@ -111,6 +111,14 @@ describe("the server function", () => {
     expect(String(init.body)).not.toContain("test-key");
   });
 
+  it("forgives spaces and quotation marks pasted around the key", async () => {
+    env.GEMINI_API_KEY = '  "AIza-test"\n';
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));
+    vi.stubGlobal("fetch", fetchMock);
+    await handler(post({ audio: "AAAA", mime: "audio/webm", seconds: 3, context: ctx }));
+    expect(((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].headers as Record<string, string>)["x-goog-api-key"]).toBe("AIza-test");
+  });
+
   it("GEMINI_MODEL overrides the model", async () => {
     env.GEMINI_MODEL = "gemini-4-neon";
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));

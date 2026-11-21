@@ -20,9 +20,10 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 type Body = { audio?: string; mime?: string; seconds?: number; context?: VoiceContext };
 
 export default async (req: Request): Promise<Response> => {
-  if (req.method === "GET") return json({ ready: !!Netlify.env.get("GEMINI_API_KEY") });
+  if (req.method === "GET") return json({ ready: !!Netlify.env.get("GEMINI_API_KEY")?.trim() });
   if (req.method !== "POST") return json({ ok: false, reason: "failed" }, 405);
-  const key = Netlify.env.get("GEMINI_API_KEY");
+  // Forgive the usual paste slips around the key: spaces, line breaks, quotation marks.
+  const key = (Netlify.env.get("GEMINI_API_KEY") ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
   if (!key) return json({ ok: false, reason: "failed", detail: "no key" }, 503);
 
   const text = await req.text();
