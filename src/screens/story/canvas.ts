@@ -4,6 +4,7 @@ import type { Story, StoryExtras } from "../../lib/story";
 import { sessionOf } from "../../lib/story";
 import { localDate, localTime, REAL } from "../../app/mode";
 import { useStore } from "../../data/store";
+import { DEFAULT_SESSIONS } from "../../data/settings";
 
 /** Chart captions are read from the chart's legend; for the frame's drawings they are known. */
 export const CAPTION: Record<string, string> = { gW: "Weekly", gD: "", g4H: "4H", gE: "15m", gA: "15m" };
@@ -78,7 +79,7 @@ function blankStory(): Story {
     account: (accounts.find((a) => !a.practice) ?? accounts[0])?.name ?? "",
     date: localDate(now),
     time,
-    session: sessionOf(time),
+    session: sessionOf(time, (useStore.getState().settings.sessions as [string, string, string][] | undefined) ?? DEFAULT_SESSIONS),
     numbers: { entry: "", stop: "", target: "", exit: "", size: "" },
     r: null,
     rByHand: false,

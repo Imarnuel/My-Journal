@@ -67,7 +67,17 @@ export const ORDINAL = ["first", "second", "third", "fourth", "fifth", "sixth", 
 export const ordinal = (i: number) => ORDINAL[i] ?? `${i + 1}th`;
 
 /** The session follows the time (prototype rule: before 07:00 Asia, before 13:00 London, else New York). */
-export function sessionOf(time: string): Session {
+/**
+ * The session a time falls in. With the owner's session times (Settings › Time and sessions), it is the
+ * session open at that time; where two overlap, the one that opened most recently (09:45 is London, not
+ * Asia). Outside every session, or without times, it falls back to fixed hours.
+ */
+export function sessionOf(time: string, sessions?: [name: string, start: string, end: string][]): Session {
+  const open = (sessions ?? [])
+    .filter(([, a, b]) => (a <= b ? time >= a && time < b : time >= a || time < b))
+    .sort((x, y) => (x[1] < y[1] ? 1 : -1));
+  const hit = open[0]?.[0];
+  if (hit === "Asia" || hit === "London" || hit === "New York") return hit;
   const h = Number(time.slice(0, 2));
   return h < 7 ? "Asia" : h < 13 ? "London" : "New York";
 }

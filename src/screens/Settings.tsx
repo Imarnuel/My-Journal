@@ -9,6 +9,7 @@ import { ChoiceSelect } from "../components/primitives/ChoiceSelect";
 import { useMenu } from "./useKit";
 import { Switch } from "./settings/Switch";
 import { YourTags } from "./settings/YourTags";
+import { REAL } from "../app/mode";
 
 const APPEARANCE: { label: string; value: Appearance }[] = [
   { label: "System", value: "system" },
@@ -105,6 +106,8 @@ export function Settings() {
           </div>
         </section>
 
+        {/* The real journal can't send reminders yet (no MT5 sync, no notifications): hidden until it can (DESIGN.md › Real app). */}
+        {REAL ? null : (
         <section aria-labelledby="set-reminders" style={{ display: "flex", flexDirection: "column" }}>
           <h2 id="set-reminders" style={h2}>Reminders</h2>
           <div style={{ marginTop: "12px" }}>
@@ -114,6 +117,7 @@ export function Settings() {
             </Row>
           </div>
         </section>
+        )}
 
         <section aria-labelledby="set-time" style={{ display: "flex", flexDirection: "column" }}>
           <h2 id="set-time" style={h2}>Time and sessions</h2>

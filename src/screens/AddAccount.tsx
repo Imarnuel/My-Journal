@@ -10,6 +10,7 @@ import { AccountFields, fieldStyle, labelStyle, type AccountDraft } from "./acco
 import { useAccountMeta } from "./accounts/meta";
 import { testConnection, type Mt5Result } from "./accounts/mt5";
 import { Switch } from "./settings/Switch";
+import { REAL } from "../app/mode";
 import "./accounts/accounts.css";
 
 export function AddAccount() {
@@ -63,8 +64,15 @@ export function AddAccount() {
       nameRef.current?.focus();
       return;
     }
+    // The real journal has no MT5 sync yet: it keeps login and server and marks the account as waiting
+    // (DESIGN.md › Real app). Missing details keep the user on the field, as name errors do.
+    if (REAL && mt5 && (!login.trim() || !server.trim())) {
+      e.preventDefault();
+      (login.trim() ? serverRef : loginRef).current?.focus();
+      return;
+    }
     const synced = mt5 && (!!connected || (!!login.trim() && !!server.trim()));
-    addAccount({ name, type: d.type.trim() || "Live", practice: d.practice, archived: false, source: synced ? "mt5" : "screenshots" });
+    addAccount({ name, type: d.type.trim() || "Live", practice: d.practice, archived: false, source: synced ? (REAL ? "mt5-waiting" : "mt5") : "screenshots" });
     setMeta(name, { added: today, ...(synced ? { login: login.trim(), server: server.trim() } : {}) });
     e.preventDefault();
     nav("/accounts");
@@ -118,6 +126,10 @@ export function AddAccount() {
                   <span id="fld-server-hint" className="lbl">Start typing your broker's name</span>
                 </div>
               </div>
+              {REAL ? (
+                <p className="lbl" style={{ margin: 0 }}>MT5 sync isn't built yet. Your login and server are kept, and trade numbers fill in once it is.</p>
+              ) : (
+              <>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label htmlFor="fld-investor-password" style={labelStyle}>Investor password</label>
                 <input id="fld-investor-password" name="password" autoComplete="current-password" type="password" value={password} onChange={editMt5(setPassword)} aria-describedby="fld-password-hint" style={fieldStyle} />
@@ -137,6 +149,8 @@ export function AddAccount() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.56" /></svg>
                   </span>
                 </button>
+              )}
+              </>
               )}
             </div>
           ) : (

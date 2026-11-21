@@ -32,6 +32,7 @@ export function Start() {
       </header>
 
       <ol aria-label="First steps" style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
+        {first ? (
         <li className="card" style={{ ...step, background: "transparent" }}>
           <div style={stepBody}>
             <span style={{ flex: "none", width: "28px", height: "28px", borderRadius: "999px", background: "color-mix(in srgb, var(--profit) 16%, transparent)", color: "var(--profit)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -46,9 +47,24 @@ export function Start() {
             <Link to="/accounts" className="btn btn-q">Add another</Link>
           </div>
         </li>
+        ) : (
+        // A brand-new journal has no account yet: step 1 is the current step (DESIGN.md › Real app, approved).
         <li aria-current="step" style={{ ...step, background: "var(--surface-2)", border: "1px solid var(--border)" }}>
           <div style={stepBody}>
-            <span className="num" style={{ ...badge, border: "1px solid var(--text-1)" }}>2</span>
+            <span className="num" style={{ ...badge, border: "1px solid var(--text-1)" }}>1</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+              <span style={title}>Connect an account</span>
+              <span className="meta">Add the account you trade. MT5 is optional.</span>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <Link to="/accounts/new" className="btn btn-p">Add account</Link>
+          </div>
+        </li>
+        )}
+        <li aria-current={first ? "step" : undefined} className={first ? undefined : "card"} style={first ? { ...step, background: "var(--surface-2)", border: "1px solid var(--border)" } : { ...step, background: "transparent" }}>
+          <div style={stepBody}>
+            <span className="num" style={{ ...badge, border: `1px solid ${first ? "var(--text-1)" : "var(--border)"}` }}>2</span>
             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
               <span style={title}>Add your setups</span>
               <span className="meta">Name the setups you trade and their rules. Or skip, and the journal will suggest setups once it sees a few similar charts.</span>
@@ -56,7 +72,7 @@ export function Start() {
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <Link to="/" className="btn btn-q">Skip for now</Link>
-            <Link to="/playbook/new" className="btn btn-p">Add setups</Link>
+            <Link to="/playbook/new" className={first ? "btn btn-p" : "btn btn-g"}>Add setups</Link>
           </div>
         </li>
         <li className="card" style={{ ...step, background: "transparent" }}>

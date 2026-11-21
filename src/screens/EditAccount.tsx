@@ -107,13 +107,19 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>
                   </span>
                 )}
-                {[account.source === "mt5-reconnect" ? "Reconnect needed" : synced, meta.server].filter(Boolean).join(" · ")}
+                {[account.source === "mt5-reconnect" ? "Reconnect needed" : account.source === "mt5-waiting" ? "Waiting for sync" : synced, meta.server].filter(Boolean).join(" · ")}
               </span>
             </div>
-            <p className="meta" style={{ margin: 0 }}>Prop firms often issue a new investor password when an account resets. If syncing stops, reconnect here.</p>
-            <button type="button" onClick={reconnect} className="btn btn-g" style={{ alignSelf: "flex-start" }}>
-              Reconnect
-            </button>
+            {account.source === "mt5-waiting" ? (
+              <p className="meta" style={{ margin: 0 }}>MT5 sync isn't built yet. Your login and server are kept, and trade numbers fill in once it is.</p>
+            ) : (
+              <>
+                <p className="meta" style={{ margin: 0 }}>Prop firms often issue a new investor password when an account resets. If syncing stops, reconnect here.</p>
+                <button type="button" onClick={reconnect} className="btn btn-g" style={{ alignSelf: "flex-start" }}>
+                  Reconnect
+                </button>
+              </>
+            )}
           </section>
         ) : null}
 

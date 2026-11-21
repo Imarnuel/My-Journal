@@ -25,6 +25,15 @@ function Source({ a }: { a: Account }) {
         MT5 · synced 2 min ago
       </>
     );
+  if (a.source === "mt5-waiting")
+    return (
+      <>
+        <span className="kstatus-ic">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>
+        </span>
+        MT5 · waiting for sync
+      </>
+    );
   if (a.source === "mt5-reconnect")
     return (
       <>
@@ -71,6 +80,19 @@ export function Accounts() {
         </div>
       </header>
 
+      {!active.length && !archived.length ? (
+        // No account yet: the empty-state card every list uses ("Your log starts here"; DESIGN.md › Real app).
+        <div className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}>
+          <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>No accounts yet</h2>
+          <p className="meta" style={{ margin: 0 }}>Add each account you trade. Practice accounts stay out of your numbers.</p>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <Link to="/accounts/new" className="btn btn-g">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+              Add account
+            </Link>
+          </div>
+        </div>
+      ) : (
       <section aria-label="Your accounts" className="card" style={{ borderRadius: "var(--r-card)", overflow: "hidden" }}>
         <div aria-hidden="true" className="acct-head" style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", padding: "12px 16px", fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>
           <span>Name</span>
@@ -140,8 +162,11 @@ export function Accounts() {
           </>
         ) : null}
       </section>
+      )}
 
-      <p className="meta" style={{ margin: 0 }}>Practice accounts never mix into your numbers unless you tick them. They always feed your playbook.</p>
+      {active.length || archived.length ? (
+        <p className="meta" style={{ margin: 0 }}>Practice accounts never mix into your numbers unless you tick them. They always feed your playbook.</p>
+      ) : null}
 
       <section aria-labelledby="auto" style={{ display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", flexWrap: "wrap" }}>

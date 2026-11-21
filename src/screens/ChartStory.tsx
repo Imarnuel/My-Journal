@@ -43,7 +43,8 @@ import { readVoiceNote, transcriptRuns } from "../lib/voiceNote";
 import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
 import { CANVAS_EXTRAS, PAIRS, captionOf, newStoryStart } from "./story/canvas";
-import { REAL } from "../app/mode";
+import { localDate, localTime, REAL } from "../app/mode";
+import { DEFAULT_SESSIONS } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText } from "./story/parts";
 
@@ -103,6 +104,7 @@ function StoryScreen({ id }: { id: string | null }) {
   const [tagQ, setTagQ] = useState("");
   const [kindFor, setKindFor] = useState<string | null>(null);
   const [dtDraft, setDtDraft] = useState<string | null>(null);
+  const dateByHand = useRef(false);
   // Which number is being edited in place (DESIGN.md, Editing numbers), and what it was, for Escape.
   const [editingNum, setEditingNum] = useState<NumKey | null>(null);
   const editingRef = useRef<NumKey | null>(null);
@@ -241,7 +243,10 @@ function StoryScreen({ id }: { id: string | null }) {
     const imgs = files.filter((f) => !f.type || f.type.startsWith("image/"));
     if (!imgs.length) return;
     const urls = imgs.map((f) => URL.createObjectURL(f));
-    update({ charts: charts.concat(urls) });
+    // A new story in the real journal takes its date and time from the oldest screenshot, unless the owner
+    // set them by hand (01-decisions.md "Capture": filled from screenshot time, always editable).
+    const when = REAL && !saved && !dateByHand.current ? screenshotTime(imgs) : null;
+    update({ charts: charts.concat(urls), ...(when ?? {}) });
     setSel(charts.length + urls.length - 1);
     toastA(urls.length === 1 ? "Chart added" : `${urls.length} charts added`, undefined, "added");
   };
@@ -354,7 +359,8 @@ function StoryScreen({ id }: { id: string | null }) {
     if (v && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)) {
       const [d, t] = [v.slice(0, 10), v.slice(11, 16)];
       const prev = { date: s.date, time: s.time, session: s.session };
-      update({ date: d, time: t, session: sessionOf(t) });
+      update({ date: d, time: t, session: sessionOf(t, sessionTimes()) });
+      dateByHand.current = true;
       setDtDraft(null);
       toastA(`Moved to ${dateTime(d, t)}`, () => update(prev), "moved");
     } else menu.close();
@@ -467,7 +473,8 @@ function StoryScreen({ id }: { id: string | null }) {
             <>
               <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>New chart story</h1>
               <p className="meta" style={{ margin: 0 }}>
-                Drop the charts and talk it through. Your note fills the tags.
+                {/* The real journal has no voice notes yet (DESIGN.md › Real app, approved wording). */}
+                {REAL ? "Drop the charts and add a note if you like." : "Drop the charts and talk it through. Your note fills the tags."}
               </p>
             </>
           )}
@@ -567,11 +574,14 @@ function StoryScreen({ id }: { id: string | null }) {
             ) : (
               <label style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "var(--r-card)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", aspectRatio: "16 / 9", textAlign: "center", padding: "24px" }}>
                 <Plus />
-                Scroll back on your chart and take one now. It still counts.
+                {/* An MT5 trade without charts keeps the design's line; a new story asks for its charts. */}
+                {entry?.mt5 ? "Scroll back on your chart and take one now. It still counts." : "Drop, paste or choose charts"}
                 <input type="file"
                 title="" accept="image/*" multiple onChange={onPick} style={{ position: "absolute", width: "1px", height: "1px", opacity: 0 }} />
               </label>
             )}
+            {charts.length ? (
+            <>
             <div ref={tileGrid} className="ktiles" onClickCapture={tiles.onClickCapture} style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: "8px", alignItems: "start" }}>
               {charts.map((c, i) => {
                 return (
@@ -646,6 +656,8 @@ function StoryScreen({ id }: { id: string | null }) {
             <p id="tiles-hint" className="lbl" style={{ margin: 0, fontSize: "12px", lineHeight: "16px" }}>
               Drag to reorder.
             </p>
+            </>
+            ) : null}
             {unreadable ? (
               <ProblemCard title="Prices on this screenshot are too small to read" text="It's still in the story. Replace it with a sharper one, or type the entry, stop and target yourself.">
                 <button type="button" className="btn btn-g" onClick={() => replaceInput.current?.click()}>
@@ -719,7 +731,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   Before / during
                 </label>
               </div>
-              <textarea id="nB" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.before} onChange={(e) => update({ before: e.target.value })} style={NOTE_FIELD} />
+              <textarea id="nB" className="ghost" rows={2} placeholder={REAL ? undefined : "Fills from your note, or write it yourself"} value={s.before} onChange={(e) => update({ before: e.target.value })} style={NOTE_FIELD} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {/* Tidied (DESIGN.md, Notes): the label row is only the label and a small Suggested badge, so it
@@ -734,7 +746,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   </span>
                 ) : null}
               </div>
-              <textarea id="nR" className="ghost" rows={2} placeholder="Fills from your note, or write it yourself" value={s.refl} onChange={(e) => update({ refl: e.target.value, suggested: false })} style={NOTE_FIELD} />
+              <textarea id="nR" className="ghost" rows={2} placeholder={REAL ? undefined : "Fills from your note, or write it yourself"} value={s.refl} onChange={(e) => update({ refl: e.target.value, suggested: false })} style={NOTE_FIELD} />
               {s.suggested && s.refl ? (
                 <div className="ksugg-row">
                   <span>Inferred from your note</span>
@@ -836,9 +848,11 @@ function StoryScreen({ id }: { id: string | null }) {
               <h2 id="th" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
                 Details
               </h2>
-              <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-                {s.voice ? "From your note · tap any to change" : "From your note, or set them yourself"}
-              </span>
+              {REAL ? null : (
+                <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
+                  {s.voice ? "From your note · tap any to change" : "From your note, or set them yourself"}
+                </span>
+              )}
             </div>
             <dl style={{ margin: 0, display: "flex", flexDirection: "column" }}>
               <DetailRow label="Setup" icon={<DetailIcon name="setup" />}>
@@ -990,7 +1004,7 @@ function StoryScreen({ id }: { id: string | null }) {
 
           <section aria-label="Trade" style={{ padding: "16px 24px", borderTop: "1px solid var(--border-subtle)", display: "flex", flexDirection: "column", gap: "8px" }}>
             <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-              {saved ? "From your charts and MT5, or typed by you" : "Read from your charts and MT5 · tap anything to change"}
+              {REAL ? "Tap anything to change" : saved ? "From your charts and MT5, or typed by you" : "Read from your charts and MT5 · tap anything to change"}
             </span>
             {/* Each fact leads with its icon and they sit 16px apart, no dot separators (the Trade log's facts rule). */}
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px" }}>
@@ -1134,9 +1148,9 @@ function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: s
   const open = menu.isOpen(k);
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
-      <button type="button" aria-haspopup="listbox" aria-expanded={open ? "true" : "false"} aria-label={`${name}: ${value ?? "not set"}`} onClick={() => menu.toggle(k)} style={factBtn}>
+      <button type="button" aria-haspopup="listbox" aria-expanded={open ? "true" : "false"} aria-label={`${name}: ${value || "not set"}`} onClick={() => menu.toggle(k)} style={factBtn}>
         <DetailIcon name={icon} />
-        <span style={factText}>{value ?? name}</span>
+        <span style={factText}>{value || name}</span>
       </button>
       {open ? (
         <>
@@ -1148,3 +1162,14 @@ function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: s
   );
 }
 
+/** The owner's session times (Settings), so a story's session follows them. */
+const sessionTimes = () => (useStore.getState().settings.sessions as [string, string, string][] | undefined) ?? DEFAULT_SESSIONS;
+
+/** Date, time and session from the oldest screenshot's file time (a pasted image carries the time it was pasted). */
+function screenshotTime(files: File[]): Pick<Story, "date" | "time" | "session"> | null {
+  const ms = Math.min(...files.map((f) => f.lastModified).filter((n) => Number.isFinite(n) && n > 0));
+  if (!Number.isFinite(ms)) return null;
+  const d = new Date(ms);
+  const time = localTime(d);
+  return { date: localDate(d), time, session: sessionOf(time, sessionTimes()) };
+}

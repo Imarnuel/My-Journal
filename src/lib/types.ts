@@ -37,7 +37,8 @@ export type Entry = {
   shortTrade?: "ask" | "counted" | "left-out"; // very short trade prompt (Count it / Leave it out)
 };
 
-export type AccountSource = "mt5" | "mt5-reconnect" | "screenshots";
+/** "mt5-waiting": MT5 details kept in the real journal until sync exists (DESIGN.md › Real app). */
+export type AccountSource = "mt5" | "mt5-reconnect" | "mt5-waiting" | "screenshots";
 export type Account = {
   name: string;
   type: string; // Live, Prop firm, Demo, Backtest, or own

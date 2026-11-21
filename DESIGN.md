@@ -370,7 +370,25 @@ The owner chose to make the journal usable for real trades on their own devices 
   doesn't cover API use, and Gemini hears audio itself, so no browser speech step), via a small server
   function on the same host so no key sits in the page. On the free tier Google may use what is sent to
   improve its products; the owner was told.
-- **Connect MT5 stays, marked as waiting** until sync exists (the owner's choice); the wording is to be
-  shown to the owner before it ships.
+- **Connect MT5 stays, marked as waiting** until sync exists (the owner's choice). Add account asks for
+  login and server only, under the line "MT5 sync isn't built yet. Your login and server are kept, and trade
+  numbers fill in once it is." (no investor password, no Test connection); both are needed while MT5 is on.
+  The account's row reads "MT5 · waiting for sync"; Edit account says "Waiting for sync · <server>" with the
+  same line and no Reconnect. Source type `mt5-waiting`.
+- **Approved wording for the empty real journal** (2026-11-21):
+  - New chart story: subtitle "Drop the charts and add a note if you like."; the empty chart area reads
+    "Drop, paste or choose charts" and is the file picker; no tile strip, Add tile or "Drag to reorder." until
+    there is a chart; the facts caption reads "Tap anything to change" (on saved stories too); no "From your
+    note…" line and no placeholder in the note boxes; empty facts show their name ("Pair", "Account").
+  - Start with no account: step 1 is the current step, "Connect an account" with "Add the account you
+    trade. MT5 is optional." and Add account (primary); step 2's Add setups is then a plain button.
+  - Accounts with none: the empty-state card "No accounts yet", "Add each account you trade. Practice
+    accounts stay out of your numbers.", Add account; the practice line under the list is hidden then, so it
+    isn't said twice.
+  - Settings: the Reminders section is hidden until reminders can be sent.
+- **Date and time come from the screenshot**: a new story takes the oldest dropped, pasted or chosen
+  screenshot's file time, until the owner sets the date by hand, which then stays.
+- **Sessions follow Settings › Time and sessions** (both journals): a story's session is the one open at its
+  time; where two overlap, the one that opened most recently (09:45 is London). Was fixed hours.
 - **A new real account joins the picked accounts** at once (practice accounts stay out), so its trades count
   without pressing Reset. This applies to the sample journal too.

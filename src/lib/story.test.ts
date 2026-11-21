@@ -39,6 +39,16 @@ describe("story rules", () => {
     expect(sessionOf("13:00")).toBe("New York");
   });
 
+  it("with the owner's session times, the session open at that time; overlaps go to the newer one", () => {
+    const S: [string, string, string][] = [["Asia", "01:00", "10:00"], ["London", "09:00", "17:30"], ["New York", "14:00", "23:00"]];
+    expect(sessionOf("07:30", S)).toBe("Asia");
+    expect(sessionOf("09:45", S)).toBe("London");
+    expect(sessionOf("15:00", S)).toBe("New York");
+    expect(sessionOf("17:45", S)).toBe("New York");
+    expect(sessionOf("23:30", S)).toBe("New York"); // outside every session: fixed hours
+    expect(sessionOf("02:00", [["Asia", "23:00", "08:00"]])).toBe("Asia"); // a session across midnight
+  });
+
   it("reads typed results with a real minus, plain numbers or R", () => {
     expect(parseR("+2.1R")).toBe(2.1);
     expect(parseR("−1.0R")).toBe(-1);
