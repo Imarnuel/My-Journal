@@ -49,7 +49,11 @@ export default async (req: Request): Promise<Response> => {
       store: false,
     }),
   }).catch(() => null);
-  if (!res || !res.ok) return json({ ok: false, reason: "failed", detail: res ? `gemini ${res.status}` : "network" }, 502);
+  if (!res || !res.ok) {
+    // Google's own message (never the key) helps when the request shape or a limit is the problem.
+    const why = res ? (await res.text().catch(() => "")).slice(0, 400) : "";
+    return json({ ok: false, reason: "failed", detail: res ? `gemini ${res.status}: ${why}` : "network" }, 502);
+  }
 
   const interaction = (await res.json().catch(() => null)) as { steps?: { type?: string; content?: { type?: string; text?: string }[] }[] } | null;
   const out = (interaction?.steps ?? [])
