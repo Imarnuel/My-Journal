@@ -47,7 +47,14 @@ test("record, read, fill what is empty; the recording plays", async ({ page }) =
   await page.goto("/new");
   await page.locator("#nR").fill("My own reflection.");
   await talk(page);
-  await expect(page.getByText("Reading your note…")).toBeVisible();
+  // While it reads: an honest step, and only the empty fields shimmer (the reflection typed by hand doesn't).
+  await expect(page.getByRole("status").filter({ hasText: /Sending your note|Listening to your note/ })).toBeVisible();
+  await expect(page.locator('.kfx[data-fx="awaiting"]').filter({ has: page.locator("#nB") })).toHaveCount(1);
+  await expect(page.locator('.kfx[data-fx="awaiting"]').filter({ has: page.locator("#nR") })).toHaveCount(0);
+  // The answer lands: what it filled glows briefly, the new tag arrives.
+  await expect(page.locator('.kfx[data-fx="filled"]').filter({ has: page.locator("#nB") })).toHaveCount(1);
+  await expect(page.locator(".pill.knew", { hasText: "Retest" })).toBeVisible();
+  await expect(page.locator('.kfx[data-fx="filled"]')).toHaveCount(0); // the glow clears, it never replays
   await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
   await expect(page.locator("#nR")).toHaveValue("My own reflection."); // set by hand: never overwritten
   await expect(page.getByRole("status").filter({ hasText: "Filled from your note" })).toBeVisible();
@@ -100,4 +107,40 @@ test("a saved story keeps its recording", async ({ page }) => {
   await expect(page).toHaveURL(/\/story\//);
   await page.reload();
   await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
+});
+
+test("slow: steps give way to reassurance, then Stop waiting keeps the recording to play or try again", async ({ page }) => {
+  await page.clock.install();
+  await page.route("**/api/voice-note", async (route) => {
+    if (route.request().method() === "GET") return route.fulfill({ json: { ready: true } });
+    // Never answers: only the clock moves on.
+  });
+  await page.goto("/new");
+  await page.getByRole("button", { name: /Talk it through/ }).click();
+  await expect(page.getByText(/Listening/)).toBeVisible();
+  await page.clock.runFor(1500);
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expect(page.getByText("Sending your note…")).toBeVisible();
+  await page.clock.runFor(21_000);
+  await expect(page.getByText("Still writing.")).toBeVisible();
+  await expect(page.getByText("Longer notes take a little longer.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Stop waiting" })).toHaveCount(0);
+  await page.clock.runFor(25_000);
+  await expect(page.getByText("Taking longer than usual")).toBeVisible();
+  await page.getByRole("button", { name: "Stop waiting" }).click();
+  await expect(page.getByText("Couldn't read your note just now")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play your recording" })).toBeVisible();
+});
+
+test("reduced motion: the same steps, no shimmer sweep; new tags only fade", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await server(page, [fill]);
+  await page.goto("/new");
+  await talk(page);
+  const line = page.locator(".kshimmer").first();
+  await expect(line).toBeVisible();
+  expect(await line.evaluate((el) => getComputedStyle(el, "::after").animationName)).toBe("none");
+  await expect(page.locator(".pill.knew", { hasText: "Retest" })).toBeVisible();
+  expect(await page.locator(".pill.knew").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("kfadein"); // a fade, no movement or delay
 });

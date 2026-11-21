@@ -68,26 +68,61 @@ function simulatedMode(): string | null {
  * (the real journal) it goes to the server function, which asks Gemini; without one (the sample journal)
  * the prototype's fixed result comes back.
  */
-export async function readVoiceNote(seconds: number, rec?: Recording, ctx?: VoiceContext): Promise<VoiceNoteResult> {
-  if (rec && ctx) return readOnServer(rec, ctx);
+/** Honest progress while the server reads a note (DESIGN.md › Real app, voice notes). */
+export type VoicePhase = "sending" | "listening" | "busy";
+export type ReadOptions = { onPhase?: (p: VoicePhase) => void; signal?: AbortSignal };
+
+/** The longest the app waits for an answer before offering Try again. */
+export const READ_LIMIT_MS = 90_000;
+
+export async function readVoiceNote(seconds: number, rec?: Recording, ctx?: VoiceContext, opts: ReadOptions = {}): Promise<VoiceNoteResult> {
+  if (rec && ctx) return readOnServer(rec, ctx, opts);
   if (simulatedMode() === "unclear") return { ok: false, reason: "unclear" };
   void seconds;
   return { ...CANNED, tags: CANNED.tags.map((t) => ({ ...t })) };
 }
 
-async function readOnServer(rec: Recording, ctx: VoiceContext): Promise<VoiceNoteResult> {
+async function readOnServer(rec: Recording, ctx: VoiceContext, { onPhase, signal }: ReadOptions): Promise<VoiceNoteResult> {
   if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
+  // Stops after READ_LIMIT_MS, or when the user chooses Stop waiting (signal); the recording stays for Try again.
+  const ctl = new AbortController();
+  const limit = setTimeout(() => ctl.abort(), READ_LIMIT_MS);
+  signal?.addEventListener("abort", () => ctl.abort());
   try {
+    onPhase?.("sending");
     const res = await fetch("/api/voice-note", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ audio: await toBase64(rec.blob), mime: rec.mime, seconds: rec.seconds, context: ctx }),
+      signal: ctl.signal,
     });
-    const out = (await res.json().catch(() => null)) as VoiceNoteResult | null;
+    // The server answers as soon as it has the note, then keeps the line open while Gemini reads: spaces are a
+    // heartbeat, a tab means the first model was busy and another is trying. The JSON comes last.
+    onPhase?.("listening");
+    let text = "";
+    if (res.body) {
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = dec.decode(value, { stream: true });
+        if (chunk.includes("\t")) onPhase?.("busy");
+        text += chunk;
+      }
+    } else text = await res.text();
+    let out: VoiceNoteResult | null = null;
+    try {
+      out = JSON.parse(text.trim()) as VoiceNoteResult;
+    } catch {
+      out = null;
+    }
     if (!out || typeof out !== "object" || !("ok" in out)) return { ok: false, reason: "failed" };
     return out.ok ? out : { ok: false, reason: out.reason === "unclear" ? "unclear" : "failed" };
   } catch {
     return { ok: false, reason: navigator.onLine === false ? "offline" : "failed" };
+  } finally {
+    clearTimeout(limit);
   }
 }
 

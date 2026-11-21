@@ -39,7 +39,7 @@ import {
   type Numbers,
   type Story,
 } from "../lib/story";
-import { readVoiceNote, transcriptRuns, type VoiceNoteResult } from "../lib/voiceNote";
+import { readVoiceNote, transcriptRuns, type VoiceNoteResult, type VoicePhase } from "../lib/voiceNote";
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
 import { loadVoiceAudio, saveVoiceAudio } from "../data/voiceAudio";
@@ -50,7 +50,7 @@ import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
 import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
-import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText } from "./story/parts";
+import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText, type Fx } from "./story/parts";
 
 const KINDS: { k: TagKind; hint: string }[] = [
   { k: "Good", hint: "Something to repeat" },
@@ -128,6 +128,13 @@ function StoryScreen({ id }: { id: string | null }) {
   const pendingAudio = useRef<Blob | null>(null);
   const saving = useRef(false); // Save story runs once per press
   const [reading, setReading] = useState(false);
+  // What the reading card says (honest steps, then timed reassurance), what was just filled (a brief glow),
+  // and the tags that just arrived (a short wave). DESIGN.md › Voice note feedback.
+  const [phase, setPhase] = useState<ReadPhase>("sending");
+  const [justFilled, setJustFilled] = useState<Set<string>>(new Set());
+  const [newTags, setNewTags] = useState<string[]>([]);
+  const stopRead = useRef<AbortController | null>(null);
+  const readTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioEl = useRef<HTMLAudioElement | null>(null);
   const [unreadable, setUnreadable] = useState(() => query("charts") === "unreadable");
@@ -146,6 +153,8 @@ function StoryScreen({ id }: { id: string | null }) {
       clearInterval(playT.current);
       recorder.current?.cancel();
       audioEl.current?.pause();
+      stopRead.current?.abort();
+      readTimers.current.forEach(clearTimeout);
     },
     [],
   );
@@ -346,7 +355,20 @@ function StoryScreen({ id }: { id: string | null }) {
   const readAndFill = async (secs: number, rec?: Recording) => {
     setVoiceError(null);
     setReading(true);
-    const res: VoiceNoteResult = await readVoiceNote(secs, rec, rec ? voiceContext() : undefined);
+    setPhase("sending");
+    const ctl = new AbortController();
+    stopRead.current = ctl;
+    readTimers.current.forEach(clearTimeout);
+    // Timed reassurance only after the real steps: never earlier than what is actually happening.
+    readTimers.current = [
+      setTimeout(() => setPhase((p) => (p === "listening" ? "writing" : p)), 4000),
+      setTimeout(() => setPhase((p) => (p === "long" ? p : "still")), 20_000),
+      setTimeout(() => setPhase("long"), 45_000),
+    ];
+    const onPhase = (p: VoicePhase) => setPhase((cur) => (p === "listening" && cur !== "sending" ? cur : p));
+    const res: VoiceNoteResult = await readVoiceNote(secs, rec, rec ? voiceContext() : undefined, { onPhase, signal: ctl.signal });
+    readTimers.current.forEach(clearTimeout);
+    stopRead.current = null;
     setReading(false);
     if (!res.ok) {
       setVoiceError(res.reason);
@@ -359,8 +381,16 @@ function StoryScreen({ id }: { id: string | null }) {
     registerKinds(newKinds);
     update(patch);
     if (rec) keepRecording(rec.blob);
+    // The answer lands: what it filled glows together, new tags arrive in a short wave (not on reduced motion,
+    // handled in CSS). Cleared after the glow so it never replays.
+    const keys = (["before", "refl", "setup", "tags", "followed", "headspace"] as const).filter((k) => k in patch);
+    setJustFilled(new Set(keys));
+    setNewTags((patch.tags ?? []).filter((t) => !cur.tags.includes(t)));
+    readTimers.current.push(setTimeout(() => (setJustFilled(new Set()), setNewTags([])), 1400));
     toastA(voiceToast(filled), () => update(prev), "voice");
   };
+  /** A field's voice moment: shimmer while the note is read (only if still empty), glow just after. */
+  const fx = (key: string, empty: boolean): Fx => (reading && empty ? "awaiting" : justFilled.has(key) ? "filled" : undefined);
   /** Keep the recording with the story, unless Settings › Voice notes › Keep recordings is off. */
   const keepRecording = (blob: Blob) => {
     const keep = (useStore.getState().settings.keepRecordings as boolean | undefined) ?? SETTINGS_DEFAULTS.keepRecordings;
@@ -776,17 +806,36 @@ function StoryScreen({ id }: { id: string | null }) {
               </span>
             </div>
             {reading ? (
-              // Gemini reads the note (real journal); the notes stay editable meanwhile.
-              <div role="status" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
+              // Gemini reads the note (real journal); the notes stay editable meanwhile. One line that says what is
+              // really happening, shimmering in the voice colour; each new message cross-fades in.
+              <div role="status" aria-live="polite" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)", minHeight: "64px", boxSizing: "border-box" }}>
                 <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--voice)" }} />
-                <span style={{ fontSize: "14px", fontWeight: 500 }}>{VOICE_COPY.reading}</span>
+                <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 0 }}>
+                  <span key={phase} className="kshimmer kmsg" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-1)" }}>
+                    {READ_COPY[phase].title}
+                  </span>
+                  {READ_COPY[phase].text ? (
+                    <span key={`${phase}-t`} className="meta kmsg" style={{ fontSize: "14px" }}>
+                      {READ_COPY[phase].text}
+                    </span>
+                  ) : null}
+                </span>
+                {phase === "long" ? (
+                  <button type="button" className="btn btn-q" onClick={() => stopRead.current?.abort()}>
+                    Stop waiting
+                  </button>
+                ) : null}
               </div>
             ) : voiceError && !recording ? (
               <ProblemCard title={VOICE_COPY[voiceError].title} text={VOICE_COPY[voiceError].text}>
                 {(voiceError === "offline" || voiceError === "failed") && lastRec.current ? (
-                  <button type="button" className="btn btn-g" onClick={() => lastRec.current && readAndFill(lastRec.current.seconds, lastRec.current)}>
-                    Try again
-                  </button>
+                  <>
+                    <button type="button" className="btn btn-g" onClick={() => lastRec.current && readAndFill(lastRec.current.seconds, lastRec.current)}>
+                      Try again
+                    </button>
+                    {/* Hear what you said while it waits (the recording is kept). */}
+                    <KeptRecording rec={lastRec.current} />
+                  </>
                 ) : (
                   <button type="button" className="btn btn-g" onClick={startRec}>
                     <Mic />
@@ -830,7 +879,9 @@ function StoryScreen({ id }: { id: string | null }) {
                   Before / during
                 </label>
               </div>
+              <div className="kfx" data-fx={fx("before", !s.before.trim())} style={{ borderRadius: "var(--r-md)" }}>
               <textarea id="nB" className="ghost" rows={2} placeholder={REAL ? undefined : "Fills from your note, or write it yourself"} value={s.before} onChange={(e) => update({ before: e.target.value })} style={NOTE_FIELD} />
+              </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {/* Tidied (DESIGN.md, Notes): the label row is only the label and a small Suggested badge, so it
@@ -845,7 +896,9 @@ function StoryScreen({ id }: { id: string | null }) {
                   </span>
                 ) : null}
               </div>
+              <div className="kfx" data-fx={fx("refl", !s.refl.trim())} style={{ borderRadius: "var(--r-md)" }}>
               <textarea id="nR" className="ghost" rows={2} placeholder={REAL ? undefined : "Fills from your note, or write it yourself"} value={s.refl} onChange={(e) => update({ refl: e.target.value, suggested: false })} style={NOTE_FIELD} />
+              </div>
               {s.suggested && s.refl ? (
                 <div className="ksugg-row">
                   <span>Inferred from your note</span>
@@ -956,7 +1009,7 @@ function StoryScreen({ id }: { id: string | null }) {
               )}
             </div>
             <dl style={{ margin: 0, display: "flex", flexDirection: "column" }}>
-              <DetailRow label="Setup" icon={<DetailIcon name="setup" />}>
+              <DetailRow label="Setup" icon={<DetailIcon name="setup" />} fx={fx("setup", !s.setup)}>
                 <div style={{ position: "relative" }}>
                   <button type="button" className="ghost tagfield" aria-haspopup="listbox" aria-expanded={exp("setup")} aria-label={`Setup: ${s.setup ?? "Pick a setup"}`} onClick={() => menu.toggle("setup")} style={{ justifyContent: "space-between", position: "relative", zIndex: 5 }}>
                     {s.setup ? <span className="pill">{s.setup}</span> : <span style={{ fontSize: "14px", color: "var(--text-3)" }}>Pick a setup</span>}
@@ -975,11 +1028,11 @@ function StoryScreen({ id }: { id: string | null }) {
                   ) : null}
                 </div>
               </DetailRow>
-              <DetailRow label="Tags" icon={<DetailIcon name="tags" />}>
+              <DetailRow label="Tags" icon={<DetailIcon name="tags" />} fx={fx("tags", !s.tags.length)}>
                 <div style={{ position: "relative" }}>
                   <div className="ghost tagfield" role="group" aria-label="Tags" onClick={() => document.getElementById("taginput")?.focus()} style={{ cursor: "text", flexWrap: "wrap", position: "relative", zIndex: 5 }}>
                     {s.tags.map((t, i) => (
-                      <span key={t} className="pill" style={{ display: "inline-flex", alignItems: "center", gap: "4px", paddingRight: "4px" }}>
+                      <span key={t} className={newTags.includes(t) ? "pill knew" : "pill"} style={{ display: "inline-flex", alignItems: "center", gap: "4px", paddingRight: "4px", ["--wave" as string]: `${WAVE_MS[Math.min(newTags.indexOf(t), WAVE_MS.length - 1)] ?? 0}ms` }}>
                         {t}
                         <button
                           type="button"
@@ -1069,7 +1122,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   ) : null}
                 </div>
               </DetailRow>
-              <DetailRow label="Plan" icon={<DetailIcon name="plan" />}>
+              <DetailRow label="Plan" icon={<DetailIcon name="plan" />} fx={fx("followed", s.followed == null)}>
                 <div role="group" aria-label="Plan" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)", borderRadius: "var(--r-md)" }}>
                   {([["Followed", true], ["Not followed", false]] as const).map(([label, val]) => {
                     const on = s.followed === val;
@@ -1081,7 +1134,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   })}
                 </div>
               </DetailRow>
-              <DetailRow label="Headspace" icon={<DetailIcon name="headspace" />}>
+              <DetailRow label="Headspace" icon={<DetailIcon name="headspace" />} fx={fx("headspace", !s.headspace)}>
                 <div style={{ position: "relative" }}>
                   <button type="button" className="ghost tagfield" aria-haspopup="listbox" aria-expanded={exp("head")} aria-label={`Headspace: ${s.headspace ?? "Pick one"}`} onClick={() => menu.toggle("head")} style={{ justifyContent: "space-between", position: "relative", zIndex: 5 }}>
                     {s.headspace ? (
@@ -1281,8 +1334,7 @@ type VoiceProblem = Exclude<VoiceNoteResult, { ok: true }>["reason"];
  * Voice note wording. "unclear" is frame 16's; the rest are the real journal's, approved by the owner
  * (DESIGN.md › Real app, voice notes).
  */
-const VOICE_COPY: Record<VoiceProblem, { title: string; text: string }> & { reading: string } = {
-  reading: "Reading your note…",
+const VOICE_COPY: Record<VoiceProblem, { title: string; text: string }> = {
   unclear: { title: "Couldn't make out your note", text: "Too much background noise. Nothing was filled in, so nothing wrong was saved." },
   mic: { title: "The microphone is off", text: "Allow the microphone for this site in your browser, then record again." },
   offline: { title: "You're offline", text: "Your recording is kept. Try again when you're back online." },
@@ -1298,4 +1350,60 @@ function voiceContext(): VoiceContext {
     headspaces: HEADSPACE,
     language: (st.settings.voiceLanguage as string | undefined) ?? SETTINGS_DEFAULTS.voiceLanguage,
   };
+}
+
+/** What the reading card says. "sending" and "listening" are real events, "busy" comes from the server;
+ *  "writing", "still" and "long" are timed and only follow them. Approved by the owner (DESIGN.md). */
+type ReadPhase = VoicePhase | "writing" | "still" | "long";
+const READ_COPY: Record<ReadPhase, { title: string; text?: string }> = {
+  sending: { title: "Sending your note…" },
+  listening: { title: "Listening to your note…" },
+  writing: { title: "Writing your notes…" },
+  busy: { title: "Busy right now, trying again…" },
+  still: { title: "Still writing.", text: "Longer notes take a little longer." },
+  long: { title: "Taking longer than usual" },
+};
+
+/** New tags arrive in a short wave, quicker as it goes (never a metronome), all in under 200ms. */
+const WAVE_MS = [0, 45, 80, 105, 125, 140, 150];
+
+/** Play / pause the recording kept for Try again, on the failure card. */
+function KeptRecording({ rec }: { rec: Recording }) {
+  const [on, setOn] = useState(false);
+  const el = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    const url = URL.createObjectURL(rec.blob);
+    const a = new Audio(url);
+    a.onended = () => setOn(false);
+    el.current = a;
+    return () => {
+      a.pause();
+      URL.revokeObjectURL(url);
+    };
+  }, [rec]);
+  return (
+    <button
+      type="button"
+      className="kplay"
+      aria-label={on ? "Pause your recording" : "Play your recording"}
+      onClick={() => {
+        const a = el.current;
+        if (!a) return;
+        if (on) a.pause();
+        else void a.play();
+        setOn(!on);
+      }}
+    >
+      {on ? (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <rect x="6" y="5" width="4" height="14" rx="1" />
+          <rect x="14" y="5" width="4" height="14" rx="1" />
+        </svg>
+      ) : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M8 5l11 7-11 7z" />
+        </svg>
+      )}
+    </button>
+  );
 }

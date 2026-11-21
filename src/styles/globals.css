@@ -281,3 +281,37 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 .app :is(input, textarea)[style*="--surface-inset"]:not(.knum-in),
 .app .kfield { box-shadow: var(--shadow-field); }
 
+
+/* ---- Voice note feedback (DESIGN.md › Voice note feedback). Opacity and transform only. ----
+   The status line shimmers in the voice colour while the note is read; each new message cross-fades in. */
+.kshimmer { position: relative; display: inline-block; overflow: hidden; max-width: 100%; vertical-align: top;
+  color: color-mix(in srgb, var(--voice) 70%, var(--text-1)) !important; }
+.kshimmer::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--surface-inset) 80%, transparent) 50%, transparent 80%);
+  transform: translateX(-100%); animation: ksweep 1.6s linear infinite; }
+.kmsg { animation: kfadein var(--d-fast) var(--ease-out) both; }
+@keyframes ksweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes kfadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* Empty fields shimmer where the answer will land; the fields it filled glow together and fade (one beat). */
+.kfx { position: relative; }
+.kfx[data-fx="awaiting"] { overflow: hidden; border-radius: var(--r-md); }
+.kfx[data-fx]::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 6; border-radius: var(--r-md); }
+.kfx[data-fx="awaiting"]::after {
+  background: linear-gradient(100deg, transparent 25%, color-mix(in srgb, var(--voice) 10%, transparent) 50%, transparent 75%);
+  transform: translateX(-100%); animation: ksweep 1.8s linear infinite; }
+.kfx[data-fx="filled"]::after { background: color-mix(in srgb, var(--voice) 12%, transparent); animation: kglow 1.2s var(--ease-out) both; }
+@keyframes kglow { from { opacity: 1; } to { opacity: 0; } }
+
+/* New tags arrive in a short wave (--wave set per tag, quicker as it goes). */
+.pill.knew { animation: kpopin 180ms var(--ease-out) both; animation-delay: var(--wave, 0ms); }
+@keyframes kpopin { from { opacity: 0; transform: translateY(2px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+/* Reduced motion: the sweeps and the wave's movement go; gentle fades stay (they explain the change). */
+@media (prefers-reduced-motion: reduce) {
+  .kshimmer::after, .kfx[data-fx]::after { animation: none !important; }
+  .pill.knew { animation: kfadein 120ms var(--ease-out) both !important; }
+  .kshimmer::after { display: none; }
+  .kfx[data-fx="awaiting"]::after { transform: none; background: color-mix(in srgb, var(--voice) 6%, transparent); }
+  .kfx[data-fx="filled"]::after { opacity: 0.6; }
+}

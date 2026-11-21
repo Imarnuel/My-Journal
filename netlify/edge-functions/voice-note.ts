@@ -71,7 +71,9 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
   const stream = new ReadableStream({
     async start(ctrl) {
       const beat = setInterval(() => ctrl.enqueue(enc.encode(" ")), 4000);
-      const result = await askGemini(key, body as Required<Body>).catch(() => ({ ok: false, reason: "failed", detail: "error" }));
+      // A tab tells the app the first model was busy and another is trying (whitespace, so the JSON stays valid).
+      const busy = () => ctrl.enqueue(enc.encode("\t"));
+      const result = await askGemini(key, body as Required<Body>, busy).catch(() => ({ ok: false, reason: "failed", detail: "error" }));
       clearInterval(beat);
       ctrl.enqueue(enc.encode(JSON.stringify(result)));
       ctrl.close();
@@ -80,13 +82,20 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
   return new Response(stream, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
 };
 
-async function askGemini(key: string, body: Required<Body>): Promise<unknown> {
+/** How long one model may take before it counts as busy and the next one tries. */
+const MODEL_LIMIT_MS = 40_000;
+
+async function askGemini(key: string, body: Required<Body>, onBusy: () => void = () => {}): Promise<unknown> {
   const ctx = body.context;
 
   const models = [Netlify.env.get("GEMINI_MODEL") || DEFAULT_MODEL, ...BACKUP_MODELS].filter((m, i, a) => a.indexOf(m) === i);
   let res: Response | null = null;
-  for (const model of models) {
+  for (const [i, model] of models.entries()) {
+    if (i > 0) onBusy();
+    const timer = new AbortController();
+    const t = setTimeout(() => timer.abort(), MODEL_LIMIT_MS);
     res = await fetch(API, {
+      signal: timer.signal,
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": key, "Api-Revision": API_REVISION },
       body: JSON.stringify({
@@ -101,7 +110,8 @@ async function askGemini(key: string, body: Required<Body>): Promise<unknown> {
         store: false,
       }),
     }).catch(() => null);
-    // Busy (503), rate-limited (429) or a server hiccup: the next model. Anything else is final.
+    clearTimeout(t);
+    // Busy (503), rate-limited (429), a server hiccup or no answer in time: the next model. Anything else is final.
     if (res && (res.ok || ![429, 500, 503].includes(res.status))) break;
   }
   if (!res || !res.ok) {

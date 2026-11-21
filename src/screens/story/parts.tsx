@@ -141,14 +141,17 @@ export function Sep() {
 }
 
 /** A Details row: label on the left, control on the right. */
-export function DetailRow({ label, icon, children }: { label: string; icon?: ReactNode; children: ReactNode }) {
+/** A field's voice note moment: shimmer while the note is read, a brief glow when it was just filled. */
+export type Fx = "awaiting" | "filled" | undefined;
+
+export function DetailRow({ label, icon, fx, children }: { label: string; icon?: ReactNode; fx?: Fx; children: ReactNode }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "120px minmax(0, 1fr)", gap: "12px", alignItems: "center", minHeight: "48px", borderTop: "1px solid var(--border-subtle)" }}>
       <dt className="lbl lbl-k" style={{ margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
         {icon}
         {label}
       </dt>
-      <dd style={{ margin: 0, minWidth: 0, padding: "4px 0 4px 12px" }}>{children}</dd>
+      <dd className="kfx" data-fx={fx} style={{ margin: 0, minWidth: 0, padding: "4px 0 4px 12px" }}>{children}</dd>
     </div>
   );
 }

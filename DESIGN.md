@@ -376,6 +376,26 @@ question 10 is under Voice note.
 - **Restoring an archived setup shows "London breakout restored" with Undo**, the same as restoring an
   account. One behaviour per kind of control.
 
+## Voice note feedback (after Mobbin research)
+Why: the owner wanted "more messages and taste (interaction) to the feedback" while a voice note is read
+(2026-11-21), after a long silent "Reading your note…". Source: the Notes card in `src/screens/ChartStory.tsx`,
+`readVoiceNote` in `src/lib/voiceNote.ts`, styles at the end of `src/styles/globals.css`.
+References: Elicit and AirOps (named steps that move on), Amie and Gemini (one shimmering status line),
+Linktree (the field being written shows it), Fireflies and Heidi (a calm way out when it's slow), Workable and
+Databricks (filled values marked as new), Lyssna and Lightfield (the error in place, recording kept, retry).
+- **One card that says what is really happening**: "Sending your note…" while the recording uploads,
+  "Listening to your note…" once the server has it, "Writing your notes…" a few seconds later, and "Busy right
+  now, trying again…" only when the server reports that another model took over (a tab in its stream). Timed
+  reassurance only follows those: "Still writing." / "Longer notes take a little longer." at 20 seconds, "Taking
+  longer than usual" with **Stop waiting** at 45. The app stops waiting at 90 seconds; the server gives each
+  model 40. Stop waiting or the limit ends in "Couldn't read your note just now" with Try again.
+- **Feel** (opacity and transform only): the status line is in the voice colour with a steady light sweep;
+  each new message cross-fades in. While the note is read, only the **empty** notes and details shimmer softly,
+  so what the owner typed is visibly safe. When the answer lands, everything it filled glows together in the
+  voice colour and fades (1.2s, a fading state marker); new tags arrive in a short wave (0 to 150ms, quicker as
+  it goes). Reduced motion: no sweeps or movement; message changes and new tags only fade.
+- **Failure cards keep a play button** for the recording, beside Try again.
+
 ## Real app (the owner's own journal)
 The owner chose to make the journal usable for real trades on their own devices before any back end
 (2026-11-20). Source: `src/app/mode.ts`; tests in `tests/real/`.
