@@ -102,6 +102,9 @@ describe("the server function", () => {
     expect(sent.input[0].text).toContain("Never estimate a price");
     expect(sent.response_format.schema.required).toContain("price_text");
     expect(sent.store).toBe(false);
+    expect(out.raw).toBeUndefined();
+    const dbg = JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx, debug: true }))).text()).trim());
+    expect(dbg.raw).toEqual([answer, answer]); // the model's own answers, for tuning
   });
   it("only images; no key or a Gemini error is 'failed'", async () => {
     expect((await handler(post({ image: "AAAA", mime: "text/html", context: ctx }))).status).toBe(400);
