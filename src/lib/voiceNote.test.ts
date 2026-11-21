@@ -26,7 +26,7 @@ describe("reading a note on the server", () => {
     expect(r).toMatchObject({ ok: true, before: "b" });
     expect(phases).toEqual(["sending", "listening", "busy"]);
   });
-  it("Stop waiting (or the time limit) ends it as 'failed', so the recording can be tried again", async () => {
+  it("a stop (Cancel, or the time limit) ends it as 'failed' at once", async () => {
     // Like a browser's fetch: an already-stopped signal rejects at once, a later stop rejects then.
     const aborted = () => new DOMException("aborted", "AbortError");
     vi.stubGlobal("fetch", vi.fn((_u: string, init: RequestInit) => new Promise((_res, rej) => (init.signal?.aborted ? rej(aborted()) : init.signal?.addEventListener("abort", () => rej(aborted()))))));

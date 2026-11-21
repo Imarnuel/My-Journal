@@ -84,7 +84,7 @@ export async function readVoiceNote(seconds: number, rec?: Recording, ctx?: Voic
 
 async function readOnServer(rec: Recording, ctx: VoiceContext, { onPhase, signal }: ReadOptions): Promise<VoiceNoteResult> {
   if (typeof navigator !== "undefined" && navigator.onLine === false) return { ok: false, reason: "offline" };
-  // Stops after READ_LIMIT_MS, or when the user chooses Stop waiting (signal); the recording stays for Try again.
+  // Stops after READ_LIMIT_MS (the recording stays for Try again), or when the user cancels (signal).
   const ctl = new AbortController();
   const limit = setTimeout(() => ctl.abort(), READ_LIMIT_MS);
   signal?.addEventListener("abort", () => ctl.abort());

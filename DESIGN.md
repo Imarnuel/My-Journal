@@ -387,8 +387,14 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   "Listening to your note…" once the server has it, "Writing your notes…" a few seconds later, and "Busy right
   now, trying again…" only when the server reports that another model took over (a tab in its stream). Timed
   reassurance only follows those: "Still writing." / "Longer notes take a little longer." at 20 seconds, "Taking
-  longer than usual" with **Stop waiting** at 45. The app stops waiting at 90 seconds; the server gives each
-  model 40. Stop waiting or the limit ends in "Couldn't read your note just now" with Try again.
+  longer than usual" at 45. The app stops waiting at 90 seconds; the server gives each model 40. The limit ends
+  in "Couldn't read your note just now" with Try again.
+- **Cancel, from the first second** (2026-11-21, replaces "Stop waiting" at 45 seconds). Why: the owner asked
+  to be able to stop reading straight after recording, and chose to let the note go: "the transcription is the
+  most important thing, not the audio. audio makes us run into storage issues quickly." Cancel stops reading
+  at once, fills nothing, and lets the recording go (it is never stored); "Talk it through" comes back with the
+  toast "Voice note deleted" and Undo for 6 seconds, which reads it again (the recording is held in memory only
+  until then). Same word as the recording card's Cancel; the toast follows "Suggested reflection deleted".
 - **Feel** (opacity and transform only): the status line is in the voice colour with a steady light sweep;
   each new message cross-fades in. While the note is read, only the **empty** notes and details shimmer softly,
   so what the owner typed is visibly safe. When the answer lands, everything it filled glows together in the

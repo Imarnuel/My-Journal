@@ -109,7 +109,7 @@ test("a saved story keeps its recording", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Play your voice note" })).toBeVisible();
 });
 
-test("slow: steps give way to reassurance, then Stop waiting keeps the recording to play or try again", async ({ page }) => {
+test("slow: steps give way to reassurance; the time limit keeps the recording to play or try again", async ({ page }) => {
   await page.clock.install();
   await page.route("**/api/voice-note", async (route) => {
     if (route.request().method() === "GET") return route.fulfill({ json: { ready: true } });
@@ -124,13 +124,32 @@ test("slow: steps give way to reassurance, then Stop waiting keeps the recording
   await page.clock.runFor(21_000);
   await expect(page.getByText("Still writing.")).toBeVisible();
   await expect(page.getByText("Longer notes take a little longer.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Stop waiting" })).toHaveCount(0);
   await page.clock.runFor(25_000);
   await expect(page.getByText("Taking longer than usual")).toBeVisible();
-  await page.getByRole("button", { name: "Stop waiting" }).click();
+  await page.clock.runFor(45_000);
   await expect(page.getByText("Couldn't read your note just now")).toBeVisible();
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Play your recording" })).toBeVisible();
+});
+
+test("Cancel while reading: stops at once, fills nothing, lets the note go; Undo reads it again", async ({ page }) => {
+  let posts = 0;
+  await page.route("**/api/voice-note", async (route) => {
+    if (route.request().method() === "GET") return route.fulfill({ json: { ready: true } });
+    posts++; // never answers
+  });
+  await page.goto("/new");
+  await page.getByRole("button", { name: /Talk it through/ }).click();
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expect(page.getByText(/Sending your note|Listening to your note/)).toBeVisible();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: /your note/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Talk it through/ })).toBeVisible();
+  await expect(page.getByText("Voice note deleted")).toBeVisible();
+  await expect(page.locator("#nB")).toHaveValue("");
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByText(/Sending your note|Listening to your note/)).toBeVisible();
+  await expect.poll(() => posts).toBe(2);
 });
 
 test("reduced motion: the same steps, no shimmer sweep; new tags only fade", async ({ page }) => {

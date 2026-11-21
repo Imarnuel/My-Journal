@@ -136,6 +136,8 @@ function StoryScreen({ id }: { id: string | null }) {
   const [justFilled, setJustFilled] = useState<Set<string>>(new Set());
   const [newTags, setNewTags] = useState<string[]>([]);
   const stopRead = useRef<AbortController | null>(null);
+  /** The note being read, so Undo after Cancel can read it again (held in memory only, never stored). */
+  const readArgs = useRef<{ secs: number; rec?: Recording } | null>(null);
   // Charts being read (real journal): the facts line says so and the empty facts shimmer (DESIGN.md › Chart reading).
   const [chartsReading, setChartsReading] = useState(0);
   const chartQueue = useRef<Promise<void>>(Promise.resolve());
@@ -365,6 +367,7 @@ function StoryScreen({ id }: { id: string | null }) {
     setPhase("sending");
     const ctl = new AbortController();
     stopRead.current = ctl;
+    readArgs.current = { secs, rec };
     readTimers.current.forEach(clearTimeout);
     // Timed reassurance only after the real steps: never earlier than what is actually happening.
     readTimers.current = [
@@ -374,6 +377,8 @@ function StoryScreen({ id }: { id: string | null }) {
     ];
     const onPhase = (p: VoicePhase) => setPhase((cur) => (p === "listening" && cur !== "sending" ? cur : p));
     const res: VoiceNoteResult = await readVoiceNote(secs, rec, rec ? voiceContext() : undefined, { onPhase, signal: ctl.signal });
+    // Cancelled: the card was already reset (and Undo may have started a new read): leave everything alone.
+    if (ctl.signal.aborted && ctl.signal.reason === CANCELLED) return;
     readTimers.current.forEach(clearTimeout);
     stopRead.current = null;
     setReading(false);
@@ -395,6 +400,20 @@ function StoryScreen({ id }: { id: string | null }) {
     setNewTags((patch.tags ?? []).filter((t) => !cur.tags.includes(t)));
     readTimers.current.push(setTimeout(() => (setJustFilled(new Set()), setNewTags([])), 1400));
     toastA(voiceToast(filled), () => update(prev), "voice");
+  };
+  /**
+   * Cancel while a note is read (DESIGN.md › Voice note feedback): reading stops at once, nothing is filled and
+   * the recording is let go (the notes matter, not the audio). Undo for 6 seconds reads it again.
+   */
+  const cancelRead = () => {
+    const args = readArgs.current;
+    stopRead.current?.abort(CANCELLED);
+    stopRead.current = null;
+    readArgs.current = null;
+    readTimers.current.forEach(clearTimeout);
+    lastRec.current = null;
+    setReading(false);
+    toastA("Voice note deleted", args ? () => void readAndFill(args.secs, args.rec) : undefined, "deleted");
   };
   /** Read one chart after the ones before it, then fill what is still empty (DESIGN.md › Chart reading). */
   const queueChartRead = (file: File) => {
@@ -859,11 +878,9 @@ function StoryScreen({ id }: { id: string | null }) {
                     </span>
                   ) : null}
                 </span>
-                {phase === "long" ? (
-                  <button type="button" className="btn btn-q" onClick={() => stopRead.current?.abort()}>
-                    Stop waiting
-                  </button>
-                ) : null}
+                <button type="button" className="btn btn-q" onClick={cancelRead}>
+                  Cancel
+                </button>
               </div>
             ) : voiceError && !recording ? (
               <ProblemCard title={VOICE_COPY[voiceError].title} text={VOICE_COPY[voiceError].text}>
@@ -1408,6 +1425,9 @@ const READ_COPY: Record<ReadPhase, { title: string; text?: string }> = {
   still: { title: "Still writing.", text: "Longer notes take a little longer." },
   long: { title: "Taking longer than usual" },
 };
+
+/** The abort reason that marks a read the owner cancelled (not the time limit, which offers Try again). */
+const CANCELLED = "cancelled";
 
 /** New tags arrive in a short wave, quicker as it goes (never a metronome), all in under 200ms. */
 const WAVE_MS = [0, 45, 80, 105, 125, 140, 150];
