@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import "./styles/globals.css";
 import { App } from "./app/App";
+import { REAL } from "./app/mode";
 import { useStore } from "./data/store";
 import { usePlaybook } from "./data/playbook";
 import { useStoryExtras } from "./screens/story/extras";
@@ -36,3 +37,9 @@ Promise.race([Promise.all(stores.map(hydrated)), new Promise((r) => setTimeout(r
     </StrictMode>,
   );
 });
+
+// The real journal works offline once loaded (public/sw.js). Only in its production build: never in the
+// sample preview, the dev server or tests.
+if (REAL && import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => void navigator.serviceWorker.register("/sw.js").catch(() => {}));
+}

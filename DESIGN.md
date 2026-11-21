@@ -362,8 +362,11 @@ The owner chose to make the journal usable for real trades on their own devices 
   The real journal (`npm run build:real`, `npm run dev:real`) starts empty, runs on today's date and has
   no sample stand-ins: no sample prices, no prefilled GBPUSD New chart story, no example setups, no sample
   account details. No new buttons or settings switch between them (the owner's choice).
-- **Its own web address**, installable on computer and phone (the owner's choice); hosted free, the owner
-  creates the hosting account. Until there is a back end, data stays on each device, in its own browser
+- **Its own web address**, installable on computer and phone (the owner's choice); hosted free on Netlify,
+  which the owner connects to GitHub. Netlify builds the `main` branch (`netlify.toml`); finished, tested work
+  moves from the working branch to `main`. Installable: `public/manifest.webmanifest`, icons drawn from the
+  sidebar's logo mark (`scripts/app-icon.svg`, rendered by `scripts/app-icons.mjs`), and an offline worker
+  (`public/sw.js`, real build only) so the app opens without a connection; the data itself is in the browser. Until there is a back end, data stays on each device, in its own browser
   database (`journal-real`), apart from the sample one.
 - **Talk it through is hidden in the real journal** until voice notes work there: notes are typed. Voice
   notes come after hosting, through Gemini's free tier (the owner's choice, 2026-11-21: their claude.ai plan

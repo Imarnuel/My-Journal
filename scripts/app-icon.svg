@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The sidebar's logo mark as the app icon: the primary-button tile (light theme) and its white glyph. -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B2D33" />
+      <stop offset="1" stop-color="#18191D" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g)" />
+  <g transform="translate(96 96) scale(13.333)" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round">
+    <path d="M7 5v14M17 4v16" />
+    <rect x="5" y="8" width="4" height="7" rx="1" fill="#FFFFFF" />
+    <rect x="15" y="7" width="4" height="9" rx="1" />
+  </g>
+</svg>

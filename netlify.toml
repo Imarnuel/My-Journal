@@ -1,0 +1,21 @@
+# The owner's real journal on Netlify (DESIGN.md › Real app). Netlify builds the `main` branch.
+[build]
+  command = "npm run build:real"
+  publish = "dist-real"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # The cloud container's browser download isn't needed to build the site.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+
+# One page app: every address serves the app, which shows the right screen.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# The offline worker must always be fresh, so a new version is picked up.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
