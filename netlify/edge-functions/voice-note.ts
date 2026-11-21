@@ -19,8 +19,19 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 
 type Body = { audio?: string; mime?: string; seconds?: number; context?: VoiceContext };
 
-export default async (req: Request): Promise<Response> => {
-  if (req.method === "GET") return json({ ready: !!Netlify.env.get("GEMINI_API_KEY")?.trim() });
+type Ctx = { deploy?: { id?: string } };
+
+export default async (req: Request, context?: Ctx): Promise<Response> => {
+  if (req.method === "GET") {
+    const raw = Netlify.env.get("GEMINI_API_KEY")?.trim() ?? "";
+    // ?check: harmless facts about the stored key (never the key): its first 4 characters, which are the same
+    // for every Google key ("AIza"), its length, and which publish is running. For setting it up.
+    if (new URL(req.url).searchParams.has("check")) {
+      const k = raw.replace(/^["']+|["']+$/g, "").trim();
+      return json({ ready: !!k, startsLike: k.slice(0, 4), length: k.length, spaces: /\s/.test(k), deploy: context?.deploy?.id ?? null });
+    }
+    return json({ ready: !!raw });
+  }
   if (req.method !== "POST") return json({ ok: false, reason: "failed" }, 405);
   // Forgive the usual paste slips around the key: spaces, line breaks, quotation marks.
   const key = (Netlify.env.get("GEMINI_API_KEY") ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
