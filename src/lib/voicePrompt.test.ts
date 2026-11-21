@@ -80,7 +80,8 @@ describe("the server function", () => {
   const post = (body: unknown) => new Request("https://x/api/voice-note", { method: "POST", body: JSON.stringify(body) });
   beforeEach(() => {
     (globalThis as unknown as { Netlify: unknown }).Netlify = { env: { get: (k: string) => env[k] } };
-    env.GEMINI_API_KEY = "test-key";
+    env.Gemini_API_Key = "test-key";
+    env.GEMINI_API_KEY = undefined;
     env.GEMINI_MODEL = undefined;
   });
   afterEach(() => vi.unstubAllGlobals());
@@ -88,8 +89,11 @@ describe("the server function", () => {
   it("says whether it is ready (a key is set), without revealing it", async () => {
     const r = await (await handler(new Request("https://x/api/voice-note"))).json();
     expect(r).toEqual({ ready: true });
-    env.GEMINI_API_KEY = undefined;
+    env.Gemini_API_Key = undefined;
+    env.GEMINI_API_KEY = "eyJhbGciOi.netlify-ai-gateway-token"; // Netlify's own token: not a Google key
     expect(await (await handler(new Request("https://x/api/voice-note"))).json()).toEqual({ ready: false });
+    env.GEMINI_API_KEY = "AIza-real-google-key";
+    expect(await (await handler(new Request("https://x/api/voice-note"))).json()).toEqual({ ready: true });
   });
 
   it("sends the audio to Gemini's Interactions API with the key in a header and JSON output, then trusts nothing", async () => {
@@ -112,7 +116,7 @@ describe("the server function", () => {
   });
 
   it("forgives spaces and quotation marks pasted around the key", async () => {
-    env.GEMINI_API_KEY = '  "AIza-test"\n';
+    env.Gemini_API_Key = '  "AIza-test"\n';
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));
     vi.stubGlobal("fetch", fetchMock);
     await handler(post({ audio: "AAAA", mime: "audio/webm", seconds: 3, context: ctx }));
@@ -130,9 +134,9 @@ describe("the server function", () => {
   });
 
   it("no key, a Gemini error or an unreadable answer is 'failed' (the recording is kept to try again)", async () => {
-    env.GEMINI_API_KEY = undefined;
+    env.Gemini_API_Key = undefined;
     expect(await (await handler(post({ audio: "A", mime: "audio/webm", seconds: 1, context: ctx }))).json()).toMatchObject({ ok: false, reason: "failed" });
-    env.GEMINI_API_KEY = "k";
+    env.Gemini_API_Key = "k";
     vi.stubGlobal("fetch", vi.fn(async () => new Response("quota", { status: 429 })));
     expect(await (await handler(post({ audio: "A", mime: "audio/webm", seconds: 1, context: ctx }))).json()).toMatchObject({ ok: false, reason: "failed" });
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: "not json" }] }] }))));

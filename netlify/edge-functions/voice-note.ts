@@ -21,20 +21,35 @@ type Body = { audio?: string; mime?: string; seconds?: number; context?: VoiceCo
 
 type Ctx = { deploy?: { id?: string } };
 
+const tidy = (v: string | undefined) => (v ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
+
+/**
+ * The owner's own Gemini key, sent straight to Google (free tier). It is the Netlify variable
+ * `Gemini_API_Key` (the owner's name for it; names are case-sensitive). Netlify fills `GEMINI_API_KEY` itself
+ * with a token for its own AI service, which Google doesn't accept, so that one is used only if it holds a
+ * real Google key ("AIza…").
+ */
+function geminiKey(): { key: string; from: string | null } {
+  const own = tidy(Netlify.env.get("Gemini_API_Key"));
+  if (own) return { key: own, from: "Gemini_API_Key" };
+  const std = tidy(Netlify.env.get("GEMINI_API_KEY"));
+  if (std.startsWith("AIza")) return { key: std, from: "GEMINI_API_KEY" };
+  return { key: "", from: null };
+}
+
 export default async (req: Request, context?: Ctx): Promise<Response> => {
   if (req.method === "GET") {
-    const raw = Netlify.env.get("GEMINI_API_KEY")?.trim() ?? "";
-    // ?check: harmless facts about the stored key (never the key): its first 4 characters, which are the same
-    // for every Google key ("AIza"), its length, and which publish is running. For setting it up.
+    const { key: k, from } = geminiKey();
+    // ?check: harmless facts about the key in use (never the key): which variable, its first 4 characters
+    // (the same for every Google key, "AIza"), its length, and which publish is running. For setting it up.
     if (new URL(req.url).searchParams.has("check")) {
-      const k = raw.replace(/^["']+|["']+$/g, "").trim();
-      return json({ ready: !!k, startsLike: k.slice(0, 4), length: k.length, spaces: /\s/.test(k), deploy: context?.deploy?.id ?? null });
+      return json({ ready: !!k, from, startsLike: k.slice(0, 4), length: k.length, spaces: /\s/.test(k), deploy: context?.deploy?.id ?? null });
     }
-    return json({ ready: !!raw });
+    return json({ ready: !!k });
   }
   if (req.method !== "POST") return json({ ok: false, reason: "failed" }, 405);
-  // Forgive the usual paste slips around the key: spaces, line breaks, quotation marks.
-  const key = (Netlify.env.get("GEMINI_API_KEY") ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
+  // The owner's key; the usual paste slips around it (spaces, line breaks, quotation marks) are forgiven.
+  const { key } = geminiKey();
   if (!key) return json({ ok: false, reason: "failed", detail: "no key" }, 503);
 
   const text = await req.text();

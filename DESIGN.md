@@ -402,7 +402,8 @@ The owner chose to make the journal usable for real trades on their own devices 
   (`gemini-4-hydrogen`, free tier; `GEMINI_MODEL` overrides) for JSON in a fixed shape whose setup and headspace
   can only be the owner's own (`src/lib/voicePrompt.ts`), never stores the request, and checks every value
   again before answering. The story then fills only what is still empty, from the story as it is when the
-  answer arrives, with the toast and Undo as before. The key is the Netlify variable `GEMINI_API_KEY`; it never
+  answer arrives, with the toast and Undo as before. The key is the Netlify variable `Gemini_API_Key` (Netlify fills
+  `GEMINI_API_KEY` itself with a token for its own AI service, which Google rejects); it never
   reaches the page.
   - Talk it through and Settings › Voice notes appear by themselves once the server says it is ready (a key is
     set); the last answer is remembered, so they also show offline (`src/app/useVoice.ts`).
