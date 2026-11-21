@@ -33,12 +33,20 @@ export function chartSchema() {
           "The instrument's standard ticker, from the chart's legend or title. If the legend writes a name, give its ticker (e.g. 'Australian Dollar / U.S. Dollar' is 'AUDUSD', 'Silver / U.S. Dollar' is 'XAGUSD'). Null if not shown.",
       },
       timeframe: { type: ["string", "null"], description: "The timeframe exactly as written in the chart's legend or toolbar (e.g. '240', '4h', 'H4', '15', 'D', '1W'). Null if not shown. Never guess from the time axis." },
-      position_box: { type: "boolean", description: "True if a long or short position tool (the two shaded zones for profit and loss) is drawn." },
-      position_count: { type: "integer", description: "How many long or short position tools are drawn (0 if none)." },
-      direction: { type: ["string", "null"], enum: ["Long", "Short", null], description: "Long or Short from the position tool. Null without one." },
-      entry: price,
-      stop: { ...price, description: "Stop loss price from the position tool's loss zone edge. " + price.description },
-      target: { ...price, description: "Take profit price from the position tool's profit zone edge. " + price.description },
+      positions: {
+        type: "array",
+        description: "One item per long or short position tool drawn, from left to right. Empty if there is none.",
+        items: {
+          type: "object",
+          properties: {
+            direction: { type: ["string", "null"], enum: ["Long", "Short", null], description: "Long or Short from this position tool." },
+            entry: { ...price, description: "Entry price, where this tool's two zones meet. " + price.description },
+            stop: { ...price, description: "Stop loss price, at the far edge of this tool's loss zone. " + price.description },
+            target: { ...price, description: "Take profit price, at the far edge of this tool's profit zone. " + price.description },
+          },
+          required: ["direction", "entry", "stop", "target"],
+        },
+      },
       prices_legible: { type: "boolean", description: "False if a position tool is drawn but its prices are too small or blurry to read with confidence." },
       price_text: {
         type: ["string", "null"],
@@ -46,7 +54,7 @@ export function chartSchema() {
           "The printed text the prices were read from, copied character for character: the position tool's labels and the coloured price tags on the price axis at its edges (e.g. 'Stop: 1.27010 (17.0) | 1.26840 | Target: 1.26480 (36.0)'). Null if no price text can be read.",
       },
     },
-    required: ["symbol", "timeframe", "position_box", "position_count", "direction", "entry", "stop", "target", "prices_legible", "price_text"],
+    required: ["symbol", "timeframe", "positions", "prices_legible", "price_text"],
   };
 }
 
@@ -56,7 +64,7 @@ export function chartPrompt(ctx: ChartReadContext): string {
     "Read only what is printed. Never estimate a price from where something sits on the axis; if a price isn't printed and legible, leave it null.",
     "Entry, stop and target come from the long or short position tool: a red (loss) zone and a green or blue (profit) zone that meet at the entry. The far edge of the loss zone is the stop, the far edge of the profit zone is the target.",
     "The tool's prices are often printed only as coloured tags on the right-hand price axis, level with its edges: a red tag for the stop, a grey tag for the entry, a green or blue tag for the target. Read them there, or from the tool's own labels. Ignore tags of other lines and of the current price.",
-    "If more than one position tool is drawn, still count them, but leave direction and prices null.",
+    "If more than one position tool is drawn, give each one its own item with its own prices; don't mix the tags of different tools.",
     "Copy the printed text you read each price from into price_text. If you can't make out the characters, set prices_legible to false and leave the prices and price_text null: a wrong price is worse than none.",
     `Pairs the trader uses: ${ctx.pairs.join(", ") || "any"}.`,
   ].join("\n");
@@ -105,43 +113,43 @@ const quoted = (price: unknown, text: string) => {
  */
 export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
   const a = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  const entry = num(a.entry);
-  const stop = num(a.stop);
-  const target = num(a.target);
-  const said: Dir | null = a.direction === "Long" || a.direction === "Short" ? a.direction : null;
-  let dir: Dir | null = null;
-  // More than one position tool: which one is this trade isn't clear, so no direction or prices (and the chart
-  // isn't "too small to read"). The owner types them.
-  const many = typeof a.position_count === "number" && a.position_count > 1;
-  const box = a.position_box === true && !many;
   const text = typeof a.price_text === "string" ? a.price_text : "";
-  let prices = { entry, stop, target };
-  // A price not found in the quoted text was guessed (a blurry chart still gets plausible numbers): drop the set.
-  const unquoted = [entry != null && !quoted(a.entry, text), stop != null && !quoted(a.stop, text), target != null && !quoted(a.target, text)].some(Boolean);
-  if (!box || unquoted) {
-    // Prices only ever come from the position box, never from the axis.
-    prices = { entry: null, stop: null, target: null };
-  } else if (entry != null && stop != null) {
-    // The direction only ever comes with readable prices: read from the colours alone it was wrong in testing.
-    const fromPrices: Dir = stop < entry ? "Long" : "Short";
-    const fits = (said ?? fromPrices) === fromPrices && (target == null || (fromPrices === "Long" ? target > entry : target < entry));
-    if (fits) dir = fromPrices;
-    else prices = { entry: null, stop: null, target: null };
-  } else {
-    // Without both entry and stop nothing can be checked: no prices.
-    prices = { entry: null, stop: null, target: null };
+  const tools = (Array.isArray(a.positions) ? a.positions : []).map((p) => (p && typeof p === "object" ? p : {}) as Record<string, unknown>);
+  const read = tools.map((p) => readPosition(p, text));
+  const legend = { ok: true as const, pair: normalisePair(a.symbol, ctx.pairs), timeframe: normaliseTimeframe(a.timeframe) };
+  const none = { dir: null, entry: null, stop: null, target: null };
+  if (tools.length === 0) return { ...legend, ...none, unreadable: false };
+  if (tools.length > 1) {
+    // Several position tools (the owner's choice, 2026-11-21): which one is this trade isn't clear, so only the
+    // direction, and only when every tool's readable prices give the same one. The owner types the prices.
+    const dirs = read.map((r) => r?.dir ?? null);
+    const dir = dirs.every((d) => d && d === dirs[0]) ? dirs[0] : null;
+    return { ...legend, ...none, dir, unreadable: false };
   }
-  const str = (n: number | null, src: unknown) => (n == null ? null : String(src).replace(/[\s,]/g, ""));
-  return {
-    ok: true,
-    pair: normalisePair(a.symbol, ctx.pairs),
-    dir,
-    entry: str(prices.entry, a.entry),
-    stop: str(prices.stop, a.stop),
-    target: str(prices.target, a.target),
-    timeframe: normaliseTimeframe(a.timeframe),
-    unreadable: box && (a.prices_legible === false || unquoted),
-  };
+  const one = read[0];
+  // A box whose prices weren't printed legibly or weren't quoted counts as unreadable (the user types them).
+  const hadPrices = [tools[0].entry, tools[0].stop, tools[0].target].some((v) => v != null);
+  return { ...legend, ...(one ?? none), unreadable: a.prices_legible === false || (!one && hadPrices) };
+}
+
+/**
+ * One position tool. Prices must be plain numbers copied from printed text the model quotes back, and together
+ * they must make sense (a long's stop below its entry and its target above). The direction only ever comes with
+ * readable prices: read from the colours alone it was wrong in testing. A set that doesn't fit is dropped whole.
+ */
+function readPosition(p: Record<string, unknown>, text: string): { dir: Dir; entry: string; stop: string; target: string | null } | null {
+  const entry = num(p.entry);
+  const stop = num(p.stop);
+  const target = num(p.target);
+  if (entry == null || stop == null) return null;
+  // A price not found in the quoted text was guessed (a blurry chart still gets plausible numbers).
+  if (!quoted(p.entry, text) || !quoted(p.stop, text) || (target != null && !quoted(p.target, text))) return null;
+  const dir: Dir = stop < entry ? "Long" : "Short";
+  const said = p.direction === "Long" || p.direction === "Short" ? p.direction : null;
+  if ((said ?? dir) !== dir) return null;
+  if (target != null && (dir === "Long" ? target <= entry : target >= entry)) return null;
+  const str = (src: unknown) => String(src).replace(/[\s,]/g, "");
+  return { dir, entry: str(p.entry), stop: str(p.stop), target: target == null ? null : str(p.target) };
 }
 
 /**

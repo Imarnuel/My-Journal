@@ -428,6 +428,16 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
     Short in one click.
   - Result of the tests: the clear and half-size charts filled correctly; the tiny one filled nothing and got
     the "too small to read" card; the one without printed prices filled only pair and timeframe.
+- **The owner's real charts** (three TradingView screenshots, 2026-11-21) taught three more rules:
+  - The legend writes the instrument's name ("Euro / U.S. Dollar", "Gold Spot / U.S. Dollar"), so the reader
+    asks for the ticker; a pair is only ever one of the owner's pairs or something shaped like a ticker
+    ("EURUSD", "US30"), never a name run together ("EUROUSDOLLAR", which an early read gave).
+  - The position tool's prices often show only as coloured tags on the price axis (red stop, grey entry, blue
+    target), not as labels in the box; the reader is told so.
+  - **Several position tools on one chart** (the Gold chart had two shorts): each tool is read on its own.
+    Only pair and direction fill, and the direction only when every tool's readable prices give the same one
+    (the owner's choice: "Pair and direction only"). The owner types the prices of the position they took.
+    Not "too small to read".
 - **Fills only what is still empty** (pair, direction, entry, stop, target); a pair chosen by hand stays. The
   facts line says "Reading your chart…" (shimmer) and the empty facts pulse softly while reading (no clipping,
   so the facts' menus still open); filled facts glow; the toast reads "Read from your chart: pair, direction
