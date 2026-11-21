@@ -408,7 +408,7 @@ The owner chose to make the journal usable for real trades on their own devices 
     set); the last answer is remembered, so they also show offline (`src/app/useVoice.ts`).
   - The recording is kept with the story in the browser (`src/data/voiceAudio.ts`) and plays from the voice
     row, unless Keep recordings is off; then there is no play button.
-  - Wording (proposed 2026-11-21, awaiting the owner's yes): "Reading your note…" while Gemini reads;
+  - Wording (approved by the owner 2026-11-21): "Reading your note…" while Gemini reads;
     "The microphone is off" / "Allow the microphone for this site in your browser, then record again." with
     Record again; "You're offline" / "Your recording is kept. Try again when you're back online." and
     "Couldn't read your note just now" / "Your recording is kept. Try again in a moment." with Try again (the
