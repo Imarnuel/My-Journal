@@ -63,6 +63,24 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
   const ctx = body.context;
   if (!body.audio || !body.mime || !ctx) return json({ ok: false, reason: "failed" }, 400);
 
+  // Answer at once and keep the line open with a space every few seconds while Gemini reads, so a long note
+  // never runs into the platform's wait limit; the app reads the JSON at the end (spaces before it are fine).
+  const enc = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(ctrl) {
+      const beat = setInterval(() => ctrl.enqueue(enc.encode(" ")), 4000);
+      const result = await askGemini(key, body as Required<Body>).catch(() => ({ ok: false, reason: "failed", detail: "error" }));
+      clearInterval(beat);
+      ctrl.enqueue(enc.encode(JSON.stringify(result)));
+      ctrl.close();
+    },
+  });
+  return new Response(stream, { headers: { "content-type": "application/json", "cache-control": "no-store" } });
+};
+
+async function askGemini(key: string, body: Required<Body>): Promise<unknown> {
+  const ctx = body.context;
+
   const res = await fetch(API, {
     method: "POST",
     headers: { "content-type": "application/json", "x-goog-api-key": key, "Api-Revision": API_REVISION },
@@ -73,13 +91,15 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
         { type: "audio", data: body.audio, mime_type: geminiMime(body.mime) },
       ],
       response_format: { type: "text", mime_type: "application/json", schema: voiceSchema(ctx) },
+      // A short note needs little reasoning; low thinking keeps the wait short.
+      generation_config: { thinking_level: "low" },
       store: false,
     }),
   }).catch(() => null);
   if (!res || !res.ok) {
     // Google's own message (never the key) helps when the request shape or a limit is the problem.
     const why = res ? (await res.text().catch(() => "")).slice(0, 400) : "";
-    return json({ ok: false, reason: "failed", detail: res ? `gemini ${res.status}: ${why}` : "network" }, 502);
+    return { ok: false, reason: "failed", detail: res ? `gemini ${res.status}: ${why}` : "network" };
   }
 
   const interaction = (await res.json().catch(() => null)) as { steps?: { type?: string; content?: { type?: string; text?: string }[] }[] } | null;
@@ -93,9 +113,9 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
   try {
     answer = JSON.parse(out);
   } catch {
-    return json({ ok: false, reason: "failed", detail: "unreadable answer" }, 502);
+    return { ok: false, reason: "failed", detail: "unreadable answer" };
   }
-  return json(fillFromAnswer(answer, ctx, Number(body.seconds) || 0));
-};
+  return fillFromAnswer(answer, ctx, Number(body.seconds) || 0);
+}
 
 export const config = { path: "/api/voice-note" };

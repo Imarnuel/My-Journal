@@ -112,6 +112,7 @@ describe("the server function", () => {
     expect(sent.store).toBe(false);
     expect(sent.input[1]).toEqual({ type: "audio", data: "AAAA", mime_type: "audio/m4a" });
     expect(sent.response_format).toMatchObject({ type: "text", mime_type: "application/json" });
+    expect(sent.generation_config).toEqual({ thinking_level: "low" }); // a short note: keep the wait short
     expect(String(init.body)).not.toContain("test-key");
   });
 
