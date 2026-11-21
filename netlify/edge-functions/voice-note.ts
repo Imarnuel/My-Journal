@@ -10,6 +10,8 @@ declare const Netlify: { env: { get(name: string): string | undefined } };
 const API = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const API_REVISION = "2026-05-20";
 const DEFAULT_MODEL = "gemini-4-hydrogen"; // fast and efficient, on the free tier
+/** Free-tier models that read audio, tried in turn when the one before is busy or rate-limited. */
+const BACKUP_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
 const MAX_BYTES = 12 * 1024 * 1024;
 
 /** Chrome records audio/webm, Safari audio/mp4; Gemini lists audio/webm and audio/m4a among its formats. */
@@ -81,21 +83,27 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
 async function askGemini(key: string, body: Required<Body>): Promise<unknown> {
   const ctx = body.context;
 
-  const res = await fetch(API, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-goog-api-key": key, "Api-Revision": API_REVISION },
-    body: JSON.stringify({
-      model: Netlify.env.get("GEMINI_MODEL") || DEFAULT_MODEL,
-      input: [
-        { type: "text", text: voicePrompt(ctx) },
-        { type: "audio", data: body.audio, mime_type: geminiMime(body.mime) },
-      ],
-      response_format: { type: "text", mime_type: "application/json", schema: voiceSchema(ctx) },
-      // A short note needs little reasoning; low thinking keeps the wait short.
-      generation_config: { thinking_level: "low" },
-      store: false,
-    }),
-  }).catch(() => null);
+  const models = [Netlify.env.get("GEMINI_MODEL") || DEFAULT_MODEL, ...BACKUP_MODELS].filter((m, i, a) => a.indexOf(m) === i);
+  let res: Response | null = null;
+  for (const model of models) {
+    res = await fetch(API, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-goog-api-key": key, "Api-Revision": API_REVISION },
+      body: JSON.stringify({
+        model,
+        input: [
+          { type: "text", text: voicePrompt(ctx) },
+          { type: "audio", data: body.audio, mime_type: geminiMime(body.mime) },
+        ],
+        response_format: { type: "text", mime_type: "application/json", schema: voiceSchema(ctx) },
+        // A short note needs little reasoning; low thinking keeps the wait short (Gemini 4).
+        ...(model.startsWith("gemini-4") ? { generation_config: { thinking_level: "low" } } : {}),
+        store: false,
+      }),
+    }).catch(() => null);
+    // Busy (503), rate-limited (429) or a server hiccup: the next model. Anything else is final.
+    if (res && (res.ok || ![429, 500, 503].includes(res.status))) break;
+  }
   if (!res || !res.ok) {
     // Google's own message (never the key) helps when the request shape or a limit is the problem.
     const why = res ? (await res.text().catch(() => "")).slice(0, 400) : "";

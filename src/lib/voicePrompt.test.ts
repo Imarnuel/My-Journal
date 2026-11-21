@@ -124,6 +124,23 @@ describe("the server function", () => {
     expect(((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].headers as Record<string, string>)["x-goog-api-key"]).toBe("AIza-test");
   });
 
+  it("a busy model hands over to the next free one; a real error doesn't", async () => {
+    const busy = () => new Response(JSON.stringify({ error: { message: "high demand" } }), { status: 503 });
+    const good = () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] }));
+    const fetchMock = vi.fn().mockResolvedValueOnce(busy()).mockResolvedValueOnce(good());
+    vi.stubGlobal("fetch", fetchMock);
+    const out = await (await handler(post({ audio: "AAAA", mime: "audio/webm", seconds: 3, context: ctx }))).json();
+    expect(out).toMatchObject({ ok: true });
+    const models = fetchMock.mock.calls.map((c) => JSON.parse(String((c as unknown as [string, RequestInit])[1].body)).model);
+    expect(models).toEqual(["gemini-4-hydrogen", "gemini-3.8-flash"]);
+    const second = JSON.parse(String((fetchMock.mock.calls[1] as unknown as [string, RequestInit])[1].body));
+    expect(second.generation_config).toBeUndefined(); // thinking level is a Gemini 4 setting
+    const bad = vi.fn(async () => new Response("bad request", { status: 400 }));
+    vi.stubGlobal("fetch", bad);
+    await handler(post({ audio: "AAAA", mime: "audio/webm", seconds: 3, context: ctx })).then((r) => r.json());
+    expect(bad).toHaveBeenCalledTimes(1);
+  });
+
   it("GEMINI_MODEL overrides the model", async () => {
     env.GEMINI_MODEL = "gemini-4-neon";
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));
