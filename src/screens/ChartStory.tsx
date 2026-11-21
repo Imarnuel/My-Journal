@@ -43,6 +43,8 @@ import { readVoiceNote, transcriptRuns, type VoiceNoteResult, type VoicePhase } 
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
 import { loadVoiceAudio, saveVoiceAudio } from "../data/voiceAudio";
+import { readChart } from "../lib/chartReader";
+import type { ChartRead } from "../lib/chartRead";
 import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
 import { CANVAS_EXTRAS, PAIRS, captionOf, newStoryStart } from "./story/canvas";
@@ -134,6 +136,9 @@ function StoryScreen({ id }: { id: string | null }) {
   const [justFilled, setJustFilled] = useState<Set<string>>(new Set());
   const [newTags, setNewTags] = useState<string[]>([]);
   const stopRead = useRef<AbortController | null>(null);
+  // Charts being read (real journal): the facts line says so and the empty facts shimmer (DESIGN.md › Chart reading).
+  const [chartsReading, setChartsReading] = useState(0);
+  const chartQueue = useRef<Promise<void>>(Promise.resolve());
   const readTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioEl = useRef<HTMLAudioElement | null>(null);
@@ -283,6 +288,8 @@ function StoryScreen({ id }: { id: string | null }) {
     // set them by hand (01-decisions.md "Capture": filled from screenshot time, always editable).
     const when = REAL && !saved && !dateByHand.current ? screenshotTime(imgs) : null;
     update({ charts: charts.concat(urls), ...(when ?? {}) });
+    // The real journal reads each new chart (one at a time) and fills only the facts still empty.
+    if (REAL && VOICE) for (const f of imgs) queueChartRead(f);
     setSel(charts.length + urls.length - 1);
     toastA(urls.length === 1 ? "Chart added" : `${urls.length} charts added`, undefined, "added");
   };
@@ -388,6 +395,38 @@ function StoryScreen({ id }: { id: string | null }) {
     setNewTags((patch.tags ?? []).filter((t) => !cur.tags.includes(t)));
     readTimers.current.push(setTimeout(() => (setJustFilled(new Set()), setNewTags([])), 1400));
     toastA(voiceToast(filled), () => update(prev), "voice");
+  };
+  /** Read one chart after the ones before it, then fill what is still empty (DESIGN.md › Chart reading). */
+  const queueChartRead = (file: File) => {
+    setChartsReading((n) => n + 1);
+    chartQueue.current = chartQueue.current.then(async () => {
+      const res = await readChart(file, { pairs: chartPairs() });
+      setChartsReading((n) => n - 1);
+      if (res.ok) applyChartRead(res);
+    });
+  };
+  const applyChartRead = (r: ChartRead) => {
+    const cur = storyRef.current;
+    if (!cur) return;
+    const patch: Partial<Story> = {};
+    const filled: string[] = [];
+    if (!cur.pair && r.pair) (patch.pair = r.pair), filled.push("pair");
+    if (!cur.dir && r.dir) (patch.dir = r.dir), filled.push("direction");
+    const nums = { ...cur.numbers };
+    let prices = 0;
+    for (const k of ["entry", "stop", "target"] as const) if (!nums[k] && r[k]) (nums[k] = r[k]!), prices++;
+    if (prices) patch.numbers = nums;
+    if (!Object.keys(patch).length) {
+      // Nothing new to fill. A position box whose prices can't be read gets the designed card (frame 16).
+      if (r.unreadable && !cur.numbers.entry) setUnreadable(true);
+      return;
+    }
+    const prev = prevOf(cur, patch);
+    update(patch);
+    setJustFilled(new Set(["facts"]));
+    readTimers.current.push(setTimeout(() => setJustFilled(new Set()), 1400));
+    if (prices) filled.push(prices === 1 ? "1 price" : `${prices} prices`);
+    toastA(`Read from your chart: ${listOf(filled)}`, () => update(prev), "added");
   };
   /** A field's voice moment: shimmer while the note is read (only if still empty), glow just after. */
   const fx = (key: string, empty: boolean): Fx => (reading && empty ? "awaiting" : justFilled.has(key) ? "filled" : undefined);
@@ -1156,10 +1195,16 @@ function StoryScreen({ id }: { id: string | null }) {
             </dl>
           </section>
 
-          <section aria-label="Trade" style={{ padding: "16px 24px", borderTop: "1px solid var(--border-subtle)", display: "flex", flexDirection: "column", gap: "8px" }}>
-            <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-              {REAL ? "Tap anything to change" : saved ? "From your charts and MT5, or typed by you" : "Read from your charts and MT5 · tap anything to change"}
-            </span>
+          <section aria-label="Trade" className="kfx kfx-soft" data-fx={chartsReading && (!s.pair || !s.numbers.entry) ? "awaiting" : justFilled.has("facts") ? "filled" : undefined} style={{ padding: "16px 24px", borderTop: "1px solid var(--border-subtle)", display: "flex", flexDirection: "column", gap: "8px", borderRadius: 0 }}>
+            {chartsReading ? (
+              <span role="status" className="kshimmer kmsg" style={{ fontSize: "12px", lineHeight: "16px", fontWeight: 500, alignSelf: "flex-start" }}>
+                Reading your chart…
+              </span>
+            ) : (
+              <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
+                {REAL ? "Tap anything to change" : saved ? "From your charts and MT5, or typed by you" : "Read from your charts and MT5 · tap anything to change"}
+              </span>
+            )}
             {/* Each fact leads with its icon and they sit 16px apart, no dot separators (the Trade log's facts rule). */}
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px" }}>
               <Fact name="Pair" k="pair" icon="pair" value={s.pair} menu={menu} opts={PAIRS.map((label) => ({ label }))} onPick={pick("pair")} />
@@ -1406,4 +1451,15 @@ function KeptRecording({ rec }: { rec: Recording }) {
       )}
     </button>
   );
+}
+
+/** Pairs the chart reader should match: the menu's, plus any the user has logged. */
+function chartPairs(): string[] {
+  const used = useStore.getState().entries.flatMap((e) => e.pair.split(",").map((p) => p.trim()));
+  return [...new Set([...PAIRS, ...used])].filter(Boolean);
+}
+
+/** "pair, direction and 3 prices". */
+function listOf(parts: string[]): string {
+  return parts.length <= 1 ? parts.join("") : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }

@@ -303,6 +303,12 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 .kfx[data-fx="filled"]::after { background: color-mix(in srgb, var(--voice) 12%, transparent); animation: kglow 1.2s var(--ease-out) both; }
 @keyframes kglow { from { opacity: 1; } to { opacity: 0; } }
 
+/* Areas holding menus (the story's facts) don't clip: their shimmer is a soft pulse of the same tint instead. */
+.kfx.kfx-soft[data-fx="awaiting"] { overflow: visible; }
+.kfx.kfx-soft[data-fx="awaiting"]::after { transform: none; background: color-mix(in srgb, var(--voice) 7%, transparent);
+  animation: kpulse 1.6s ease-in-out infinite; }
+@keyframes kpulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
 /* New tags arrive in a short wave (--wave set per tag, quicker as it goes). */
 .pill.knew { animation: kpopin 180ms var(--ease-out) both; animation-delay: var(--wave, 0ms); }
 @keyframes kpopin { from { opacity: 0; transform: translateY(2px) scale(0.96); } to { opacity: 1; transform: none; } }

@@ -396,6 +396,27 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   it goes). Reduced motion: no sweeps or movement; message changes and new tags only fade.
 - **Failure cards keep a play button** for the recording, beside Try again.
 
+## Chart reading (real journal)
+Built on the owner's go-ahead (2026-11-21) to the behaviour in `01-decisions.md` "Charts in a story", with
+the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is asked and the checks),
+`netlify/edge-functions/chart-read.ts` (`/api/chart-read`), `src/lib/chartReader.ts`, the facts in
+`ChartStory.tsx`.
+- **Each chart added to a story is read**, one at a time, once the AI is set up (the same readiness as voice
+  notes). Gemini reads the **legend** (symbol, timeframe as written) and the **position box** (direction, and
+  entry, stop and target as printed). It is told never to estimate a price from the axis.
+- **Trust nothing**: prices must be plain numbers; prices only come from a position box; together they must
+  fit the direction (a long's stop below entry and target above, a short's the other way), else the set is
+  dropped. Symbols lose broker prefixes and map to the owner's own spelling ("OANDA:XAUUSD" → XAUUSD).
+  Timeframes are normalised on a clean match only ("240", "4h", "H4" → "4H"); otherwise no caption.
+- **Fills only what is still empty** (pair, direction, entry, stop, target); a pair chosen by hand stays. The
+  facts line says "Reading your chart…" (shimmer) and the empty facts pulse softly while reading (no clipping,
+  so the facts' menus still open); filled facts glow; the toast reads "Read from your chart: pair, direction
+  and 3 prices" with Undo. A position box whose prices can't be read gets frame 16's "Prices on this screenshot
+  are too small to read". If reading fails or is offline, nothing happens: the owner types as before.
+  *The two lines of wording are new, written in the approved voice-note style: flagged to the owner.*
+- Not yet: showing the read timeframe as a caption under uploaded charts (stories keep no caption per uploaded
+  image yet); the reader returns it already.
+
 ## Real app (the owner's own journal)
 The owner chose to make the journal usable for real trades on their own devices before any back end
 (2026-11-20). Source: `src/app/mode.ts`; tests in `tests/real/`.
