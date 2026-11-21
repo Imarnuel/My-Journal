@@ -809,15 +809,14 @@ function StoryScreen({ id }: { id: string | null }) {
                         <circle cx="15" cy="18" r="1.5" />
                       </svg>
                     </button>
-                    {charts.length > 1 ? (
-                      <button type="button" className="ktile-rm" aria-label={`Remove ${ordinal(i)} chart`} onClick={() => removeChart(i)}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M3 6h18" />
-                          <path d="M8 6V4h8v2" />
-                          <path d="M6 6l1 14h10l1-14" />
-                        </svg>
-                      </button>
-                    ) : null}
+                    {/* Every chart can be removed, the last one too (DESIGN.md › Chart tiles): the drop area returns. */}
+                    <button type="button" className="ktile-rm" aria-label={`Remove ${ordinal(i)} chart`} onClick={() => removeChart(i)}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4h8v2" />
+                        <path d="M6 6l1 14h10l1-14" />
+                      </svg>
+                    </button>
                   </figure>
                 );
               })}

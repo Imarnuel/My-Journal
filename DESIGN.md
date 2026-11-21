@@ -268,8 +268,10 @@ any more, and state 19 (a chart's menu open) is retired.
 - **Controls sit on the image**: on hover, a black wash (`--media-scrim`, fading out by 70% of the height)
   fades in from the top of the thumbnail, with the grip top left and a trash top right as white icons
   (`--on-media`) in 24px targets. Both themes use the same wash and white.
-- **Trash removes the chart at once** with "Chart removed" and Undo. The last remaining chart has no trash
-  (a story keeps at least one chart). Reordering is by drag, or the arrow keys on the grip.
+- **Trash removes the chart at once** with "Chart removed" and Undo, **the last chart too** (2026-11-21, the
+  owner: "i should be able to delete a single chart i just uploaded"; this replaces "a story keeps at least
+  one chart"). With no charts left, the drop area returns, as on a story without charts ("Drop, paste or
+  choose charts"; an MT5 trade keeps "Scroll back on your chart and take one now. It still counts."). Reordering is by drag, or the arrow keys on the grip.
 - The wash and controls also show when a control in the tile has keyboard focus. While a tile is dragged,
   only its grip shows; the other tiles show nothing.
 - **Touch has no hover**, so the wash and trash are always shown there; there's no grip (press and hold to

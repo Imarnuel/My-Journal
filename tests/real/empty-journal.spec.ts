@@ -137,3 +137,13 @@ test.describe("Settings in New York", () => {
     await expect(page.getByText("One reminder that day")).toHaveCount(0);
   });
 });
+
+test("a single chart just uploaded can be removed: the drop area returns", async ({ page }) => {
+  await page.goto("/new");
+  await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
+  await page.locator('#main input[type="file"]').first().setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("89504e470d0a1a0a", "hex") });
+  await expect(page.getByText("1 of 1")).toBeVisible();
+  await page.getByRole("button", { name: "Remove first chart" }).click();
+  await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Chart removed" })).toBeVisible();
+});

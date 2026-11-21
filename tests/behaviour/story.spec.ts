@@ -716,10 +716,17 @@ test("reorder with reduced motion: no lift scale, no slide, the order changes on
   expect(await chartOrder(page)).toEqual(["gD", "g4H", "gW", "gE", "gA"]);
 });
 
-test("charts: the last remaining chart can't be removed (no trash on it)", async ({ page }) => {
-  await openStory(page, "e10"); // one chart
+test("charts: the last chart can be removed too; the drop area returns, and Undo brings it back", async ({ page }) => {
+  await openStory(page, "e10"); // one chart, an MT5 trade
   await expect(tileEls(page)).toHaveCount(1);
-  await expect(page.getByRole("button", { name: /^Remove .* chart$/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Remove first chart" }).click();
+  await expect(tileEls(page)).toHaveCount(0);
+  // An MT5 trade's drop area keeps the design's line for trades without charts.
+  await expect(page.getByText("Scroll back on your chart and take one now. It still counts.")).toBeVisible();
+  await expect(toast(page)).toContainText("Chart removed");
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(tileEls(page)).toHaveCount(1);
+  await expect(page.getByText("1 of 1")).toBeVisible();
 });
 
 test("charts: + Add is a file picker; a dropped image becomes a chart", async ({ page }) => {
