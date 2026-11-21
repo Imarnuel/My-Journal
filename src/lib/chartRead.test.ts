@@ -25,6 +25,8 @@ describe("symbols", () => {
     expect(normalisePair("eur/usd", ctx.pairs)).toBe("EURUSD");
     expect(normalisePair("FX:USDJPY", ctx.pairs)).toBe("USDJPY");
     expect(normalisePair("", ctx.pairs)).toBeNull();
+    expect(normalisePair("US30", ctx.pairs)).toBe("US30");
+    expect(normalisePair("Euro / U.S. Dollar", ctx.pairs)).toBeNull(); // a name run together is never a pair
   });
 });
 
@@ -69,6 +71,10 @@ describe("trusting the position box", () => {
   });
   it("only one read came back: the legend only, nothing to check prices against", () => {
     expect(agreeReads(readFromAnswer(long, ctx), null)).toMatchObject({ pair: "GBPUSD", dir: null, entry: null, unreadable: false });
+  });
+  it("more than one position tool: no direction or prices, and not 'too small to read'", () => {
+    expect(readFromAnswer({ ...long, position_count: 2, prices_legible: false }, ctx)).toMatchObject({ pair: "GBPUSD", dir: null, entry: null, unreadable: false });
+    expect(readFromAnswer({ ...long, position_count: 1 }, ctx)).toMatchObject({ dir: "Long", entry: "1.26840" });
   });
   it("prices must be plain numbers", () => {
     expect(readFromAnswer({ ...long, entry: "about 1.27" }, ctx)).toMatchObject({ entry: null, stop: null });

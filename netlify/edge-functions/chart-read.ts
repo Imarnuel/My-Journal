@@ -9,7 +9,8 @@ declare const Netlify: { env: { get(name: string): string | undefined } };
 const MAX_BYTES = 12 * 1024 * 1024;
 const IMAGE = /^image\/(png|jpeg|webp|heic|heif)$/;
 
-type Body = { image?: string; mime?: string; context?: ChartReadContext };
+/** `debug`: also return what the model answered, for tuning the reading (never holds the key). */
+type Body = { image?: string; mime?: string; context?: ChartReadContext; debug?: boolean };
 
 export default async (req: Request): Promise<Response> => {
   const env = (n: string) => Netlify.env.get(n);
@@ -49,7 +50,7 @@ export default async (req: Request): Promise<Response> => {
       clearInterval(beat);
       const good = [x, y].flatMap((r) => (r.ok ? [r] : []));
       // `via` and `tried`: which models answered and why others handed over, for checking (never the key).
-      const why = { via: good.map((r) => r.model), tried: [...x.tried, ...y.tried] };
+      const why = { via: good.map((r) => r.model), tried: [...x.tried, ...y.tried], ...(body.debug ? { raw: good.map((r) => r.json) } : {}) };
       const result = good.length
         ? { ...agreeReads(readFromAnswer(good[0].json, ctx), good[1] ? readFromAnswer(good[1].json, ctx) : null), ...why }
         : { ok: false, reason: "failed", detail: x.ok ? "" : x.detail, ...why };
