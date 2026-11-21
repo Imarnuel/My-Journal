@@ -405,6 +405,12 @@ The owner chose to make the journal usable for real trades on their own devices 
   answer arrives, with the toast and Undo as before. The key is the Netlify variable `Gemini_API_Key` (Netlify fills
   `GEMINI_API_KEY` itself with a token for its own AI service, which Google rejects); it never
   reaches the page.
+  - Waiting: low thinking for Gemini 4 (a short note), and the function answers at once and keeps the line
+    open while Gemini reads, so a long note can't time out. When a model is busy or rate-limited it hands over
+    to the next free one: `gemini-4-hydrogen`, then `gemini-3.8-flash`, then `gemini-3.5-flash-lite`.
+  - `GET /api/voice-note?check` reports harmless facts about the key in use (variable, first 4 characters,
+    length, publish), never the key. Checked live 2026-11-21: a spoken test note filled both notes, setup,
+    tags with their kinds, plan and headspace.
   - Talk it through and Settings › Voice notes appear by themselves once the server says it is ready (a key is
     set); the last answer is remembered, so they also show offline (`src/app/useVoice.ts`).
   - The recording is kept with the story in the browser (`src/data/voiceAudio.ts`) and plays from the voice

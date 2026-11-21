@@ -15,12 +15,16 @@ Written 20 November 2026, at the end of the first build session.
   changes something `CLAUDE.md` states, update that line in the same commit.
 - Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl` (not merged to `main`; no
   pull request has been opened). Keep committing to that branch unless the owner says otherwise.
-- All checks pass: 97 unit tests (`npm test`), 327 browser tests (`npm run e2e`). One story test ("numbers: click one to edit it in place…") is flaky, about 1 run in 5, also before 2026-11-20: worth fixing.
+- All checks pass: 112 unit tests (`npm test`), 345 browser tests (`npm run e2e`, sample and real projects). One story test ("numbers: click one to edit it in place…") is flaky, about 1 run in 5, also before 2026-11-20: worth fixing.
 
 ## The real journal
 - Live at https://my-journal-rlfv.netlify.app (Netlify, builds `main`; see DESIGN.md › Real app). Work on the
   working branch; when a change is finished, tested and the owner has seen it in the preview, push it to
   `main` (`git push origin HEAD:main`) and Netlify republishes. `npm run dev:real` runs it locally.
+- Voice notes go through `netlify/edge-functions/voice-note.ts` to Gemini (key: Netlify variable
+  `Gemini_API_Key`; `GEMINI_API_KEY` is Netlify's own AI token, not usable with Google). Check the live set-up
+  with `curl https://my-journal-rlfv.netlify.app/api/voice-note?check`. Gemini's API is the Interactions API
+  (`/v1beta/interactions`); read its docs before changing the request, they changed after training.
 
 ## How the owner works
 - The owner looks at the app on the live preview: https://claude.ai/artifact/Lnqrd7dbSJgF2Q8DRExLt6
