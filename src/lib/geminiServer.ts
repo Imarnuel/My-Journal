@@ -12,8 +12,11 @@ const MODEL_LIMIT_MS = 40_000;
 
 export type GeminiPart = { type: "text"; text: string } | { type: "audio" | "image"; data: string; mime_type: string };
 
-/** `model`: which model answered (a backup when the first was busy), for checking speed and quality. */
-export type GeminiAnswer = { ok: true; json: unknown; model: string } | { ok: false; detail: string };
+/**
+ * `model`: which model answered (a backup when the first was busy); `tried`: why each model before it handed
+ * over ("gemini-4-hydrogen: 503", or "timeout"). For checking speed and quality; never holds the key.
+ */
+export type GeminiAnswer = { ok: true; json: unknown; model: string; tried: string[] } | { ok: false; detail: string; tried: string[] };
 
 /**
  * Ask Gemini for JSON in `schema`. `model` (from GEMINI_MODEL) goes first, then the backups; a busy (503),
@@ -23,9 +26,13 @@ export async function askGeminiJson(opts: { key: string; input: GeminiPart[]; sc
   const models = [opts.model || DEFAULT_MODEL, ...BACKUP_MODELS].filter((m, i, a) => a.indexOf(m) === i);
   let res: Response | null = null;
   let used = models[0];
+  const tried: string[] = [];
   for (const [i, model] of models.entries()) {
     used = model;
-    if (i > 0) opts.onBusy?.();
+    if (i > 0) {
+      tried.push(`${models[i - 1]}: ${res ? res.status : "timeout"}`);
+      opts.onBusy?.();
+    }
     const timer = new AbortController();
     const t = setTimeout(() => timer.abort(), MODEL_LIMIT_MS);
     res = await fetch(API, {
@@ -47,7 +54,7 @@ export async function askGeminiJson(opts: { key: string; input: GeminiPart[]; sc
   if (!res || !res.ok) {
     // Google's own message (never the key) helps when the request shape or a limit is the problem.
     const why = res ? (await res.text().catch(() => "")).slice(0, 400) : "";
-    return { ok: false, detail: res ? `gemini ${res.status}: ${why}` : "network" };
+    return { ok: false, detail: res ? `gemini ${res.status}: ${why}` : "network", tried };
   }
   const interaction = (await res.json().catch(() => null)) as { steps?: { type?: string; content?: { type?: string; text?: string }[] }[] } | null;
   const out = (interaction?.steps ?? [])
@@ -57,9 +64,9 @@ export async function askGeminiJson(opts: { key: string; input: GeminiPart[]; sc
     .map((c) => c.text ?? "")
     .join("");
   try {
-    return { ok: true, json: JSON.parse(out), model: used };
+    return { ok: true, json: JSON.parse(out), model: used, tried };
   } catch {
-    return { ok: false, detail: "unreadable answer" };
+    return { ok: false, detail: "unreadable answer", tried };
   }
 }
 

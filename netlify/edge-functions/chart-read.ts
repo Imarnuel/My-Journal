@@ -1,7 +1,7 @@
 // Chart reading for the real journal (DESIGN.md › Chart reading): the app posts one chart screenshot and the
 // user's pairs; this asks Gemini to read the legend and the position box, then trusts nothing it returns
 // (src/lib/chartRead.ts). Same key and models as voice notes (src/lib/geminiServer.ts). Nothing is stored.
-import { chartPrompt, chartSchema, readFromAnswer, type ChartReadContext } from "../../src/lib/chartRead.ts";
+import { agreeReads, chartPrompt, chartSchema, readFromAnswer, type ChartReadContext } from "../../src/lib/chartRead.ts";
 import { askGeminiJson, geminiKey } from "../../src/lib/geminiServer.ts";
 
 declare const Netlify: { env: { get(name: string): string | undefined } };
@@ -33,18 +33,26 @@ export default async (req: Request): Promise<Response> => {
   const stream = new ReadableStream({
     async start(ctrl) {
       const beat = setInterval(() => ctrl.enqueue(enc.encode(" ")), 4000);
-      const answer = await askGeminiJson({
-        key,
-        model: env("GEMINI_MODEL"),
-        input: [
-          { type: "text", text: chartPrompt(ctx) },
-          { type: "image", data: body.image!, mime_type: body.mime! },
-        ],
-        schema: chartSchema(),
-        onBusy: () => ctrl.enqueue(enc.encode("\t")),
-      }).catch(() => ({ ok: false as const, detail: "error" }));
+      // Two reads at once: printed prices come back the same, guesses don't (src/lib/chartRead.ts agreeReads).
+      const ask = () =>
+        askGeminiJson({
+          key,
+          model: env("GEMINI_MODEL"),
+          input: [
+            { type: "text", text: chartPrompt(ctx) },
+            { type: "image", data: body.image!, mime_type: body.mime! },
+          ],
+          schema: chartSchema(),
+          onBusy: () => ctrl.enqueue(enc.encode("\t")),
+        }).catch(() => ({ ok: false as const, detail: "error", tried: [] as string[] }));
+      const [x, y] = await Promise.all([ask(), ask()]);
       clearInterval(beat);
-      const result = answer.ok ? { ...readFromAnswer(answer.json, ctx), via: answer.model } : { ok: false, reason: "failed", detail: answer.detail };
+      const good = [x, y].flatMap((r) => (r.ok ? [r] : []));
+      // `via` and `tried`: which models answered and why others handed over, for checking (never the key).
+      const why = { via: good.map((r) => r.model), tried: [...x.tried, ...y.tried] };
+      const result = good.length
+        ? { ...agreeReads(readFromAnswer(good[0].json, ctx), good[1] ? readFromAnswer(good[1].json, ctx) : null), ...why }
+        : { ok: false, reason: "failed", detail: x.ok ? "" : x.detail, ...why };
       ctrl.enqueue(enc.encode(JSON.stringify(result)));
       ctrl.close();
     },
