@@ -12,7 +12,8 @@ const MODEL_LIMIT_MS = 40_000;
 
 export type GeminiPart = { type: "text"; text: string } | { type: "audio" | "image"; data: string; mime_type: string };
 
-export type GeminiAnswer = { ok: true; json: unknown } | { ok: false; detail: string };
+/** `model`: which model answered (a backup when the first was busy), for checking speed and quality. */
+export type GeminiAnswer = { ok: true; json: unknown; model: string } | { ok: false; detail: string };
 
 /**
  * Ask Gemini for JSON in `schema`. `model` (from GEMINI_MODEL) goes first, then the backups; a busy (503),
@@ -21,7 +22,9 @@ export type GeminiAnswer = { ok: true; json: unknown } | { ok: false; detail: st
 export async function askGeminiJson(opts: { key: string; input: GeminiPart[]; schema: unknown; model?: string; onBusy?: () => void }): Promise<GeminiAnswer> {
   const models = [opts.model || DEFAULT_MODEL, ...BACKUP_MODELS].filter((m, i, a) => a.indexOf(m) === i);
   let res: Response | null = null;
+  let used = models[0];
   for (const [i, model] of models.entries()) {
+    used = model;
     if (i > 0) opts.onBusy?.();
     const timer = new AbortController();
     const t = setTimeout(() => timer.abort(), MODEL_LIMIT_MS);
@@ -54,7 +57,7 @@ export async function askGeminiJson(opts: { key: string; input: GeminiPart[]; sc
     .map((c) => c.text ?? "")
     .join("");
   try {
-    return { ok: true, json: JSON.parse(out) };
+    return { ok: true, json: JSON.parse(out), model: used };
   } catch {
     return { ok: false, detail: "unreadable answer" };
   }

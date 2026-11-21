@@ -41,9 +41,10 @@ export default async (req: Request): Promise<Response> => {
           { type: "image", data: body.image!, mime_type: body.mime! },
         ],
         schema: chartSchema(),
+        onBusy: () => ctrl.enqueue(enc.encode("\t")),
       }).catch(() => ({ ok: false as const, detail: "error" }));
       clearInterval(beat);
-      const result = answer.ok ? readFromAnswer(answer.json, ctx) : { ok: false, reason: "failed", detail: answer.detail };
+      const result = answer.ok ? { ...readFromAnswer(answer.json, ctx), via: answer.model } : { ok: false, reason: "failed", detail: answer.detail };
       ctrl.enqueue(enc.encode(JSON.stringify(result)));
       ctrl.close();
     },

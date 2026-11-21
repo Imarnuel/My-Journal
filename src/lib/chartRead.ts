@@ -35,8 +35,13 @@ export function chartSchema() {
       stop: { ...price, description: "Stop loss price from the position tool's loss zone edge. " + price.description },
       target: { ...price, description: "Take profit price from the position tool's profit zone edge. " + price.description },
       prices_legible: { type: "boolean", description: "False if a position tool is drawn but its prices are too small or blurry to read with confidence." },
+      price_text: {
+        type: ["string", "null"],
+        description:
+          "The printed text the prices were read from, copied character for character: the position tool's labels and the price tags at its edges (e.g. 'Stop: 1.27010 (17.0) | 1.26840 | Target: 1.26480 (36.0)'). Null if no price text can be read.",
+      },
     },
-    required: ["symbol", "timeframe", "position_box", "direction", "entry", "stop", "target", "prices_legible"],
+    required: ["symbol", "timeframe", "position_box", "direction", "entry", "stop", "target", "prices_legible", "price_text"],
   };
 }
 
@@ -45,6 +50,7 @@ export function chartPrompt(ctx: ChartReadContext): string {
     "This is a screenshot of one trading chart (TradingView or MT5) from a trader's journal.",
     "Read only what is printed. Never estimate a price from where something sits on the axis; if a price isn't printed and legible, leave it null.",
     "Entry, stop and target come from the long or short position tool: the line between the two zones is the entry, the far edge of the loss zone is the stop, the far edge of the profit zone is the target.",
+    "Copy the printed text you read each price from into price_text. If you can't make out the characters, set prices_legible to false and leave the prices and price_text null: a wrong price is worse than none.",
     `Pairs the trader uses: ${ctx.pairs.join(", ") || "any"}.`,
   ].join("\n");
 }
@@ -77,9 +83,16 @@ const num = (v: unknown): number | null => {
   return /^\d+(\.\d+)?$/.test(s) ? Number(s) : null;
 };
 
+/** A price counts as printed only if its digits appear in the text quoted from the chart. */
+const quoted = (price: unknown, text: string) => {
+  const p = String(price).replace(/[\s,]/g, "");
+  return p.length > 0 && text.replace(/[\s,]/g, "").includes(p);
+};
+
 /**
- * Trust nothing: prices must be plain numbers, and together they must make sense for the direction (a long's
- * stop below its entry and its target above). A set that doesn't fit is dropped, never half-used.
+ * Trust nothing: prices must be plain numbers copied from printed text the model quotes back, and together they
+ * must make sense for the direction (a long's stop below its entry and its target above). A set that doesn't fit
+ * is dropped, never half-used. A box whose prices aren't quoted counts as unreadable (the user types them).
  */
 export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
   const a = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
@@ -88,9 +101,12 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
   const target = num(a.target);
   let dir: Dir | null = a.direction === "Long" || a.direction === "Short" ? a.direction : null;
   const box = a.position_box === true;
+  const text = typeof a.price_text === "string" ? a.price_text : "";
   let prices = { entry, stop, target };
-  if (!box) {
-    // Prices only ever come from the position box, never from labels or the axis.
+  // A price not found in the quoted text was guessed (a blurry chart still gets plausible numbers): drop the set.
+  const unquoted = [entry != null && !quoted(a.entry, text), stop != null && !quoted(a.stop, text), target != null && !quoted(a.target, text)].some(Boolean);
+  if (!box || unquoted) {
+    // Prices only ever come from the position box, never from the axis.
     prices = { entry: null, stop: null, target: null };
   } else if (entry != null && stop != null) {
     const fromPrices: Dir = stop < entry ? "Long" : "Short";
@@ -110,6 +126,6 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
     stop: str(prices.stop, a.stop),
     target: str(prices.target, a.target),
     timeframe: normaliseTimeframe(a.timeframe),
-    unreadable: box && a.prices_legible === false,
+    unreadable: box && (a.prices_legible === false || unquoted),
   };
 }
