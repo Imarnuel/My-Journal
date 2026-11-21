@@ -408,12 +408,26 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
   fit the direction (a long's stop below entry and target above, a short's the other way), else the set is
   dropped. Symbols lose broker prefixes and map to the owner's own spelling ("OANDA:XAUUSD" → XAUUSD).
   Timeframes are normalised on a clean match only ("240", "4h", "H4" → "4H"); otherwise no caption.
+- **Guesses are caught, not trusted** (added 2026-11-21 after live tests on drawn charts: a clear chart, the
+  same at half size, a tiny one nobody could read, and one with the box but no prices printed). The free
+  models read printed prices exactly, every time, but on the tiny chart they invented plausible prices on
+  the right sides of the entry, different on each read (three reads, three stops), and twice called a short
+  a long from the colours alone. So:
+  - Each price must appear in the printed text the reader quotes back (`price_text`).
+  - **Every chart is read twice at once**; prices and direction are kept only when both reads match exactly.
+    A mismatch counts as unreadable. If only one read comes back, only pair and timeframe are used.
+  - **A direction only comes with readable prices**, never from the colours alone. The owner picks Long or
+    Short in one click.
+  - Result of the tests: the clear and half-size charts filled correctly; the tiny one filled nothing and got
+    the "too small to read" card; the one without printed prices filled only pair and timeframe.
 - **Fills only what is still empty** (pair, direction, entry, stop, target); a pair chosen by hand stays. The
   facts line says "Reading your chart…" (shimmer) and the empty facts pulse softly while reading (no clipping,
   so the facts' menus still open); filled facts glow; the toast reads "Read from your chart: pair, direction
   and 3 prices" with Undo. A position box whose prices can't be read gets frame 16's "Prices on this screenshot
   are too small to read". If reading fails or is offline, nothing happens: the owner types as before.
   *The two lines of wording are new, written in the approved voice-note style: flagged to the owner.*
+  *Open: a box with no prices printed at all can also get "too small to read" (the model can't tell the two
+  apart reliably). Asked the owner whether that line is fine for both.*
 - Not yet: showing the read timeframe as a caption under uploaded charts (stories keep no caption per uploaded
   image yet); the reader returns it already.
 

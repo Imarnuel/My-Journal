@@ -13,9 +13,9 @@ Written 20 November 2026, at the end of the first build session.
   to new work before the owner has to correct it. `src/styles/taste.test.ts` checks the ones code can show.
 - `CLAUDE.md` now agrees with `DESIGN.md` (radii, segment weight, icons). Keep it that way: when a correction
   changes something `CLAUDE.md` states, update that line in the same commit.
-- Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl` (not merged to `main`; no
-  pull request has been opened). Keep committing to that branch unless the owner says otherwise.
-- All checks pass: 112 unit tests (`npm test`), 345 browser tests (`npm run e2e`, sample and real projects). One story test ("numbers: click one to edit it in place…") is flaky, about 1 run in 5, also before 2026-11-20: worth fixing.
+- Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl`, and finished work is pushed
+  to `main` too (the owner approved it; Netlify builds `main`). No pull request. Keep committing to the branch.
+- All checks pass: 131 unit tests (`npm test`), 351 browser tests (`npm run e2e`, sample and real projects). One story test ("numbers: click one to edit it in place…") is flaky, about 1 run in 5, also before 2026-11-20: worth fixing.
 
 ## The real journal
 - Live at https://my-journal-rlfv.netlify.app (Netlify, builds `main`; see DESIGN.md › Real app). Work on the
@@ -25,6 +25,11 @@ Written 20 November 2026, at the end of the first build session.
   `Gemini_API_Key`; `GEMINI_API_KEY` is Netlify's own AI token, not usable with Google). Check the live set-up
   with `curl https://my-journal-rlfv.netlify.app/api/voice-note?check`. Gemini's API is the Interactions API
   (`/v1beta/interactions`); read its docs before changing the request, they changed after training.
+- Chart reading goes through `netlify/edge-functions/chart-read.ts` (same key and models). Each chart is read
+  twice at once and prices are kept only when both reads match (DESIGN.md › Chart reading: live tests showed
+  the free models invent plausible prices for charts they can't read). Its answer carries `via` and `tried`
+  (which models answered, why others handed over). The free tier allows 15 requests a minute per model, so
+  don't test in quick bursts: it was hit while testing, and the owner's own reads share that limit.
 
 ## How the owner works
 - The owner looks at the app on the live preview: https://claude.ai/artifact/Lnqrd7dbSJgF2Q8DRExLt6
@@ -88,8 +93,8 @@ Written 20 November 2026, at the end of the first build session.
   revisit only if several screens need work at the same time. If so: write a module ownership map first
   (which files each module owns; shared parts stay with one coordinating session), start small (Chart
   story, Trade log, Dashboard), and keep a single preview link that shows the merged app.
-- Not built, because the handoff leaves them undesigned (`handoff/docs/06-open-items.md`): the back end
-  (MT5 sync, the real voice-note pipeline, chart reading, sign-in, server storage) and phone layouts
+- Not built, because the handoff leaves them undesigned (`handoff/docs/06-open-items.md`): MT5 sync, sign-in,
+  server storage, and phone layouts
   beyond the fixes in `DESIGN.md`.
 - The owner may like to run `/learn-taste` to capture their preferences from this session's corrections.
 
