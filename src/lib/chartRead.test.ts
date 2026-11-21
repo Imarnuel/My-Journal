@@ -29,19 +29,26 @@ describe("symbols", () => {
 });
 
 describe("trusting the position box", () => {
-  const long = { symbol: "FX:GBPUSD", timeframe: "15", position_box: true, direction: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", prices_legible: true, price_text: "Target: 1.27180 (34.0) | 1.26840 | Stop: 1.26670 (17.0)" };
+  const long = { symbol: "FX:GBPUSD", timeframe: "15", position_box: true, direction: "Long", loss_zone: "below", entry: "1.26840", stop: "1.26670", target: "1.27180", prices_legible: true, price_text: "Target: 1.27180 (34.0) | 1.26840 | Stop: 1.26670 (17.0)" };
   it("a long whose prices agree fills everything", () => {
     expect(readFromAnswer(long, ctx)).toEqual({ ok: true, pair: "GBPUSD", dir: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", timeframe: "15m", unreadable: false });
   });
   it("a direction the prices contradict drops the prices, never guesses", () => {
-    const r = readFromAnswer({ ...long, direction: "Short" }, ctx);
+    const r = readFromAnswer({ ...long, direction: "Short", loss_zone: "above" }, ctx);
     expect(r).toMatchObject({ dir: "Short", entry: null, stop: null, target: null });
   });
   it("a target on the wrong side drops the set", () => {
     expect(readFromAnswer({ ...long, target: "1.26000" }, ctx)).toMatchObject({ entry: null, stop: null, target: null });
   });
   it("direction comes from the prices when only the box is there", () => {
-    expect(readFromAnswer({ ...long, direction: null, entry: "2340.5", stop: "2348", target: "2320", price_text: "Stop: 2348 | 2340.5 | Target: 2,320" }, ctx)).toMatchObject({ dir: "Short", entry: "2340.5", target: "2320" });
+    expect(readFromAnswer({ ...long, direction: null, loss_zone: null, entry: "2340.5", stop: "2348", target: "2320", price_text: "Stop: 2348 | 2340.5 | Target: 2,320" }, ctx)).toMatchObject({ dir: "Short", entry: "2340.5", target: "2320" });
+  });
+  it("a direction the loss zone contradicts, or without it, is dropped; the prices can still give it", () => {
+    const none = { ...long, entry: null, stop: null, target: null, price_text: null };
+    expect(readFromAnswer({ ...none, loss_zone: "above" }, ctx)).toMatchObject({ dir: null }); // said Long, drew a short
+    expect(readFromAnswer({ ...none, loss_zone: null }, ctx)).toMatchObject({ dir: null });
+    expect(readFromAnswer({ ...none, direction: "Short", loss_zone: "above" }, ctx)).toMatchObject({ dir: "Short" });
+    expect(readFromAnswer({ ...long, loss_zone: null }, ctx)).toMatchObject({ dir: "Long", entry: "1.26840" });
   });
   it("no position box: no direction or prices, the legend still reads", () => {
     expect(readFromAnswer({ ...long, position_box: false }, ctx)).toMatchObject({ pair: "GBPUSD", timeframe: "15m", dir: null, entry: null, stop: null });
@@ -70,7 +77,7 @@ describe("the server function", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("sends the screenshot as an image with the reading rules, and checks the answer", async () => {
-    const answer = { symbol: "OANDA:XAUUSD", timeframe: "240", position_box: true, direction: "Short", entry: "2340.5", stop: "2348.0", target: "2320.0", prices_legible: true, price_text: "Stop: 2348.0 (7.5) | 2340.5 | Target: 2320.0 (20.5)" };
+    const answer = { symbol: "OANDA:XAUUSD", timeframe: "240", position_box: true, direction: "Short", loss_zone: "above", entry: "2340.5", stop: "2348.0", target: "2320.0", prices_legible: true, price_text: "Stop: 2348.0 (7.5) | 2340.5 | Target: 2320.0 (20.5)" };
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));
     vi.stubGlobal("fetch", fetchMock);
     const out = JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx }))).text()).trim());

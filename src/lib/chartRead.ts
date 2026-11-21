@@ -31,6 +31,11 @@ export function chartSchema() {
       timeframe: { type: ["string", "null"], description: "The timeframe exactly as written in the chart's legend or toolbar (e.g. '240', '4h', 'H4', '15', 'D', '1W'). Null if not shown. Never guess from the time axis." },
       position_box: { type: "boolean", description: "True if a long or short position tool (the two shaded zones for profit and loss) is drawn." },
       direction: { type: ["string", "null"], enum: ["Long", "Short", null], description: "Long or Short from the position tool. Null without one." },
+      loss_zone: {
+        type: ["string", "null"],
+        enum: ["above", "below", null],
+        description: "Where the position tool's loss (stop) zone sits relative to its entry line: 'above' or 'below'. Null if there is no position tool or it isn't clear.",
+      },
       entry: price,
       stop: { ...price, description: "Stop loss price from the position tool's loss zone edge. " + price.description },
       target: { ...price, description: "Take profit price from the position tool's profit zone edge. " + price.description },
@@ -41,7 +46,7 @@ export function chartSchema() {
           "The printed text the prices were read from, copied character for character: the position tool's labels and the price tags at its edges (e.g. 'Stop: 1.27010 (17.0) | 1.26840 | Target: 1.26480 (36.0)'). Null if no price text can be read.",
       },
     },
-    required: ["symbol", "timeframe", "position_box", "direction", "entry", "stop", "target", "prices_legible", "price_text"],
+    required: ["symbol", "timeframe", "position_box", "direction", "loss_zone", "entry", "stop", "target", "prices_legible", "price_text"],
   };
 }
 
@@ -100,6 +105,10 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
   const stop = num(a.stop);
   const target = num(a.target);
   let dir: Dir | null = a.direction === "Long" || a.direction === "Short" ? a.direction : null;
+  // The direction must agree with where the loss zone sits (above the entry: a short). A tiny chart once came
+  // back "Long" for a short; asking for the plain fact as well catches that.
+  const fromZone: Dir | null = a.loss_zone === "above" ? "Short" : a.loss_zone === "below" ? "Long" : null;
+  if (dir && fromZone !== dir) dir = null;
   const box = a.position_box === true;
   const text = typeof a.price_text === "string" ? a.price_text : "";
   let prices = { entry, stop, target };
