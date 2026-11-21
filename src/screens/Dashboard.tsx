@@ -5,7 +5,7 @@ import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
 import type { Entry, Period } from "../lib/types";
 import {
-  breakdown, mistakeRows, noChartTrades, periodNumbers, recentStories, setupOrder, subtitle, widerPeriod,
+  breakdown, mistakeRows, noChartTrades, periodNumbers, PERIODS, recentStories, setupOrder, subtitle,
 } from "../lib/dashboard";
 import { SESSIONS } from "../lib/calc";
 import { useKit, useMenu } from "./useKit";
@@ -15,7 +15,7 @@ import { BySetup, Charts, SessionsAndMistakes, StatRow } from "./dashboard/Numbe
 import { Footnote, Recent, TooFew } from "./dashboard/Stories";
 
 export function Dashboard() {
-  const menu = useMenu<"ap">();
+  const menu = useMenu<"ap" | "period">();
   const kit = useKit(menu as ReturnType<typeof useMenu>);
   const entries = useStore((s) => s.entries);
   const picked = useStore((s) => s.picked);
@@ -41,7 +41,12 @@ export function Dashboard() {
   const thumbs = useMemo(() => Object.fromEntries(setups.filter((s) => s.chart).map((s) => [s.name, s.chart])), [setups]);
   const recent = useMemo(() => recentStories(entries), [entries]);
   const noCharts = useMemo(() => noChartTrades(entries), [entries]);
-  const wider = widerPeriod(period);
+
+  const counts = useMemo(
+    () => Object.fromEntries(PERIODS.map((o) => [o.key, periodNumbers(entries, picked, o.key, today).T.length])) as Record<Period, number>,
+    [entries, picked, today],
+  );
+  const periodMenu = { open: menu.isOpen("period"), toggle: () => menu.toggle("period"), close: menu.close };
 
   const pick = (x: Period) => {
     menu.close();
@@ -50,7 +55,7 @@ export function Dashboard() {
 
   return (
     <Shell active="dashboard">
-      <Header sub={subtitle(period, today)} period={period} setPeriod={pick} kit={kit} />
+      <Header sub={subtitle(period, today)} period={period} setPeriod={pick} counts={counts} periodMenu={periodMenu} kit={kit} />
       <NoChartsNotice trades={noCharts} />
       {p.enough ? (
         <>
@@ -69,7 +74,7 @@ export function Dashboard() {
           <SessionsAndMistakes sessions={sessRows} mistakes={mist.rows} untagged={mist.untagged} n={p.s.n} />
         </>
       ) : (
-        <TooFew n={p.T.length} wider={wider} widen={() => wider && pick(wider)} />
+        <TooFew n={p.T.length} />
       )}
       <Recent stories={recent} />
       <Footnote />

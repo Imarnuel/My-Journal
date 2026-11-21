@@ -6,7 +6,7 @@ import type { Entry, TagKind } from "./types";
 import { fr, pct } from "./format";
 import {
   barGroups, barHeight, bestWorst, breakdown, dateSpan, eqGrid, eqPaths, eqScale, eqTicks, firstWeekday,
-  mistakeRows, mistakesOf, noChartTrades, periodNumbers, recentStories, resample, setupOrder, subtitle, widerPeriod,
+  mistakeRows, mistakesOf, noChartTrades, periodNumbers, recentStories, resample, setupOrder, subtitle,
 } from "./dashboard";
 
 const REAL = ["Main account", "Funded 100K", "Challenge 50K"];
@@ -31,11 +31,6 @@ describe("period line", () => {
     expect(firstWeekday("2026-11-04")).toBe("2026-11-04");
     expect(dateSpan("2026-11-18", "2026-11-18")).toBe("18 November");
     expect(dateSpan("2026-11-16", "2026-11-18")).toBe("16 to 18 November");
-  });
-  it("wider period", () => {
-    expect(widerPeriod("week")).toBe("month");
-    expect(widerPeriod("month")).toBe("3m");
-    expect(widerPeriod("3m")).toBeNull();
   });
 });
 

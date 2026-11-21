@@ -15,6 +15,14 @@ async function open(page: Page, url = "/") {
 
 const stat = (page: Page, label: string) => page.locator(".kstat > div").filter({ hasText: label }).locator(".num");
 
+
+/** The period dropdown (DESIGN.md › Dashboard period): open it and pick an option by its label. */
+const periodBtn = (page: Page) => page.getByRole("button", { name: /^Period: / });
+async function choosePeriod(page: Page, label: string) {
+  await periodBtn(page).click();
+  await page.getByRole("option", { name: new RegExp(`^${label}`) }).click();
+}
+
 test.describe("states (handoff/screenshots/states)", () => {
   test("01 account picker open", async ({ page }, info) => {
     await open(page);
@@ -25,7 +33,7 @@ test.describe("states (handoff/screenshots/states)", () => {
 
   test("02 period 3 months: R by day becomes R by week", async ({ page }, info) => {
     await open(page);
-    await page.getByRole("button", { name: "3 months" }).click();
+    await choosePeriod(page, "3 months");
     await expect(page.getByRole("heading", { name: "R by week" })).toBeVisible();
     await expect(stat(page, "Net R")).toHaveText("+9.0R");
     await expect(stat(page, "Trades taken")).toHaveText("54");
@@ -72,15 +80,19 @@ test.describe("states (handoff/screenshots/states)", () => {
 
 test("period: one pressed at a time, every number follows", async ({ page }) => {
   await open(page);
-  const seg = page.getByRole("group", { name: "Period" });
-  await expect(seg.getByRole("button", { name: "This month" })).toHaveAttribute("aria-pressed", "true");
+  await expect(periodBtn(page)).toHaveAccessibleName("Period: This month");
+  // Each option shows its trades in the ticked accounts; the chosen one is ticked.
+  await periodBtn(page).click();
+  await expect(page.getByRole("option")).toHaveText([/This week\s*3/, /This month\s*21/, /3 months\s*54/]);
+  await expect(page.getByRole("option", { name: /^This month/ })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Escape");
   await expect(page.getByText("November so far · 2 to 16 November · all figures in R")).toBeVisible();
   await expect(stat(page, "Net R")).toHaveText("+7.5R");
   await expect(page.getByText("7 of 11 days up")).toBeVisible();
 
-  await seg.getByRole("button", { name: "3 months" }).click();
-  await expect(seg.getByRole("button", { name: "3 months" })).toHaveAttribute("aria-pressed", "true");
-  await expect(seg.getByRole("button", { name: "This month" })).toHaveAttribute("aria-pressed", "false");
+  await choosePeriod(page, "3 months");
+  await expect(periodBtn(page)).toHaveAccessibleName("Period: 3 months");
+  await expect(page.locator(".kmenu")).toHaveCount(0);
   await expect(page.getByText("Last 3 months · 17 August to 16 November · all figures in R")).toBeVisible();
   await expect(stat(page, "Expectancy")).toHaveText("+0.17R");
   await expect(stat(page, "Win rate")).toHaveText("43%");
@@ -95,14 +107,16 @@ test("period: one pressed at a time, every number follows", async ({ page }) => 
 
 test("fewer than 5 trades: the numbers give way, and the button widens the period", async ({ page }) => {
   await open(page);
-  await page.getByRole("button", { name: "This week", exact: true }).click();
+  await choosePeriod(page, "This week");
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
   await expect(page.getByText("3 trades logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.")).toBeVisible();
   await expect(page.locator(".kstat")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "R over time" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Recent chart stories" })).toBeVisible();
-  await page.getByRole("button", { name: "Show this month" }).click();
-  await expect(page.getByRole("button", { name: "This month" })).toHaveAttribute("aria-pressed", "true");
+  // No "Show this month" button: the dropdown already shows each period's count (DESIGN.md).
+  await expect(page.getByRole("button", { name: /^Show (this month|3 months)$/ })).toHaveCount(0);
+  await choosePeriod(page, "This month");
+  await expect(periodBtn(page)).toHaveAccessibleName("Period: This month");
   await expect(stat(page, "Net R")).toHaveText("+7.5R");
 });
 
@@ -145,10 +159,11 @@ test("account picker: click outside and Escape close it; Escape returns focus to
   await page.keyboard.press("Escape");
   await expect(page.locator(".kmenu")).toHaveCount(0);
   await expect(trig).toBeFocused();
-  // Choosing a period while the menu is open closes it.
+  // Opening the period while the account picker is open swaps one menu for the other (one at a time).
   await trig.click();
-  await page.getByRole("button", { name: "3 months" }).click({ force: true });
-  await expect(page.locator(".kmenu")).toHaveCount(0);
+  await periodBtn(page).click();
+  await expect(page.locator(".kmenu")).toHaveCount(1);
+  await expect(page.getByRole("listbox", { name: "Period" })).toBeVisible();
 });
 
 test("View as table and Show chart swap each chart for its numbers and back", async ({ page }) => {
@@ -170,7 +185,7 @@ test("View as table and Show chart swap each chart for its numbers and back", as
   const drows = page.getByRole("table", { name: "R by day" }).getByRole("row");
   await expect(drows).toHaveCount(12);
   await expect(drows.nth(9)).toContainText("12 Nov3+2.7R");
-  await page.getByRole("button", { name: "3 months" }).click();
+  await choosePeriod(page, "3 months");
   await expect(page.getByRole("table", { name: "R by week" }).getByRole("row").first()).toContainText("Week");
   await expect(page.getByRole("table", { name: "R by week" }).getByRole("row").nth(1)).toContainText("Week of 17 Aug");
   await expect(page.getByRole("table", { name: "R by week" }).getByRole("row").nth(1)).toContainText("−2.0R");
@@ -262,11 +277,11 @@ test("reduced motion: no draw-in, numbers and charts swap at once", async ({ pag
   // The line is drawn twice (blue above zero, orange below, DESIGN.md); neither animates.
   await expect(page.locator("path.kdraw")).toHaveCount(2);
   expect(await page.locator("path.kdraw").evaluateAll((els) => els.map((e) => getComputedStyle(e).strokeDashoffset))).toEqual(["0px", "0px"]);
-  await page.getByRole("button", { name: "3 months" }).click();
+  await choosePeriod(page, "3 months");
   // Without motion the value is final on the next frame.
   await expect(stat(page, "Net R")).toHaveText("+9.0R", { timeout: 200 });
   await expect(page.getByText("8 of 12 weeks up")).toBeVisible();
-  await page.getByRole("button", { name: "This week", exact: true }).click();
+  await choosePeriod(page, "This week");
   await expect(page.getByRole("heading", { name: "Your numbers start after 5 trades" })).toBeVisible();
 });
 
@@ -279,7 +294,7 @@ test("numbers count to the new value on a change (not on first load)", async ({ 
     w.seen = [];
     new MutationObserver(() => w.seen.push(el.textContent ?? "")).observe(el, { characterData: true, subtree: true, childList: true });
   });
-  await page.getByRole("button", { name: "3 months" }).click(); // a pointer click animates
+  await choosePeriod(page, "3 months"); // a pointer click animates
   await expect(stat(page, "Trades taken")).toHaveText("54");
   const seen = await page.evaluate(() => (window as unknown as { seen: string[] }).seen);
   expect(new Set(seen).size).toBeGreaterThan(2); // passed through values between 20 and 53
@@ -296,10 +311,15 @@ test("keyboard: a period chosen from the keyboard swaps the numbers at once (no 
     w.seen = [];
     new MutationObserver(() => w.seen.push(el.textContent ?? "")).observe(el, { characterData: true, subtree: true, childList: true });
   });
-  await page.getByRole("button", { name: "3 months" }).focus();
+  await periodBtn(page).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("option", { name: /^This month/ })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("option", { name: /^3 months/ })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(stat(page, "Trades taken")).toHaveText("54");
   const seen = await page.evaluate(() => (window as unknown as { seen: string[] }).seen);
   expect([...new Set(seen)]).toEqual(["54"]);
-  await expect(page.getByRole("button", { name: "3 months" })).toHaveAttribute("aria-pressed", "true");
+  await expect(periodBtn(page)).toHaveAccessibleName("Period: 3 months");
+  await expect(periodBtn(page)).toBeFocused();
 });

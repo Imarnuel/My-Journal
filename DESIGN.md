@@ -160,6 +160,18 @@ soft wash), Stripe, Whop and Revolut (labels on the right, recessive guides), Ge
   baseline. Hover fades the others, as before.
 - The profit/loss pair passes the dataviz validator for colour-blind separation and contrast in both themes.
 
+## Dashboard period
+Overrides the segmented period control in `02-look-and-feel.md` and the Dashboard frame. Why: the owner asked
+for a dropdown like the Trade log's Date filter (2026-11-21); it also replaces the "Show 3 months" button,
+because the counts already show which period has trades. Source: `Header` in `src/screens/dashboard/Header.tsx`.
+- **The period is a dropdown** (the Trade log filter's component): calendar icon, the chosen period on the
+  button ("This month"), and This week, This month, 3 months with the number of trades each holds in the
+  ticked accounts. A period with none is dimmed, not hidden. Keyboard and pointer as every menu; a period
+  picked from the keyboard swaps the numbers at once (no count-up).
+- **"Your numbers start after 5 trades" keeps only New chart story**; no "Show this month" or "Show 3
+  months" button.
+- The motion checks for the sliding segment thumb now use the chart story's Plan control.
+
 ## Dashboard stat row
 - **Each stat label leads with a filled grey 14px icon** in the Details style: Net R (rising bars),
   Expectancy (a balance), Win rate (a trophy), Plan followed (clipboard with a check), Trades taken (a stack).
@@ -354,8 +366,10 @@ The owner chose to make the journal usable for real trades on their own devices 
   creates the hosting account. Until there is a back end, data stays on each device, in its own browser
   database (`journal-real`), apart from the sample one.
 - **Talk it through is hidden in the real journal** until voice notes work there: notes are typed. Voice
-  notes come next, as browser speech recognition plus Claude Sonnet 5.5 (the owner's choices), through a
-  small server function on the same host so no key sits in the page.
+  notes come after hosting, through Gemini's free tier (the owner's choice, 2026-11-21: their claude.ai plan
+  doesn't cover API use, and Gemini hears audio itself, so no browser speech step), via a small server
+  function on the same host so no key sits in the page. On the free tier Google may use what is sent to
+  improve its products; the owner was told.
 - **Connect MT5 stays, marked as waiting** until sync exists (the owner's choice); the wording is to be
   shown to the owner before it ships.
 - **A new real account joins the picked accounts** at once (practice accounts stay out), so its trades count

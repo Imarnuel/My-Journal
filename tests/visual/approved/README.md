@@ -54,3 +54,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | `light/` and `dark/` 02-Dashboard, 03-Main, 04-MainCal; `states/` 01 to 14 | The very short USDCHF trade is a real entry (DESIGN.md, question 4): it heads the Trade log (no drop zone), and the Dashboard's numbers include it (+7.5R, 21 trades, 14 of 21 followed) | 2026-11-20 |
 
 | `light/` and `dark/` 01-Start, 08-PlaybookHome, 09-Playbook, 15-Settings; `states/` 25, 27 to 30, 39 | "Whenever you trade"; Unsorted (22); "Lessons 10" with Show more; sample BOS tag in Your tags (DESIGN.md, questions 6, 9, 11); only those words and the Lessons list changed (checked) | 2026-11-20 |
+
+| `light/` and `dark/` 02-Dashboard; `states/` 01 to 06 | Period as a dropdown like the Trade log's Date filter (DESIGN.md, Dashboard period); only the header control changed (checked in both themes) | 2026-11-21 |

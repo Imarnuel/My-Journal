@@ -1,14 +1,21 @@
-// Dashboard header: title, period line, period choice, account picker, New chart story. Markup from the prototype.
+// Dashboard header: title, period line, period dropdown, account picker, New chart story. Markup from the prototype.
 import { Link } from "react-router-dom";
 import type { Period } from "../../lib/types";
 import { PERIODS } from "../../lib/dashboard";
 import type { useKit } from "../useKit";
 import { instantNext } from "../../components/charts/tween";
 import { AccountPicker } from "../../components/primitives/AccountPicker";
+import { FilterMenu, type Opt } from "../tradelog/FilterMenu";
+import { IcCalendar } from "../tradelog/icons";
 
 type Kit = ReturnType<typeof useKit>;
 
-export function Header({ sub, period, setPeriod, kit }: { sub: string; period: Period; setPeriod: (p: Period) => void; kit: Kit }) {
+type PeriodMenu = { open: boolean; toggle: () => void; close: () => void };
+
+/** Trades counted in each period (the ticked accounts), shown beside each option; empty periods are dimmed. */
+export function Header({ sub, period, setPeriod, counts, periodMenu, kit }: { sub: string; period: Period; setPeriod: (p: Period) => void; counts: Record<Period, number>; periodMenu: PeriodMenu; kit: Kit }) {
+  const label = PERIODS.find((o) => o.key === period)!.label;
+  const periodOpts: Opt[] = PERIODS.map((o) => ({ label: o.label, count: String(counts[o.key]), dim: counts[o.key] === 0, sel: o.key === period, pick: () => setPeriod(o.key) }));
   return (
     <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "0" }}>
@@ -18,28 +25,22 @@ export function Header({ sub, period, setPeriod, kit }: { sub: string; period: P
         </p>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-        <div role="group" aria-label="Period" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "4px", border: "1px solid var(--border)", borderRadius: "var(--r-lg)" }}>
-          {PERIODS.map((o) => {
-            const on = o.key === period;
-            return (
-              <button
-                key={o.key}
-                type="button"
-                aria-pressed={on ? "true" : "false"}
-                onClick={(e) => {
-                  if (e.detail === 0) instantNext();
-                  setPeriod(o.key);
-                }}
-                style={{
-                  font: "inherit", fontSize: "14px", fontWeight: on ? 600 : 500, color: on ? "var(--text-1)" : "var(--text-2)", background: on ? "var(--surface-3)" : "transparent",
-                  border: "0", borderRadius: "var(--r-md)", padding: "0 16px", minHeight: "32px", cursor: "pointer", whiteSpace: "nowrap",
-                }}
-              >
-                {o.label}
-              </button>
-            );
-          })}
-        </div>
+        {/* The period is a dropdown like the Trade log's Date filter (DESIGN.md › Dashboard period). */}
+        <span onKeyDownCapture={instantNext} style={{ display: "inline-flex" }}>
+          <FilterMenu
+            name="Period"
+            icon={<IcCalendar />}
+            label={label}
+            aria={`Period: ${label}`}
+            active={false}
+            open={periodMenu.open}
+            onToggle={periodMenu.toggle}
+            onClose={periodMenu.close}
+            opts={periodOpts}
+            width={240}
+            align="right"
+          />
+        </span>
         <AccountPicker kit={kit} onKeyDownCapture={instantNext} />
         <Link to="/new" className="btn btn-p">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

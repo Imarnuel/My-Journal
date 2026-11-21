@@ -2,30 +2,34 @@
 // keyboard actions without animation, theme cross-fade, page transitions, toast exit.
 import { expect, test } from "@playwright/test";
 
+/** The story's Plan control (Followed / Not followed): a segmented track that keeps its size when pressed. */
+const planTrack = (page: import("@playwright/test").Page) => page.locator(".kseg-track").filter({ has: page.getByRole("button", { name: "Not followed" }) });
 const thumbX = (page: import("@playwright/test").Page) =>
-  page.locator(".kseg-track .kseg-thumb").first().evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+  planTrack(page).locator(".kseg-thumb").evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
 
+// The Dashboard period is a dropdown now (DESIGN.md › Dashboard period); the chart story's Plan control is
+// the segmented control these check.
 test("segmented control: one thumb slides under the pressed segment", async ({ page }) => {
-  await page.goto("/");
-  const track = page.locator(".kseg-track").first();
+  await page.goto("/story/e20");
+  const track = planTrack(page);
   await expect(track.locator(".kseg-thumb")).toHaveCount(1);
-  const month = track.getByRole("button", { name: "This month" });
+  const followed = track.getByRole("button", { name: "Followed", exact: true });
   const x0 = await thumbX(page);
-  expect(Math.round(x0)).toBe(await month.evaluate((el) => (el as HTMLElement).offsetLeft));
-  await track.getByRole("button", { name: "3 months" }).click();
-  const target = await track.getByRole("button", { name: "3 months" }).evaluate((el) => (el as HTMLElement).offsetLeft);
+  expect(Math.round(x0)).toBe(await followed.evaluate((el) => (el as HTMLElement).offsetLeft));
+  await track.getByRole("button", { name: "Not followed" }).click();
+  const target = await track.getByRole("button", { name: "Not followed" }).evaluate((el) => (el as HTMLElement).offsetLeft);
   // It travels (a transition is running), then settles on the new segment.
-  const t = await page.locator(".kseg-thumb").first().evaluate((el) => getComputedStyle(el).transitionDuration);
+  const t = await track.locator(".kseg-thumb").evaluate((el) => getComputedStyle(el).transitionDuration);
   expect(t).not.toBe("0s");
   await expect.poll(() => thumbX(page).then(Math.round)).toBe(target);
 });
 
 test("segmented control from the keyboard: the thumb jumps (no slide)", async ({ page }) => {
-  await page.goto("/");
-  const track = page.locator(".kseg-track").first();
-  await track.getByRole("button", { name: "3 months" }).focus();
+  await page.goto("/story/e20");
+  const track = planTrack(page);
+  await track.getByRole("button", { name: "Not followed" }).focus();
   await page.keyboard.press("Enter");
-  const target = await track.getByRole("button", { name: "3 months" }).evaluate((el) => (el as HTMLElement).offsetLeft);
+  const target = await track.getByRole("button", { name: "Not followed" }).evaluate((el) => (el as HTMLElement).offsetLeft);
   expect(Math.round(await thumbX(page))).toBe(target);
 });
 
@@ -83,7 +87,7 @@ test("toasts leave by fading and dropping, faster than they arrive", async ({ pa
 
 test("reduced motion: the segmented thumb jumps instead of sliding", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/story/e20");
   // The thumb jumps: no transition on it at all.
-  expect(await page.locator(".kseg-thumb").first().evaluate((el) => getComputedStyle(el).transitionProperty)).toBe("none");
+  expect(await planTrack(page).locator(".kseg-thumb").evaluate((el) => getComputedStyle(el).transitionProperty)).toBe("none");
 });

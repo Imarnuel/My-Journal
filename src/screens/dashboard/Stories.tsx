@@ -1,10 +1,9 @@
 // Recent chart stories (the last 6 with charts, whatever the period or accounts), the fewer-than-5-trades state
-// (frame 16, "Your numbers start after 5 trades", with a button that widens the period), and the page footnote.
+// (frame 16, "Your numbers start after 5 trades"), and the page footnote.
 import { Link } from "react-router-dom";
-import type { Entry, Period } from "../../lib/types";
+import type { Entry } from "../../lib/types";
 import { fr, tone } from "../../lib/format";
-import { PERIODS, plural } from "../../lib/dashboard";
-import { instantNext } from "../../components/charts/tween";
+import { plural } from "../../lib/dashboard";
 
 const SPRITE = /^[ls][wx][0-2]$/;
 
@@ -67,9 +66,11 @@ export function Recent({ stories }: { stories: Entry[] }) {
   );
 }
 
-/** Frame 16, "Dashboard · fewer than 5 trades": replaces the numbers until the period has 5 trades. */
-export function TooFew({ n, wider, widen }: { n: number; wider: Period | null; widen: () => void }) {
-  const label = wider ? `Show ${PERIODS.find((p) => p.key === wider)!.label.replace(/^This/, "this")}` : null;
+/**
+ * Frame 16, "Dashboard · fewer than 5 trades": replaces the numbers until the period has 5 trades. No
+ * "Show 3 months" button: the period dropdown shows each period's count (DESIGN.md › Dashboard period).
+ */
+export function TooFew({ n }: { n: number }) {
   return (
     <section
       aria-labelledby="tfh"
@@ -83,18 +84,6 @@ export function TooFew({ n, wider, widen }: { n: number; wider: Period | null; w
         {`${plural(n, "trade")} logged so far. Until then this page shows your chart stories, and the numbers fill in as you go.`}
       </p>
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-        {label ? (
-          <button
-            type="button"
-            className="btn btn-g"
-            onClick={(e) => {
-              if (e.detail === 0) instantNext();
-              widen();
-            }}
-          >
-            {label}
-          </button>
-        ) : null}
         <Link to="/new" className="btn btn-g">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M12 5v14" />

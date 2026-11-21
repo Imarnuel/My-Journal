@@ -13,11 +13,6 @@ export const PERIODS: { key: Period; label: string }[] = [
   { key: "3m", label: "3 months" },
 ];
 
-/** The period to offer when a period has too few trades: This week widens to This month, This month to 3 months. */
-export function widerPeriod(p: Period): Period | null {
-  return p === "week" ? "month" : p === "month" ? "3m" : null;
-}
-
 /** First Monday to Friday date on or after `d` (markets are closed at the weekend). */
 export function firstWeekday(d: string): string {
   let x = d;
