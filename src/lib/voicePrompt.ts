@@ -33,7 +33,7 @@ export function voiceSchema(ctx: VoiceContext) {
       setup: { ...setup, description: "The user's setup this trade was, only if the note clearly names or describes it. Otherwise null." },
       tags: {
         type: "array",
-        description: "Tags for what the note says about the trade (quality, mistakes, context). Prefer the user's existing tags, spelled exactly. A new tag only for something clearly said that no existing tag covers. Never a session, never plan adherence.",
+        description: "Tags for what the note says about the trade (quality, mistakes, context). Prefer the user's existing tags, spelled exactly. A new tag only for something clearly said that no existing tag covers. Never a session, never plan adherence (no \"Followed rules\", \"Followed plan\", \"Broke rules\": that goes in plan_followed).",
         items: {
           type: "object",
           properties: {
@@ -77,6 +77,24 @@ const clockOf = (secs: number) => `${Math.floor(secs / 60)}:${String(Math.round(
  * Turn Gemini's JSON answer into a fill, trusting nothing: the setup and headspace must be on the user's
  * lists, an existing tag keeps its own spelling and kind, a new tag needs a valid kind.
  */
+/**
+ * A tag that only says whether the plan was followed ("Followed rules", "Stuck to the plan", "Broke my rules"):
+ * that is the Plan field's job, never a tag (the owner, 2026-11-22: "followed rules was picked from my voice note
+ * despite having followed plan as the options"). Returns what it says about the plan, or null when the tag is
+ * about something else. Words that are only near the plan ("Plan B entry") aren't caught.
+ */
+export function planTag(name: string): boolean | null {
+  const t = name.toLowerCase().replace(/[^a-z' ]/g, " ").replace(/\s+/g, " ").trim();
+  const about = /\b(plan|plans|rules?|system|strategy|checklist|process)\b/;
+  const broke = /\b(broke|broken|break|breaking|ignored?|ignoring|deviat\w*|off|against|abandon\w*|didn't|did not|not|no|without|skipped)\b/;
+  const kept = /\b(follow\w*|stuck|stick\w*|kept|keep|on|per|by|respect\w*|obey\w*|honou?r\w*|executed|according)\b/;
+  if (/^(disciplined|undisciplined|discipline|no discipline|lack of discipline)$/.test(t)) return !/^(un|no|lack)/.test(t);
+  if (!about.test(t)) return null;
+  if (broke.test(t)) return false;
+  if (kept.test(t) || /^(plan|rules?) (followed|kept|respected)$/.test(t)) return true;
+  return null;
+}
+
 export function fillFromAnswer(raw: unknown, ctx: VoiceContext, seconds: number): VoiceNoteResult {
   const a = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const before = clean(a.before);
@@ -86,9 +104,16 @@ export function fillFromAnswer(raw: unknown, ctx: VoiceContext, seconds: number)
   const headspace = typeof a.headspace === "string" ? ctx.headspaces.find((x) => x.toLowerCase() === a.headspace!.toString().toLowerCase()) ?? null : null;
   const seen = new Set<string>();
   const tags: { t: string; k: TagKind }[] = [];
+  let planFromTags: boolean | null = null;
   for (const item of Array.isArray(a.tags) ? a.tags : []) {
     const name = clean((item as Record<string, unknown>)?.tag, 40);
     if (!name || seen.has(name.toLowerCase())) continue;
+    // Plan adherence goes to Plan, never a tag (even if the model reused such a tag from the user's list).
+    const plan = planTag(name);
+    if (plan != null) {
+      planFromTags ??= plan;
+      continue;
+    }
     const known = ctx.tags.find((t) => t.t.toLowerCase() === name.toLowerCase());
     const kind = (item as Record<string, unknown>)?.kind;
     if (known) tags.push({ t: known.t, k: known.k });
@@ -105,7 +130,7 @@ export function fillFromAnswer(raw: unknown, ctx: VoiceContext, seconds: number)
     suggested: !!refl && a.reflection_inferred === true,
     setup,
     tags: tags.slice(0, 8),
-    followed: typeof a.plan_followed === "boolean" ? a.plan_followed : null,
+    followed: typeof a.plan_followed === "boolean" ? a.plan_followed : planFromTags,
     headspace,
     outcome: a.outcome === "target" || a.outcome === "stop" || a.outcome === "breakeven" ? a.outcome : null,
   };

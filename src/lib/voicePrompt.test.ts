@@ -1,6 +1,6 @@
 // Voice notes in the real journal: what Gemini is asked, how its answer is trusted, and the server function.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fillFromAnswer, voicePrompt, voiceSchema, type VoiceContext } from "./voicePrompt";
+import { fillFromAnswer, planTag, voicePrompt, voiceSchema, type VoiceContext } from "./voicePrompt";
 import handler from "../../netlify/edge-functions/voice-note.ts";
 import { resetModelHealth } from "./geminiServer";
 
@@ -69,6 +69,21 @@ describe("how the answer is trusted", () => {
   it("no understandable speech is the designed 'Couldn't make out your note'", () => {
     expect(fillFromAnswer({ ...answer, unclear: true }, ctx, 5)).toEqual({ ok: false, reason: "unclear" });
     expect(fillFromAnswer({}, ctx, 5)).toEqual({ ok: false, reason: "unclear" });
+  });
+  it("plan adherence is never a tag: it goes to Plan (the owner: 'Followed rules' was picked as a tag)", () => {
+    const tags = [{ tag: "Followed rules", kind: "Good" }, { tag: "Retest", kind: "Good" }];
+    const r = fillFromAnswer({ ...answer, tags, plan_followed: null }, ctx, 5);
+    expect(r.ok && r.tags.map((t) => t.t)).toEqual(["Retest"]);
+    expect(r.ok && r.followed).toBe(true);
+    // What the model said about the plan itself wins over what a tag implied.
+    const r2 = fillFromAnswer({ ...answer, tags: [{ tag: "Broke my rules", kind: "Mistake" }], plan_followed: true }, ctx, 5);
+    expect(r2.ok && r2.tags).toEqual([]);
+    expect(r2.ok && r2.followed).toBe(true);
+  });
+  it("tells plan tags from other tags", () => {
+    for (const t of ["Followed rules", "Followed plan", "Stuck to the plan", "Rules followed", "On plan", "Followed my system", "Disciplined"]) expect(planTag(t), t).toBe(true);
+    for (const t of ["Broke rules", "Didn't follow plan", "Off plan", "Ignored my rules", "Deviated from plan", "Undisciplined"]) expect(planTag(t), t).toBe(false);
+    for (const t of ["Retest", "Moved stop", "Chased entry", "Break of structure", "Trend continuation", "Plan B entry"]) expect(planTag(t), t).toBe(null);
   });
   it("a reflection that was said is not marked Suggested", () => {
     const r = fillFromAnswer({ ...answer, reflection_inferred: false }, ctx, 5);

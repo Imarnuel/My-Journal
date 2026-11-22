@@ -490,6 +490,12 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   quietly with the same rules (nothing overwritten, no toast away from the story); a new story left without saving
   lets its note go. Opening the story mid-reading shows where the reading is. A note that couldn't be read keeps
   its recording (in memory) for Try again on that story.
+- **Plan adherence is never a tag** (the owner, 2026-11-22: "followed rules was picked from my voice note despite
+  having followed plan as the options"). Plan has its fixed Followed / Not followed; a tag that only says the plan
+  or rules were followed or broken ("Followed rules", "Stuck to the plan", "Broke my rules", "Disciplined") is
+  dropped from the answer and, if the note didn't otherwise say, sets Plan instead (`planTag` in
+  `src/lib/voicePrompt.ts`). The prompt says so too. A tag already made that way can be removed in Settings ›
+  Your tags › Manage tags.
 - **The server asks models in parallel when one is slow** (`src/lib/geminiServer.ts`). Measured 2026-11-22 on the
   free tier: a model that answers does so in 6 to 7 seconds, a busy one says so within 4 or stays silent for the
   whole 40; a test note took 46 seconds, 40 of them waiting on a silent model. Now the next model is asked as well
