@@ -199,7 +199,8 @@ export function rowFacts(e: Entry): RowFacts {
     statusLabel,
     statusHint: STATUS_HINT[statusLabel] ?? "",
     acct: e.also ? `${e.account} and ${e.also}` : e.account,
-    hasAcct: !analysis,
+    // No account named (a story saved without one): no icon standing alone.
+    hasAcct: !analysis && !!e.account,
     plan,
     mt5: taken && noCharts && e.mt5 ? `MT5 ${e.mt5}` : "",
     facts2: !analysis && !!(e.setup || plan || e.tags.length),

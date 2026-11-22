@@ -461,3 +461,11 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
   .app .chart:has(> img[data-loading]), .app .chart:has(> * > img[data-loading]) { animation: none; }
 }
 
+
+/* List rows (Trade log, Accounts): on hover the row becomes one rounded tile (--r-lg) and the dividers above and
+   below it go, so it reads as a single lifted row, not a band between two lines (the owner, 2026-11-22). */
+.app .krow { border-radius: var(--r-lg);corner-shape:squircle; transition: background var(--d-instant), border-color var(--d-instant); }
+@media (hover: hover) and (pointer: fine) {
+  .app .krow:hover, .app .krow:hover + .krow { border-top-color: transparent !important; }
+  .app :is(ol, ul, div):has(> .krow:last-child:hover) { border-bottom-color: transparent !important; }
+}

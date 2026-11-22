@@ -243,6 +243,12 @@ a control. Source: the Notes card in `src/screens/ChartStory.tsx`.
   ("Why you took it and how it went…") at 12px, and the field labels "Before / during" and "Reflection" at 14px
   (500, `--text-2`). Were 16, 14 and 12.
 
+## List rows on hover
+The owner, 2026-11-22: "The hover state should have rounded corners. also borders should disappear on hover."
+Trade log and Accounts rows (`.krow`): the hover fill is a rounded tile (`--r-lg`) and the dividers above and below
+the hovered row turn transparent, so it reads as one lifted row, not a band between two lines. Pointer devices
+only. Also: a trade with no account no longer shows the account icon on its own.
+
 ## Trade log rows at 12px
 Why: the owner wanted the pair to lead. Every line under the pair (date, status, account, ticket, setup,
 plan, tags, plan notes) is 12/16 with 14px icons. The pair, direction chip and result stay at 14px as the
