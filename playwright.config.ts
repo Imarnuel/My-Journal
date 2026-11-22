@@ -24,6 +24,9 @@ export default defineConfig({
     {
       name: "real",
       testMatch: "real/**/*.spec.ts",
+      // These pages wait on a (faked) chart or voice reading; under a full run that can take longer than the
+      // 5-second default, so a check waits up to 10 seconds here (they failed one at a time at random before).
+      expect: { timeout: 10_000 },
       // A fake microphone for voice notes (Chromium's built-in test device; no real audio needed).
       use: { baseURL: "http://localhost:5174", launchOptions: { ...(executablePath ? { executablePath } : {}), args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] } },
     },

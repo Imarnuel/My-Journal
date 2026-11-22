@@ -15,8 +15,9 @@ Written 20 November 2026, at the end of the first build session.
   changes something `CLAUDE.md` states, update that line in the same commit.
 - Everything is committed and pushed on the branch `claude/sweet-mayer-v7v5nl`, and finished work is pushed
   to `main` too (the owner approved it; Netlify builds `main`). No pull request. Keep committing to the branch.
-- All checks pass: 152 unit tests (`npm test`), 372 browser tests (`npm run e2e`, sample and real projects). Flaky, worth fixing: one story test ("numbers: click one to edit it in place…", about 1 run in 5, also before 2026-11-20) and, under full-suite load, the real chart-reading tests that wait on a (faked) reading: about one of them
-  fails per full run and passes alone. Worth making the fake reader faster under load.
+- All checks pass: 152 unit tests (`npm test`), 372 browser tests (`npm run e2e`, sample and real projects). Flaky, worth fixing: one story test ("numbers: click one to edit it in place…", about 1 run in 5, also before 2026-11-20) and, under full-suite load, the real chart-reading tests that wait on a (faked) reading used to fail one at a
+  time; the real project now waits up to 10 seconds per check (playwright.config.ts). The Dashboard's "numbers count
+  to the new value" test samples animation frames and can miss under a full run (passes alone).
 
 ## The real journal
 - Live at https://my-journal-rlfv.netlify.app (Netlify, builds `main`; see DESIGN.md › Real app).

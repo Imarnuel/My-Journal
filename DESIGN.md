@@ -313,7 +313,15 @@ action. Same on New chart story and the chart story page. Source: `ChartStory.ts
   line. Typing a result keeps yours (prices then leave it alone); clearing it hands it back to the prices.
   Opening a story never changes a result; MT5 results only change when you edit a price.
 
-## Date and time: no Save, no Escape to undo, no toast
+## Menus line up with the field you see
+Why: the owner, 2026-11-22: the Setup menu sat 12px in from its field ("our app needs to look clean"). The
+Details fields (`.ghost`) are drawn 12px wider on the left than their slot so their text lines up with the other
+rows; the menus under them (Setup, Headspace, tag suggestions, the new-tag kind choice) lined up with the slot.
+Rule: **a menu under a field starts at the field's left edge and is as wide as the field** (`UNDER_FIELD` in
+`ChartStory.tsx`). Action rows read as one item, icon then label ("+ New setup"), not spread to both ends.
+Also: the result box holds just the number ("+2.1"), since the R follows the box.
+
+
 Overrides the prototype's date picker (Cancel and Save) and `01-decisions.md` ("Change date … All with Undo")
 for the date. Why: the owner, 2026-11-22: "why save for date and time?"; "no escape, no saving"; "no toast".
 Source: the facts' date in `ChartStory.tsx`, `DateDialog` in `src/screens/tradelog/Rows.tsx`.

@@ -11,7 +11,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
 import type { Entry, Status, TagKind } from "../lib/types";
-import { dateTime, fr, tone } from "../lib/format";
+import { dateTime, fr, signed, tone } from "../lib/format";
 import {
   HEADSPACE,
   HEADSPACE_EMOJI,
@@ -1143,8 +1143,8 @@ function StoryScreen({ id }: { id: string | null }) {
                   {menu.isOpen("setup") ? (
                     <>
                       <Closer onClose={menu.close} />
-                      <OptionList label="Setup" opts={setupNames.map((label) => ({ label }))} value={s.setup} onPick={pick("setup")} style={{ left: 0, width: "100%" }}>
-                        <Link to="/playbook/new" className="kit-opt" style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", color: "var(--text-2)", textDecoration: "none", boxSizing: "border-box" }}>
+                      <OptionList label="Setup" opts={setupNames.map((label) => ({ label }))} value={s.setup} onPick={pick("setup")} style={UNDER_FIELD}>
+                        <Link to="/playbook/new" className="kit-opt" style={{ font: "inherit", fontSize: "14px", textAlign: "left", display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", width: "100%", color: "var(--text-2)", textDecoration: "none", boxSizing: "border-box" }}>
                           <Plus />
                           New setup
                         </Link>
@@ -1201,7 +1201,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   {menu.isOpen("tag") ? (
                     <>
                       <Closer onClose={menu.close} />
-                      <div id="tagsug" role="listbox" aria-label="Matching tags" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", left: 0, right: 0 }}>
+                      <div id="tagsug" role="listbox" aria-label="Matching tags" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", ...UNDER_FIELD }}>
                         {ts.sug.map((o) => (
                           <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => addTag(o.t)} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" }}>
                             <span>{o.t}</span>
@@ -1219,7 +1219,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   {menu.isOpen("kind") && kindFor ? (
                     <>
                       <Closer onClose={menu.close} />
-                      <div role="dialog" aria-label="New tag" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", left: 0, right: 0, padding: "12px", gap: "8px" }}>
+                      <div role="dialog" aria-label="New tag" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", ...UNDER_FIELD, padding: "12px", gap: "8px" }}>
                         <span style={{ fontSize: "14px", color: "var(--text-1)" }}>
                           What kind of tag is <b>{kindFor}</b>? You only set this once.
                         </span>
@@ -1273,7 +1273,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   {menu.isOpen("head") ? (
                     <>
                       <Closer onClose={menu.close} />
-                      <OptionList label="Headspace" opts={HEADSPACE.map((label) => ({ label, lead: HEADSPACE_EMOJI[label] }))} value={s.headspace} onPick={pick("headspace")} style={{ left: 0, width: "100%" }} />
+                      <OptionList label="Headspace" opts={HEADSPACE.map((label) => ({ label, lead: HEADSPACE_EMOJI[label] }))} value={s.headspace} onPick={pick("headspace")} style={UNDER_FIELD} />
                     </>
                   ) : null}
                 </div>
@@ -1359,7 +1359,7 @@ function StoryScreen({ id }: { id: string | null }) {
                         autoComplete="off"
                         enterKeyHint="done"
                         placeholder={isRes ? R_HINT_TYPING : undefined}
-                        value={isRes ? resDraft ?? value : value}
+                        value={isRes ? resDraft ?? (s.r != null ? signed(s.r) : "") : value}
                         onChange={(e) => (isRes ? setResult(e.target.value) : setPrice(k, e.target.value))}
                         onBlur={() => editingRef.current === k && editNum(null)}
                         onKeyDown={(e) => {
@@ -1549,6 +1549,13 @@ const READ_COPY: Record<ReadPhase, { title: string; text?: string }> = {
  *  follows it. */
 const R_HINT = "3R";
 const R_HINT_TYPING = "3";
+
+/**
+ * A menu under a Details field lines up with the field you see. The field is drawn 12px wider on the left than
+ * its slot (`.ghost`, so its text lines up with the other rows), so the menu starts 12px left too and is as wide
+ * as the field (the owner, 2026-11-22: "our app needs to look clean").
+ */
+const UNDER_FIELD = { left: "-12px", width: "100%" } as const;
 
 /** The one-tap outcomes under the numbers (approved wording, DESIGN.md › Result). */
 const OUTCOME_LABEL: Record<Outcome, string> = { target: "Target", stop: "Stop", breakeven: "Breakeven" };
