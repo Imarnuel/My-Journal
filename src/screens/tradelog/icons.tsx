@@ -58,9 +58,10 @@ export const IcCheck = () => (
   </svg>
 );
 export const IcPlus = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" {...P}>
-    <path d="M12 5v14" />
-    <path d="M5 12h14" />
+  <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="1.8" {...P}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 12h8" />
+    <path d="M12 8v8" />
   </svg>
 );
 export const IcList = () => (

@@ -232,7 +232,7 @@ export function SetupEditor() {
               ))}
               <button type="button" onClick={() => add(g)} style={{ font: "inherit", fontSize: "14px", color: "var(--text-2)", background: "transparent", border: 0, borderTop: "1px solid var(--border-subtle)", textAlign: "left", padding: "12px 0", cursor: "pointer" }}>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                  <PlusIcon w={1.8} />
+                  <PlusIcon />
                   Add a rule
                 </span>
               </button>

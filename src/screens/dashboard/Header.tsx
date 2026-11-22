@@ -43,9 +43,10 @@ export function Header({ sub, period, setPeriod, counts, periodMenu, kit }: { su
         </span>
         <AccountPicker kit={kit} onKeyDownCapture={instantNext} />
         <Link to="/new" className="btn btn-p">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 12h8" />
+            <path d="M12 8v8" />
           </svg>
           New chart story
         </Link>

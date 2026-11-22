@@ -531,7 +531,7 @@ export const ICONS: Record<string, { a: Record<string, string>; i: string }> = {
 "stroke-linecap": "round",
 "stroke-linejoin": "round"
 },
-"i": "<path d=\"M12 5v14\"></path><path d=\"M5 12h14\"></path>"
+"i": "<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M8 12h8\"></path><path d=\"M12 8v8\"></path>"
 },
 "review": {
 "a": {

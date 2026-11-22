@@ -93,7 +93,7 @@ export function AccountFields({
               style={{ font: "inherit", fontSize: "14px", color: "var(--text-2)", background: "transparent", border: "1px dashed var(--border)", borderRadius: "999px", padding: "0 16px", minHeight: "32px", cursor: "pointer" }}
             >
               <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>
                 Your own type
               </span>
             </button>

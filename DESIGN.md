@@ -243,6 +243,13 @@ a control. Source: the Notes card in `src/screens/ChartStory.tsx`.
   ("Why you took it and how it went…") at 12px, and the field labels "Before / during" and "Reflection" at 14px
   (500, `--text-2`). Were 16, 14 and 12.
 
+## Plus is a circled plus; buttons tighter on the icon side
+The owner, 2026-11-22: "change the plus icon to the plus that has a circle … here and also for every other place
+it exists", then "reduce the padding just a bit, the horizontal padding". Every plus (New chart story, Add
+account, New setup, + New setup in the Setup menu, the Add chart tile, Your own type, the "New …" breadcrumbs) is
+Lucide's circle-plus at stroke 1.8. A button with an icon has 8px on the icon's side and 12px on the text's (the
+icon's own whitespace evens it out); buttons without an icon keep 12px.
+
 ## List rows on hover
 The owner, 2026-11-22: "The hover state should have rounded corners. also borders should disappear on hover."
 Trade log and Accounts rows (`.krow`): the hover fill is a rounded tile (`--r-lg`) and the dividers above and below

@@ -469,3 +469,9 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
   .app .krow:hover, .app .krow:hover + .krow { border-top-color: transparent !important; }
   .app :is(ol, ul, div):has(> .krow:last-child:hover) { border-bottom-color: transparent !important; }
 }
+
+/* Buttons with an icon: 8px on the icon's side, 12px on the text's (the owner, 2026-11-22: "reduce the padding just a
+   bit, the horizontal padding"). The icon's own whitespace makes up the difference, so the button looks evenly
+   padded and a touch tighter. Buttons without an icon keep 12px. */
+.app .btn:has(> svg:first-child) { padding-left: 8px !important; }
+.app .btn:has(> svg:last-child):not(:has(> svg:first-child)) { padding-right: 8px !important; }
