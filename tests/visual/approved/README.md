@@ -61,3 +61,4 @@ then look at every regenerated image against the handoff screenshot before commi
 
 | `states/` 11 | The Change date picker has no Save or Cancel (DESIGN.md › Date and time); only the dialog changed (checked against the previous approved image) | 2026-11-22 |
 | Every image in `light/`, `dark/`, `states/` and `chrome/` | Continuous (Apple-style) corners on the rounder scale (DESIGN.md › Corners: 7, 8, 10, 12, 16, 16, 18, 20). A revert to the handoff's sizes earlier the same day was a misreading and is undone; only the corner curves changed against the 2026-11-19 images (checked new story, settings, dashboard) | 2026-11-22 |
+| Every image in `light/`, `dark/`, `states/` and `chrome/` | Typeface: Instrument Serif page titles at 26px, Public Sans for everything else (DESIGN.md › Typeface); layout unchanged, title line height stays 32px (checked the story, trade log and dashboard) | 2026-11-22 |
