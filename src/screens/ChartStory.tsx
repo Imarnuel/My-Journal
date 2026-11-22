@@ -328,7 +328,8 @@ function StoryScreen({ id }: { id: string | null }) {
     const when = REAL && !saved && !dateByHand.current ? screenshotTime(imgs) : null;
     update({ charts: charts.concat(urls), ...(when ?? {}) });
     // The real journal reads each new chart (one at a time) and fills only the facts still empty.
-    if (REAL && VOICE) imgs.forEach((f, i) => queueChartRead(f, urls[i], readTarget));
+    // Queued whatever the page knows yet: the reading service waits for the server to say reading is set up.
+    if (REAL) imgs.forEach((f, i) => queueChartRead(f, urls[i], readTarget));
     setSel(charts.length + urls.length - 1);
     toastA(urls.length === 1 ? "Chart added" : `${urls.length} charts added`, undefined, "added");
   };

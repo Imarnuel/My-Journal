@@ -8,6 +8,7 @@ import { chartKey, useStore } from "../../data/store";
 import { idbStorage } from "../../data/persist";
 import { setReadingPaused } from "../../data/settings";
 import { readChart } from "../../lib/chartReader";
+import { aiReady } from "../../app/useVoice";
 import type { ChartRead } from "../../lib/chartRead";
 import { chartFill, factsFull, type FillFacts } from "../../lib/chartFill";
 import { INSTRUMENTS, yourPairs } from "../../lib/instruments";
@@ -118,6 +119,9 @@ async function run(job: Job) {
   // Only an explicit removal stops a reading before it starts (cancelChartRead): checking the story's charts here
   // raced the page, which may not have drawn a just-added chart yet. Presence is checked once the reading is back.
   if (job.cancelled) return finish(job);
+  // Charts are queued as soon as they're added; whether reading is set up is known once the server has answered
+  // (asking only at add time missed charts added before that answer, on a fresh page).
+  if (!(await aiReady())) return finish(job);
   const before = factsOf(job.target);
   if (before && factsFull(before)) return finish(job); // nothing left to fill: don't spend a request
   const res = await readChart(job.file, { pairs: chartPairs() });

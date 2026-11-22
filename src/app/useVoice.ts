@@ -15,6 +15,11 @@ function remembered(): boolean {
   }
 }
 
+/** Whether AI reading works here, once the server has answered (or the remembered answer if it can't). */
+export function aiReady(): Promise<boolean> {
+  return REAL ? ask() : Promise.resolve(true);
+}
+
 function ask(): Promise<boolean> {
   asked ??= fetch("/api/voice-note", { headers: { accept: "application/json" } })
     .then((r) => (r.ok ? r.json() : null))
