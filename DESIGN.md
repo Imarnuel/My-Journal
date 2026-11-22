@@ -605,6 +605,14 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
 - Not yet: showing the read timeframe as a caption under uploaded charts (stories keep no caption per uploaded
   image yet); the reader returns it already.
 
+## Neutrals: half the blue tint
+The owner, 2026-11-22: "our neutral color tokens have a bit of a blue tint, most especially in dark mode, and I
+want to reduce it a bit and not take it away completely." Every neutral token in both themes (grounds, surfaces,
+text greys, borders, hover and pressed fills, shadows' ink, buttons, the medal, the scrim, the theme colour in
+`index.html` and the manifest) keeps its OKLCH lightness and hue and has its chroma halved. Contrast is
+unchanged (lightness is). Dark mode's text greys went from about 0.02 chroma to 0.01, light mode's inks from
+0.008 to 0.004. Result colours, attention and the voice colours are untouched. Pure white and black stay.
+
 ## First ui-polish audit (2026-11-22)
 The owner: "fix 1-11, use your judgement on the rest", then "reduce the horizontal padding on the filter inputs so
 it looks sleeker". Findings and method: `docs/ui-audit-2026-11-22.md`. One rule per kind of thing, on every screen:
