@@ -148,11 +148,11 @@
   --ease-toast: cubic-bezier(0.32,0.72,0,1);
   --d-toast: 400ms;
   --font-sans: "Inter Variable", "Inter", system-ui, sans-serif; /* optical sizes on (opsz), DESIGN.md › Typeface */
-  /* Tracking (the owner, 2026-11-22: Inter again, "but the tracking shouldn't be as tight as it was in the
-     beginning"): body text a touch open instead of Inter's default, and the 24px figures at −0.01em instead of
-     the handoff's −0.025em. Page titles (Instrument Serif) stay at their natural 0. */
-  --tracking-body: 0.01em;
-  --tracking-figure: -0.01em;
+  /* Tracking: Inter as it is drawn (the owner, 2026-11-22: "let's fix the inter", after asking whether ours
+     looked different from the normal Inter). Body text and the 24px figures at Inter's own spacing; the variable
+     font's optical sizes already tighten the big figures. Page titles (Instrument Serif) stay at their natural 0. */
+  --tracking-body: 0;
+  --tracking-figure: 0;
   --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif; /* page titles only (DESIGN.md › Typeface) */
   /* Page title size: 28px while --font-heading is a different face from the body (a narrow display serif reads
      smaller); back to 24px if page titles ever use --font-sans again (the owner, 2026-11-22: 26px, then 28px). */
@@ -164,7 +164,6 @@ html {
   letter-spacing: var(--tracking-body);
   font-size: 14px; line-height: 20px;
   font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   overflow-wrap: break-word;
 }
 h1, h2, h3 { text-wrap: balance; }

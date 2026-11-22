@@ -214,7 +214,7 @@ to{opacity:1;transform:none}
 
 
 
-.app{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-feature-settings:"calt" 1}
+.app{text-rendering:optimizeLegibility;font-feature-settings:"calt" 1}
 
 
 .keq{position:relative}

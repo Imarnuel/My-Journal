@@ -410,9 +410,13 @@ rest, leaving only the headings, but the tracking shouldn't be as tight as it wa
   section and card titles, numbers and the 24px stat figures stay Inter.
 - **Inter** Variable with optical sizes (`opsz`), self-hosted from `@fontsource-variable/inter`, set once in
   `--font-sans`: body, labels, buttons, fields, numbers. Tabular figures stay on.
-- **Tracking, opened up from the handoff:** body text at `--tracking-body` (+0.01em, from 0), set on the root and
-  inherited by buttons and fields; the 24px figures at `--tracking-figure` (−0.01em, from −0.025em); the wordmark
-  at the body tracking (from −0.01em). Labels, meta and chips inside headings take the body tracking too.
+- **Inter as it is drawn:** body text and the 24px figures at Inter's own spacing (`--tracking-body` and
+  `--tracking-figure` both 0), and no forced thin rendering (`-webkit-font-smoothing`) on Mac. The owner,
+  2026-11-22, asked whether our Inter looked different from the normal Inter, then "let's fix the inter". Before
+  that, body text ran at +0.01em and the figures at −0.01em (and −0.025em in the handoff), with antialiased
+  smoothing from the prototype. The variable font's optical sizes stay on (the browser's default for it), so
+  the 24px figures still take Inter's tighter display drawing. Labels, meta and chips inside headings follow
+  the body tracking.
   The Dashboard stat cells pad 12px on the right (24 on the left) so "Wins avg +1.8R, losses −0.9R" stays on one
   line in Inter.
 - **Page titles are 28px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif
