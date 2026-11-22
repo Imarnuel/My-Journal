@@ -491,7 +491,8 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
   - **#22** A busy or failing service is asked again quietly after a minute, then after three (no message
     yet; the visible "can't read right now" line waits for the owner's wording).
   - **#26** A new story takes its date from TradingView's own line ("created with TradingView.com, Nov 12, 2026
-    04:39 UTC"), the earliest of its charts, unless the date was set by hand; the toast lists "date".
+    04:39 UTC"), the earliest of its charts, unless the date was set by hand; the toast lists "date". The
+    trader's own offset is applied when printed ("15:51 UTC-5" is 20:51 UTC; found on the owner's GBPJPY chart).
   - **#24** When the owner changes a fact the reader filled, the reading and the change are kept on this device
     (`chart:corrections`, last 200), never shown, to improve these rules from real mistakes.
   - **The prices decide the direction** (2026-11-22, the owner's GBPJPY chart: the model read every price right

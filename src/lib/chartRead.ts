@@ -194,16 +194,23 @@ function readPosition(p: Record<string, unknown>, text: string): { dir: Dir; ent
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
-/** "… created with TradingView.com, Nov 12, 2026 04:39 UTC" → "2026-11-12T04:39:00.000Z"; anything else, null. */
+/**
+ * "… created with TradingView.com, Nov 12, 2026 04:39 UTC" → "2026-11-12T04:39:00.000Z"; the trader's own
+ * offset is applied when printed ("15:51 UTC-5" is 20:51 UTC, "UTC+5:30"); anything else, null.
+ */
 export function snapshotTime(header: unknown): string | null {
   if (typeof header !== "string" || !/TradingView/i.test(header)) return null;
-  const m = /([A-Z][a-z]{2})[a-z]*\.? (\d{1,2}), (\d{4}),? (\d{1,2}):(\d{2}) UTC/.exec(header);
+  const m = /([A-Z][a-z]{2})[a-z]*\.? (\d{1,2}), (\d{4}),? (\d{1,2}):(\d{2}) UTC(?:([+\u2212-])(\d{1,2})(?::?(\d{2}))?)?(?![\d:])/.exec(header);
   if (!m) return null;
   const mon = MONTHS.indexOf(m[1].toLowerCase());
   const [d, y, h, mi] = [Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5])];
   if (mon < 0 || d < 1 || d > 31 || h > 23 || mi > 59 || y < 2000) return null;
-  const t = new Date(Date.UTC(y, mon, d, h, mi));
-  return t.getUTCDate() === d ? t.toISOString() : null;
+  const offMin = m[6] ? (m[6] === "+" ? 1 : -1) * (Number(m[7]) * 60 + Number(m[8] ?? 0)) : 0;
+  if (Math.abs(offMin) > 14 * 60) return null;
+  const local = new Date(Date.UTC(y, mon, d, h, mi));
+  if (local.getUTCDate() !== d) return null;
+  const t = new Date(local.getTime() - offMin * 60_000);
+  return t.toISOString();
 }
 
 /**

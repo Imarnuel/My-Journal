@@ -125,6 +125,10 @@ describe("printed numbers and dates", () => {
     expect(snapshotTime("created with TradingView.com, Feb 30, 2026 04:39 UTC")).toBeNull();
     expect(snapshotTime("Nov 12, 2026 04:39 UTC")).toBeNull(); // not TradingView's line
     expect(snapshotTime(null)).toBeNull();
+    // The trader's own offset (the owner's GBPJPY chart): 15:51 at UTC−5 is 20:51 UTC.
+    expect(snapshotTime("parkerjacob408 created with TradingView.com, Nov 19, 2026 15:51 UTC-5")).toBe("2026-11-19T20:51:00.000Z");
+    expect(snapshotTime("created with TradingView.com, Nov 19, 2026 15:51 UTC+5:30")).toBe("2026-11-19T10:21:00.000Z");
+    expect(snapshotTime("created with TradingView.com, Nov 19, 2026 23:30 UTC-3")).toBe("2026-11-20T02:30:00.000Z"); // the next day in UTC
   });
 });
 
