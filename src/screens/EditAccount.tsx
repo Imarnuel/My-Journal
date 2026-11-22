@@ -74,7 +74,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
         <Breadcrumbs items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: account.name, icon: <Icon name="fact-acct" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-            <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>{account.name}</h1>
+            <h1 style={{ margin: 0, fontSize: "24px", lineHeight: "32px" }}>{account.name}</h1>
             <p className="meta" style={{ margin: 0 }}>{sub}</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }} />
@@ -189,7 +189,7 @@ export function EditAccount() {
           <div className="medal" aria-hidden="true">
             <svg width="34" height="34" viewBox="0 0 32 32"><rect x="9" y="11" width="14" height="15" rx="2.5" style={{ fill: "var(--medal-glyph)" }} /><rect x="7" y="7" width="18" height="3" rx="1.5" style={{ fill: "var(--medal-glyph-2)" }} /><rect x="13" y="5" width="6" height="3" rx="1.5" style={{ fill: "var(--medal-glyph-2)" }} /></svg>
           </div>
-          <h1 style={{ margin: "8px 0 0", fontSize: "16px", fontWeight: 500, lineHeight: "24px", letterSpacing: 0 }}>{`${gone.account.name} deleted`}</h1>
+          <h1 className="kplain" style={{ margin: "8px 0 0", fontSize: "16px", fontWeight: 500, lineHeight: "24px", letterSpacing: 0 }}>{`${gone.account.name} deleted`}</h1>
           <span className="meta">{`Its ${gone.stories} chart ${gone.stories === 1 ? "story is" : "stories are"} gone and your numbers no longer include them.`}</span>
           <div style={{ display: "flex", gap: "8px" }}>
             <button type="button" className="btn btn-g" onClick={undo}>

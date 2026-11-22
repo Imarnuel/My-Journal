@@ -1,4 +1,5 @@
-@import "@fontsource-variable/geist/wght.css";
+@import "@fontsource-variable/public-sans/wght.css";
+@import "@fontsource/instrument-serif/400.css";
 @import "./tokens.css";
 @import "./canvas.css";
 
@@ -332,3 +333,9 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
    Inline styles that use a scale token get it here; stylesheet rules set it next to their border-radius.
    Circles, dots, pills and chart bars use their own sizes, not the scale, so they stay perfectly round. */
 [style*="var(--r-"] { corner-shape: squircle; }
+
+/* Typeface (DESIGN.md › Typeface): Instrument Serif for the 24px page titles (every page's h1), Public Sans for
+   the rest. Instrument Serif has one weight (400) and is set at its natural tracking; page titles set no font,
+   weight or tracking inline, so this rule decides. A smaller h1 that isn't a page title (an "… deleted" state)
+   keeps the body face with .kplain. */
+.app h1:not(.kplain) { font-family: var(--font-heading); font-weight: 400; letter-spacing: 0; }

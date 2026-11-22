@@ -19,7 +19,7 @@ export function Header({ sub, period, setPeriod, counts, periodMenu, kit }: { su
   return (
     <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "0" }}>
-        <h1 style={{ margin: "0", fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: "600", lineHeight: "32px", letterSpacing: "-0.025em" }}>Dashboard</h1>
+        <h1 style={{ margin: "0", fontSize: "24px", lineHeight: "32px" }}>Dashboard</h1>
         <p className="meta" style={{ margin: "0" }}>
           {sub}
         </p>

@@ -292,10 +292,20 @@ Why: in the story's tag menu "used 18 times" was reading with nothing to act on,
 wrap. The menu still lists the most used tags first. The counts stay in Settings > Your tags, where they help
 decide what to rename, merge or remove.
 
-## Typeface: Geist
-Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`. Why: the owner's choice. Geist Variable, self-hosted
-from `@fontsource-variable/geist` (latin and latin-ext), set once in `--font-sans`; nothing names a font
-directly. Sizes, weights, line heights and tracking are unchanged; tabular figures stay on (Geist has them).
+## Typeface: Instrument Serif for page titles, Public Sans for everything else
+Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`, and the earlier Geist. The owner, 2026-11-22: "Spectra
+for headings and public sans for others (body, labels)", page titles only; then "Spectra is ugly, let's use
+instruments serif".
+- **Instrument Serif** (400, its only weight), self-hosted from `@fontsource/instrument-serif`, set once in
+  `--font-heading`, on the 24px page title of every page (its `h1`: "Trade log", "New chart story", the pair on
+  a story), at its natural tracking (no −0.025em: that suits a bold sans and cramps a display serif). One rule in
+  `globals.css` sets the face, weight and tracking; page titles set none of them inline. Chips and labels inside
+  a title (direction, Textbook example) stay Public Sans. A smaller `h1` that isn't a page title (an "… deleted"
+  state) has `.kplain` and stays Public Sans. Nothing else is serif: section and card titles, numbers and the
+  24px stat figures stay Public Sans.
+- **Public Sans** Variable, self-hosted from `@fontsource-variable/public-sans`, set once in `--font-sans`:
+  body, labels, controls, numbers. Tabular figures stay on (Public Sans has them).
+- Sizes and line heights are unchanged. `src/styles/taste.test.ts` allows only these two font variables.
 
 ## Editing numbers
 Overrides `01-decisions.md` ("…a numbers line with 'Edit numbers', which opens six live inputs"). Why: the

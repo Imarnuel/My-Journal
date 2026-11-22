@@ -68,7 +68,7 @@ export function Accounts() {
     <Shell active="accounts">
       <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>
+          <h1 style={{ margin: 0, fontSize: "24px", lineHeight: "32px" }}>
             Accounts <span style={{ fontWeight: 400, color: "var(--text-3)" }}>({active.length})</span>
           </h1>
         </div>

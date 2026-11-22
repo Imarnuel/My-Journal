@@ -84,7 +84,7 @@ export function AddAccount() {
         <Breadcrumbs items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: "Add an account", icon: <Icon name="plus" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-            <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" }}>Add an account</h1>
+            <h1 style={{ margin: 0, fontSize: "24px", lineHeight: "32px" }}>Add an account</h1>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }} />
         </header>
