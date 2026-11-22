@@ -410,13 +410,17 @@ rest, leaving only the headings, but the tracking shouldn't be as tight as it wa
   section and card titles, numbers and the 24px stat figures stay Inter.
 - **Inter** Variable with optical sizes (`opsz`), self-hosted from `@fontsource-variable/inter`, set once in
   `--font-sans`: body, labels, buttons, fields, numbers. Tabular figures stay on.
-- **Inter as it is drawn:** body text and the 24px figures at Inter's own spacing (`--tracking-body` and
-  `--tracking-figure` both 0), with antialiased smoothing on Mac (`-webkit-font-smoothing`, on the root). The
-  owner, 2026-11-22, asked whether our Inter looked different from the normal Inter, then "let's fix the inter".
-  Before that, body text ran at +0.01em and the figures at −0.01em (and −0.025em in the handoff). Taking the
-  smoothing away as well made Mac draw it heavier ("this inter looks bolder than normal inter"), so it stays.
-  The variable font's optical sizes stay on (the browser's default for it), so the 24px figures still take
-  Inter's tighter display drawing. Labels, meta and chips inside headings follow the body tracking.
+- **Inter's tracking by size:** each text works out its spacing from its own size, along Inter's own suggested
+  values (its dynamic metrics, rsms.me/inter): 12px 0, 14px −0.006em, 16px −0.011em (`--tracking-body`,
+  `calc(0.528px - 0.044em)`, set on every element so `em` is its own size), and the 24px figures −0.019em
+  (`--tracking-figure`). Page titles (Instrument Serif) stay at 0. Smoothing is antialiased on Mac.
+  Why: the owner, 2026-11-22, asked whether our Inter looked different from the normal Inter ("let's fix the
+  inter"). Body text had run at +0.01em and the figures at −0.01em (−0.025em in the handoff); at Inter's plain 0
+  it still read loose ("have you fixed the loosely tracked letter spacing"), and from a side by side of plain
+  Inter and Inter's suggested tightening the owner chose the tightening ("go with B"). Taking the smoothing away
+  made Mac draw Inter heavier ("this inter looks bolder than normal inter"), so it stays. The variable font's
+  optical sizes stay on (the browser's default for it). Labels, meta and chips inside headings follow the body
+  tracking.
   The Dashboard stat cells pad 12px on the right (24 on the left) so "Wins avg +1.8R, losses −0.9R" stays on one
   line in Inter.
 - **Page titles are 28px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif

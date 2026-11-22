@@ -148,12 +148,13 @@
   --ease-toast: cubic-bezier(0.32,0.72,0,1);
   --d-toast: 400ms;
   --font-sans: "Inter Variable", "Inter", system-ui, sans-serif; /* optical sizes on (opsz), DESIGN.md › Typeface */
-  /* Tracking: Inter as it is drawn (the owner, 2026-11-22: "let's fix the inter", after asking whether ours
-     looked different from the normal Inter). Body text and the 24px figures at Inter's own spacing; the variable
-     font's optical sizes already tighten the big figures. Smoothing stays antialiased (on the root, below): without
-     it Mac draws Inter heavier ("this inter looks bolder than normal inter"). Page titles (Instrument Serif) stay at their natural 0. */
-  --tracking-body: 0;
-  --tracking-figure: 0;
+  /* Tracking by size, Inter's own suggestion (DESIGN.md › Typeface; the owner, 2026-11-22, chose it from a side by
+     side: "go with B"). One line through Inter's dynamic metrics (rsms.me/inter), worked out from each text's own
+     size (em resolves where it is used): 12px 0, 14px −0.006em, 16px −0.011em. The 24px figures take Inter's value
+     for 24px (−0.019em); page titles (Instrument Serif) stay at 0. Smoothing stays antialiased (on the root, below):
+     without it Mac draws Inter heavier ("this inter looks bolder than normal inter"). */
+  --tracking-body: calc(0.528px - 0.044em);
+  --tracking-figure: -0.019em;
   --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif; /* page titles only (DESIGN.md › Typeface) */
   /* Page title size: 28px while --font-heading is a different face from the body (a narrow display serif reads
      smaller); back to 24px if page titles ever use --font-sans again (the owner, 2026-11-22: 26px, then 28px). */

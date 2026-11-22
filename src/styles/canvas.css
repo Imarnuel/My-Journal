@@ -2,7 +2,7 @@
    Tokens live in tokens.css. Class names match the prototype so screens can be compared 1:1. */
 *,*::before,*::after{font-family:var(--font-sans);font-optical-sizing:auto}
 
-button,input,textarea,select{font-family:var(--font-sans);letter-spacing:inherit}
+button,input,textarea,select{font-family:var(--font-sans)}
 
 body{margin:0;background:var(--bg-app)}
 

@@ -484,3 +484,8 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
    padded and a touch tighter. Buttons without an icon keep 12px. */
 .app .btn:has(> svg:first-child) { padding-left: 8px !important; }
 .app .btn:has(> svg:last-child):not(:has(> svg:first-child)) { padding-right: 8px !important; }
+
+/* Tracking by size (DESIGN.md › Typeface): every element works out --tracking-body from its own font size, instead of
+   inheriting the page's 14px value as a fixed length. Zero specificity, so the page titles' 0 and the figures'
+   --tracking-figure still win. */
+:where(.app, .app *) { letter-spacing: var(--tracking-body); }
