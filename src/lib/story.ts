@@ -2,7 +2,7 @@
 // Behaviour from handoff/docs/01-decisions.md ("Manual entry", "Notes", "Tags", "Charts in a story",
 // "Chart story") and the prototype logic in src/screens/logic/Story.logic.ts.
 import type { Dir, Entry, Session, Status, Tag, TagKind } from "./types";
-import type { VoiceNoteFill } from "./voiceNote";
+import type { Outcome, VoiceNoteFill } from "./voiceNote";
 import { MINUS } from "./format";
 import { sampleNumbers } from "../data/samplePrices";
 import { REAL } from "../app/mode";
@@ -110,7 +110,32 @@ export function rFromPrices(n: Pick<Numbers, "entry" | "stop" | "exit">, dir: Di
   if (risk === 0) return null;
   if ((dir === "Long" && risk < 0) || (dir === "Short" && risk > 0)) return null;
   const r = (exit - entry) / risk;
-  return Math.round(r * 100) / 100 || 0;
+  return Math.round(r * 10000) / 10000 || 0; // kept precise: rounding twice (to 2 places, then 1 for display) shows 5.345 as +5.4R
+}
+
+/**
+ * How a taken trade ended, one tap each (DESIGN.md › Result): only while it has no result yet and its entry and
+ * stop are set; "Target" only with a target. Each fills Exit (the target, stop or entry price) and the R follows
+ * from the prices, so exit and result always agree.
+ */
+export function outcomeChoices(s: Pick<Story, "status" | "r" | "numbers" | "dir">): { key: Outcome; exit: string; r: number }[] {
+  if (s.status !== "Taken" || s.r != null) return [];
+  const n = s.numbers;
+  const out: { key: Outcome; exit: string; r: number }[] = [];
+  const add = (key: Outcome, exit: string) => {
+    const r = exit ? rFromPrices({ ...n, exit }, s.dir) : null;
+    if (r != null) out.push({ key, exit, r });
+  };
+  add("target", n.target);
+  add("stop", n.stop);
+  add("breakeven", n.entry);
+  return out;
+}
+
+/** The change one outcome makes: Exit, and the result from the prices (not typed by hand). */
+export function outcomePatch(s: Pick<Story, "status" | "r" | "numbers" | "dir">, key: Outcome): Partial<Story> | null {
+  const c = outcomeChoices(s).find((x) => x.key === key);
+  return c ? { numbers: { ...s.numbers, exit: c.exit }, r: c.r, rByHand: false } : null;
 }
 
 /** m:ss for the recording timer and playback. */
@@ -305,6 +330,11 @@ export function applyVoiceNote(s: Story, fill: VoiceNoteFill): { patch: Partial<
   if (!s.headspace && fill.headspace) {
     patch.headspace = fill.headspace;
     filled.push("headspace");
+  }
+  // "Hit my target", "stopped out": the result, only while the trade has none and Exit is empty.
+  if (fill.outcome && !s.numbers.exit) {
+    const o = outcomePatch(s, fill.outcome);
+    if (o) Object.assign(patch, o), filled.push("result");
   }
   return { patch, filled, newKinds };
 }

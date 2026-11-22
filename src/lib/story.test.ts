@@ -14,6 +14,8 @@ import {
   storyFromEntry,
   tagSuggestions,
   voiceToast,
+  outcomeChoices,
+  outcomePatch,
   type Story,
 } from "./story";
 import { readVoiceNote, transcriptRuns, type VoiceNoteFill } from "./voiceNote";
@@ -159,7 +161,9 @@ describe("result from the prices (DESIGN.md, Editing numbers)", () => {
   it("works out R the same way for a short and a long", async () => {
     const { rFromPrices } = await import("./story");
     // The canvas trade: short 1.26840, stop 1.27010, exit 1.26482 is +2.1R.
-    expect(rFromPrices({ entry: "1.26840", stop: "1.27010", exit: "1.26482" }, "Short")).toBe(2.11);
+    expect(rFromPrices({ entry: "1.26840", stop: "1.27010", exit: "1.26482" }, "Short")).toBe(2.1059);
+    // Kept precise, so it is rounded once for display: 5.345 shows as +5.3R, not +5.4R (the owner's GBPJPY target).
+    expect(rFromPrices({ entry: "210.443", stop: "210.695", exit: "209.096" }, "Short")).toBe(5.3452);
     expect(rFromPrices({ entry: "1.1000", stop: "1.0950", exit: "1.1100" }, "Long")).toBe(2);
     expect(rFromPrices({ entry: "1.1000", stop: "1.0950", exit: "1.0950" }, "Long")).toBe(-1);
     expect(rFromPrices({ entry: "1.1000", stop: "1.0950", exit: "1.1000" }, "Long")).toBe(0);
@@ -172,5 +176,27 @@ describe("result from the prices (DESIGN.md, Editing numbers)", () => {
     expect(rFromPrices({ entry: "1.1", stop: "1.1", exit: "1.2" }, "Long")).toBeNull();
     expect(rFromPrices({ entry: "1.1", stop: "1.2", exit: "1.0" }, "Long")).toBeNull();
     expect(rFromPrices({ entry: "1.1", stop: "1.2", exit: "1.0" }, null)).toBe(1);
+  });
+});
+
+describe("how did it end? (DESIGN.md › Result)", () => {
+  // The owner's GBPJPY short: entry 210.443, stop 210.695, target 209.096.
+  const gj = (): Story => ({ ...empty(), dir: "Short", r: null, numbers: { entry: "210.443", stop: "210.695", target: "209.096", exit: "", size: "" } });
+  it("target, stop and breakeven, each with its R, only while there is no result", () => {
+    expect(outcomeChoices(gj()).map((o) => [o.key, o.exit, o.r])).toEqual([["target", "209.096", 5.3452], ["stop", "210.695", -1], ["breakeven", "210.443", 0]]);
+    expect(outcomeChoices({ ...gj(), r: 1.2 })).toEqual([]);
+    expect(outcomeChoices({ ...gj(), status: "Watched" })).toEqual([]);
+    expect(outcomeChoices({ ...gj(), numbers: { ...gj().numbers, target: "" } }).map((o) => o.key)).toEqual(["stop", "breakeven"]);
+    expect(outcomeChoices({ ...gj(), numbers: { ...gj().numbers, stop: "" } })).toEqual([]);
+  });
+  it("one tap fills Exit, and the result follows the prices", () => {
+    expect(outcomePatch(gj(), "target")).toEqual({ numbers: { ...gj().numbers, exit: "209.096" }, r: 5.3452, rByHand: false });
+  });
+  it("a voice note that says how it ended fills the result, only while Exit is empty", () => {
+    const { patch, filled } = applyVoiceNote(gj(), { ...fill, outcome: "stop" });
+    expect(patch).toMatchObject({ r: -1, numbers: { exit: "210.695" } });
+    expect(filled).toContain("result");
+    const typed = { ...gj(), numbers: { ...gj().numbers, exit: "210.100" } };
+    expect(applyVoiceNote(typed, { ...fill, outcome: "target" }).patch.numbers).toBeUndefined();
   });
 });

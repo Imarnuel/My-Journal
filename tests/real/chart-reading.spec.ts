@@ -289,3 +289,25 @@ test("out of free requests: no retries, the same line, and Settings says reading
   await expect(page.getByText("Chart and voice reading is paused until tomorrow.")).toBeVisible();
   await expect(page.getByText("Charts and voice notes are sent to Google to be read. Google doesn't keep them.")).toBeVisible();
 });
+
+// ---------- how did it end? (DESIGN.md › Result)
+
+test("how did it end: one tap fills Exit and the R; the line goes once there's a result", async ({ page }) => {
+  await server(page, read); // a short: entry 1.26840, stop 1.27010, target 1.26480
+  await page.goto("/new");
+  await addChart(page);
+  const ended = page.getByRole("group", { name: "How did it end?" });
+  await expect(ended).toBeVisible({ timeout: 10_000 });
+  await expect(ended.getByRole("button")).toHaveText(["Target+2.1R", "Stop−1.0R", "Breakeven0.0R"]);
+  await ended.getByRole("button", { name: /^Target/ }).click();
+  await expect(trade(page).getByRole("button", { name: "Result +2.1R" })).toBeVisible();
+  await expect(trade(page)).toContainText("Exit 1.26480");
+  await expect(ended).toHaveCount(0);
+});
+
+test("the result box says it wants an R", async ({ page }) => {
+  await page.goto("/new");
+  await trade(page).getByRole("button", { name: "Result empty" }).click();
+  await expect(trade(page).getByLabel("Result")).toBeFocused();
+  await expect(trade(page).locator("label.knum-edit")).toContainText("R");
+});

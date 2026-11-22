@@ -28,7 +28,11 @@ export type VoiceNoteFill = {
   tags: { t: string; k: TagKind }[];
   followed: boolean | null;
   headspace: string | null;
+  /** How the trade ended, only if said: hit the target, stopped out, or closed at breakeven (DESIGN.md › Result). */
+  outcome?: Outcome | null;
 };
+
+export type Outcome = "target" | "stop" | "breakeven";
 
 /**
  * Why a note gave nothing: "unclear" (no understandable speech), "offline", "failed" (the service didn't

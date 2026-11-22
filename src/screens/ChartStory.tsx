@@ -29,6 +29,8 @@ import {
   nextId,
   niceTag,
   ordinal,
+  outcomeChoices,
+  outcomePatch,
   parseR,
   rFromPrices,
   prevOf,
@@ -42,6 +44,7 @@ import {
 import { readVoiceNote, transcriptRuns, type VoiceNoteResult, type VoicePhase } from "../lib/voiceNote";
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
+import type { Outcome } from "../lib/voiceNote";
 import { loadVoiceAudio, saveVoiceAudio } from "../data/voiceAudio";
 import type { ChartRead } from "../lib/chartRead";
 import { useMenu, useToastAction } from "./useKit";
@@ -618,6 +621,16 @@ function StoryScreen({ id }: { id: string | null }) {
     // Clearing the result hands it back to the prices; anything typed is kept as yours.
     if (v.trim() === "") update({ rByHand: false, r: autoR });
     else update({ r: parseR(v), rByHand: true });
+  };
+  // How did it end? One tap fills Exit and the R follows (DESIGN.md › Result). No toast: the numbers glow, and
+  // a different tap or the Exit field changes it.
+  const outcomes = outcomeChoices(s);
+  const endAs = (key: Outcome) => {
+    const p = outcomePatch(s, key);
+    if (!p) return;
+    update(p);
+    setJustFilled(new Set(["facts"]));
+    readTimers.current.push(setTimeout(() => setJustFilled(new Set()), 1400));
   };
   const acctNames = accounts.filter((a) => !a.archived).map((a) => a.name);
   const setupNames = setups.filter((x) => !x.archived).map((x) => x.name);
@@ -1367,6 +1380,7 @@ function StoryScreen({ id }: { id: string | null }) {
                           }
                         }}
                       />
+                      {isRes ? <span aria-hidden="true">R</span> : null}
                     </label>
                   );
                 }
@@ -1395,6 +1409,26 @@ function StoryScreen({ id }: { id: string | null }) {
               ) : null}
             </div>
             {editingNum && autoResult ? <span style={{ fontSize: "12px", lineHeight: "16px", color: "var(--text-3)" }}>Result from entry, stop and exit</span> : null}
+            {outcomes.length && !editingNum ? (
+              <div role="group" aria-label="How did it end?" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0 8px", fontSize: "12px", lineHeight: "16px" }}>
+                <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
+                  How did it end?
+                </span>
+                {outcomes.map((o, i) => (
+                  <Fragment key={o.key}>
+                    {i ? (
+                      <span aria-hidden="true" className="lbl" style={{ fontSize: "12px" }}>
+                        ·
+                      </span>
+                    ) : null}
+                    <button type="button" onClick={() => endAs(o.key)} style={{ font: "inherit", fontSize: "12px", lineHeight: "16px", fontWeight: 500, color: "var(--text-1)", background: "transparent", border: 0, padding: "4px 0", minHeight: "24px", cursor: "pointer", display: "inline-flex", gap: "4px" }}>
+                      {OUTCOME_LABEL[o.key]}
+                      <span style={{ color: tone(o.r) }}>{fr(o.r)}</span>
+                    </button>
+                  </Fragment>
+                ))}
+              </div>
+            ) : null}
           </section>
 
           {saved ? (
@@ -1512,6 +1546,9 @@ const READ_COPY: Record<ReadPhase, { title: string; text?: string }> = {
   still: { title: "Still writing.", text: "Longer notes take a little longer." },
   long: { title: "Taking longer than usual" },
 };
+
+/** The one-tap outcomes under the numbers (approved wording, DESIGN.md › Result). */
+const OUTCOME_LABEL: Record<Outcome, string> = { target: "Target", stop: "Stop", breakeven: "Breakeven" };
 
 /** The abort reason that marks a read the owner cancelled (not the time limit, which offers Try again). */
 const CANCELLED = "cancelled";

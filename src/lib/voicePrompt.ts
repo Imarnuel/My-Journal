@@ -45,8 +45,13 @@ export function voiceSchema(ctx: VoiceContext) {
       },
       plan_followed: { type: ["boolean", "null"], description: "True if the note says the plan was followed, false if it says it wasn't, null if it doesn't say." },
       headspace: { type: ["string", "null"], enum: [...ctx.headspaces, null], description: "How the trader felt, only if said or clearly implied. Otherwise null." },
+      outcome: {
+        type: ["string", "null"],
+        enum: ["target", "stop", "breakeven", null],
+        description: "How the trade ended, only if said: 'target' (hit the target or take profit), 'stop' (stopped out, hit the stop loss), 'breakeven' (closed at the entry price). Null for anything else, a partial close, or if not said.",
+      },
     },
-    required: ["unclear", "transcript", "before", "reflection", "reflection_inferred", "setup", "tags", "plan_followed", "headspace"],
+    required: ["unclear", "transcript", "before", "reflection", "reflection_inferred", "setup", "tags", "plan_followed", "headspace", "outcome"],
   };
 }
 
@@ -102,5 +107,6 @@ export function fillFromAnswer(raw: unknown, ctx: VoiceContext, seconds: number)
     tags: tags.slice(0, 8),
     followed: typeof a.plan_followed === "boolean" ? a.plan_followed : null,
     headspace,
+    outcome: a.outcome === "target" || a.outcome === "stop" || a.outcome === "breakeven" ? a.outcome : null,
   };
 }

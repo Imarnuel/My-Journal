@@ -313,7 +313,25 @@ action. Same on New chart story and the chart story page. Source: `ChartStory.ts
   line. Typing a result keeps yours (prices then leave it alone); clearing it hands it back to the prices.
   Opening a story never changes a result; MT5 results only change when you edit a price.
 
-## Sample prices
+## Result: how did it end? (one tap, never a chore)
+Why: the owner, 2026-11-22: an empty result box gives "no way the user knows what to input" (it wants an R),
+and "we need to ensure it's not too much admin work". Approved wording: "How did it end?", "Target", "Stop",
+"Breakeven", each with its R, and an "R" after the result box. Source: `outcomeChoices` and `outcomePatch` in
+`src/lib/story.ts`, the numbers line in `ChartStory.tsx`.
+- **One quiet line under the numbers** while a taken trade has entry and stop but no result: "How did it end?
+  Target +5.3R · Stop −1.0R · Breakeven 0.0R" (12px; each R in its tone). One tap fills **Exit** with the
+  target, stop or entry price and the R follows from the prices, so Exit and result always agree. "Target" only
+  with a target. The line goes once there is a result; no toast (the numbers glow). Hidden while a number is
+  being edited, and for any status but Taken.
+- **Anything else** is typed into Exit (already in the line) and the R follows; or the R itself, in the result
+  box, which now shows "R" after it.
+- **Voice notes fill it** when the owner says how it ended ("hit my target", "stopped out", "closed at
+  breakeven"), only while Exit is empty; the toast lists "result". MT5 (later) brings the real exit.
+- **Never required**: a story saves with "No result yet", and nothing nags.
+- R from prices is kept precise and rounded once, for display (2026-11-22): it used to be rounded to two places
+  and then to one, so 5.345 showed as +5.4R.
+
+
 Why: the owner wanted the numbers prefilled in the preview. The handoff's sample trades carry a result in R
 but no entry, stop, target, exit or size; in real use MT5 sync or the chart reader fills them, and that back
 end isn't designed yet (`06-open-items.md`, Back end). Source: `src/data/samplePrices.ts`.
