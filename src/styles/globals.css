@@ -93,11 +93,16 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 
 /* Breadcrumbs (DESIGN.md): icon + name per step, chevrons between, current page in --text-1. */
 /* The trail belongs to the title under it: 16px above it, inside pages whose sections are 32px apart. */
-.kcrumbs { align-self: flex-start; min-width: 0; max-width: 100%; margin-bottom: -16px; }
-/* The trail sits 16px from the top of the main card, not 32px: pages with a trail conserve the vertical space
-   (the owner, 2026-11-22: "the breadcrumbs still seems too far from the top of the page"). Phones keep their
-   own, smaller page padding. */
-@media (min-width: 641px) { .kcrumbs { margin-top: -16px; } }
+.kcrumbs { min-width: 0; max-width: 100%; }
+/* Page top bar (DESIGN.md › Page top bar; the owner, 2026-11-22, "build approach 1" after Mobbin research on
+   breadcrumbs that save vertical space): a slim strip along the top of the main card, edge to edge, with a hairline
+   under it. The trail sits on the left, lined up with the page's content; the page's actions on the right. */
+.kpagebar { margin: 0 -32px; padding: 4px 32px; border-bottom: 1px solid var(--border-subtle); }
+.kpagebar-in { max-width: 1080px; margin: 0 auto; }
+.kpagebar-row { min-height: 32px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.kpagebar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.app > main > .panel.kwithbar { padding-top: 0 !important; }
+@media (max-width: 640px) { .kpagebar { margin: 0 -16px; padding: 4px 16px; } }
 .kcrumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .kcrumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
 .app .kcrumb { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; margin: 0 -4px; border-radius: var(--r-md);corner-shape:squircle;

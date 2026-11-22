@@ -1,7 +1,7 @@
 // Frame 10 · Setup editor: a new setup (drafted from the look-alike stories, or blank) or Edit rules on an
 // existing setup. Rule groups with editable fields, × removes with Undo, "Add a rule", reorder by the grip
 // (drag, or arrow keys on the grip). Markup from handoff/prototype/SetupEdit.dc.html.
-import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { PageBar } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -107,10 +107,11 @@ export function SetupEditor() {
   };
 
   return (
-    <Shell active="playbook">
-      <PlaybookSprite />
-      <div style={{ maxWidth: "760px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
-        <Breadcrumbs
+    <Shell
+      active="playbook"
+      bar={
+        <PageBar
+          width={760}
           items={[
             { label: "Playbook", to: "/playbook", icon: <Icon name="book" size={16} /> },
             ...(editing
@@ -121,6 +122,10 @@ export function SetupEditor() {
               : [{ label: "New setup", icon: <Icon name="plus" size={16} /> }]),
           ]}
         />
+      }
+    >
+      <PlaybookSprite />
+      <div style={{ maxWidth: "760px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={h1Style}>{editing ? editing.name : "New setup"}</h1>

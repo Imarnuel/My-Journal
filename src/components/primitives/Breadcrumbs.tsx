@@ -42,3 +42,14 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
     </nav>
   );
 }
+
+/** A page's top bar (DESIGN.md › Page top bar): the trail on the left, the page's actions on the right. */
+export function PageBar({ items, actions, width }: { items: Crumb[]; actions?: ReactNode; width?: number }) {
+  // `width`: the page's content column when narrower than the page (a form), so the trail lines up with it.
+  return (
+    <div className="kpagebar-row" style={width ? { maxWidth: `${width}px` } : undefined}>
+      <Breadcrumbs items={items} />
+      {actions ? <div className="kpagebar-actions">{actions}</div> : null}
+    </div>
+  );
+}

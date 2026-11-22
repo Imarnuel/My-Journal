@@ -1,6 +1,6 @@
 // Frame 14 · Edit account: rename, type, Practice, MT5 status, Save changes, Archive (bar with Restore),
 // Delete (deleted state with Undo and a way back). Markup from handoff/prototype/EditAccount.dc.html.
-import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { PageBar } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
@@ -71,7 +71,6 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
         </div>
       ) : null}
       <div style={{ maxWidth: "620px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
-        <Breadcrumbs items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: account.name, icon: <Icon name="fact-acct" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={{ margin: 0, lineHeight: "32px" }}>{account.name}</h1>
@@ -207,7 +206,7 @@ export function EditAccount() {
   if (!account) return <Navigate to="/accounts" replace />;
 
   return (
-    <Shell active="accounts">
+    <Shell active="accounts" bar={<PageBar items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: account.name, icon: <Icon name="fact-acct" size={16} /> }]} width={620} />}>
       <EditForm key={account.name} account={account} onDelete={() => del(account)} />
     </Shell>
   );

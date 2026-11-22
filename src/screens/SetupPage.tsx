@@ -1,7 +1,7 @@
 // Frame 09 · Setup page: stats following the account picker, rules beside the examples, tabs Examples /
 // Patterns / Lessons, the look-alike suggestion. Markup from handoff/prototype/Playbook.dc.html; numbers,
 // examples, patterns and lessons are computed from the shared store.
-import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { PageBar } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { Fragment, useState, type KeyboardEvent } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
@@ -108,10 +108,9 @@ export function SetupPage() {
   };
 
   return (
-    <Shell active="playbook">
+    <Shell active="playbook" bar={<PageBar items={[{ label: "Playbook", to: "/playbook", icon: <Icon name="book" size={16} /> }, { label: S, icon: <Icon name="filter-setup" size={16} /> }]} />}>
       <PlaybookSprite />
       <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-        <Breadcrumbs items={[{ label: "Playbook", to: "/playbook", icon: <Icon name="book" size={16} /> }, { label: S, icon: <Icon name="filter-setup" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={h1Style}>{S}</h1>

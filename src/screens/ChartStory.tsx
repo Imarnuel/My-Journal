@@ -2,7 +2,7 @@
 // story (/story/:id). One component; only the starting state and the footer differ (01-decisions.md,
 // "Chart story"). Markup from src/screens/body/Story.body.tsx and NewStory.body.tsx; a saved story reads
 // and writes its Entry in the shared store, a new one is a draft until Save story adds it.
-import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { PageBar } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { useTileReorder } from "./story/useTileReorder";
@@ -649,45 +649,16 @@ function StoryScreen({ id }: { id: string | null }) {
   const exp = (k: string) => (menu.isOpen(k) ? "true" : "false");
 
   return (
-    <Shell active="log">
-      <StorySprite />
-      <Breadcrumbs
-        items={[
+    <Shell
+      active="log"
+      bar={
+        <PageBar
+          items={[
           { label: "Trade log", to: "/log", icon: <Icon name="log" size={16} /> },
           saved ? { label: s.pair, icon: <Icon name="fact-pair" size={16} /> } : { label: "New chart story", icon: <Icon name="plus" size={16} /> },
         ]}
-      />
-      <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-          {saved ? (
-            <>
-              <h1 style={{ margin: 0, lineHeight: "32px", display: "flex", alignItems: "center", gap: "12px" }}>
-                {s.pair}{" "}
-                {dirChip ? <span className="kchip">{dirChip}</span> : null}
-                {s.textbook ? <span className="kchip" style={{ color: "var(--text-1)", background: "var(--surface-pressed)", borderColor: "transparent" }}>Textbook example</span> : null}
-              </h1>
-              <p className="meta" style={{ margin: 0 }}>
-                {`${s.status} · ${s.account} · ${dtLabel}${s.closeTime ? ` to ${s.closeTime}` : ""} · ${s.session}`}
-              </p>
-            </>
-          ) : (
-            <>
-              <h1 style={{ margin: 0, lineHeight: "32px" }}>New chart story</h1>
-              <p className="meta" style={{ margin: 0 }}>
-                {/* The real journal has no voice notes yet (DESIGN.md › Real app, approved wording). */}
-                {REAL ? "Drop the charts and add a note if you like." : "Drop the charts and talk it through. Your note fills the tags."}
-              </p>
-            </>
-          )}
-        </div>
-        {saved ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", alignSelf: s.status === "Taken" ? undefined : "flex-start" }}>
-            {/* The result only when there is one: a running or watched entry already says its status under the title. */}
-            {s.status === "Taken" ? (
-              <span className="num" style={{ fontSize: "24px", fontWeight: 600, color: resCol, letterSpacing: "var(--tracking-figure)", lineHeight: "32px" }}>
-                {resVal}
-              </span>
-            ) : null}
+          actions={
+            saved ? (
             <span style={{ position: "relative", display: "inline-flex" }}>
               <button className="kmore" type="button" aria-label="More actions" aria-haspopup="menu" aria-expanded={exp("sm")} onClick={() => menu.toggle("sm")} style={{ width: "32px", height: "32px", border: "1px solid var(--border)", borderRadius: "var(--r-md)", background: "transparent", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", position: "relative", zIndex: 5, lineHeight: "24px" }}>
                 <Dots />
@@ -740,6 +711,43 @@ function StoryScreen({ id }: { id: string | null }) {
                 </>
               ) : null}
             </span>
+            ) : null
+          }
+        />
+      }
+    >
+      <StorySprite />
+      <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
+          {saved ? (
+            <>
+              <h1 style={{ margin: 0, lineHeight: "32px", display: "flex", alignItems: "center", gap: "12px" }}>
+                {s.pair}{" "}
+                {dirChip ? <span className="kchip">{dirChip}</span> : null}
+                {s.textbook ? <span className="kchip" style={{ color: "var(--text-1)", background: "var(--surface-pressed)", borderColor: "transparent" }}>Textbook example</span> : null}
+              </h1>
+              <p className="meta" style={{ margin: 0 }}>
+                {`${s.status} · ${s.account} · ${dtLabel}${s.closeTime ? ` to ${s.closeTime}` : ""} · ${s.session}`}
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 style={{ margin: 0, lineHeight: "32px" }}>New chart story</h1>
+              <p className="meta" style={{ margin: 0 }}>
+                {/* The real journal has no voice notes yet (DESIGN.md › Real app, approved wording). */}
+                {REAL ? "Drop the charts and add a note if you like." : "Drop the charts and talk it through. Your note fills the tags."}
+              </p>
+            </>
+          )}
+        </div>
+        {saved ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", alignSelf: s.status === "Taken" ? undefined : "flex-start" }}>
+            {/* The result only when there is one: a running or watched entry already says its status under the title. */}
+            {s.status === "Taken" ? (
+              <span className="num" style={{ fontSize: "24px", fontWeight: 600, color: resCol, letterSpacing: "var(--tracking-figure)", lineHeight: "32px" }}>
+                {resVal}
+              </span>
+            ) : null}
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }} />

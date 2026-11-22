@@ -79,12 +79,20 @@ reason, replace it.
   tighter 32px rows read cramped next to the calm main card.
 
 ## Page tops and the story header
-- **Breadcrumbs sit 16px above the page title**, not the 32px between page sections: the trail belongs to
-  the title. Why: the owner found the top of the page too airy.
-- **The trail sits 16px from the top of the main card**, not 32px (the owner, 2026-11-22: "we need to conserve
-  vertical space. the breadcrumbs still seems too far from the top of the page"). Pages with a trail (a story,
-  New chart story, a setup, Add or Edit account) gain 16px; pages without one keep their title where it was.
-  Phones keep their own page padding.
+- **Page top bar.** A page with a breadcrumb trail (a story, New chart story, a setup, Add or Edit account)
+  starts with a slim bar along the top of the main card: the trail on the left, the page's actions on the
+  right (the story's "…" More menu lives here, not beside the title), a 1px `--border-subtle` hairline under
+  it from edge to edge, 4px above and below a 32px row. The trail lines up with the page's own content column
+  (full width, 760px on a setup editor, 620px on the account forms), and the page title starts 16px under the
+  hairline. Pages without a trail keep their 32px top. Phones use their own 16px side padding.
+  Why: the owner, 2026-11-22, "we need to conserve vertical space. the breadcrumbs still seems too far from
+  the top of the page", then chose this approach ("build approach 1") from mocks. It saves the 16px gap
+  between trail and title and moves the More menu off the title line, without giving up the trail.
+  References: [Plane](https://mobbin.com/screens/828209ae-aff8-4cc4-87e0-b899ff5b3a8c) (trail and actions in
+  one strip over the page), [incident.io](https://mobbin.com/screens/f27150cd-5e29-4c24-8612-0ef4db267fdd)
+  (hairline bar, actions on the right), [Copilot](https://mobbin.com/screens/3f9566bc-8953-4698-84f6-7064a7dc74d1)
+  (the bar as the card's own top edge), [Linear](https://mobbin.com/screens/98f0958a-a7a4-4812-abdf-00b040b3e574)
+  and [Twenty](https://mobbin.com/screens/f0170497-9df6-4b27-9bdc-ab606ee77530) (compact trail, title below).
 - **The story header shows a result only when there is one** (a taken trade). A running, watched or
   not-filled entry already says its status under the title, so the 24px slot stays empty instead of
   repeating it.

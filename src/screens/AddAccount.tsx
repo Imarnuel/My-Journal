@@ -1,6 +1,6 @@
 // Frame 13 · Add account: name, type, Practice, optional MT5 (login, server, read-only investor password).
 // Markup from handoff/prototype/AddAccount.dc.html; adds to the shared store and goes to Accounts.
-import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
+import { PageBar } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -79,9 +79,8 @@ export function AddAccount() {
   };
 
   return (
-    <Shell active="accounts">
+    <Shell active="accounts" bar={<PageBar items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: "Add an account", icon: <Icon name="plus" size={16} /> }]} width={620} />}>
       <div style={{ maxWidth: "620px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
-        <Breadcrumbs items={[{ label: "Accounts", to: "/accounts", icon: <Icon name="acct" size={16} /> }, { label: "Add an account", icon: <Icon name="plus" size={16} /> }]} />
         <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
             <h1 style={{ margin: 0, lineHeight: "32px" }}>Add an account</h1>

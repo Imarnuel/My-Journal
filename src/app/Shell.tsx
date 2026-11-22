@@ -155,7 +155,11 @@ function usePageTransition() {
   return page;
 }
 
-export function Shell({ active, children, minHeight }: { active: NavKey; children: ReactNode; minHeight?: number }) {
+/**
+ * `bar`: a page's top bar (DESIGN.md › Page top bar): its breadcrumb trail and actions in a slim strip along the top
+ * of the main card, edge to edge with a hairline under it; the page starts 16px below.
+ */
+export function Shell({ active, children, minHeight, bar }: { active: NavKey; children: ReactNode; minHeight?: number; bar?: ReactNode }) {
   useMenuKeyboard();
   useImageFade();
   const ref = useSharedMotion();
@@ -177,8 +181,13 @@ export function Shell({ active, children, minHeight }: { active: NavKey; childre
         </nav>
       </aside>
       <main style={{ flex: "999 1 560px", minWidth: 0, boxSizing: "border-box", padding: "8px 8px 8px 0", display: "flex" }}>
-        <div className="panel" id="main" tabIndex={-1} style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: "32px 32px 48px" }}>
-          <div ref={page} style={{ maxWidth: "1080px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>{children}</div>
+        <div className={bar ? "panel kwithbar" : "panel"} id="main" tabIndex={-1} style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: bar ? "0 32px 48px" : "32px 32px 48px" }}>
+          {bar ? (
+            <div className="kpagebar">
+              <div className="kpagebar-in">{bar}</div>
+            </div>
+          ) : null}
+          <div ref={page} style={{ maxWidth: "1080px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px", ...(bar ? { marginTop: "16px" } : {}) }}>{children}</div>
         </div>
       </main>
       <Toasts />
