@@ -149,9 +149,9 @@
   --tracking-body: 0.01em;
   --tracking-figure: -0.01em;
   --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif; /* page titles only (DESIGN.md › Typeface) */
-  /* Page title size: 26px while --font-heading is a different face from the body (a narrow display serif reads
-     smaller); back to 24px if page titles ever use --font-sans again (the owner, 2026-11-22, over 28px). */
-  --title-size: 26px;
+  /* Page title size: 28px while --font-heading is a different face from the body (a narrow display serif reads
+     smaller); back to 24px if page titles ever use --font-sans again (the owner, 2026-11-22: 26px, then 28px). */
+  --title-size: 28px;
 }
 
 html {

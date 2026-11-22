@@ -316,8 +316,9 @@ rest, leaving only the headings, but the tracking shouldn't be as tight as it wa
   at the body tracking (from −0.01em). Labels, meta and chips inside headings take the body tracking too.
   The Dashboard stat cells pad 12px on the right (24 on the left) so "Wins avg +1.8R, losses −0.9R" stays on one
   line in Inter.
-- **Page titles are 26px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif
-  reads small at 24px (the owner, 2026-11-22: 28px, then "26 is better"). If page titles ever go back to the
+- **Page titles are 28px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif
+  reads small at 24px (the owner, 2026-11-22: 28px, then "26 is better", then, with Inter for the body, "let's
+  increase page title from 26px to 28px"). If page titles ever go back to the
   body face, `--title-size` goes back to 24px. Every other size is unchanged. `src/styles/taste.test.ts` allows
   only these two font variables.
 

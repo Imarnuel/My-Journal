@@ -1330,7 +1330,9 @@ function StoryScreen({ id }: { id: string | null }) {
                       {isRes ? null : <span className="knum-k">{label}</span>}
                       <input
                         ref={(el) => {
-                          if (el && document.activeElement !== el) requestAnimationFrame(() => (el.focus(), el.select()));
+                          // Focused as it appears, not a frame later: a quick second Tab would otherwise land
+                          // elsewhere and close the editor.
+                          if (el && document.activeElement !== el) (el.focus({ preventScroll: true }), el.select());
                         }}
                         aria-label={label}
                         className="knum-in"

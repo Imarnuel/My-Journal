@@ -23,7 +23,7 @@ corner or shadow: they use these. Sizes and spacing are written in px but must s
 | 12 / 16 | Hints, labels, captions, meta lines, chips |
 | 14 / 20 | Body, controls, menu rows, row headlines |
 | 16 / 24 | Section titles, card titles |
-| 26 / 32 | Page titles only: Instrument Serif 400, natural tracking, from `--title-size` (24 if titles use the body face) |
+| 28 / 32 | Page titles only: Instrument Serif 400, natural tracking, from `--title-size` (24 if titles use the body face) |
 | 24 / 32 | Big numbers (Inter 600, `--tracking-figure` −0.01em) |
 
 Weights: 400 body and page titles, 500 labels and controls (a selected segment stays 500), 600 only at 24px figures and the primary
