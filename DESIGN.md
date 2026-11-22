@@ -81,6 +81,10 @@ reason, replace it.
 ## Page tops and the story header
 - **Breadcrumbs sit 16px above the page title**, not the 32px between page sections: the trail belongs to
   the title. Why: the owner found the top of the page too airy.
+- **The trail sits 16px from the top of the main card**, not 32px (the owner, 2026-11-22: "we need to conserve
+  vertical space. the breadcrumbs still seems too far from the top of the page"). Pages with a trail (a story,
+  New chart story, a setup, Add or Edit account) gain 16px; pages without one keep their title where it was.
+  Phones keep their own page padding.
 - **The story header shows a result only when there is one** (a taken trade). A running, watched or
   not-filled entry already says its status under the title, so the 24px slot stays empty instead of
   repeating it.
