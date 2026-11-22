@@ -404,7 +404,33 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   it goes). Reduced motion: no sweeps or movement; message changes and new tags only fade.
 - **Failure cards keep a play button** for the recording, beside Try again.
 
-## Chart reading (real journal)
+## Pair picker (search or type, nothing limited)
+Why: the owner, 2026-11-22: the Pair menu only offered nine fixed pairs, so anyone trading crosses, indices,
+crypto or stocks couldn't set their pair by hand. "it doesn't make sense that you leave out some crosses";
+"approve the wording, build it". Research: Mobbin ([Origin](https://mobbin.com/screens/5cf55d30-6db9-4200-a48c-19ccfd4effee),
+[Copilot Money](https://mobbin.com/screens/15388be2-46ab-4367-96eb-9a18d4667569), [Perplexity Finance](https://mobbin.com/screens/e547abb1-ff13-4ee4-a049-ab65817dada5),
+[Notion](https://mobbin.com/screens/0fd15513-eb9f-4407-b3cc-ae27db947a8b), [Height](https://mobbin.com/screens/4e5fbae7-b4a2-477e-bbca-95cb262d9626))
+and other journals (Edgewonk creates an instrument on first use; Tradervue maps alternate names; TradeZella makes
+you pick an asset type first and ask support for new symbols, which we avoid). Source: `src/lib/instruments.ts`,
+`src/screens/story/PairMenu.tsx`, `PairFact` in `ChartStory.tsx`.
+- **The menu**: a search field at the top ("Search or type a pair", Lucide `search` icon, 16px; the cursor is
+  in it on opening), then **Your pairs** (the 8 most used, from the owner's stories), then every group in full:
+  **Majors** (7), **Crosses** (all 21), **Exotics**, **Metals**, **Indices**, **Crypto**, **Energy**. Group labels
+  stick while their group scrolls; the list is about 10 rows tall and scrolls inside the menu (280px wide).
+  A pair of yours also stays in its group, so no group looks incomplete. Rows: the ticker, and a quiet 12px
+  name for non-forex (XAUUSD · Gold).
+- **Search** by ticker, by one currency ("JPY" lists all seven yen pairs), by name ("gold", "nasdaq") and by
+  nickname or shorthand ("gj", "cable"). Your pairs rank first; a close spelling ("GBPJYP") finds the real pair
+  first. Enter picks the first row; arrows, Escape and outside click as in every menu.
+- **Anything else is allowed**: the last row is **Use "…"** whenever what was typed isn't an exact ticker. Text
+  is tidied (capitals, no broker prefix, slashes, spaces or symbols, 15 characters at most). No confirm step.
+- **Nothing to manage**: Your pairs comes from the stories, so a typo goes once that story is fixed.
+- **Broker spellings**: GOLD, XAUUSD.a, EURUSDm, US30.cash, USTEC map to the instrument, and a chart reading
+  takes the owner's spelling (`ownSpelling`). What the owner types by hand is never rewritten. Later, if two
+  spellings of one instrument both get used, Settings could offer to merge them (like look-alike tags).
+- The label stays "Pair" for every market (the owner's choice).
+
+
 Built on the owner's go-ahead (2026-11-21) to the behaviour in `01-decisions.md` "Charts in a story", with
 the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is asked and the checks),
 `netlify/edge-functions/chart-read.ts` (`/api/chart-read`), `src/lib/chartReader.ts`, the facts in

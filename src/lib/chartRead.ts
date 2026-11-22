@@ -3,6 +3,7 @@
 // story": timeframe captions only from the chart's legend, normalised and only on a clean match; for accounts
 // without MT5, entry, stop and target from the position box; prices that can't be read are typed by the user.
 import type { Dir } from "./types";
+import { instrumentOf, ownSpelling } from "./instruments.ts";
 
 export type ChartReadContext = {
   /** Pairs the user trades (the facts menu), so symbols map to the user's own spelling. */
@@ -87,6 +88,8 @@ export function normaliseTimeframe(raw: unknown): string | null {
 /** "OANDA:XAUUSD", "EUR/USD", "gbpusd" → the user's own spelling when it is one of their pairs. */
 export function normalisePair(raw: unknown, pairs: string[]): string | null {
   if (typeof raw !== "string") return null;
+  // A known instrument in any spelling ("GOLD", "XAUUSD.a", "US30.cash") takes the owner's spelling.
+  if (instrumentOf(raw)) return ownSpelling(raw, pairs);
   const bare = raw.split(":").pop()!.replace(/[^a-z0-9]/gi, "").toUpperCase();
   if (bare.length < 3 || bare.length > 10) return null;
   // The owner's own spelling when it is one of their pairs; otherwise only something shaped like a ticker

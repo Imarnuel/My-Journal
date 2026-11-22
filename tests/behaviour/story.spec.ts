@@ -184,6 +184,45 @@ test("menus: one open at a time, outside click and Escape close, choosing sets t
   await expect(page.getByRole("listbox")).toHaveCount(0);
 });
 
+test("pair picker: your pairs first, then every group in full; search, nicknames, and Use for anything else", async ({ page }) => {
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Pair: GBPUSD" }).click();
+  const search = page.getByRole("combobox", { name: "Search or type a pair" });
+  await expect(search).toBeFocused();
+  const list = page.getByRole("listbox", { name: "Pair" });
+  await expect(list.getByRole("group")).toHaveText([/^Your pairs/, /^Majors/, /^Crosses/, /^Exotics/, /^Metals/, /^Indices/, /^Crypto/, /^Energy/]);
+  await expect(list.getByRole("group", { name: "Crosses" }).getByRole("option")).toHaveCount(21);
+  await expect(list.getByRole("option", { name: /^XAUUSD.*Gold/ }).first()).toBeVisible();
+  // One currency lists every pair with it.
+  await search.fill("jpy");
+  await expect(list.getByRole("group").getByRole("option")).toHaveCount(7); // then Use “JPY”, last
+  // A nickname, then Enter picks the first row.
+  await search.fill("gj");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("button", { name: "Pair: GBPJPY" })).toBeVisible();
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  // Anything not listed is used as typed, tidied.
+  await page.getByRole("button", { name: "Pair: GBPJPY" }).click();
+  await page.getByRole("combobox", { name: "Search or type a pair" }).fill("aapl");
+  await page.getByRole("option", { name: "Use “AAPL”" }).click();
+  await expect(page.getByRole("button", { name: "Pair: AAPL" })).toBeVisible();
+});
+
+test("pair picker: a typo suggests the real pair first; arrows move from the search; Escape goes back", async ({ page }) => {
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Pair: GBPUSD" }).click();
+  const search = page.getByRole("combobox", { name: "Search or type a pair" });
+  await search.fill("gbpjyp");
+  const opts = page.getByRole("listbox", { name: "Pair" }).getByRole("option");
+  await expect(opts.first()).toHaveText("GBPJPY");
+  await expect(opts.last()).toHaveText("Use “GBPJYP”");
+  await page.keyboard.press("ArrowDown");
+  await expect(opts.first()).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Pair: GBPUSD" })).toBeFocused();
+});
+
 test("keyboard: open Setup from the keyboard, arrows move, Enter chooses", async ({ page }) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Setup" }).focus();
@@ -205,7 +244,7 @@ test("the facts line: each part is a menu; Status explains its options; the date
   await page.getByRole("option", { name: /Watched/ }).click();
   await expect(page.locator("header .meta")).toContainText("Watched · Funded 100K");
   await page.getByRole("button", { name: "Pair: GBPUSD" }).click();
-  await page.getByRole("option", { name: "EURUSD" }).click();
+  await page.getByRole("option", { name: "EURUSD" }).first().click(); // under Your pairs, and again in Majors
   await expect(page.getByRole("heading", { level: 1 })).toContainText("EURUSD");
   await page.getByRole("button", { name: "Direction: Short" }).click();
   await page.getByRole("option", { name: "Long" }).click();

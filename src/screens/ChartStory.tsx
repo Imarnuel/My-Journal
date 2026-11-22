@@ -47,7 +47,9 @@ import { readChart } from "../lib/chartReader";
 import type { ChartRead } from "../lib/chartRead";
 import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
-import { CANVAS_EXTRAS, PAIRS, captionOf, newStoryStart } from "./story/canvas";
+import { CANVAS_EXTRAS, captionOf, newStoryStart } from "./story/canvas";
+import { PairList } from "./story/PairMenu";
+import { INSTRUMENTS, instrumentOf, ownSpelling, tidyPair, yourPairs } from "../lib/instruments";
 import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
 import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS } from "../data/settings";
@@ -433,9 +435,12 @@ function StoryScreen({ id }: { id: string | null }) {
   const applyChartRead = (r: ChartRead) => {
     const cur = storyRef.current;
     if (!cur) return;
-    const key = (p: string) => p.replace(/[^a-z0-9]/gi, "").toUpperCase();
+    // Same instrument whatever the spelling: GOLD and XAUUSD.a are XAUUSD (src/lib/instruments.ts).
+    const key = (p: string) => instrumentOf(p)?.t ?? tidyPair(p);
     const storyPairs = cur.pair ? cur.pair.split(",").map(key).filter(Boolean) : [];
     if (r.pair && storyPairs.length && !storyPairs.includes(key(r.pair))) return; // another pair: nothing
+    // A reading takes the owner's own spelling ("GOLD" for someone who writes GOLD).
+    if (r.pair) r = { ...r, pair: ownSpelling(r.pair, yourPairs(useStore.getState().entries)) };
     if (r.dir && cur.dir && r.dir !== cur.dir) return; // the box contradicts the story: no direction or prices
     const patch: Partial<Story> = {};
     const filled: string[] = [];
@@ -1236,7 +1241,7 @@ function StoryScreen({ id }: { id: string | null }) {
             )}
             {/* Each fact leads with its icon and they sit 16px apart, no dot separators (the Trade log's facts rule). */}
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px" }}>
-              <Fact name="Pair" k="pair" icon="pair" value={s.pair} menu={menu} opts={PAIRS.map((label) => ({ label }))} onPick={pick("pair")} />
+              <PairFact value={s.pair} menu={menu} onPick={pick("pair")} />
               <Fact name="Direction" k="dir" icon={s.dir === "Long" ? "long" : "short"} value={s.dir} menu={menu} opts={[{ label: "Long" }, { label: "Short" }]} onPick={pick("dir")} />
               <Fact name="Status" k="status" icon="status" value={s.status} menu={menu} opts={STATUS_OPTS} onPick={(v) => pick("status")(v as Status)} />
               <Fact name="Account" k="acct" icon="account" value={s.account} menu={menu} opts={acctNames.map((label) => ({ label }))} onPick={pick("account")} />
@@ -1390,6 +1395,27 @@ function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: s
   );
 }
 
+/** The facts line's Pair (DESIGN.md › Pair picker): search or type, the owner's pairs first. */
+function PairFact({ value, menu, onPick }: { value: string | null; menu: ReturnType<typeof useMenu<string>>; onPick: (v: string) => void }) {
+  const open = menu.isOpen("pair");
+  const entries = useStore((st) => st.entries);
+  const yours = useMemo(() => yourPairs(entries), [entries]);
+  return (
+    <span style={{ position: "relative", display: "inline-flex" }}>
+      <button type="button" aria-haspopup="listbox" aria-expanded={open ? "true" : "false"} aria-label={`Pair: ${value || "not set"}`} onClick={() => menu.toggle("pair")} style={factBtn}>
+        <DetailIcon name="pair" />
+        <span style={factText}>{value || "Pair"}</span>
+      </button>
+      {open ? (
+        <>
+          <Closer onClose={menu.close} />
+          <PairList value={value} yours={yours} onPick={onPick} style={{ left: 0, transformOrigin: "top left" }} />
+        </>
+      ) : null}
+    </span>
+  );
+}
+
 /** The owner's session times (Settings), so a story's session follows them. */
 const sessionTimes = () => (useStore.getState().settings.sessions as [string, string, string][] | undefined) ?? DEFAULT_SESSIONS;
 
@@ -1487,8 +1513,8 @@ function KeptRecording({ rec }: { rec: Recording }) {
 
 /** Pairs the chart reader should match: the menu's, plus any the user has logged. */
 function chartPairs(): string[] {
-  const used = useStore.getState().entries.flatMap((e) => e.pair.split(",").map((p) => p.trim()));
-  return [...new Set([...PAIRS, ...used])].filter(Boolean);
+  // The owner's pairs first (so readings map to their spelling), then the dictionary's tickers.
+  return [...new Set([...yourPairs(useStore.getState().entries), ...INSTRUMENTS.map((i) => i.t)])];
 }
 
 /** "pair, direction and 3 prices". */

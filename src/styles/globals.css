@@ -321,3 +321,8 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
   .kfx[data-fx="awaiting"]::after { transform: none; background: color-mix(in srgb, var(--voice) 6%, transparent); }
   .kfx[data-fx="filled"]::after { opacity: 0.6; }
 }
+
+/* Pair picker (DESIGN.md › Pair picker): the search box shows focus with its border (the cursor always lives
+   there); the plain input inside draws no ring of its own. */
+.app .kpairs-search:focus-within { border-color: var(--border-strong) !important; }
+.app .kpairs-search input:focus-visible { outline: none !important; box-shadow: none !important; }
