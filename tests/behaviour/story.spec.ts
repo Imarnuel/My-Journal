@@ -45,7 +45,7 @@ async function store<T>(page: Page, fn: string): Promise<T> {
  */
 const asDrawn = (page: Page) => store(page, `s.getState().updateEntry("e20", { textbook: false })`);
 
-const toast = (page: Page) => page.locator(".kstatus");
+const toast = (page: Page) => page.locator(".ktoast");
 /** The charts' order, by id, as the tiles show it. */
 const chartOrder = (page: Page) =>
   page.getByRole("region", { name: "Charts" }).locator("figure[data-tile]").evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.chart));

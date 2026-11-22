@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { slideSegments, trackInputModality } from "../components/primitives/motion";
 import { Icon, type IconName } from "../components/primitives/Icon";
 import { focusFirstItem, noteTrigger, onMenuKeyDown } from "../components/primitives/menuKeys";
-import { useToast, type ToastKind } from "../components/primitives/toast";
+import { isSuccess, useToast } from "../components/primitives/toast";
 
 export type NavKey = "dashboard" | "log" | "playbook" | "review" | "accounts" | "settings" | null;
 
@@ -32,115 +32,72 @@ export function Wordmark() {
   );
 }
 
-/** One icon per kind of outcome, 16px, stroke 1.8 like the rest of the interface. */
-function ToastIcon({ kind }: { kind: ToastKind }) {
-  const p = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  switch (kind) {
-    case "deleted":
-      return (
-        <svg {...p}>
-          <path d="M4 7h16" />
-          <path d="M10 11v6M14 11v6" />
-          <path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
-          <path d="M9 7V4h6v3" />
-        </svg>
-      );
-    case "hidden":
-      return (
-        <svg {...p}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M5.6 5.6l12.8 12.8" />
-        </svg>
-      );
-    case "restored":
-      return (
-        <svg {...p}>
-          <path d="M3 12a9 9 0 1 0 3-6.7" />
-          <path d="M3 4v5h5" />
-        </svg>
-      );
-    case "added":
-      return (
-        <svg {...p}>
-          <rect x="3" y="3" width="18" height="18" rx="2.5" />
-          <circle cx="9" cy="9" r="1.8" />
-          <path d="M21 15l-5-5L5 21" />
-        </svg>
-      );
-    case "moved":
-      return (
-        <svg {...p}>
-          <rect x="3.5" y="5" width="17" height="15" rx="2" />
-          <path d="M3.5 10h17M8 3v4M16 3v4" />
-        </svg>
-      );
-    case "voice":
-      return (
-        <svg {...p}>
-          <rect x="9" y="3" width="6" height="11" rx="3" />
-          <path d="M5 11a7 7 0 0 0 14 0" />
-          <path d="M12 18v3" />
-        </svg>
-      );
-    case "archived":
-      return (
-        <svg {...p}>
-          <rect x="3" y="4" width="18" height="5" rx="1.5" />
-          <path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" />
-          <path d="M10 13h4" />
-        </svg>
-      );
-    case "edited":
-      return (
-        <svg {...p}>
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-        </svg>
-      );
-    default:
-      return (
-        <svg {...p}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M8 12.5l2.7 2.7L16 9.8" />
-        </svg>
-      );
-  }
+/**
+ * The success mark: a filled 16px circle in the toast's text colour with the tick cut out in the toast's own
+ * colour (DESIGN.md › Toasts). The tick draws in as the toast lands.
+ */
+function SuccessCheck() {
+  return (
+    <svg className="ktoast-check" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="8" fill="currentColor" />
+      <path d="M4.8 8.3l2.1 2.1 4.3-4.5" pathLength={1} fill="none" stroke="var(--inverse-bg)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
+/**
+ * The toast (DESIGN.md › Toasts). Two variants: with an action (a ghost Undo, no outline) and without one.
+ * A success leads with the filled check; a notification has no icon. It rises in from below the edge and goes
+ * back the way it came, faster; a toast that replaces another keeps its place and cross-fades its content.
+ * Transitions, not keyframes, so a toast that comes back mid-exit turns around smoothly.
+ */
 export function Toasts() {
   const live = useToast((s) => s.toast);
   const runUndo = useToast((s) => s.runUndo);
-  // Keep the last toast on screen briefly while it leaves (fade and drop 8px, faster than it arrived).
+  const pause = useToast((s) => s.pause);
+  const resume = useToast((s) => s.resume);
+  // Keep the last toast on screen while it leaves.
   const [shown, setShown] = useState(live);
-  const [leaving, setLeaving] = useState(false);
   useEffect(() => {
-    if (live) {
-      setShown(live);
-      setLeaving(false);
-      return;
-    }
+    if (live) return setShown(live);
     if (!shown) return;
-    setLeaving(true);
-    const id = window.setTimeout(() => {
-      setShown(null);
-      setLeaving(false);
-    }, 160);
+    const id = window.setTimeout(() => setShown(null), 240);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live]);
+  // A hidden tab doesn't count down: the toast is still there when you come back.
+  useEffect(() => {
+    const onVis = () => (document.hidden ? pause("tab") : resume("tab"));
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [pause, resume]);
+  // The pointer and focus pauses end with the toast.
+  useEffect(() => {
+    if (!live) (resume("pointer"), resume("focus"));
+  }, [live, resume]);
   const t = live ?? shown;
   if (!t) return null;
+  const success = isSuccess(t.kind);
   return (
-    <div key={t.id} role="status" className={leaving && !live ? "kstatus ktoast leaving" : "kstatus ktoast"}>
-      <span className="ktoast-ic" data-kind={t.kind} aria-hidden="true">
-        <ToastIcon kind={t.kind} />
-      </span>
-      <span className="ktoast-msg">{t.msg}</span>
-      {t.undo ? (
-        <button type="button" className="ktoast-undo" onClick={runUndo}>
-          Undo
-        </button>
-      ) : null}
+    <div
+      role="status"
+      className="ktoast"
+      data-variant={t.undo ? "action" : "plain"}
+      data-leaving={live ? undefined : ""}
+      onPointerEnter={() => pause("pointer")}
+      onPointerLeave={() => resume("pointer")}
+      onFocus={() => pause("focus")}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && resume("focus")}
+    >
+      <div key={t.id} className="ktoast-body">
+        {success ? <SuccessCheck /> : null}
+        <span className="ktoast-msg">{t.msg}</span>
+        {t.undo ? (
+          <button type="button" className="ktoast-undo" onClick={runUndo}>
+            Undo
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

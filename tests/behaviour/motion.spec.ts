@@ -74,15 +74,15 @@ test("page change: content fades in with a small drift; first load and keyboard 
   expect(await running()).toBe(0);
 });
 
-test("toasts leave by fading and dropping, faster than they arrive", async ({ page }) => {
+test("toasts go back down the way they came, faster than they arrive", async ({ page }) => {
   await page.goto("/accounts");
   await page.getByRole("button", { name: /Archived \(2\)/ }).click();
   await page.getByRole("button", { name: "Restore" }).first().click();
   const status = page.getByRole("status");
   await expect(status).toBeVisible();
   await status.getByRole("button", { name: "Undo" }).click();
-  await expect(page.locator(".kstatus.leaving")).toHaveCount(1);
-  await expect(page.locator(".kstatus")).toHaveCount(0);
+  await expect(page.locator(".ktoast[data-leaving]")).toHaveCount(1);
+  await expect(page.locator(".ktoast")).toHaveCount(0);
 });
 
 test("reduced motion: the segmented thumb jumps instead of sliding", async ({ page }) => {

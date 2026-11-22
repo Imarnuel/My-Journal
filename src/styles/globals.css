@@ -193,25 +193,42 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 .trow .kfact-ic svg { width: 14px; height: 14px; }
 .trow .meta { font-size: 12px !important; line-height: 16px !important; }
 
-/* Toasts (DESIGN.md, Toasts): bottom right, an icon for the kind of outcome, the message, Undo. Inverse
-   colours as in the handoff; they rise in from 12px below and leave faster, dropping 8px. */
+/* Toasts (DESIGN.md › Toasts): bottom right, inverse colours. Two variants: "action" (a ghost Undo, the right
+   padding drops to 8px so the button sits in the corner) and "plain". A success leads with the filled check; a
+   notification has no icon. Both are 48px tall.
+   Motion (transitions, so a toast that returns mid-exit turns around instead of restarting): it rises from below
+   the screen edge (its own height plus the 24px gap) in --d-toast (400ms) on --ease-toast and goes back down
+   faster (--d-base, --ease-out). A toast replacing another keeps its place; its content cross-fades through a 2px blur. The check's
+   tick draws in as the toast lands. Undo presses in to 0.97. Reduced motion: fades only. */
 .ktoast { position: fixed; z-index: 20; right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  display: flex; align-items: center; gap: 12px; max-width: min(560px, calc(100vw - 48px)); box-sizing: border-box;
-  padding: 8px 8px 8px 16px; border-radius: var(--r-card);corner-shape:squircle; background: var(--inverse-bg); color: var(--inverse-fg);
-  box-shadow: var(--shadow-toast); font-size: 14px; line-height: 20px; }
-.ktoast-ic { flex: none; display: flex; opacity: 0.72; }
-.ktoast-ic[data-kind="voice"] { opacity: 1; color: color-mix(in srgb, var(--voice) 55%, var(--inverse-fg)); }
+  display: flex; align-items: center; min-height: 48px; max-width: min(560px, calc(100vw - 48px)); box-sizing: border-box;
+  padding: 12px 16px; border-radius: var(--r-card);corner-shape:squircle; background: var(--inverse-bg); color: var(--inverse-fg);
+  box-shadow: var(--shadow-toast); font-size: 14px; line-height: 20px;
+  transform: translateY(0); opacity: 1;
+  transition: transform var(--d-toast) var(--ease-toast), opacity var(--d-toast) var(--ease-toast); }
+.ktoast[data-variant="action"] { padding: 8px 8px 8px 16px; }
+@starting-style { .ktoast { transform: translateY(calc(100% + 24px)); opacity: 0; } }
+.ktoast[data-leaving] { transform: translateY(calc(100% + 24px)); opacity: 0; pointer-events: none;
+  transition: transform var(--d-base) var(--ease-out), opacity var(--d-base) var(--ease-out); }
+.ktoast-body { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
+  transition: opacity var(--d-base) var(--ease-out), filter var(--d-base) var(--ease-out); }
+@starting-style { .ktoast-body { opacity: 0; filter: blur(2px); } }
+.ktoast-check { flex: none; display: block; color: var(--inverse-fg); }
+.ktoast-check path { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset var(--d-slow) var(--ease-out) 200ms; }
+@starting-style { .ktoast-check path { stroke-dashoffset: 1; } }
 .ktoast-msg { flex: 1; min-width: 0; text-wrap: pretty; }
-.ktoast-undo { flex: none; font: inherit; font-size: 14px; font-weight: 500; color: var(--inverse-fg); background: transparent;
-  border: 1px solid var(--inverse-border); border-radius: var(--r-md);corner-shape:squircle; padding: 0 12px; min-height: 32px; cursor: pointer; }
-@media (hover: hover) and (pointer: fine) { .ktoast-undo:hover { background: color-mix(in srgb, var(--inverse-fg) 10%, transparent); } }
-@keyframes ktoast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes ktoast-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px); } }
-.kstatus.ktoast { animation: ktoast-in var(--d-base) var(--ease-out); }
-.kstatus.ktoast.leaving { animation: ktoast-out calc(var(--d-base) * 0.7) var(--ease-in) forwards; pointer-events: none; }
+.ktoast-undo { flex: none; margin-left: 4px; font: inherit; font-size: 14px; font-weight: 500; color: var(--inverse-fg); background: transparent;
+  border: 0; border-radius: var(--r-md);corner-shape:squircle; padding: 0 12px; min-height: 32px; cursor: pointer;
+  transition: background var(--d-instant), transform var(--d-fast) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .ktoast-undo:hover { background: color-mix(in srgb, var(--inverse-fg) 12%, transparent); } }
+.ktoast-undo:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
-  .kstatus.ktoast { animation: kfade 120ms linear; }
-  .kstatus.ktoast.leaving { animation: kfade 120ms linear reverse forwards; }
+  .ktoast, .ktoast[data-leaving] { transform: none; transition: opacity 120ms linear; }
+  @starting-style { .ktoast { transform: none; } .ktoast-body { filter: none; } }
+  .ktoast-body { transition: opacity 120ms linear; }
+  .ktoast-check path { transition: none; }
+  @starting-style { .ktoast-check path { stroke-dashoffset: 0; } }
+  .ktoast-undo:active { transform: none; }
 }
 @media (max-width: 640px) {
   .ktoast { left: calc(16px + env(safe-area-inset-left, 0px)); right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: none; }

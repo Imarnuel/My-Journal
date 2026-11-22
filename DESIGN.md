@@ -206,9 +206,20 @@ Overrides the bottom-centre toast in `02-look-and-feel.md`. Why: the owner wante
 content, and quicker to read. Source: `Toasts` in `src/app/Shell.tsx`, `src/components/primitives/toast.ts`.
 - **Bottom right**, up to 560px wide so messages fit on one line, 24px from the edges (safe areas included). On phones it spans the width, 16px gutters.
   Still one at a time, 6 seconds, Undo on anything destructive or hiding.
-- **A 16px icon says what happened** (the action's kind): check (done), trash (deleted), ban (left out),
-  rotate (restored), image (charts added), calendar (moved), mic (voice note, in the voice colour),
-  archive (archived), pen (renamed or merged).
+- **Success or notification** (the owner, 2026-11-22, "rework our toast notification… sleek and modern"; replaces
+  one icon per kind). A success (saved, added, moved, restored, archived, renamed or merged, counted, filled from
+  your note or chart) leads with a **filled 16px check**: a circle in the toast's text colour with the tick cut
+  out in the toast's own colour. A notification (deleted, removed, hidden, left out) has **no icon**.
+- **Two variants**: with an action, a **ghost Undo** (no outline; a 12% fill on hover, presses in to 0.97) in
+  the corner with 8px of padding round it; and without one, 12px by 16px. Both are 48px tall. Icon to text 8px,
+  text to Undo 12px.
+- **Motion** (transitions, so a toast that comes back mid-exit turns round instead of restarting): it rises from
+  below the screen edge in 400ms on a drawer curve (`--d-toast`, `--ease-toast`; toasts are occasional, the
+  documented exception to the 300ms rule) and goes back down faster (220ms, ease-out). The check's tick draws in
+  as the toast lands. A toast that replaces another keeps its place and cross-fades its content through a 2px
+  blur. Reduced motion: fades only, 120ms.
+- **The 6 seconds pause** while the pointer or keyboard focus is on the toast and while the tab is hidden; after
+  a pause it stays at least 1.5 seconds more. So an Undo is never lost while it is being reached for.
 - **Message rules**: the outcome first, naming the thing it happened to, in past tense, short enough for one
   line. "GBPUSD left out of your stats", "EURUSD trade deleted", "“Supply zone” removed",
   "Moved to Mon 16 Nov, 09:45", "Filled from your note: setup and 3 tags". No "Done", no

@@ -48,7 +48,7 @@ async function setStore(page: Page, fn: string) {
 const rows = (page: Page) => page.getByRole("list", { name: "Trade log" }).locator(":scope > li");
 const count = (page: Page) => page.locator(".ksticky .meta").first();
 const more = (page: Page, i: number) => rows(page).nth(i).getByRole("button", { name: "More actions" });
-const toast = (page: Page) => page.locator(".kstatus");
+const toast = (page: Page) => page.locator(".ktoast");
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });

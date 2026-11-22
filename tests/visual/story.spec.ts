@@ -2,7 +2,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { diffAgainst, FRAME_H } from "./compare";
 
-const toastGone = (page: Page) => expect(page.locator(".kstatus")).toHaveCount(0, { timeout: 8000 });
+const toastGone = (page: Page) => expect(page.locator(".ktoast")).toHaveCount(0, { timeout: 8000 });
 
 for (const theme of ["light", "dark"] as const) {
   test(`05-NewStory ${theme}`, async ({ page }, info) => {
