@@ -18,9 +18,14 @@ Written 20 November 2026, at the end of the first build session.
 - All checks pass: 147 unit tests (`npm test`), 367 browser tests (`npm run e2e`, sample and real projects). Flaky, worth fixing: one story test ("numbers: click one to edit it in place…", about 1 run in 5, also before 2026-11-20) and, under full-suite load, the real "a chart fills the empty facts…" test (passes alone).
 
 ## The real journal
-- Live at https://my-journal-rlfv.netlify.app (Netlify, builds `main`; see DESIGN.md › Real app). Work on the
-  working branch; when a change is finished, tested and the owner has seen it in the preview, push it to
-  `main` (`git push origin HEAD:main`) and Netlify republishes. `npm run dev:real` runs it locally.
+- Live at https://my-journal-rlfv.netlify.app (Netlify, builds `main`; see DESIGN.md › Real app).
+  `npm run dev:real` runs it locally.
+- **Netlify credits: push to `main` only when the owner says "publish it".** On the free plan every production
+  deploy costs 15 of 300 credits a month (about 20 publishes); pushing after every change used them all up in
+  two days (2026-11-21/22) and paused publishing until the next billing cycle. Branch previews are free: the
+  working branch `claude/sweet-mayer-v7v5nl` builds at its own address,
+  https://claude-sweet-mayer-v7v5nl--my-journal-rlfv.netlify.app (its own empty journal: data is kept per
+  address in the browser). Test there; batch changes to `main`.
 - Voice notes go through `netlify/edge-functions/voice-note.ts` to Gemini (key: Netlify variable
   `Gemini_API_Key`; `GEMINI_API_KEY` is Netlify's own AI token, not usable with Google). Check the live set-up
   with `curl https://my-journal-rlfv.netlify.app/api/voice-note?check`. Gemini's API is the Interactions API
