@@ -497,7 +497,9 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
   - **The prices decide the direction** (2026-11-22, the owner's GBPJPY chart: the model read every price right
     and still said "Long" for a short). The model's own Long/Short is ignored; stop and target must sit on
     opposite sides of the entry. Checked live on the branch preview with the owner's three charts: EURUSD (pair,
-    30m, date, no trade), Gold (XAUUSD, 30m, date, Short, prices left to type) and GBPJPY all correct.
+    30m, date, no trade) and Gold (XAUUSD, 30m, date, Short, prices left to type) correct; GBPJPY fully correct
+    (Short, 211.840 / 212.008 / 211.197) on one of two runs, and on the other its two reads disagreed, so no
+    prices filled. All runs used the weakest backup model: the two better free models were out of requests.
   - **#15** Decimal commas ("4.068,70", "1,26840") are told apart from thousands ("4,068.70") using all of a
     chart's prices together.
   - **#9** Broker spellings map to the owner's (see Pair picker).
