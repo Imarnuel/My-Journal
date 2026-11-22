@@ -38,8 +38,9 @@ describe("trusting the position box", () => {
   it("a long whose prices agree fills everything", () => {
     expect(readFromAnswer(one(), ctx)).toEqual({ ok: true, pair: "GBPUSD", dir: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", timeframe: "15m", unreadable: false, takenAt: null });
   });
-  it("a direction the prices contradict drops the prices, never guesses", () => {
-    expect(readFromAnswer(one({ direction: "Short" }), ctx)).toMatchObject({ dir: null, entry: null, stop: null, target: null });
+  it("the prices decide the direction; the model's own word is ignored (the owner's GBPJPY chart)", () => {
+    const gj = { symbol: "GBPJPY", timeframe: "15", prices_legible: true, price_text: "212.008 | 211.840 | 211.197", positions: [{ direction: "Long", entry: "211.840", stop: "212.008", target: "211.197" }] };
+    expect(readFromAnswer(gj, ctx)).toMatchObject({ pair: "GBPJPY", dir: "Short", entry: "211.840", stop: "212.008", target: "211.197", unreadable: false });
   });
   it("a target on the wrong side drops the set", () => {
     expect(readFromAnswer(one({ target: "1.26000" }, { price_text: "1.26000 | 1.26840 | 1.26670" }), ctx)).toMatchObject({ entry: null, stop: null, target: null });

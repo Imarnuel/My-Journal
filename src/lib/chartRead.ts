@@ -166,8 +166,8 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
 
 /**
  * One position tool. Prices must be plain numbers copied from printed text the model quotes back, and together
- * they must make sense (a long's stop below its entry and its target above). The direction only ever comes with
- * readable prices: read from the colours alone it was wrong in testing. A set that doesn't fit is dropped whole.
+ * they must make sense (a long's stop below its entry and its target above). The direction only ever comes from
+ * readable prices, never from the model's word or the colours. A set that doesn't fit is dropped whole.
  */
 function readPosition(p: Record<string, unknown>, text: string): { dir: Dir; entry: string; stop: string; target: string | null } | null {
   const raw = [p.entry, p.stop, p.target].filter((v): v is string => typeof v === "string");
@@ -179,9 +179,10 @@ function readPosition(p: Record<string, unknown>, text: string): { dir: Dir; ent
   if (entry == null || stop == null) return null;
   // A price not found in the quoted text was guessed (a blurry chart still gets plausible numbers).
   if (!quoted(p.entry, text) || !quoted(p.stop, text) || (target != null && !quoted(p.target, text))) return null;
+  // The prices decide the direction; the model's own "Long"/"Short" is ignored (on the owner's GBPJPY chart it
+  // read every price right and still called a short "Long"). Stop and target must sit on opposite sides.
   const dir: Dir = stop < entry ? "Long" : "Short";
-  const said = p.direction === "Long" || p.direction === "Short" ? p.direction : null;
-  if ((said ?? dir) !== dir) return null;
+  if (stop === entry) return null;
   if (target != null && (dir === "Long" ? target <= entry : target >= entry)) return null;
   return { dir, entry: e!, stop: st!, target: tg };
 }

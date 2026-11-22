@@ -494,6 +494,10 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
     04:39 UTC"), the earliest of its charts, unless the date was set by hand; the toast lists "date".
   - **#24** When the owner changes a fact the reader filled, the reading and the change are kept on this device
     (`chart:corrections`, last 200), never shown, to improve these rules from real mistakes.
+  - **The prices decide the direction** (2026-11-22, the owner's GBPJPY chart: the model read every price right
+    and still said "Long" for a short). The model's own Long/Short is ignored; stop and target must sit on
+    opposite sides of the entry. Checked live on the branch preview with the owner's three charts: EURUSD (pair,
+    30m, date, no trade), Gold (XAUUSD, 30m, date, Short, prices left to type) and GBPJPY all correct.
   - **#15** Decimal commas ("4.068,70", "1,26840") are told apart from thousands ("4,068.70") using all of a
     chart's prices together.
   - **#9** Broker spellings map to the owner's (see Pair picker).
