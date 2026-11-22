@@ -403,7 +403,8 @@ test("brand new: Your log starts here, with New chart story", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Your log starts here" })).toBeVisible();
   await expect(page.getByText("Record a trade, a watched setup or your analysis whenever it suits you. It all lands here, newest first.")).toBeVisible();
   await expect(page.getByRole("group", { name: "Filter" })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "New chart story" })).toHaveCount(2);
+  // One action: the header's button (the empty card doesn't repeat it, first ui-polish audit).
+  await expect(page.getByRole("link", { name: "New chart story" })).toHaveCount(1);
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
 });

@@ -169,7 +169,7 @@ test("trade cards open their story; Open in trade log", async ({ page }) => {
   await page.goto("/review");
   const cards = page.getByRole("region", { name: /Your trades/ }).getByRole("listitem");
   await expect(cards).toHaveCount(11);
-  await expect(cards.first()).toContainText("EURJPYLong−1.0R13 Nov · London breakout · Not followed");
+  await expect(cards.first()).toContainText("EURJPYLong−1.0R13 Nov · London breakoutNot followed");
   await expect(cards.nth(1)).toContainText("13 Nov · 4H supply pullback");
   await expect(cards.nth(1)).not.toContainText("Not followed");
   await cards.first().getByRole("link").click();
