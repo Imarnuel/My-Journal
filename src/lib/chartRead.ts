@@ -20,6 +20,8 @@ export type ChartRead = {
   target: string | null;
   timeframe: string | null;
   unreadable: boolean;
+  /** When the chart was captured, from TradingView's "created with TradingView.com, <date> UTC" line (ISO, UTC). */
+  takenAt?: string | null;
 };
 export type ChartReadResult = ChartRead | { ok: false; reason: "failed" | "offline" };
 
@@ -48,6 +50,10 @@ export function chartSchema() {
           required: ["direction", "entry", "stop", "target"],
         },
       },
+      snapshot_header: {
+        type: ["string", "null"],
+        description: "The line at the very top of a TradingView snapshot that says who created it with TradingView.com and when (e.g. 'trader created with TradingView.com, Nov 12, 2026 04:39 UTC'), copied exactly. Null if there is none.",
+      },
       prices_legible: { type: "boolean", description: "False if a position tool is drawn but its prices are too small or blurry to read with confidence." },
       price_text: {
         type: ["string", "null"],
@@ -55,7 +61,7 @@ export function chartSchema() {
           "The printed text the prices were read from, copied character for character: the position tool's labels and the coloured price tags on the price axis at its edges (e.g. 'Stop: 1.27010 (17.0) | 1.26840 | Target: 1.26480 (36.0)'). Null if no price text can be read.",
       },
     },
-    required: ["symbol", "timeframe", "positions", "prices_legible", "price_text"],
+    required: ["symbol", "timeframe", "positions", "snapshot_header", "prices_legible", "price_text"],
   };
 }
 
@@ -63,11 +69,17 @@ export function chartPrompt(ctx: ChartReadContext): string {
   return [
     "This is a screenshot of one trading chart (TradingView or MT5) from a trader's journal.",
     "Read only what is printed. Never estimate a price from where something sits on the axis; if a price isn't printed and legible, leave it null.",
-    "Entry, stop and target come from the long or short position tool: a red (loss) zone and a green or blue (profit) zone that meet at the entry. The far edge of the loss zone is the stop, the far edge of the profit zone is the target.",
-    "The tool's prices are often printed only as coloured tags on the right-hand price axis, level with its edges: a red tag for the stop, a grey tag for the entry, a green or blue tag for the target. Read them there, or from the tool's own labels. Ignore tags of other lines and of the current price.",
-    "If more than one position tool is drawn, give each one its own item with its own prices; don't mix the tags of different tools.",
-    "Copy the printed text you read each price from into price_text. If you can't make out the characters, set prices_legible to false and leave the prices and price_text null: a wrong price is worse than none.",
-    `Pairs the trader uses: ${ctx.pairs.join(", ") || "any"}.`,
+    // The position tool, by where its zones sit (colours can be changed by the trader).
+    "Entry, stop and target come from the long or short position tool: two shaded zones that meet at the entry, usually red (loss) and green or blue (profit), though the trader may have changed the colours. The zone on the stop side is the loss zone: its far edge is the stop; the far edge of the other zone is the target.",
+    "The tool's prices are often printed only as coloured tags on the right-hand price axis, level with its edges: a red tag for the stop, a grey tag for the entry, a green or blue tag for the target. Read them there, or from the tool's own labels.",
+    // What is not a trade.
+    "Ignore everything else that prints a number: the current-price tag (often with a countdown), tags of horizontal lines (often black or grey), the legend's open, high, low and close, indicator values (RSI, moving averages and the like), and drawings such as shaded zones, arrows and hand-drawn paths.",
+    // MetaTrader.
+    "On an MT5 or MT4 chart, an open trade shows as a line at the entry price with its order details, and lines labelled 'sl' (stop) and 'tp' (target), each with its price on the axis. Read those as one position.",
+    "If more than one position tool or trade is drawn, give each one its own item with its own prices; don't mix the tags of different tools.",
+    "If the screenshot holds several chart panes, read the symbol and timeframe of the pane with the trade; if the panes show different instruments and none has a trade, leave the symbol null.",
+    "Copy the printed text you read each price from into price_text, separators and all (e.g. '1.26840', '4,068.70' or '4.068,70'). If you can't make out the characters, set prices_legible to false and leave the prices and price_text null: a wrong price is worse than none.",
+    `Pairs the trader uses: ${ctx.pairs.slice(0, 60).join(", ") || "any"}.`,
   ].join("\n");
 }
 
@@ -97,11 +109,28 @@ export function normalisePair(raw: unknown, pairs: string[]): string | null {
   return pairs.find((p) => p.replace(/[^a-z0-9]/gi, "").toUpperCase() === bare) ?? (/^[A-Z][A-Z0-9]{2,9}$/.test(bare) ? bare : null);
 }
 
-const num = (v: unknown): number | null => {
+/**
+ * Whether a chart writes decimals with a comma ("4.068,70", "1,26840"), decided from all its printed prices at
+ * once, so "4,068.70" (thousands) and "1,26840" (a European decimal) are never confused.
+ */
+export function commaDecimals(prices: string[]): boolean {
+  const all = prices.map((p) => p.replace(/\s/g, ""));
+  if (all.some((p) => /\d\.\d{3},\d/.test(p) || /,\d+$/.test(p) && /\.\d{3}(,|$)/.test(p))) return true; // 4.068,70
+  if (all.some((p) => /\d,\d{3}\.\d/.test(p) || /\.\d+$/.test(p))) return false; // 4,068.70 or 1.26840
+  // Only commas: a comma before anything but exactly three digits is a decimal mark ("1,26840", "211,840" stays
+  // ambiguous and is read as thousands, the common case for the indices that print it).
+  return all.some((p) => /,(\d{1,2}|\d{4,})$/.test(p));
+}
+
+/** A printed price as a plain number string ("4068.70"), or null if it isn't one. */
+export function plainPrice(v: unknown, comma: boolean): string | null {
   if (typeof v !== "string" && typeof v !== "number") return null;
-  const s = String(v).replace(/[\s,]/g, "");
-  return /^\d+(\.\d+)?$/.test(s) ? Number(s) : null;
-};
+  let s = String(v).replace(/\s/g, "");
+  s = comma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+  return /^\d+(\.\d+)?$/.test(s) ? s : null;
+}
+
+const num = (v: string | null): number | null => (v == null ? null : Number(v));
 
 /** A price counts as printed only if its digits appear in the text quoted from the chart. */
 const quoted = (price: unknown, text: string) => {
@@ -119,7 +148,7 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
   const text = typeof a.price_text === "string" ? a.price_text : "";
   const tools = (Array.isArray(a.positions) ? a.positions : []).map((p) => (p && typeof p === "object" ? p : {}) as Record<string, unknown>);
   const read = tools.map((p) => readPosition(p, text));
-  const legend = { ok: true as const, pair: normalisePair(a.symbol, ctx.pairs), timeframe: normaliseTimeframe(a.timeframe) };
+  const legend = { ok: true as const, pair: normalisePair(a.symbol, ctx.pairs), timeframe: normaliseTimeframe(a.timeframe), takenAt: snapshotTime(a.snapshot_header) };
   const none = { dir: null, entry: null, stop: null, target: null };
   if (tools.length === 0) return { ...legend, ...none, unreadable: false };
   if (tools.length > 1) {
@@ -141,9 +170,12 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
  * readable prices: read from the colours alone it was wrong in testing. A set that doesn't fit is dropped whole.
  */
 function readPosition(p: Record<string, unknown>, text: string): { dir: Dir; entry: string; stop: string; target: string | null } | null {
-  const entry = num(p.entry);
-  const stop = num(p.stop);
-  const target = num(p.target);
+  const raw = [p.entry, p.stop, p.target].filter((v): v is string => typeof v === "string");
+  const comma = commaDecimals([...raw, ...(text.match(/[\d.,]+\d/g) ?? [])]);
+  const [e, st, tg] = [plainPrice(p.entry, comma), plainPrice(p.stop, comma), plainPrice(p.target, comma)];
+  const entry = num(e);
+  const stop = num(st);
+  const target = num(tg);
   if (entry == null || stop == null) return null;
   // A price not found in the quoted text was guessed (a blurry chart still gets plausible numbers).
   if (!quoted(p.entry, text) || !quoted(p.stop, text) || (target != null && !quoted(p.target, text))) return null;
@@ -151,8 +183,21 @@ function readPosition(p: Record<string, unknown>, text: string): { dir: Dir; ent
   const said = p.direction === "Long" || p.direction === "Short" ? p.direction : null;
   if ((said ?? dir) !== dir) return null;
   if (target != null && (dir === "Long" ? target <= entry : target >= entry)) return null;
-  const str = (src: unknown) => String(src).replace(/[\s,]/g, "");
-  return { dir, entry: str(p.entry), stop: str(p.stop), target: target == null ? null : str(p.target) };
+  return { dir, entry: e!, stop: st!, target: tg };
+}
+
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/** "… created with TradingView.com, Nov 12, 2026 04:39 UTC" → "2026-11-12T04:39:00.000Z"; anything else, null. */
+export function snapshotTime(header: unknown): string | null {
+  if (typeof header !== "string" || !/TradingView/i.test(header)) return null;
+  const m = /([A-Z][a-z]{2})[a-z]*\.? (\d{1,2}), (\d{4}),? (\d{1,2}):(\d{2}) UTC/.exec(header);
+  if (!m) return null;
+  const mon = MONTHS.indexOf(m[1].toLowerCase());
+  const [d, y, h, mi] = [Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5])];
+  if (mon < 0 || d < 1 || d > 31 || h > 23 || mi > 59 || y < 2000) return null;
+  const t = new Date(Date.UTC(y, mon, d, h, mi));
+  return t.getUTCDate() === d ? t.toISOString() : null;
 }
 
 /**
@@ -173,6 +218,7 @@ export function agreeReads(a: ChartRead, b: ChartRead | null): ChartRead {
     ok: true,
     pair: same(a.pair, b.pair),
     timeframe: same(a.timeframe, b.timeframe),
+    takenAt: same(a.takenAt ?? null, b.takenAt ?? null),
     dir: match ? a.dir : null,
     entry: match ? a.entry : null,
     stop: match ? a.stop : null,

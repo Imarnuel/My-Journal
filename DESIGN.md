@@ -480,6 +480,29 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
   *The two lines of wording are new, written in the approved voice-note style: flagged to the owner.*
   *Open: a box with no prices printed at all can also get "too small to read" (the model can't tell the two
   apart reliably). Asked the owner whether that line is fine for both.*
+- **Edge cases fixed** (the owner, 2026-11-22: "fix the edge cases we listed earlier"; the list is in the
+  conversation of 2026-11-21, numbered as there). Reading now lives apart from the page
+  (`src/screens/story/chartReading.ts`, rules in `src/lib/chartFill.ts`):
+  - **#18** A chart removed before its reading lands fills nothing.
+  - **#19** Saving a new story while a chart is still being read: the reading fills the saved story (quietly
+    if that story isn't open).
+  - **#20** Nothing is read once pair, direction, entry, stop and target are all set (saves the free allowance).
+  - **#21** Offline: the chart waits and is read once the device is back online.
+  - **#22** A busy or failing service is asked again quietly after a minute, then after three (no message
+    yet; the visible "can't read right now" line waits for the owner's wording).
+  - **#26** A new story takes its date from TradingView's own line ("created with TradingView.com, Nov 12, 2026
+    04:39 UTC"), the earliest of its charts, unless the date was set by hand; the toast lists "date".
+  - **#24** When the owner changes a fact the reader filled, the reading and the change are kept on this device
+    (`chart:corrections`, last 200), never shown, to improve these rules from real mistakes.
+  - **#15** Decimal commas ("4.068,70", "1,26840") are told apart from thousands ("4,068.70") using all of a
+    chart's prices together.
+  - **#9** Broker spellings map to the owner's (see Pair picker).
+  - **#4, #5, #6, #7, #16** The reading instructions now: find the position tool by where its zones sit, not only
+    by colour; read MT5's entry line and its "sl" and "tp" lines as one position; take the symbol of the pane with
+    the trade when a screenshot has several panes; ignore the current-price tag, line tags, the legend's open,
+    high, low and close, indicator values and drawings.
+  - Waiting for the owner's wording (new experiences): #12 a box with no prices printed, #22's visible line,
+    #23 the daily allowance used up, #25 what is sent to Google.
 - Not yet: showing the read timeframe as a caption under uploaded charts (stories keep no caption per uploaded
   image yet); the reader returns it already.
 

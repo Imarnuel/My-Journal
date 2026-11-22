@@ -43,13 +43,14 @@ import { readVoiceNote, transcriptRuns, type VoiceNoteResult, type VoicePhase } 
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
 import { loadVoiceAudio, saveVoiceAudio } from "../data/voiceAudio";
-import { readChart } from "../lib/chartReader";
 import type { ChartRead } from "../lib/chartRead";
 import { useMenu, useToastAction } from "./useKit";
 import { StorySprite } from "./story/StorySprite";
 import { CANVAS_EXTRAS, captionOf, newStoryStart } from "./story/canvas";
 import { PairList } from "./story/PairMenu";
-import { INSTRUMENTS, instrumentOf, ownSpelling, tidyPair, yourPairs } from "../lib/instruments";
+import { yourPairs } from "../lib/instruments";
+import { chartFill } from "../lib/chartFill";
+import { cancelChartRead, connectStory, noteCorrection, queueChartRead, retargetReads, useChartReading } from "./story/chartReading";
 import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
 import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS } from "../data/settings";
@@ -141,8 +142,24 @@ function StoryScreen({ id }: { id: string | null }) {
   /** The note being read, so Undo after Cancel can read it again (held in memory only, never stored). */
   const readArgs = useRef<{ secs: number; rec?: Recording } | null>(null);
   // Charts being read (real journal): the facts line says so and the empty facts shimmer (DESIGN.md › Chart reading).
-  const [chartsReading, setChartsReading] = useState(0);
-  const chartQueue = useRef<Promise<void>>(Promise.resolve());
+  // Reading lives outside the page (story/chartReading.ts), so it carries on into the saved story.
+  const draftKey = useRef(`draft:${Math.random().toString(36).slice(2)}`);
+  const readTarget = saved ? (id ?? "") : draftKey.current;
+  const chartsReading = useChartReading((st) => st.pending[readTarget] ?? 0);
+  const applyRef = useRef<(r: ChartRead) => void>(() => {});
+  useEffect(
+    () =>
+      connectStory(readTarget, {
+        facts: () => storyRef.current ?? { pair: null, dir: null, numbers: { entry: "", stop: "", target: "" } },
+        charts: () => storyRef.current?.charts ?? [],
+        apply: (r) => applyRef.current(r),
+      }),
+    [readTarget],
+  );
+  /** Facts the reader filled on this page, to notice when the owner corrects one (noteCorrection). */
+  const readerFilled = useRef<Record<string, string>>({});
+  /** The earliest TradingView capture time read so far for this new story. */
+  const readerDate = useRef<string | null>(null);
   const readTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioEl = useRef<HTMLAudioElement | null>(null);
@@ -179,6 +196,14 @@ function StoryScreen({ id }: { id: string | null }) {
 
   /** Apply a change: a saved story saves at once, a new one updates its draft. */
   const update = (p: Partial<Story>) => {
+    // The owner changed a fact the reader had filled: noted on this device to improve the reading rules.
+    const rf = readerFilled.current;
+    const changed: [string, unknown][] = [["pair", p.pair], ["dir", p.dir], ["entry", p.numbers?.entry], ["stop", p.numbers?.stop], ["target", p.numbers?.target]];
+    for (const [k, v] of changed)
+      if (v !== undefined && rf[k] != null && String(v ?? "") !== rf[k]) {
+        void noteCorrection(k, rf[k], String(v ?? ""));
+        delete rf[k];
+      }
     if (!saved) {
       setDraft((d) => ({ ...d, ...p }));
       return;
@@ -273,6 +298,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const before = charts;
     const prevSel = selI;
     const next = charts.filter((_, k) => k !== i);
+    cancelChartRead(charts[i]); // a removed chart fills nothing, even if its reading was under way
     update({ charts: next });
     setSel(Math.min(selI, next.length - 1));
     toastA(
@@ -293,7 +319,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const when = REAL && !saved && !dateByHand.current ? screenshotTime(imgs) : null;
     update({ charts: charts.concat(urls), ...(when ?? {}) });
     // The real journal reads each new chart (one at a time) and fills only the facts still empty.
-    if (REAL && VOICE) for (const f of imgs) queueChartRead(f);
+    if (REAL && VOICE) imgs.forEach((f, i) => queueChartRead(f, urls[i], readTarget));
     setSel(charts.length + urls.length - 1);
     toastA(urls.length === 1 ? "Chart added" : `${urls.length} charts added`, undefined, "added");
   };
@@ -417,54 +443,43 @@ function StoryScreen({ id }: { id: string | null }) {
     setReading(false);
     toastA("Voice note deleted", args ? () => void readAndFill(args.secs, args.rec) : undefined, "deleted");
   };
-  /** Read one chart after the ones before it, then fill what is still empty (DESIGN.md › Chart reading). */
-  const queueChartRead = (file: File) => {
-    setChartsReading((n) => n + 1);
-    chartQueue.current = chartQueue.current.then(async () => {
-      const res = await readChart(file, { pairs: chartPairs() });
-      setChartsReading((n) => n - 1);
-      if (res.ok) applyChartRead(res);
-    });
-  };
   /**
-   * Fill the story from one chart's reading (DESIGN.md › Chart reading, "Several charts"). One rule per fact:
-   * a chart of another pair fills nothing; a box that contradicts the story's direction fills no prices; prices
-   * come as one set from one chart, only while all three are empty (never mixed across charts or with typed
-   * ones); the first chart with a box wins. A skipped chart is silent (the owner's choice).
+   * Fill the story from one chart's reading (DESIGN.md › Chart reading): the rules are in lib/chartFill.ts; a
+   * new story also takes its date from TradingView's own capture line, unless the date was set by hand.
    */
   const applyChartRead = (r: ChartRead) => {
     const cur = storyRef.current;
     if (!cur) return;
-    // Same instrument whatever the spelling: GOLD and XAUUSD.a are XAUUSD (src/lib/instruments.ts).
-    const key = (p: string) => instrumentOf(p)?.t ?? tidyPair(p);
-    const storyPairs = cur.pair ? cur.pair.split(",").map(key).filter(Boolean) : [];
-    if (r.pair && storyPairs.length && !storyPairs.includes(key(r.pair))) return; // another pair: nothing
-    // A reading takes the owner's own spelling ("GOLD" for someone who writes GOLD).
-    if (r.pair) r = { ...r, pair: ownSpelling(r.pair, yourPairs(useStore.getState().entries)) };
-    if (r.dir && cur.dir && r.dir !== cur.dir) return; // the box contradicts the story: no direction or prices
+    const fill = chartFill(cur, r, yourPairs(useStore.getState().entries));
+    if (!fill) return; // another pair, or against the story's direction: silent
     const patch: Partial<Story> = {};
-    const filled: string[] = [];
-    if (!cur.pair && r.pair) (patch.pair = r.pair), filled.push("pair");
-    if (!cur.dir && r.dir) (patch.dir = r.dir), filled.push("direction");
-    const n = cur.numbers;
-    const pricesEmpty = !n.entry && !n.stop && !n.target;
-    let prices = 0;
-    if (pricesEmpty && r.entry && r.stop) {
-      patch.numbers = { ...n, entry: r.entry, stop: r.stop, target: r.target ?? "" };
-      prices = r.target ? 3 : 2;
+    const parts: string[] = [];
+    if (fill.pair) (patch.pair = fill.pair), parts.push("pair");
+    if (fill.dir) (patch.dir = fill.dir), parts.push("direction");
+    if (r.takenAt && !saved && !dateByHand.current && (!readerDate.current || r.takenAt < readerDate.current)) {
+      const d = new Date(r.takenAt);
+      const [date, time] = [localDate(d), localTime(d)];
+      readerDate.current = r.takenAt;
+      if (date !== cur.date || time !== cur.time) Object.assign(patch, { date, time, session: sessionOf(time, sessionTimes()) }), parts.push("date");
     }
+    if (fill.prices) (patch.numbers = { ...cur.numbers, ...fill.prices }), parts.push(fill.filled[fill.filled.length - 1]);
     if (!Object.keys(patch).length) {
       // Nothing new to fill. A position box whose prices can't be read gets the designed card (frame 16).
-      if (r.unreadable && pricesEmpty) setUnreadable(true);
+      if (fill.unreadable) setUnreadable(true);
       return;
     }
     const prev = prevOf(cur, patch);
     update(patch);
+    Object.assign(readerFilled.current, {
+      ...(fill.pair ? { pair: fill.pair } : {}),
+      ...(fill.dir ? { dir: fill.dir } : {}),
+      ...(fill.prices ? { entry: fill.prices.entry, stop: fill.prices.stop, ...(fill.prices.target ? { target: fill.prices.target } : {}) } : {}),
+    });
     setJustFilled(new Set(["facts"]));
     readTimers.current.push(setTimeout(() => setJustFilled(new Set()), 1400));
-    if (prices) filled.push(`${prices} prices`);
-    toastA(`Read from your chart: ${listOf(filled)}`, () => update(prev), "added");
+    toastA(`Read from your chart: ${listOf(parts)}`, () => update(prev), "added");
   };
+  applyRef.current = applyChartRead;
   /** A field's voice moment: shimmer while the note is read (only if still empty), glow just after. */
   const fx = (key: string, empty: boolean): Fx => (reading && empty ? "awaiting" : justFilled.has(key) ? "filled" : undefined);
   /** Keep the recording with the story, unless Settings › Voice notes › Keep recordings is off. */
@@ -628,6 +643,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const fresh = Object.entries(pendingKinds).filter(([t]) => !useStore.getState().tags.some((x) => x.t === t));
     if (fresh.length) setTags([...useStore.getState().tags, ...fresh.map(([t, k]) => ({ t, n: 1, k }))]);
     addEntry(entryFromStory(nid, s, kindOf));
+    retargetReads(draftKey.current, nid); // charts still being read fill the saved story
     if (s.voiceLen) setExtras(nid, { voiceLen: s.voiceLen });
     // The recording is written before the story page opens, so the page finds it.
     if (pendingAudio.current) await saveVoiceAudio(nid, pendingAudio.current);
@@ -1512,10 +1528,6 @@ function KeptRecording({ rec }: { rec: Recording }) {
 }
 
 /** Pairs the chart reader should match: the menu's, plus any the user has logged. */
-function chartPairs(): string[] {
-  // The owner's pairs first (so readings map to their spelling), then the dictionary's tickers.
-  return [...new Set([...yourPairs(useStore.getState().entries), ...INSTRUMENTS.map((i) => i.t)])];
-}
 
 /** "pair, direction and 3 prices". */
 function listOf(parts: string[]): string {

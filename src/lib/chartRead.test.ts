@@ -1,6 +1,6 @@
 // Chart reading (DESIGN.md › Chart reading): the legend and position box rules, and the server function.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { agreeReads, normalisePair, normaliseTimeframe, readFromAnswer } from "./chartRead";
+import { agreeReads, commaDecimals, normalisePair, normaliseTimeframe, plainPrice, readFromAnswer, snapshotTime } from "./chartRead";
 import handler from "../../netlify/edge-functions/chart-read.ts";
 
 const ctx = { pairs: ["GBPUSD", "XAUUSD", "EURUSD"] };
@@ -36,7 +36,7 @@ describe("trusting the position box", () => {
   /** A chart with one position tool, changed where a test says. */
   const one = (p: Record<string, unknown> = {}, t: Record<string, unknown> = {}) => ({ ...top, positions: [{ ...box, ...p }], ...t });
   it("a long whose prices agree fills everything", () => {
-    expect(readFromAnswer(one(), ctx)).toEqual({ ok: true, pair: "GBPUSD", dir: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", timeframe: "15m", unreadable: false });
+    expect(readFromAnswer(one(), ctx)).toEqual({ ok: true, pair: "GBPUSD", dir: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", timeframe: "15m", unreadable: false, takenAt: null });
   });
   it("a direction the prices contradict drops the prices, never guesses", () => {
     expect(readFromAnswer(one({ direction: "Short" }), ctx)).toMatchObject({ dir: null, entry: null, stop: null, target: null });
@@ -86,13 +86,35 @@ describe("trusting the position box", () => {
         { direction: "Short", entry: "4055.77", stop: "4065.89", target: "3981.79" },
       ],
     };
-    expect(readFromAnswer(gold, ctx)).toEqual({ ok: true, pair: "XAUUSD", timeframe: "30m", dir: "Short", entry: null, stop: null, target: null, unreadable: false });
+    expect(readFromAnswer(gold, ctx)).toEqual({ ok: true, pair: "XAUUSD", timeframe: "30m", dir: "Short", entry: null, stop: null, target: null, unreadable: false, takenAt: null });
     // A tool whose prices can't be read, or that points the other way: no direction either.
     expect(readFromAnswer({ ...gold, positions: [gold.positions[0], { direction: "Short", entry: null, stop: null, target: null }] }, ctx)).toMatchObject({ dir: null, unreadable: false });
     expect(readFromAnswer({ ...gold, positions: [gold.positions[0], { direction: null, entry: "4055.77", stop: "3981.79", target: "4065.89" }] }, ctx)).toMatchObject({ dir: null });
   });
   it("prices must be plain numbers", () => {
     expect(readFromAnswer(one({ entry: "about 1.27" }), ctx)).toMatchObject({ entry: null, stop: null });
+  });
+});
+
+describe("printed numbers and dates", () => {
+  it("decimal commas are told apart from thousands, from all the chart's prices together", () => {
+    expect(commaDecimals(["4,068.70", "4,060.04"])).toBe(false);
+    expect(commaDecimals(["4.068,70", "4.060,04"])).toBe(true);
+    expect(commaDecimals(["1,26840", "1,27010"])).toBe(true);
+    expect(commaDecimals(["1.26840"])).toBe(false);
+    expect(plainPrice("4.068,70", true)).toBe("4068.70");
+    expect(plainPrice("4,068.70", false)).toBe("4068.70");
+    expect(plainPrice("1,26840", true)).toBe("1.26840");
+  });
+  it("a European chart's prices fill correctly (no more 4.06870 for 4.068,70)", () => {
+    const eu = { symbol: "XAUUSD", timeframe: "30", prices_legible: true, price_text: "4.068,70 | 4.060,04 | 3.982,48", positions: [{ direction: "Short", entry: "4.060,04", stop: "4.068,70", target: "3.982,48" }] };
+    expect(readFromAnswer(eu, ctx)).toMatchObject({ dir: "Short", entry: "4060.04", stop: "4068.70", target: "3982.48" });
+  });
+  it("TradingView's snapshot line gives the capture time; anything else gives none", () => {
+    expect(snapshotTime("emmanuel created with TradingView.com, Nov 12, 2026 04:39 UTC")).toBe("2026-11-12T04:39:00.000Z");
+    expect(snapshotTime("created with TradingView.com, Feb 30, 2026 04:39 UTC")).toBeNull();
+    expect(snapshotTime("Nov 12, 2026 04:39 UTC")).toBeNull(); // not TradingView's line
+    expect(snapshotTime(null)).toBeNull();
   });
 });
 
@@ -110,7 +132,7 @@ describe("the server function", () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));
     vi.stubGlobal("fetch", fetchMock);
     const out = JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx }))).text()).trim());
-    expect(out).toEqual({ ok: true, pair: "XAUUSD", dir: "Short", entry: "2340.5", stop: "2348.0", target: "2320.0", timeframe: "4H", unreadable: false, via: ["gemini-4-hydrogen", "gemini-4-hydrogen"], tried: [] });
+    expect(out).toEqual({ ok: true, pair: "XAUUSD", dir: "Short", entry: "2340.5", stop: "2348.0", target: "2320.0", timeframe: "4H", unreadable: false, takenAt: null, via: ["gemini-4-hydrogen", "gemini-4-hydrogen"], tried: [] });
     expect(fetchMock).toHaveBeenCalledTimes(2); // read twice at once
     const sent = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
     expect(sent.input[1]).toEqual({ type: "image", data: "AAAA", mime_type: "image/png" });

@@ -190,6 +190,8 @@ export const useStore = create<State>()(
 // with their entry (only the URLs this visit created; everything else is left alone).
 const converted = new Map<string, string>();
 const converting = new Set<string>();
+/** The same chart before and after it is saved (its blob: URL becomes a data URL). */
+export const chartKey = (url: string) => converted.get(url) ?? url;
 useStore.subscribe((s, prev) => {
   if (s.entries === prev.entries) return;
   for (const e of s.entries) {

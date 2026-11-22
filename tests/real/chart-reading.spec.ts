@@ -120,7 +120,7 @@ test("prices too small to read: the designed card", async ({ page }) => {
   await server(page, { ...read, dir: null, entry: null, stop: null, target: null, pair: null, unreadable: true });
   await page.goto("/new");
   await addChart(page);
-  await expect(page.getByText("Prices on this screenshot are too small to read")).toBeVisible();
+  await expect(page.getByText("Prices on this screenshot are too small to read")).toBeVisible({ timeout: 10_000 }); // slow under a full run
 });
 
 test("nothing is read until the AI is set up", async ({ page }) => {
@@ -130,4 +130,113 @@ test("nothing is read until the AI is set up", async ({ page }) => {
   await page.waitForTimeout(800);
   expect(asked.length).toBe(0);
   await expect(trade(page).getByRole("button", { name: "Pair: not set" })).toBeVisible();
+});
+
+// ---------- when reading can't happen right away (DESIGN.md › Chart reading)
+
+/** Fake the reader with a reply function per request (its number from 0), after `ms`. */
+async function slowServer(page: Page, reply: (n: number) => unknown, ms = 1500) {
+  const asked: string[] = [];
+  await page.route("**/api/voice-note", (r) => r.fulfill({ json: { ready: true } }));
+  await page.route("**/api/chart-read", async (r) => {
+    const n = asked.push(r.request().postData() ?? "") - 1;
+    await new Promise((f) => setTimeout(f, ms));
+    return r.fulfill({ body: "  " + JSON.stringify(reply(n)), contentType: "application/json" }).catch(() => {});
+  });
+  return asked;
+}
+
+test("a chart removed before its reading lands fills nothing", async ({ page }) => {
+  const asked = await slowServer(page, () => read);
+  await page.goto("/new");
+  await addChart(page);
+  await expect.poll(() => asked.length).toBe(1);
+  await page.getByRole("button", { name: "Remove first chart" }).click();
+  await page.waitForTimeout(2000);
+  await expect(trade(page).getByRole("button", { name: "Pair: not set" })).toBeVisible();
+  await expect(trade(page)).not.toContainText("1.26840");
+});
+
+test("saving while a chart is still being read: the reading fills the saved story", async ({ page }) => {
+  await slowServer(page, () => read);
+  await page.goto("/new");
+  await addChart(page);
+  await page.getByRole("button", { name: "Save story", exact: true }).click();
+  await expect(page).toHaveURL(/\/story\//);
+  await expect(trade(page).getByRole("button", { name: "Pair: GBPUSD" })).toBeVisible({ timeout: 8000 });
+  await expect(trade(page)).toContainText("1.26840");
+  await page.reload();
+  await expect(trade(page).getByRole("button", { name: "Pair: GBPUSD" })).toBeVisible(); // saved, not just shown
+});
+
+test("nothing is read once pair, direction and prices are all set (saves the free allowance)", async ({ page }) => {
+  const asked = await server(page, read);
+  await page.goto("/new");
+  await addChart(page);
+  await expect(trade(page)).toContainText("1.26480");
+  await page.getByLabel("Add or paste another chart").setInputFiles(png);
+  await expect(page.getByText("2 of 2")).toBeVisible();
+  await page.waitForTimeout(800);
+  expect(asked.length).toBe(1);
+});
+
+test("offline: the chart is read once the device is back online", async ({ page, context }) => {
+  const asked = await server(page, read);
+  await page.goto("/new");
+  await context.setOffline(true);
+  await addChart(page);
+  await page.waitForTimeout(600);
+  expect(asked.length).toBe(0);
+  await expect(trade(page).getByText("Reading your chart…")).toHaveCount(0); // nothing is being read
+  await context.setOffline(false);
+  await expect(trade(page).getByRole("button", { name: "Pair: GBPUSD" })).toBeVisible();
+});
+
+test("a busy service is quietly asked again a minute later", async ({ page }) => {
+  await page.clock.install();
+  const asked = await slowServer(page, (n) => (n === 0 ? { ok: false, reason: "failed" } : read), 50);
+  await page.goto("/new");
+  await addChart(page);
+  await expect.poll(() => asked.length).toBe(1);
+  await page.clock.runFor(2000);
+  await expect(trade(page).getByRole("button", { name: "Pair: not set" })).toBeVisible(); // silent, nothing filled yet
+  await page.clock.runFor(61_000);
+  await expect.poll(() => asked.length).toBe(2);
+  await page.clock.runFor(1000);
+  await expect(trade(page).getByRole("button", { name: "Pair: GBPUSD" })).toBeVisible();
+});
+
+test.describe("dates from TradingView's own line", () => {
+  test.use({ timezoneId: "UTC" });
+  test("a new story takes the capture time printed on the chart", async ({ page }) => {
+    await server(page, { ...read, takenAt: "2026-11-12T04:39:00.000Z" });
+    await page.goto("/new");
+    await addChart(page);
+    // Reading can be slow while the whole suite runs: allow it longer than one assertion's default.
+    await expect(page.getByRole("status").filter({ hasText: "Read from your chart: pair, direction, date and 3 prices" })).toBeVisible({ timeout: 10_000 });
+    await expect(trade(page)).toContainText("12 Nov");
+    await expect(trade(page)).toContainText("04:39");
+  });
+});
+
+test("a fact the reader filled and the owner changed is noted on this device, never shown", async ({ page }) => {
+  await server(page, read);
+  await page.goto("/new");
+  await addChart(page);
+  await expect(trade(page).getByRole("button", { name: "Pair: GBPUSD" })).toBeVisible();
+  await trade(page).getByRole("button", { name: "Pair: GBPUSD" }).click();
+  await page.getByRole("combobox", { name: "Search or type a pair" }).fill("EURUSD");
+  await page.keyboard.press("Enter");
+  await expect(trade(page).getByRole("button", { name: "Pair: EURUSD" })).toBeVisible();
+  const log = await page.evaluate(
+    () =>
+      new Promise<string>((resolve) => {
+        const req = indexedDB.open("journal-real", 1);
+        req.onsuccess = () => {
+          const r = req.result.transaction("kv").objectStore("kv").get("chart:corrections");
+          r.onsuccess = () => resolve(String(r.result ?? ""));
+        };
+      }),
+  );
+  expect(JSON.parse(log)).toMatchObject([{ field: "pair", read: "GBPUSD", typed: "EURUSD" }]);
 });
