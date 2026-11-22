@@ -81,7 +81,7 @@ describe("story rules", () => {
     const { patch, filled, newKinds } = applyVoiceNote(empty(), fill);
     expect(patch).toMatchObject({ before: "B", refl: "R", suggested: true, setup: "4H supply pullback", tags: ["Supply zone", "Retest"], followed: true, headspace: "Calm", voice: true });
     expect(filled).toEqual(["setup", "2 tags", "plan", "headspace"]);
-    expect(voiceToast(filled)).toBe("Filled from your note: setup, 2 tags, plan and headspace");
+    expect(voiceToast(filled)).toBe("Setup, 2 tags, plan and headspace filled from your note");
     expect(newKinds).toEqual({ "Supply zone": "Good", Retest: "Good" });
   });
 

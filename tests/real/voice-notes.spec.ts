@@ -57,7 +57,7 @@ test("record, read, fill what is empty; only the written notes are kept", async 
   await expect(page.locator('.kfx[data-fx="filled"]')).toHaveCount(0); // the glow clears, it never replays
   await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
   await expect(page.locator("#nR")).toHaveValue("My own reflection."); // set by hand: never overwritten
-  await expect(page.getByRole("status").filter({ hasText: "Filled from your note" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "filled from your note" })).toBeVisible();
   await expect(page.getByRole("button", { name: /What you said/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Play your voice note" })).toHaveCount(0); // no recording kept
   const sent = JSON.parse(posts[0]);

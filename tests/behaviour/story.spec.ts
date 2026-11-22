@@ -80,7 +80,7 @@ test("state 17: Stop fills the notes and empty Details, toast lists them with Un
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();
   await page.getByRole("button", { name: "Stop", exact: true }).click();
-  await expect(toast(page)).toContainText("Filled from your note: setup, 3 tags, plan and headspace");
+  await expect(toast(page)).toContainText("Setup, 3 tags, plan and headspace filled from your note");
   await page.mouse.move(5, 990);
   await diffViewport(page, "states/17-newstory-after-voice-note-filled.png", info);
 });
@@ -314,7 +314,7 @@ test("voice note: Undo restores exactly; it never overwrites what was set by han
   await page.getByRole("option", { name: "Tired" }).click();
   await page.getByRole("button", { name: "Talk it through" }).click();
   await page.getByRole("button", { name: "Stop", exact: true }).click();
-  await expect(toast(page)).toContainText("Filled from your note: 3 tags");
+  await expect(toast(page)).toContainText("3 tags filled from your note");
   await expect(page.locator("#nB")).toHaveValue("My own words.");
   await expect(page.getByRole("button", { name: "Setup" })).toContainText("London breakout");
   await expect(page.getByRole("button", { name: "Not followed" })).toHaveAttribute("aria-pressed", "true");

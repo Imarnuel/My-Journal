@@ -344,7 +344,8 @@ export function voiceToast(filled: string[]): string {
   if (!filled.length) return "Both notes filled from your voice note";
   const parts = filled.map((x) => x.toLowerCase());
   const list = parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
-  return `Filled from your note: ${list}`;
+  // What was filled leads, no colon (the owner, 2026-11-22: "why is the toast microcopy carrying a colon?").
+  return `${list[0].toUpperCase()}${list.slice(1)} filled from your note`;
 }
 
 /** The values a patch replaces, for Undo. */

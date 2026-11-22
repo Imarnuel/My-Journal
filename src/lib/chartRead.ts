@@ -216,7 +216,8 @@ export function snapshotTime(header: unknown): string | null {
 /**
  * Every chart is read twice at once. Printed prices come back the same both times; guessed ones don't (a blurry
  * chart gave three different stops in three reads), so prices and direction are kept only when both reads match
- * exactly; a mismatch fills nothing and says nothing. Pair, timeframe and date are kept where the two agree.
+ * exactly; a mismatch fills nothing and says nothing. Pair and timeframe are kept where the two agree; the
+ * capture time where either read found it and they don't contradict each other.
  */
 export function agreeReads(a: ChartRead, b: ChartRead | null): ChartRead {
   const same = <T,>(x: T, y: T) => (x === y ? x : null);
@@ -230,7 +231,9 @@ export function agreeReads(a: ChartRead, b: ChartRead | null): ChartRead {
     ok: true,
     pair: same(a.pair, b.pair),
     timeframe: same(a.timeframe, b.timeframe),
-    takenAt: same(a.takenAt ?? null, b.takenAt ?? null),
+    // The capture line is copied, not guessed: it is either there or missed. One read finding it is enough (a
+    // GBPJPY chart's date was lost when only one read saw it); two different times still cancel out.
+    takenAt: a.takenAt && b.takenAt ? same(a.takenAt, b.takenAt) : (a.takenAt ?? b.takenAt ?? null),
     dir: match ? a.dir : null,
     entry: match ? a.entry : null,
     stop: match ? a.stop : null,

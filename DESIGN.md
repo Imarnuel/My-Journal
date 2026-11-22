@@ -224,8 +224,9 @@ content, and quicker to read. Source: `Toasts` in `src/app/Shell.tsx`, `src/comp
   a pause it stays at least 1.5 seconds more. So an Undo is never lost while it is being reached for.
 - **Message rules**: the outcome first, naming the thing it happened to, in past tense, short enough for one
   line. "GBPUSD left out of your stats", "EURUSD trade deleted", "“Supply zone” removed",
-  "Moved to Mon 16 Nov, 09:45", "Filled from your note: setup and 3 tags". No "Done", no
-  instructions, no em dashes.
+  "Moved to Mon 16 Nov, 09:45", "Setup and 3 tags filled from your note". No "Done", no
+  instructions, no em dashes, **no colons**: what was filled leads the sentence (the owner, 2026-11-22: "why is
+  the toast microcopy carrying a colon?"; was "Filled from your note: setup and 3 tags").
 
 ## Notes reflection, tidied
 Why: the owner found the Suggested pill too big, Keep and Delete nudging, and "What you said" not reading as
@@ -496,6 +497,11 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   voice colour and fades (1.2s, a fading state marker); new tags arrive in a short wave (0 to 150ms, quicker as
   it goes). Reduced motion: no sweeps or movement; message changes and new tags only fade.
 - **Failure cards keep a play button** for the recording, beside Try again.
+- **The chart's date** (the owner, 2026-11-22: "the date on the GBPJPY log shows today's date instead of the date
+  on the chart"). TradingView's capture line is copied, not guessed, so one of the two reads finding it is enough
+  (only two different times cancel out); that chart's line was seen by one read and dropped. And a new story's
+  date stays automatic until set by hand even after Save, so a chart read after Save still dates the saved story.
+  A date set by hand is never changed.
 - **Reading carries on when you leave** (the owner, 2026-11-22, on the wait: "it leaves me thinking that this idea
   would never work in the real world"; then "build 1 to 3"). Record, tap Done or Save, move on: the note is read
   outside the page (`src/screens/story/voiceReading.ts`, like chart reading). A story saved while its note is
@@ -587,8 +593,8 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
   - A skipped chart is silent: no message, nothing changes (the owner's choice).
 - **Fills only what is still empty** (pair, direction, entry, stop, target); a pair chosen by hand stays. The
   facts line says "Reading your chart…" (shimmer) and the empty facts pulse softly while reading (no clipping,
-  so the facts' menus still open); filled facts glow; the toast reads "Read from your chart: pair, direction
-  and 3 prices" with Undo. A position box whose prices can't be read gets frame 16's "Prices on this screenshot
+  so the facts' menus still open); filled facts glow; the toast reads "Pair, direction and 3 prices read
+  from your chart" with Undo (no colon, DESIGN.md › Toasts). A position box whose prices can't be read gets frame 16's "Prices on this screenshot
   are too small to read". If reading fails or is offline, nothing happens: the owner types as before.
   *The two lines of wording are new, written in the approved voice-note style: flagged to the owner.*
   *Open: a box with no prices printed at all can also get "too small to read" (the model can't tell the two

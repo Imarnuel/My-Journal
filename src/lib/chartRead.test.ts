@@ -72,6 +72,11 @@ describe("trusting the position box", () => {
     const second = readFromAnswer(one({ stop: "1.26650" }, { price_text: top.price_text.replace("1.26670", "1.26650") }), ctx);
     expect(agreeReads(first, second)).toMatchObject({ pair: "GBPUSD", timeframe: "15m", dir: null, entry: null, stop: null, target: null, unreadable: false, noPrices: false });
     expect(agreeReads(first, { ...first, timeframe: "1H" })).toMatchObject({ timeframe: null, entry: "1.26840" });
+    // The capture time: one read finding it is enough (the owner's GBPJPY chart), two different ones cancel out.
+    const at = "2026-11-11T19:36:00.000Z";
+    expect(agreeReads({ ...first, takenAt: at }, { ...first, takenAt: null })).toMatchObject({ takenAt: at });
+    expect(agreeReads({ ...first, takenAt: null }, { ...first, takenAt: at })).toMatchObject({ takenAt: at });
+    expect(agreeReads({ ...first, takenAt: at }, { ...first, takenAt: "2026-11-12T04:39:00.000Z" })).toMatchObject({ takenAt: null });
   });
   it("only one read came back: the legend only, nothing to check prices against", () => {
     expect(agreeReads(readFromAnswer(one(), ctx), null)).toMatchObject({ pair: "GBPUSD", dir: null, entry: null, unreadable: false });

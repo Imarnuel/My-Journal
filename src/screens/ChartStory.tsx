@@ -54,7 +54,7 @@ import { CANVAS_EXTRAS, captionOf, newStoryStart } from "./story/canvas";
 import { PairList } from "./story/PairMenu";
 import { yourPairs } from "../lib/instruments";
 import { chartFill } from "../lib/chartFill";
-import { cancelChartRead, connectStory, noteCorrection, queueChartRead, retargetReads, retryFailedReads, useChartReading } from "./story/chartReading";
+import { cancelChartRead, connectStory, dateFromRead, noteCorrection, queueChartRead, retargetReads, retryFailedReads, setDateAuto, useChartReading } from "./story/chartReading";
 import { factsFull } from "../lib/chartFill";
 import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
@@ -173,8 +173,11 @@ function StoryScreen({ id }: { id: string | null }) {
   useEffect(() => connectVoice(readTarget, { apply: (res, rec) => applyVoiceRef.current(res, rec) }), [readTarget]);
   /** Facts the reader filled on this page, to notice when the owner corrects one (noteCorrection). */
   const readerFilled = useRef<Record<string, string>>({});
-  /** The earliest TradingView capture time read so far for this new story. */
-  const readerDate = useRef<string | null>(null);
+  // A new story's date is automatic (its screenshot time) until set by hand: a chart's capture line may set it,
+  // even when the chart is read after Save (story/chartReading.ts).
+  useEffect(() => {
+    if (!saved) setDateAuto(readTarget, !dateByHand.current);
+  }, [saved, readTarget]);
   const readTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioEl = useRef<HTMLAudioElement | null>(null);
@@ -446,10 +449,10 @@ function StoryScreen({ id }: { id: string | null }) {
     const parts: string[] = [];
     if (fill.pair) (patch.pair = fill.pair), parts.push("pair");
     if (fill.dir) (patch.dir = fill.dir), parts.push("direction");
-    if (r.takenAt && !saved && !dateByHand.current && (!readerDate.current || r.takenAt < readerDate.current)) {
-      const d = new Date(r.takenAt);
+    const at = dateFromRead(readTarget, r.takenAt);
+    if (at) {
+      const d = new Date(at);
       const [date, time] = [localDate(d), localTime(d)];
-      readerDate.current = r.takenAt;
       if (date !== cur.date || time !== cur.time) Object.assign(patch, { date, time, session: sessionOf(time, sessionTimes()) }), parts.push("date");
     }
     if (fill.prices) (patch.numbers = { ...cur.numbers, ...fill.prices }), parts.push(fill.filled[fill.filled.length - 1]);
@@ -470,7 +473,8 @@ function StoryScreen({ id }: { id: string | null }) {
     });
     setJustFilled(new Set(["facts"]));
     readTimers.current.push(setTimeout(() => setJustFilled(new Set()), 1400));
-    toastA(`Read from your chart: ${listOf(parts)}`, () => update(prev), "added");
+    const what = listOf(parts);
+    toastA(`${what[0].toUpperCase()}${what.slice(1)} read from your chart`, () => update(prev), "added");
   };
   applyRef.current = applyChartRead;
   /** A field's voice moment: shimmer while the note is read (only if still empty), glow just after. */
@@ -559,6 +563,7 @@ function StoryScreen({ id }: { id: string | null }) {
     if (d === s.date && t === s.time) return;
     update({ date: d, time: t, session: sessionOf(t, sessionTimes()) });
     dateByHand.current = true;
+    setDateAuto(readTarget, false);
   };
   const dirChip = s.status === "Analysis" ? "Analysis" : s.dir;
   const resVal = s.status === "Taken" ? (s.r != null ? fr(s.r) : "No result yet") : s.status;

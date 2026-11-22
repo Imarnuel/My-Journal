@@ -6,13 +6,14 @@
 import { create } from "zustand";
 import { chartKey, useStore } from "../../data/store";
 import { idbStorage } from "../../data/persist";
-import { setReadingPaused } from "../../data/settings";
+import { DEFAULT_SESSIONS, setReadingPaused } from "../../data/settings";
 import { readChart } from "../../lib/chartReader";
 import { aiReady } from "../../app/useVoice";
 import type { ChartRead } from "../../lib/chartRead";
 import { chartFill, factsFull, type FillFacts } from "../../lib/chartFill";
 import { INSTRUMENTS, yourPairs } from "../../lib/instruments";
-import { entryPatch, storyFromEntry } from "../../lib/story";
+import { entryPatch, sessionOf, storyFromEntry } from "../../lib/story";
+import { localDate, localTime } from "../../app/mode";
 import { CANVAS_EXTRAS } from "./canvas";
 import { useStoryExtras } from "./extras";
 
@@ -30,6 +31,27 @@ export type StoryPort = { facts: () => FillFacts; charts: () => string[]; apply:
 export const useChartReading = create<{ pending: Record<Target, number>; failed: Record<Target, number> }>(() => ({ pending: {}, failed: {} }));
 
 const ports = new Map<Target, StoryPort>();
+
+/**
+ * Stories whose date is still the automatic one (a new story's screenshot time), so a chart's TradingView capture
+ * line may set it; and the earliest capture time read so far for each. A date set by hand takes a story out.
+ * Saving a new story carries both over, so a chart read after Save still dates it (the owner, 2026-11-22: the
+ * GBPJPY story kept today's date).
+ */
+const autoDate = new Set<Target>();
+const readDate = new Map<Target, string>();
+export function setDateAuto(target: Target, auto: boolean) {
+  if (auto) autoDate.add(target);
+  else autoDate.delete(target);
+}
+/** The capture time a reading may set: only on an automatic date, and only when earlier than one already used. */
+export function dateFromRead(target: Target, takenAt: string | null | undefined): string | null {
+  if (!takenAt || !autoDate.has(target)) return null;
+  const was = readDate.get(target);
+  if (was && was <= takenAt) return null;
+  readDate.set(target, takenAt);
+  return takenAt;
+}
 const failedJobs = new Map<Target, Job[]>();
 const syncFailed = (t: Target) => useChartReading.setState((s) => ({ failed: { ...s.failed, [t]: failedJobs.get(t)?.length ?? 0 } }));
 
@@ -85,6 +107,9 @@ export function retargetReads(from: Target, to: Target) {
     if (j.counted) (bump(from, -1), bump(to, 1));
     j.target = to;
   }
+  if (autoDate.delete(from)) autoDate.add(to);
+  const d = readDate.get(from);
+  if (d) (readDate.delete(from), readDate.set(to, d));
   const failed = failedJobs.get(from);
   if (failed) {
     for (const j of failed) j.target = to;
@@ -164,7 +189,13 @@ function fillSavedEntry(id: Target, read: ChartRead) {
   if (!found) return; // a new story left without saving: its readings go with it
   const fill = chartFill(found.story, read, yourPairs(useStore.getState().entries));
   if (!fill) return;
-  const p = { ...(fill.pair ? { pair: fill.pair } : {}), ...(fill.dir ? { dir: fill.dir } : {}), ...(fill.prices ? { numbers: { ...found.story.numbers, ...fill.prices } } : {}) };
+  const at = dateFromRead(id, read.takenAt);
+  const when = at ? (() => {
+    const d = new Date(at);
+    const time = localTime(d);
+    return { date: localDate(d), time, session: sessionOf(time, (useStore.getState().settings.sessions as [string, string, string][] | undefined) ?? DEFAULT_SESSIONS) };
+  })() : {};
+  const p = { ...(fill.pair ? { pair: fill.pair } : {}), ...(fill.dir ? { dir: fill.dir } : {}), ...(fill.prices ? { numbers: { ...found.story.numbers, ...fill.prices } } : {}), ...when };
   if (!Object.keys(p).length) return;
   useStore.getState().updateEntry(id, entryPatch(found.e, found.story, p, () => undefined));
 }

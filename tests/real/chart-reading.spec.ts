@@ -33,7 +33,7 @@ test("a chart fills the empty facts, says so while reading, and can be undone", 
   await expect(trade(page)).toContainText("1.26840");
   await expect(trade(page)).toContainText("1.27010");
   await expect(trade(page)).toContainText("1.26480");
-  await expect(page.getByRole("status").filter({ hasText: "Read from your chart: pair, direction and 3 prices" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Pair, direction and 3 prices read from your chart" })).toBeVisible();
   const sent = JSON.parse(asked[0]);
   expect(sent.mime).toBe("image/png");
   expect(sent.context.pairs).toContain("GBPUSD");
@@ -46,7 +46,7 @@ const readAll = async (page: Page, asked: string[], n: number) => {
   await expect.poll(() => asked.length).toBe(n);
   await expect(trade(page).getByText("Reading your chart…")).toHaveCount(0);
 };
-const filledToast = (page: Page) => page.getByRole("status").filter({ hasText: "Read from your chart" });
+const filledToast = (page: Page) => page.getByRole("status").filter({ hasText: "read from your chart" });
 const pickPair = async (page: Page, pair: string) => {
   await trade(page).getByRole("button", { name: "Pair: not set" }).click();
   await page.getByRole("option", { name: pair }).click();
@@ -213,9 +213,31 @@ test.describe("dates from TradingView's own line", () => {
     await page.goto("/new");
     await addChart(page);
     // Reading can be slow while the whole suite runs: allow it longer than one assertion's default.
-    await expect(page.getByRole("status").filter({ hasText: "Read from your chart: pair, direction, date and 3 prices" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("status").filter({ hasText: "Pair, direction, date and 3 prices read from your chart" })).toBeVisible({ timeout: 10_000 });
     await expect(trade(page)).toContainText("12 Nov");
     await expect(trade(page)).toContainText("04:39");
+  });
+  test("saved before the chart is read: the saved story still takes the chart's date", async ({ page }) => {
+    await slowServer(page, () => ({ ...read, takenAt: "2026-11-11T19:36:00.000Z" }));
+    await page.goto("/new");
+    await addChart(page);
+    await page.getByRole("button", { name: "Save story", exact: true }).click();
+    await expect(page).toHaveURL(/\/story\//);
+    await expect(trade(page)).toContainText("11 Nov", { timeout: 8000 });
+    await expect(trade(page)).toContainText("19:36");
+    await page.reload();
+    await expect(trade(page)).toContainText("11 Nov"); // saved, not just shown
+  });
+  test("a date set by hand stays, whatever the chart says", async ({ page }) => {
+    await slowServer(page, () => ({ ...read, takenAt: "2026-11-11T19:36:00.000Z" }));
+    await page.goto("/new");
+    await addChart(page);
+    await trade(page).getByRole("button", { name: /^Date and time:/ }).click();
+    await page.getByRole("dialog", { name: "Date and time" }).locator("input").fill("2026-11-10T08:15");
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(2500);
+    await expect(trade(page)).toContainText("10 Nov");
+    await expect(trade(page)).toContainText("08:15");
   });
 });
 
