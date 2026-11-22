@@ -271,14 +271,31 @@ in `src/styles/tokens.css`, so the next change is one line.
 ## Chart viewer
 The owner, 2026-11-22: "I should be able to open the image on click". Source: `src/screens/story/ChartViewer.tsx`.
 - **Click the story's large chart** (new or saved story; the cursor shows a zoom-in) and it opens full screen,
-  fitted to the window over a dark backdrop (`--viewer-bg`, both themes), with "2 of 5" under it when there are
-  several.
+  fitted to the window over a backdrop that dims and blurs the page (`--viewer-bg` at 56% black with a 16px blur,
+  both themes; the owner: "a less dark overlay, but with background blur", was 88% black), with "2 of 5" under it
+  when there are several.
 - **← → or the side buttons** move between charts (they wrap round), and the large chart on the page follows.
   **Escape, the close button or a click outside the chart** closes; focus goes back to the chart. The page under
   it doesn't scroll.
 - Buttons are 32px, white on a 10% white fill, like the chart tiles' controls. No new visible words.
 - Motion: it opens like a dialog (fade, the chart from 0.96, `--d-base`, `--ease-out`) except from the keyboard;
   moving between charts and closing don't animate. Reduced motion: a 120ms fade.
+
+## Motion, round 2 (2026-11-22)
+The owner: "build the 5 animation suggestions" (from the find-animation-opportunities sweep), and "an animation
+while loading images, and not just the image suddenly appearing". One-shot entrances on transform and opacity with
+`--ease-out`; none from the keyboard; reduced motion keeps fades only (120ms). Styles at the end of `globals.css`.
+- **Notes card states** (Talk it through, recording, reading, a problem, the voice row) arrive with a 4px rise in
+  `--d-base`, once the page is in (not on first paint: the page has its own entrance).
+- **Disclosures** (archived accounts and setups, a past month in Weekly review, Manage tags, What you said):
+  what they reveal comes down 4px in 180ms; closing is instant.
+- **Show older entries**: the rows it adds rise 8px together in 240ms, as one block, no stagger. Filters and sort
+  never animate the list.
+- **Buttons press in** to 0.97 (`--d-fast`), replacing the handoff's half-pixel nudge.
+- **Start**: a done step's badge settles in from 0.9 and its tick draws (first run, the delight budget).
+- **Images fade in** from an 8px blur over `--d-slow` when they finish loading; their chart frame pulses softly
+  while they load. Images already loaded show at once (`src/app/useImageFade.ts`).
+- Removed: the old toast exit rule (`.kstatus.leaving`, an ease-in drop) the reworked toast no longer uses.
 
 ## Chart reordering
 Builds on `01-decisions.md` ("Reorder by dragging the whole tile, or each chart's menu") and the drag spring

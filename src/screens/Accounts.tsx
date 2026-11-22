@@ -136,7 +136,7 @@ export function Accounts() {
             {arcOpen
               ? archived.map((a) => (
                   <Fragment key={a.name}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", borderTop: "1px solid var(--border-subtle)", minHeight: "60px" }}>
+                    <div className="kreveal" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", borderTop: "1px solid var(--border-subtle)", minHeight: "60px" }}>
                       <span style={{ fontSize: "14px" }}>{a.name}</span>
                       <span className="lbl">{[a.type, a.archivedNote].filter(Boolean).join(" · ")}</span>
                       <button

@@ -2,7 +2,7 @@
 // `/log?view=grid`), compact filter dropdowns with counts, sort, batches of 12, the row menu with Undo, the
 // very short trade prompt, and the frame-16 states that belong here. Markup from prototype/Main.dc.html.
 import { entryName } from "../lib/format";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { slug } from "../app/routes";
@@ -65,6 +65,12 @@ export function TradeLog() {
   const removeEntry = useStore((s) => s.removeEntry);
   const restoreEntry = useStore((s) => s.restoreEntry);
   const { filters: f, sort, limit, setFilters, setSort, setLimit } = useTradeLog();
+  // "Show older entries": the rows it adds arrive together as one block (DESIGN.md › Motion); a new filter or
+  // sort starts the list over, so nothing else animates.
+  const [grownFrom, setGrownFrom] = useState<number | null>(null);
+  useEffect(() => {
+    if (limit === BATCH) setGrownFrom(null);
+  }, [limit]);
 
   const [picking, setPicking] = useState(false);
   const [pFrom, setPFrom] = useState("");
@@ -321,15 +327,15 @@ export function TradeLog() {
 
           {rows.length && view === "list" ? (
             <ol aria-label="Trade log" style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", borderBottom: "1px solid var(--border-subtle)" }}>
-              {shown.map((e) => (
-                <ListRow key={e.id} e={e} a={actions(e)} />
+              {shown.map((e, i) => (
+                <ListRow key={e.id} e={e} a={actions(e)} fresh={grownFrom != null && i >= grownFrom} />
               ))}
             </ol>
           ) : null}
           {rows.length && view === "grid" ? (
             <ol aria-label="Trade log" style={{ margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "12px" }}>
-              {shown.map((e) => (
-                <GridCard key={e.id} e={e} a={actions(e)} />
+              {shown.map((e, i) => (
+                <GridCard key={e.id} e={e} a={actions(e)} fresh={grownFrom != null && i >= grownFrom} />
               ))}
             </ol>
           ) : null}
@@ -353,7 +359,7 @@ export function TradeLog() {
           {rows.length > limit ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
               <span className="lbl">{`Showing ${shown.length} of ${rows.length}`}</span>
-              <button type="button" className="btn btn-g" onClick={() => setLimit(limit + BATCH)}>
+              <button type="button" className="btn btn-g" onClick={() => (setGrownFrom(limit), setLimit(limit + BATCH))}>
                 Show older entries
               </button>
             </div>

@@ -323,7 +323,7 @@ export function Playbook() {
         </span>
       </button>
       {archivedOpen ? (
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="kreveal" style={{ display: "flex", flexDirection: "column" }}>
           {archived.map((a) => (
             <div key={a.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 4px", borderTop: "1px solid var(--border-subtle)" }}>
               <span style={{ fontSize: "14px" }}>{a.name}</span>

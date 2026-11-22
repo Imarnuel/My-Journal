@@ -206,12 +206,12 @@ function useOpenOnClick(to: string) {
  */
 const asksCharts = (e: Entry, t: Thumbs) => t.n === 0 && !e.shortTrade;
 
-export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
+export function ListRow({ e, a, fresh }: { e: Entry; a: RowActions; fresh?: boolean }) {
   const f = rowFacts(e);
   const t = thumbs(e);
   const open = useOpenOnClick(story(e));
   return (
-    <li className="krow trow" onClick={open} style={{ listStyle: "none", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px 32px", padding: "16px 24px", borderTop: "1px solid var(--border-subtle)" }}>
+    <li className={fresh ? "krow trow kbatch" : "krow trow"} onClick={open} style={{ listStyle: "none", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px 32px", padding: "16px 24px", borderTop: "1px solid var(--border-subtle)" }}>
       <div style={{ flex: "1 1 280px", minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           <Link to={story(e)} className="num" style={{ fontSize: "14px", fontWeight: 500, textDecoration: "none" }}>
@@ -264,12 +264,12 @@ export function ListRow({ e, a }: { e: Entry; a: RowActions }) {
   );
 }
 
-export function GridCard({ e, a }: { e: Entry; a: RowActions }) {
+export function GridCard({ e, a, fresh }: { e: Entry; a: RowActions; fresh?: boolean }) {
   const f = rowFacts(e);
   const t = thumbs(e);
   const open = useOpenOnClick(story(e));
   return (
-    <li className="card tcard" onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "var(--r-card)", minWidth: 0 }}>
+    <li className={fresh ? "card tcard kbatch" : "card tcard"} onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "var(--r-card)", minWidth: 0 }}>
       {asksCharts(e, t) ? <DropZone a={a} grid /> : null}
       {t.grid ? (
         <span className="chart" style={{ display: "block" }}>

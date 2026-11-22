@@ -74,12 +74,8 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 }
 
 
-/* Toasts leave faster than they arrive: fade and drop 8px. */
-@keyframes kdrop { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 8px); } }
-.kstatus.leaving { animation: kdrop calc(var(--d-base) * 0.7) var(--ease-in) forwards; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .kseg-thumb { transition: none; }
-  .kstatus.leaving { animation: kfade 120ms linear reverse forwards; }
 }
 
 /* Narrow widths (02-look-and-feel.md section 11, Stat groups): a stat group wraps to two columns and its
@@ -403,7 +399,9 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
    and closing don't animate. Buttons are 32px, white on a 10% white fill, as on the chart tiles. */
 .app .kchart-open { display: block; width: 100%; padding: 0; cursor: zoom-in; font: inherit; }
 .kviewer { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
-  padding: 48px; box-sizing: border-box; background: var(--viewer-bg); animation: kfade var(--d-base) var(--ease-out); }
+  padding: 48px; box-sizing: border-box; background: var(--viewer-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(120%); backdrop-filter: blur(16px) saturate(120%);
+  animation: kfade var(--d-base) var(--ease-out); }
 .kviewer-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 100%;
   animation: kviewer-in var(--d-base) var(--ease-out); }
 @keyframes kviewer-in { from { opacity: 0; transform: scale(0.96); } }
@@ -427,4 +425,38 @@ html[data-input="kbd"] .kviewer, html[data-input="kbd"] .kviewer-fig { animation
   .kviewer-img { max-width: calc(100vw - 32px); max-height: calc(100vh - 160px); }
   svg.kviewer-img { width: calc(100vw - 32px); }
   .kviewer-prev, .kviewer-next { top: auto; bottom: 16px; margin-top: 0; }
+}
+
+/* ---- Motion round 2 (DESIGN.md › Motion: the owner, 2026-11-22, "build the 5 animation suggestions"). One-shot
+   entrances on transform and opacity, --ease-out, never on keyboard actions; reduced motion keeps fades only. */
+/* Buttons press in (0.97) instead of nudging down half a pixel; the press is quick, the release eases back. */
+.app .btn { transition: background var(--d-instant), box-shadow var(--d-instant), color var(--d-instant), transform var(--d-fast) var(--ease-out); }
+/* 1. The Notes card's states arrive with a 4px rise once the page is in (the page has its own entrance). */
+@keyframes kswap { from { opacity: 0; transform: translateY(4px); } }
+[data-live] .kswap { animation: kswap var(--d-base) var(--ease-out) both; }
+/* 2. What a disclosure reveals comes down from its toggle; closing is instant. */
+@keyframes kreveal { from { opacity: 0; transform: translateY(-4px); } }
+.app .kreveal { animation: kreveal 180ms var(--ease-out) both; }
+/* 3. "Show older entries": the rows it adds rise 8px together, as one block (no stagger). */
+@keyframes kbatch { from { opacity: 0; transform: translateY(8px); } }
+.app .kbatch { animation: kbatch 240ms var(--ease-out) both; }
+/* 5. Start: a done step's badge settles in from 0.9 and its tick draws (first run only, the delight budget). */
+@keyframes kbadge { from { opacity: 0; transform: scale(0.9); } }
+@keyframes ktick { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.app .kdone-badge { animation: kbadge var(--d-slow) var(--ease-out) both; }
+.app .kdone-badge path { stroke-dasharray: 1; animation: ktick var(--d-slow) var(--ease-out) 120ms both; }
+/* Images fade in from a slight blur when they finish loading (the owner: "not just the image suddenly
+   appearing"); their frame pulses softly meanwhile. Images already loaded show at once. app/useImageFade.ts. */
+.app img[data-loading] { opacity: 0; filter: blur(8px); }
+.app img[data-loaded] { transition: opacity var(--d-slow) var(--ease-out), filter var(--d-slow) var(--ease-out); }
+.app .chart:has(> img[data-loading]), .app .chart:has(> * > img[data-loading]) { animation: kpulse 1.6s ease-in-out infinite; }
+html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  [data-live] .kswap, .app .kreveal, .app .kbatch, .app .kdone-badge { animation: kfade 120ms linear both; }
+  .app .kdone-badge path { animation: none; stroke-dashoffset: 0; }
+  .app .btn:active { transform: none; }
+  .app .btn { transition: none; }
+  .app img[data-loading] { filter: none; }
+  .app img[data-loaded] { transition: opacity 120ms linear; }
+  .app .chart:has(> img[data-loading]), .app .chart:has(> * > img[data-loading]) { animation: none; }
 }

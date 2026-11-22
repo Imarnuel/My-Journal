@@ -29,7 +29,7 @@ body{margin:0;background:var(--bg-app)}
 
 .btn{font:inherit;font-size:14px;font-weight:500;border-radius:var(--r-md);corner-shape:squircle;padding:0 16px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none!important;box-sizing:border-box;white-space:nowrap;border:0!important;transition:background var(--d-instant),box-shadow var(--d-instant),color var(--d-instant),transform var(--d-instant)}
 
-.btn:active{transform:translateY(0.5px)}
+.btn:active{transform:scale(0.97)}
 
 .btn-p{background:var(--btn-p-bg)!important;color:var(--btn-p-fg)!important;box-shadow:var(--btn-p-shadow);font-weight:600}
 

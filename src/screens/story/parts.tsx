@@ -163,9 +163,9 @@ export function DetailRow({ label, icon, fx, children }: { label: string; icon?:
 }
 
 /** Frame 16 problem card ("Couldn't make out your note", "Prices on this screenshot are too small to read"). */
-export function ProblemCard({ title, text, children }: { title: string; text?: string; children: ReactNode }) {
+export function ProblemCard({ title, text, children, swap }: { title: string; text?: string; children: ReactNode; swap?: boolean }) {
   return (
-    <div role="status" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", boxSizing: "border-box" }}>
+    <div role="status" className={swap ? "card kswap" : "card"} style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", boxSizing: "border-box" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 500 }}>
         <span aria-hidden="true" style={{ flex: "none", width: "8px", height: "8px", borderRadius: "4px", background: "var(--attention)" }} />
         {title}

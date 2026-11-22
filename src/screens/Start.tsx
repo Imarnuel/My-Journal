@@ -35,8 +35,8 @@ export function Start() {
         {first ? (
         <li className="card" style={{ ...step, background: "transparent" }}>
           <div style={stepBody}>
-            <span style={{ flex: "none", width: "28px", height: "28px", borderRadius: "999px", background: "color-mix(in srgb, var(--profit) 16%, transparent)", color: "var(--profit)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
+            <span className="kdone-badge" style={{ flex: "none", width: "28px", height: "28px", borderRadius: "999px", background: "color-mix(in srgb, var(--profit) 16%, transparent)", color: "var(--profit)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5" pathLength={1} /></svg>
             </span>
             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
               <span style={title}>Connect an account</span>

@@ -6,6 +6,7 @@ import { slideSegments, trackInputModality } from "../components/primitives/moti
 import { Icon, type IconName } from "../components/primitives/Icon";
 import { focusFirstItem, noteTrigger, onMenuKeyDown } from "../components/primitives/menuKeys";
 import { isSuccess, useToast } from "../components/primitives/toast";
+import { useImageFade } from "./useImageFade";
 
 export type NavKey = "dashboard" | "log" | "playbook" | "review" | "accounts" | "settings" | null;
 
@@ -156,6 +157,7 @@ function usePageTransition() {
 
 export function Shell({ active, children, minHeight }: { active: NavKey; children: ReactNode; minHeight?: number }) {
   useMenuKeyboard();
+  useImageFade();
   const ref = useSharedMotion();
   const page = usePageTransition();
   return (

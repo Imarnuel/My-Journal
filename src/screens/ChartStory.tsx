@@ -143,6 +143,10 @@ function StoryScreen({ id }: { id: string | null }) {
   const [newTags, setNewTags] = useState<string[]>([]);
   // Charts being read (real journal): the facts line says so and the empty facts shimmer (DESIGN.md › Chart reading).
   // Reading lives outside the page (story/chartReading.ts), so it carries on into the saved story.
+  // The Notes card's states (Talk it through, recording, reading, a problem, the voice row) arrive with a short
+  // rise once the page is in (not on first paint: the page has its own entrance). DESIGN.md › Motion.
+  const [notesLive, setNotesLive] = useState(false);
+  useEffect(() => setNotesLive(true), []);
   // The chart open full screen, if any (story/ChartViewer.tsx).
   const [viewing, setViewing] = useState<number | null>(null);
   const draftKey = useRef(`draft:${Math.random().toString(36).slice(2)}`);
@@ -915,7 +919,7 @@ function StoryScreen({ id }: { id: string | null }) {
             ) : null}
           </section>
 
-          <section aria-labelledby="nh" className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "var(--r-card)" }}>
+          <section aria-labelledby="nh" className="card" data-live={notesLive ? "" : undefined} style={{ ["--card-fill" as string]: "var(--surface-2)", display: "flex", flexDirection: "column", gap: "16px", padding: "24px", borderRadius: "var(--r-card)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "-4px" }}>
               <h2 id="nh" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
                 Notes
@@ -927,7 +931,7 @@ function StoryScreen({ id }: { id: string | null }) {
             {reading ? (
               // Gemini reads the note (real journal); the notes stay editable meanwhile. One line that says what is
               // really happening, shimmering in the voice colour; each new message cross-fades in.
-              <div role="status" aria-live="polite" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)", minHeight: "64px", boxSizing: "border-box" }}>
+              <div role="status" aria-live="polite" className="kswap" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)", minHeight: "64px", boxSizing: "border-box" }}>
                 <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--voice)" }} />
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 0 }}>
                   <span key={phase} className="kshimmer kmsg" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-1)" }}>
@@ -944,7 +948,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 </button>
               </div>
             ) : shownError && !recording ? (
-              <ProblemCard title={VOICE_COPY[shownError].title} text={VOICE_COPY[shownError].text}>
+              <ProblemCard swap title={VOICE_COPY[shownError].title} text={VOICE_COPY[shownError].text}>
                 {(shownError === "offline" || shownError === "failed") && voiceFailed?.rec ? (
                   <>
                     <button type="button" className="btn btn-g" onClick={() => voiceFailed.rec && readAndFill(voiceFailed.rec.seconds, voiceFailed.rec)}>
@@ -961,7 +965,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 )}
               </ProblemCard>
             ) : VOICE && !s.voice && !recording ? (
-              <button type="button" onClick={startRec} style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
+              <button type="button" onClick={startRec} className="kswap" style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
                 <span className="kvoice" style={{ flex: "none", width: "48px", height: "48px", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Mic />
                 </span>
@@ -974,7 +978,7 @@ function StoryScreen({ id }: { id: string | null }) {
               </button>
             ) : null}
             {recording ? (
-              <div role="status" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
+              <div role="status" className="kswap" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
                 <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--loss)" }} />
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
                   <span style={{ fontSize: "14px", fontWeight: 500 }}>Listening · {clock(recSec)}</span>
@@ -1046,7 +1050,7 @@ function StoryScreen({ id }: { id: string | null }) {
             {s.voice && !recording ? (
               <>
                 {/* The voice note row: one height (28px controls), 14px control labels, 12px for the length. */}
-                <div className="kvoice-row">
+                <div className="kvoice-row kswap">
                   {REAL && !audioUrl ? null : (
                   <button type="button" className="kplay" aria-label={playing ? "Pause your voice note" : "Play your voice note"} onClick={togglePlay}>
                     {playing ? (
@@ -1078,7 +1082,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   </button>
                 </div>
                 {said ? (
-                  <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-2)", padding: "12px", borderRadius: "var(--r-md)", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)" }}>
+                  <p className="kreveal" style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-2)", padding: "12px", borderRadius: "var(--r-md)", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)" }}>
                     {transcriptRuns(s.transcript).map((r, i) =>
                       r.mark ? (
                         <mark key={i} style={{ background: "color-mix(in srgb, var(--voice) 16%, transparent)", color: "var(--text-1)", borderRadius: "4px", padding: "0 2px" }}>

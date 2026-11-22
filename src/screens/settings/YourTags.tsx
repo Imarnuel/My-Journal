@@ -129,7 +129,7 @@ export function YourTags() {
           {open ? "Done" : "Manage tags"}
         </button>
         {open ? (
-          <div id="tag-list" role="list" aria-label="Your tags" style={{ display: "flex", flexDirection: "column", marginTop: "8px" }}>
+          <div id="tag-list" role="list" aria-label="Your tags" className="kreveal" style={{ display: "flex", flexDirection: "column", marginTop: "8px" }}>
             {tags.map((t) => (
               <Fragment key={t.t}>
                 <div role="listitem" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 90px 110px 40px", gap: "12px", alignItems: "center", padding: "16px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "32px" }}>

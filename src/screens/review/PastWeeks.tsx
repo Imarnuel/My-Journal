@@ -49,7 +49,7 @@ export function PastWeeks({ months, selected, takeaway, onPick }: { months: Past
                   </span>
                 </button>
                 {isOpen ? (
-                  <ol style={{ margin: "0 0 4px 16px", padding: "0 0 0 12px", display: "flex", flexDirection: "column", gap: "2px", borderLeft: "1px solid var(--border-subtle)" }}>
+                  <ol className="kreveal" style={{ margin: "0 0 4px 16px", padding: "0 0 0 12px", display: "flex", flexDirection: "column", gap: "2px", borderLeft: "1px solid var(--border-subtle)" }}>
                     {m.weeks.map((w) => {
                       const sel = w.monday === selected;
                       const tk = takeaway(w.monday);
