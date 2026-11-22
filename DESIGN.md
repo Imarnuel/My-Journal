@@ -397,6 +397,19 @@ could be good, a mistake or context made people classify it; two fields need no 
   "Mistakes you tagged more than once"; Dashboard "R from trades with each mistake tag" and "A trade with two tags
   counts under both. … had no mistake tagged."
 
+
+## Settings: tags and mistakes
+- **The section is "Tags and mistakes", and each list opens from its own row.** The Tags row and the Mistakes
+  row are disclosures (a chevron on the right, the row's hint beside it): a click opens that list in place under
+  its row, to rename, see use counts and remove (Undo), and closes it again. Both can be open. No "Manage tags"
+  button. Look-alike Merge prompts stay at the top of the section.
+- **Headspace and Plan aren't listed.** They are fixed lists (Plan: Followed, Not followed), so a row about them
+  had nothing to do and read as something to manage. This overrides `01-decisions.md`'s "plus Headspace (fixed
+  list) and Plan (fixed)" in Settings.
+- Why: the owner, 2026-11-22, "why can't i manage tags, mistakes, headspace? why am i being told to manage plan,
+  headspace (followed, not followed)?": four look-alike rows, only one button, and two of the rows could never be
+  changed. Then: "tags should be editable, but I don't think Headspace should be editable".
+
 ## Typeface: Instrument Serif for page titles, Inter for everything else
 Overrides `02-look-and-feel.md`'s Inter-only rule for page titles, and the earlier Geist and Public Sans. The
 owner, 2026-11-22: "Spectra for headings and public sans for others (body, labels)", page titles only; then

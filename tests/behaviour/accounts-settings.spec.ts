@@ -308,22 +308,31 @@ async function scrollToSessions(page: Page) {
   await page.evaluate(() => window.scrollTo(0, 630));
 }
 
-test("state 39: Manage tags lists the tags, then the mistakes, with their use counts", async ({ page }, info) => {
+test("state 39: the Tags and Mistakes rows each open their own list, with use counts", async ({ page }, info) => {
   await page.goto("/settings?theme=system");
-  await page.getByRole("button", { name: "Manage tags" }).click();
-  const list = page.getByRole("list", { name: "Your tags" });
-  await expect(list.getByRole("listitem")).toHaveCount(14); // the handoff's 13 and the sample "BOS" (DESIGN.md)
-  await expect(list.getByRole("listitem").first()).toContainText("used 18 times");
-  await expect(list.getByRole("listitem").last().getByRole("textbox", { name: /^Rename / })).toHaveValue("Moved stop"); // mistakes come after the tags
-  await expect(list).toContainText("Mistakes");
-  await expect(page.getByRole("button", { name: "Done" })).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("Headspace (")).toHaveCount(0); // fixed lists aren't shown (DESIGN.md › Settings: tags and mistakes)
+  await expect(page.getByText("Plan (")).toHaveCount(0);
+  const tagsRow = page.getByRole("button", { name: /^Tags\b/ });
+  await tagsRow.click();
+  await expect(tagsRow).toHaveAttribute("aria-expanded", "true");
+  const tags = page.getByRole("list", { name: "Tags" });
+  await expect(tags.getByRole("listitem")).toHaveCount(11); // the handoff's tags and the sample "BOS" (DESIGN.md)
+  await expect(tags.getByRole("listitem").first()).toContainText("used 18 times");
+  await page.getByRole("button", { name: /^Mistakes\b/ }).click();
+  const mistakes = page.getByRole("list", { name: "Mistakes" });
+  await expect(mistakes.getByRole("listitem")).toHaveCount(3);
+  await expect(mistakes.getByRole("listitem").last().getByRole("textbox", { name: /^Rename / })).toHaveValue("Moved stop");
+  await tagsRow.click(); // each closes on its own
+  await expect(tags).toHaveCount(0);
+  await expect(mistakes).toBeVisible();
+  await tagsRow.click();
   await scrollToSessions(page);
   await diffViewport(page, "states/39-settings-manage-tags.png", info);
 });
 
 test("settings: renaming a tag in place updates old entries", async ({ page }) => {
   await page.goto("/settings");
-  await page.getByRole("button", { name: "Manage tags" }).click();
+  await page.getByRole("button", { name: /^Tags\b/ }).click();
   const field = page.getByRole("textbox", { name: "Rename Retest" });
   await field.fill("Retest of zone");
   await page.keyboard.press("Enter");
@@ -343,7 +352,7 @@ test("settings: removing a tag happens at once; Undo restores the tag and every 
   await page.goto("/settings");
   const snap = `(s) => JSON.stringify({ t: s.tags, e: s.entries.map((e) => [e.id, e.tags, e.mistakes]) })`;
   const before = await store<string>(page, snap);
-  await page.getByRole("button", { name: "Manage tags" }).click();
+  await page.getByRole("button", { name: /^Mistakes\b/ }).click();
   await page.getByRole("button", { name: "Remove Chased entry" }).click();
   await expect(page.getByRole("status")).toContainText("“Chased entry” removed from 7 stories");
   await expect(page.getByText("Mistakes (2)")).toBeVisible();
@@ -426,7 +435,7 @@ for (const url of ["/start", "/accounts/new", "/accounts/funded-100k", "/setting
     test(`axe: ${url} (${theme}) has no serious or critical violations`, async ({ page }) => {
       await page.goto(`${url}?theme=${theme}`);
       await expect(page.locator("h1")).toBeVisible();
-      if (url === "/settings") await page.getByRole("button", { name: "Manage tags" }).click();
+      if (url === "/settings") for (const row of [/^Tags\b/, /^Mistakes\b/]) await page.getByRole("button", { name: row }).click();
       await axe(page);
     });
 

@@ -45,7 +45,7 @@ export const SHORT_TRADE: Entry = {
 };
 
 /**
- * Stand-in "BOS" tags, so the look-alike prompt in Settings › Your tags acts on real tags (DESIGN.md ›
+ * Stand-in "BOS" tags, so the look-alike prompt in Settings › Tags and mistakes acts on real tags (DESIGN.md ›
  * Sample BOS tag). Two older trades that don't already carry "Break of structure".
  */
 export const SAMPLE_BOS_IDS = ["e42", "e49"];

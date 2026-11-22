@@ -1,5 +1,6 @@
-// Settings > Your tags (01-decisions.md "Tags"): kind breakdown from the tags in use, look-alike Merge
-// prompts, and Manage tags (rename in place, kind and use count, remove). Renames, merges and removals
+// Settings > Tags and mistakes (01-decisions.md "Tags", DESIGN.md › Settings: tags and mistakes): look-alike Merge
+// prompts, then a Tags row and a Mistakes row that each open their own list (rename in place, use count, remove).
+// Headspace and Plan are fixed lists and aren't shown here. Renames, merges and removals
 // update every old entry that carries the tag, and removals and merges have Undo.
 import { Fragment, useRef, useState } from "react";
 import { useStore } from "../../data/store";
@@ -52,7 +53,7 @@ export function YourTags() {
   const entries = useStore((s) => s.entries);
   const setTags = useStore((s) => s.setTags);
   const [merged, setMerged] = usePref("mergedLookalikes");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<{ tags?: boolean; mistakes?: boolean }>({});
   // Tags and mistakes are two lists (DESIGN.md › Mistakes); the vocabulary keeps mistakes apart by kind.
   const tagList = tags.filter((t) => t.k !== "Mistake");
   const mistakeList = tags.filter((t) => t.k === "Mistake");
@@ -98,7 +99,7 @@ export function YourTags() {
 
   return (
     <section aria-labelledby="set-tags" style={{ display: "flex", flexDirection: "column" }}>
-      <h2 id="set-tags" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>Your tags</h2>
+      <h2 id="set-tags" style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>Tags and mistakes</h2>
       <p className="meta" style={{ margin: "4px 0 0" }}>Rename, merge or remove tags and mistakes. Old stories update with them.</p>
       <div style={{ marginTop: "12px" }}>
         {pairs.map((p) => (
@@ -112,54 +113,44 @@ export function YourTags() {
             </button>
           </div>
         ))}
-        {/* No zero counts (first ui-polish audit). */}
-        <div style={line}>
-          <span style={{ fontSize: "14px" }}>
-            Tags{tagList.length ? <span style={{ color: "var(--text-3)" }}>{` (${tagList.length})`}</span> : null}
-          </span>
-          <span className="lbl">Every tag is a filter.</span>
-        </div>
-        <div style={line}>
-          <span style={{ fontSize: "14px" }}>
-            Mistakes{mistakeList.length ? <span style={{ color: "var(--text-3)" }}>{` (${mistakeList.length})`}</span> : null}
-          </span>
-          <span className="lbl">Counts in costliest mistakes</span>
-        </div>
-        <div style={line}>
-          <span style={{ fontSize: "14px" }}>
-            Headspace <span style={{ color: "var(--text-3)" }}>(5)</span>
-          </span>
-          <span className="lbl">Fixed list, so stats stay comparable</span>
-        </div>
-        <div style={line}>
-          <span style={{ fontSize: "14px" }}>
-            Plan <span style={{ color: "var(--text-3)" }}>(2)</span>
-          </span>
-          <span className="lbl">Fixed: Followed, Not followed</span>
-        </div>
-        <button type="button" onClick={() => setOpen(!open)} aria-expanded={open ? "true" : "false"} aria-controls="tag-list" className="btn btn-q kq-start" style={{ marginTop: "4px", alignSelf: "flex-start" }}>
-          {open ? "Done" : "Manage tags"}
-        </button>
-        {open ? (
-          <div id="tag-list" role="list" aria-label="Your tags" className="kreveal" style={{ display: "flex", flexDirection: "column", marginTop: "8px" }}>
-            {[["Tags", tagList], ["Mistakes", mistakeList]].map(([label, list]) =>
-              (list as Tag[]).length ? (
-                <Fragment key={label as string}>
-                  <div className="lbl" style={{ padding: "16px 0 8px", fontSize: "12px", lineHeight: "16px" }}>{label as string}</div>
-                  {(list as Tag[]).map((t) => (
-                    <div key={t.t} role="listitem" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 110px 40px", gap: "12px", alignItems: "center", padding: "16px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "32px" }}>
-                      <TagName tag={t} tags={tags} onRename={(to) => rename(t.t, to)} />
-                      <span className="lbl" style={{ textAlign: "right" }}>{usedLabel(t.n)}</span>
-                      <button className="kmore" type="button" aria-label={`Remove ${t.t}`} onClick={() => remove(t)} style={REMOVE_BTN}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
-                      </button>
-                    </div>
-                  ))}
-                </Fragment>
-              ) : null,
-            )}
-          </div>
-        ) : null}
+        {/* No zero counts (first ui-polish audit). Each row opens its own list. */}
+        {([
+          ["tags", "Tags", "Every tag is a filter.", tagList],
+          ["mistakes", "Mistakes", "Counts in costliest mistakes", mistakeList],
+        ] as const).map(([key, label, hint, list]) => (
+          <Fragment key={key}>
+            <button
+              type="button"
+              className="ksetrow"
+              aria-expanded={open[key] ? "true" : "false"}
+              aria-controls={`${key}-list`}
+              onClick={() => setOpen((o) => ({ ...o, [key]: !o[key] }))}
+              style={{ ...line, font: "inherit", width: "100%", borderLeft: 0, borderRight: 0, borderBottom: 0, background: "transparent", color: "var(--text-1)", cursor: "pointer", textAlign: "left" }}
+            >
+              <span style={{ fontSize: "14px", flex: 1 }}>
+                {label}
+                {list.length ? <span style={{ color: "var(--text-3)" }}>{` (${list.length})`}</span> : null}
+              </span>
+              <span className="lbl">{hint}</span>
+              <svg className="kchev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: "none", color: "var(--text-3)" }}>
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            {open[key] ? (
+              <div id={`${key}-list`} role="list" aria-label={label} className="kreveal" style={{ display: "flex", flexDirection: "column" }}>
+                {list.map((t) => (
+                  <div key={t.t} role="listitem" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 110px 40px", gap: "12px", alignItems: "center", padding: "16px 0 16px 16px", borderTop: "1px solid var(--border-subtle)", minHeight: "32px" }}>
+                    <TagName tag={t} tags={tags} onRename={(to) => rename(t.t, to)} />
+                    <span className="lbl" style={{ textAlign: "right" }}>{usedLabel(t.n)}</span>
+                    <button className="kmore" type="button" aria-label={`Remove ${t.t}`} onClick={() => remove(t)} style={REMOVE_BTN}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </Fragment>
+        ))}
       </div>
     </section>
   );

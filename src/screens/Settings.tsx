@@ -1,4 +1,4 @@
-// Frame 15 · Settings: Appearance, Weekly review, Reminders, Time and sessions, Your tags, Voice notes.
+// Frame 15 · Settings: Appearance, Weekly review, Reminders, Time and sessions, Tags and mistakes, Voice notes.
 // Markup from handoff/prototype/Settings.dc.html. Appearance is the store's theme; preferences live in the
 // store's settings (src/data/settings.ts); tag changes update every entry that carries the tag.
 import { Fragment, useState } from "react";

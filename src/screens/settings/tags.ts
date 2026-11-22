@@ -1,4 +1,4 @@
-// Tag housekeeping for Settings > Your tags (01-decisions.md "Tags"): kind breakdown, rename, remove and
+// Tag housekeeping for Settings > Tags and mistakes (01-decisions.md "Tags"): kind breakdown, rename, remove and
 // merge look-alikes. Pure functions over the shared entries and tags; the screen applies the patches.
 import type { Entry, Tag } from "../../lib/types";
 
