@@ -73,7 +73,7 @@ for (const file of files(join(ROOT, "src"))) {
       if (!SCALE.minHeight.includes(+m[1]) && +m[1] <= 64) add(file, n, `control height ${m[1]}px (24, 28, 32, 34, 36)`);
     // Raw colours outside the token file.
     if (!rel.endsWith("tokens.css") && !rel.endsWith("canvas.css"))
-      for (const m of text.matchAll(/(#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\))/g))
+      for (const m of text.matchAll(/(#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b|rgba?\([^)]*\))/g))
         if (!/var\(--/.test(m[0])) add(file, n, `raw colour ${m[0]} (use a token)`);
   });
 }
