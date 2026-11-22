@@ -30,6 +30,8 @@ export type Story = {
   suggested: boolean;
   setup: string | null;
   tags: string[];
+  /** Its own field since 2026-11-22 (DESIGN.md › Mistakes): what went wrong, apart from the tags. */
+  mistakes: string[];
   followed: boolean | null;
   headspace: string | null;
   voice: boolean;
@@ -200,7 +202,9 @@ export function storyFromEntry(e: Entry, overlay: StoryExtras | undefined, extra
     refl: e.refl ?? o?.refl ?? "",
     suggested: !!(e.suggested ?? o?.suggested),
     setup: !e.setup || e.setup === "Unsorted" ? null : e.setup,
-    tags: e.tags,
+    // Older data kept mistakes inside the tags too: a mistake shows only in Mistakes.
+    tags: e.tags.filter((t) => !e.mistakes.includes(t)),
+    mistakes: e.mistakes,
     followed: e.followed,
     headspace: e.headspace ?? o?.headspace ?? null,
     voice: e.note,
@@ -212,13 +216,8 @@ export function storyFromEntry(e: Entry, overlay: StoryExtras | undefined, extra
   };
 }
 
-/** Mistake-kind tags of a tag list (Entry.mistakes is derived from tags and tag kinds). */
-export function mistakesOf(tags: string[], kindOf: (t: string) => TagKind | undefined): string[] {
-  return tags.filter((t) => kindOf(t) === "Mistake");
-}
-
 /** Turn a change to the story into a patch for its Entry. */
-export function entryPatch(e: Entry, cur: Story, p: Partial<Story>, kindOf: (t: string) => TagKind | undefined): Partial<Entry> {
+export function entryPatch(e: Entry, cur: Story, p: Partial<Story>): Partial<Entry> {
   const out: Partial<Entry> = {};
   // First edit of a story whose extra fields come from the overlay: store them all, so they stay.
   if (e.before === undefined) {
@@ -245,10 +244,8 @@ export function entryPatch(e: Entry, cur: Story, p: Partial<Story>, kindOf: (t: 
   if ("refl" in p) out.refl = p.refl || null;
   if ("suggested" in p) out.suggested = p.suggested!;
   if ("setup" in p) out.setup = p.setup ?? "Unsorted";
-  if ("tags" in p) {
-    out.tags = p.tags!;
-    out.mistakes = mistakesOf(p.tags!, kindOf);
-  }
+  if ("tags" in p) out.tags = p.tags!;
+  if ("mistakes" in p) out.mistakes = p.mistakes!;
   if ("followed" in p) out.followed = p.followed ?? null;
   if ("headspace" in p) out.headspace = p.headspace ?? null;
   if ("voice" in p) out.note = !!p.voice;
@@ -259,7 +256,7 @@ export function entryPatch(e: Entry, cur: Story, p: Partial<Story>, kindOf: (t: 
 }
 
 /** A new Entry from a story draft (Save story). */
-export function entryFromStory(id: string, s: Story, kindOf: (t: string) => TagKind | undefined): Entry {
+export function entryFromStory(id: string, s: Story): Entry {
   return {
     id,
     date: s.date,
@@ -273,7 +270,7 @@ export function entryFromStory(id: string, s: Story, kindOf: (t: string) => TagK
     session: s.session,
     followed: s.followed,
     tags: s.tags,
-    mistakes: mistakesOf(s.tags, kindOf),
+    mistakes: s.mistakes,
     r: s.status === "Taken" || s.status === "Watched" ? s.r : null,
     charts: s.charts.length,
     chartKey: placeholderKey(s.dir, s.r),
@@ -316,12 +313,19 @@ export function applyVoiceNote(s: Story, fill: VoiceNoteFill): { patch: Partial<
     patch.setup = fill.setup;
     filled.push("setup");
   }
-  const have = s.tags.map((t) => t.toLowerCase());
-  const add = fill.tags.filter((t) => !have.includes(t.t.toLowerCase()));
-  if (add.length) {
-    patch.tags = s.tags.concat(add.map((t) => t.t));
-    for (const t of add) newKinds[t.t] = t.k;
-    filled.push(`${add.length} ${add.length === 1 ? "tag" : "tags"}`);
+  // What the note calls a mistake goes to Mistakes, the rest to Tags (DESIGN.md › Mistakes).
+  const have = [...s.tags, ...s.mistakes].map((t) => t.toLowerCase());
+  const fresh = fill.tags.filter((t) => !have.includes(t.t.toLowerCase()));
+  const addT = fresh.filter((t) => t.k !== "Mistake");
+  const addM = fresh.filter((t) => t.k === "Mistake");
+  for (const t of fresh) newKinds[t.t] = t.k;
+  if (addT.length) {
+    patch.tags = s.tags.concat(addT.map((t) => t.t));
+    filled.push(`${addT.length} ${addT.length === 1 ? "tag" : "tags"}`);
+  }
+  if (addM.length) {
+    patch.mistakes = s.mistakes.concat(addM.map((t) => t.t));
+    filled.push(`${addM.length} ${addM.length === 1 ? "mistake" : "mistakes"}`);
   }
   if (s.followed == null && fill.followed != null) {
     patch.followed = fill.followed;

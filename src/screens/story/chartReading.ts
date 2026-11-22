@@ -197,7 +197,7 @@ function fillSavedEntry(id: Target, read: ChartRead) {
   })() : {};
   const p = { ...(fill.pair ? { pair: fill.pair } : {}), ...(fill.dir ? { dir: fill.dir } : {}), ...(fill.prices ? { numbers: { ...found.story.numbers, ...fill.prices } } : {}), ...when };
   if (!Object.keys(p).length) return;
-  useStore.getState().updateEntry(id, entryPatch(found.e, found.story, p, () => undefined));
+  useStore.getState().updateEntry(id, entryPatch(found.e, found.story, p));
 }
 
 /**

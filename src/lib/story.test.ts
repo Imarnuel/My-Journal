@@ -85,6 +85,14 @@ describe("story rules", () => {
     expect(newKinds).toEqual({ "Supply zone": "Good", Retest: "Good" });
   });
 
+  it("a voice note puts mistakes in Mistakes and the rest in Tags (DESIGN.md › Mistakes)", () => {
+    const withMistakes = { ...fill, tags: [{ t: "Retest", k: "Good" as const }, { t: "Moved stop", k: "Mistake" as const }] };
+    const { patch, filled } = applyVoiceNote({ ...empty(), mistakes: ["FOMO"] }, withMistakes);
+    expect(patch.tags).toEqual(["Retest"]);
+    expect(patch.mistakes).toEqual(["FOMO", "Moved stop"]);
+    expect(voiceToast(filled)).toBe("Setup, 1 tag, 1 mistake, plan and headspace filled from your note");
+  });
+
   it("a voice note never overwrites a choice made by hand", () => {
     const s = { ...empty(), before: "mine", setup: "London breakout", tags: ["retest"], followed: false, headspace: "Tired" };
     const { patch, filled } = applyVoiceNote(s, fill);
@@ -119,22 +127,24 @@ describe("story rules", () => {
     const overlay = { before: "Canvas note", refl: "Canvas reflection", headspace: "Calm", chartList: ["gW", "gA"], numbers: { entry: "1.2" } };
     const s = storyFromEntry(base, overlay);
     expect([s.before, s.refl, s.headspace, s.charts, s.numbers.entry]).toEqual(["Canvas note", "Canvas reflection", "Calm", ["gW", "gA"], "1.2"]);
-    const patch = entryPatch(base, s, { refl: "" }, () => undefined);
+    const patch = entryPatch(base, s, { refl: "" });
     expect(patch).toMatchObject({ before: "Canvas note", refl: null, headspace: "Calm", chartList: ["gW", "gA"] });
     const after = storyFromEntry({ ...base, ...patch }, overlay);
     expect(after.refl).toBe("");
     expect(after.before).toBe("Canvas note");
   });
 
-  it("tag changes keep the entry's mistakes in step with tag kinds", () => {
+  it("tags and mistakes are saved as two lists (DESIGN.md › Mistakes)", () => {
     const s = storyFromEntry({ ...base, before: "" }, undefined);
-    const p = entryPatch({ ...base, before: "" }, s, { tags: ["Retest", "Moved stop"] }, (t) => (t === "Moved stop" ? "Mistake" : "Good"));
-    expect(p).toEqual({ tags: ["Retest", "Moved stop"], mistakes: ["Moved stop"] });
+    const p = entryPatch({ ...base, before: "" }, s, { tags: ["Retest"], mistakes: ["Moved stop"] });
+    expect(p).toEqual({ tags: ["Retest"], mistakes: ["Moved stop"] });
+    // Older data kept mistakes inside the tags too: they show only in Mistakes.
+    expect(storyFromEntry({ ...base, tags: ["Retest", "Moved stop"], mistakes: ["Moved stop"] }, undefined)).toMatchObject({ tags: ["Retest"], mistakes: ["Moved stop"] });
   });
 
   it("a saved new story becomes an entry with the next id", () => {
     expect(nextId([{ id: "e9" }, { id: "e134" }, { id: "e20" }])).toBe("e135");
-    const e = entryFromStory("e135", { ...empty(), charts: ["gW", "gE"], tags: ["Moved stop"] }, () => "Mistake");
+    const e = entryFromStory("e135", { ...empty(), charts: ["gW", "gE"], tags: [], mistakes: ["Moved stop"] });
     expect(e).toMatchObject({ id: "e135", setup: "Unsorted", charts: 2, chartList: ["gW", "gE"], mistakes: ["Moved stop"], chartKey: "sw0" });
   });
 });

@@ -21,13 +21,14 @@ export type Filters = {
   pair: string | null;
   setup: string | null;
   tag: string | null;
+  mistake: string | null;
   dir: string | null;
   status: string | null;
 };
-export type FilterKey = "date" | "pair" | "setup" | "tag" | "dir" | "status";
-export const FILTER_KEYS: FilterKey[] = ["date", "pair", "setup", "tag", "dir", "status"];
+export type FilterKey = "date" | "pair" | "setup" | "tag" | "mistake" | "dir" | "status";
+export const FILTER_KEYS: FilterKey[] = ["date", "pair", "setup", "tag", "mistake", "dir", "status"];
 
-export const NO_FILTERS: Filters = { date: "All time", from: null, to: null, pair: null, setup: null, tag: null, dir: null, status: null };
+export const NO_FILTERS: Filters = { date: "All time", from: null, to: null, pair: null, setup: null, tag: null, mistake: null, dir: null, status: null };
 
 /** Inclusive [from, to] of a date preset, given today. */
 export function presetRange(p: DatePreset, today: string): [string, string] {
@@ -58,6 +59,8 @@ export function passes(e: Entry, k: FilterKey, v: Value, f: Filters, today: stri
       return setupOf(e) === v;
     case "tag":
       return e.tags.includes(v);
+    case "mistake":
+      return e.mistakes.includes(v);
     case "dir":
       return e.dir === v;
     case "status":

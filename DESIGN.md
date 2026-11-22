@@ -341,24 +341,33 @@ Why: in the story's tag menu "used 18 times" was reading with nothing to act on,
 wrap. The menu still lists the most used tags first. The counts stay in Settings > Your tags, where they help
 decide what to rename, merge or remove.
 
-## Tags: starter tags, and no kind question
-Overrides `01-decisions.md` › Tags ("Adding a brand-new tag asks this once, inline"). The owner, 2026-11-22: "preload
-some items in the tags section … a starting point for tags, and they are aware of what to use the tags for"; then,
-asked what felt like too much admin work, "choosing a tag's kind". Tags stay one field (a separate Mistakes field
-was weighed and left out: it adds a field to every trade, and the kind already separates mistakes in the numbers).
-- **Starter tags**: a new real journal starts with 12, kinds set: Good: Retest, Waited for confirmation, Let it
-  run. Mistake: Chased entry, Moved stop, FOMO, Revenge trade, Overtraded, Exited early. Neutral: Break of
-  structure, Liquidity sweep, News. Mostly mistakes (they drive Costliest mistakes and the review), the sample
-  journal's names, nothing the app already knows (sessions, plan adherence). A journal saved before gets the ones
-  it doesn't have, its own untouched (store version 4). They are ordinary tags: suggested as you type (your most
-  used first, so unused ones sink), counted in Settings, renamed or removed with Undo. Voice notes prefer them, so
-  the same thing gets the same name. The sample journal keeps its own tags. Source: `src/lib/tagKind.ts`.
-- **No kind question**: "Add “x” as a new tag" adds it at once; its kind comes from its words (mistake words such
-  as chased, FOMO, moved stop, early, late; good ones such as waited, patient, let it run; anything else Neutral),
-  and the toast says which ("“Revenge entry” added as a new mistake tag"). A voice note sets its own kinds.
-- **Change a kind** in Settings › Your tags › Manage tags: each row's kind is a small menu (Good: Something to
-  repeat, Mistake: Counts in costliest mistakes, Neutral: Just context, the hints the question used). It changes
-  at once, no toast; the kind breakdown above updates.
+## Mistakes: their own field, and starter tags and mistakes
+Overrides `01-decisions.md` › Tags ("One Tags field covers quality, mistakes and context", "Adding a brand-new tag
+asks this once") and takes "separate … Mistakes fields" off its declined list. The owner, 2026-11-22: "preload some
+items in the tags section … a starting point"; choosing a tag's kind was "too much admin work"; "we should separate
+tags from mistakes … Let mistake be another entry. Let tags be its own entry"; "yes, build it". Why: a tag that
+could be good, a mistake or context made people classify it; two fields need no classifying at all.
+- **Two fields on the story**: Details has **Tags** then **Mistakes** (a filled warning-triangle icon), each a
+  chip field that works the same: × on every chip with Undo, typing suggests what was used before in that field
+  only (most used first), Enter adds the first match or a new one at once (no question), Backspace on an empty
+  field removes the last chip. Empty hints: "Add a tag", "Add a mistake"; new ones: "Add “x” as a new tag" /
+  "… as a new mistake"; toasts "“x” added as a new tag" / "… mistake". Nothing prompts you to fill Mistakes.
+- **Voice notes fill both**: what the note calls a mistake goes to Mistakes, the rest to Tags; the toast counts
+  them apart ("Setup, 1 tag, 1 mistake, plan and headspace filled from your note").
+- **Trade log**: a row shows its mistakes on their own facts line with the triangle icon; a **Mistakes** filter
+  ("Any mistake") sits after Tags. **Dashboard and Weekly review** read the Mistakes field directly (Costliest
+  mistakes, repeated mistakes): the same numbers.
+- **Settings › Your tags**: "Tags (n)" (Every tag is a filter.) and "Mistakes (n)" (Counts in costliest
+  mistakes); Manage tags lists the tags, then the mistakes, each with use count, rename, merge and remove. No
+  kinds shown anywhere.
+- **Starter items** (a new real journal; an existing one gets those it lacks, its own untouched): tags Retest,
+  Waited for confirmation, Let it run, Break of structure, Liquidity sweep, News; mistakes Chased entry, Moved
+  stop, FOMO, Revenge trade, Overtraded, Exited early. Source: `src/lib/tagKind.ts`.
+- **Your data**: store version 5 moves each entry's mistake tags into its Mistakes (the sample data too); the
+  vocabulary keeps mistakes apart by kind, which nobody sees or chooses.
+- Wording left from the handoff that still says "tag" for mistakes, for the owner to confirm: Weekly review
+  "Mistakes you tagged more than once"; Dashboard "R from trades with each mistake tag" and "A trade with two tags
+  counts under both. … had no mistake tagged."
 
 ## Typeface: Instrument Serif for page titles, Inter for everything else
 Overrides `02-look-and-feel.md`'s Inter-only rule for page titles, and the earlier Geist and Public Sans. The
@@ -557,7 +566,7 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   quietly with the same rules (nothing overwritten, no toast away from the story); a new story left without saving
   lets its note go. Opening the story mid-reading shows where the reading is. A note that couldn't be read keeps
   its recording (in memory) for Try again on that story.
-- **Plan adherence is never a tag** (the owner, 2026-11-22: "followed rules was picked from my voice note despite
+- **Plan adherence is never a tag or a mistake** (the owner, 2026-11-22: "followed rules was picked from my voice note despite
   having followed plan as the options"). Plan has its fixed Followed / Not followed; a tag that only says the plan
   or rules were followed or broken ("Followed rules", "Stuck to the plan", "Broke my rules", "Disciplined") is
   dropped from the answer and, if the note didn't otherwise say, sets Plan instead (`planTag` in

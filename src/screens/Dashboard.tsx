@@ -21,7 +21,6 @@ export function Dashboard() {
   const picked = useStore((s) => s.picked);
   const today = useStore((s) => s.today);
   const setups = useStore((s) => s.setups);
-  const tags = useStore((s) => s.tags);
 
   const [period, setPeriod] = useState<Period>("month");
   const [eqTab, setEqTab] = useState(false);
@@ -30,14 +29,10 @@ export function Dashboard() {
   const [drawn, setDrawn] = useState(false);
   const onDrawn = useCallback(() => setDrawn(true), []);
 
-  const kindOf = useMemo(() => {
-    const m = new Map(tags.map((t) => [t.t, t.k]));
-    return (t: string) => m.get(t);
-  }, [tags]);
   const p = useMemo(() => periodNumbers(entries, picked, period, today), [entries, picked, period, today]);
   const setupRows = useMemo(() => breakdown(p.T, setupOrder(setups, p.T), (e: Entry) => e.setup), [p.T, setups]);
   const sessRows = useMemo(() => breakdown(p.T, SESSIONS, (e: Entry) => e.session), [p.T]);
-  const mist = useMemo(() => mistakeRows(p.T, kindOf), [p.T, kindOf]);
+  const mist = useMemo(() => mistakeRows(p.T), [p.T]);
   const thumbs = useMemo(() => Object.fromEntries(setups.filter((s) => s.chart).map((s) => [s.name, s.chart])), [setups]);
   const recent = useMemo(() => recentStories(entries), [entries]);
   const noCharts = useMemo(() => noChartTrades(entries), [entries]);

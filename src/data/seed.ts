@@ -54,7 +54,8 @@ export const SAMPLE_BOS_TAG: Tag = { t: "BOS", n: SAMPLE_BOS_IDS.length, k: "Goo
 /** The handoff's 134 entries exactly as drawn: unit tests check the screenshots' numbers against these. */
 export const handoffEntries: Entry[] = (entriesJson as RawEntry[]).map((e) => {
   const x = ex.get(e.id);
-  return { ...e, chartKey: x?.c ?? null, excluded: false, textbook: !!x?.tb };
+  // Mistakes are their own field (DESIGN.md › Mistakes): the handoff kept them inside the tags too.
+  return { ...e, tags: e.tags.filter((t) => !e.mistakes.includes(t)), chartKey: x?.c ?? null, excluded: false, textbook: !!x?.tb };
 });
 
 /** What the app starts with: the handoff's entries plus the owner-approved stand-ins above. */

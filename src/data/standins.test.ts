@@ -50,6 +50,12 @@ describe("upgrading a journal saved before the stand-ins", () => {
   });
   it("leaves data from this version as it is", async () => {
     const now = { entries: [], tags: [] };
-    expect(await migrateData(now, 2)).toBe(now);
+    expect(await migrateData(now, 5)).toBe(now);
+  });
+  it("version 5: mistakes move out of the tags into their own field, nothing lost (DESIGN.md › Mistakes)", async () => {
+    const e = { ...SHORT_TRADE, id: "x1", tags: ["Retest", "Moved stop", "FOMO"], mistakes: ["FOMO"] };
+    const tags = [{ t: "Retest", n: 1, k: "Good" as const }, { t: "Moved stop", n: 1, k: "Mistake" as const }, { t: "FOMO", n: 1, k: "Mistake" as const }];
+    const out = await migrateData({ entries: [e], tags }, 4);
+    expect(out.entries?.[0]).toMatchObject({ tags: ["Retest"], mistakes: ["FOMO", "Moved stop"] });
   });
 });

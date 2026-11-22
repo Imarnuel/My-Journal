@@ -1,8 +1,8 @@
 // Dashboard numbers for every period, checked against the prototype (handoff/prototype/Dashboard.dc.html)
 // and the screenshots (light/02-Dashboard.png, states/02-dashboard-period-3-months.png).
 import { describe, expect, it } from "vitest";
-import { handoffEntries, handoffTags, TODAY } from "../data/seed";
-import type { Entry, TagKind } from "./types";
+import { handoffEntries, TODAY } from "../data/seed";
+import type { Entry } from "./types";
 import { fr, pct } from "./format";
 import {
   barGroups, barHeight, bestWorst, breakdown, dateSpan, eqGrid, eqPaths, eqScale, eqTicks, firstWeekday,
@@ -10,7 +10,6 @@ import {
 } from "./dashboard";
 
 const REAL = ["Main account", "Funded 100K", "Challenge 50K"];
-const kindOf = (t: string): TagKind | undefined => handoffTags.find((x) => x.t === t)?.k;
 const SETUPS = [{ name: "4H supply pullback" }, { name: "London breakout" }, { name: "Asian range fade" }];
 
 const top = (p: ReturnType<typeof periodNumbers>) => [
@@ -78,7 +77,7 @@ describe("This month (light/02-Dashboard.png)", () => {
       ["London", 12, "50%", "+0.32R", "+3.8R", "left 39.6"],
       ["New York", 5, "60%", "+0.96R", "+4.8R", "left 50"],
     ]);
-    const m = mistakeRows(p.T, kindOf);
+    const m = mistakeRows(p.T);
     expect(m.rows.map((x) => [x.tag, x.n, fr(x.r), x.pct])).toEqual([
       ["Moved stop", 3, "−3.0R", 100],
       ["Entered before close", 2, "−2.0R", 67],
@@ -124,7 +123,7 @@ describe("3 months (states/02-dashboard-period-3-months.png)", () => {
       ["Asian range fade", 7, "29%", "−0.26R", "−1.8R", "right 9.4"],
       ["Unsorted", 10, "40%", "−0.07R", "−0.7R", "right 3.6"],
     ]);
-    const m = mistakeRows(p.T, kindOf);
+    const m = mistakeRows(p.T);
     expect(m.rows.map((x) => [x.tag, x.n, fr(x.r), x.pct])).toEqual([
       ["Entered before close", 5, "−5.0R", 100],
       ["Moved stop", 5, "−5.0R", 100],
@@ -161,10 +160,10 @@ describe("recency and notice", () => {
     expect(noChartTrades(after)).toEqual([]);
     expect(recentStories(after).map((e) => e.id).slice(0, 3)).toEqual(["e24", "e25", "e19"]);
   });
-  it("mistakes come from tag kinds", () => {
+  it("mistakes come from their own field", () => {
     const e = handoffEntries.find((x) => x.id === "e18")!;
-    expect(mistakesOf(e, kindOf).sort()).toEqual(["Chased entry", "Moved stop"]);
-    expect(mistakesOf({ ...e, tags: [...e.tags, "Supply zone"] }, kindOf).sort()).toEqual(["Chased entry", "Moved stop"]);
+    expect(mistakesOf(e).sort()).toEqual(["Chased entry", "Moved stop"]);
+    expect(e.tags).not.toContain("Moved stop"); // no longer inside the tags
   });
   it("resample keeps the ends", () => {
     expect(resample([0, 2], 3)).toEqual([0, 1, 2]);

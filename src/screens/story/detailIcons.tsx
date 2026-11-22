@@ -12,7 +12,7 @@ function Filled({ children, flip }: { children: ReactNode; flip?: boolean }) {
   );
 }
 
-export type DetailIconName = "setup" | "tags" | "plan" | "headspace" | "pair" | "long" | "short" | "nodir" | "status" | "account" | "date" | "net" | "expectancy" | "winrate" | "trades";
+export type DetailIconName = "setup" | "tags" | "mistakes" | "plan" | "headspace" | "pair" | "long" | "short" | "nodir" | "status" | "account" | "date" | "net" | "expectancy" | "winrate" | "trades";
 
 export function DetailIcon({ name }: { name: DetailIconName }) {
   switch (name) {
@@ -26,6 +26,12 @@ export function DetailIcon({ name }: { name: DetailIconName }) {
       return (
         <Filled>
           <path fillRule="evenodd" d="M2 4a2 2 0 0 1 2-2h7.17a2 2 0 0 1 1.42.59l8.82 8.82a2 2 0 0 1 0 2.83l-7.17 7.17a2 2 0 0 1-2.83 0L2.59 12.59A2 2 0 0 1 2 11.17V4zm5.5 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+        </Filled>
+      );
+    case "mistakes": // a warning triangle (DESIGN.md › Mistakes)
+      return (
+        <Filled>
+          <path fillRule="evenodd" d="M10.3 3.5a2 2 0 0 1 3.4 0l8.3 14.6a2 2 0 0 1-1.7 2.9H3.7A2 2 0 0 1 2 18.1L10.3 3.5zM11 8.5h2v5.5h-2V8.5zm1 7.25a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z" />
         </Filled>
       );
     case "plan": // clipboard with a check

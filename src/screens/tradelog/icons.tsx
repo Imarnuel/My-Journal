@@ -24,6 +24,13 @@ export const IcTag = ({ s = 16 }: { s?: number }) => (
     <circle cx="8" cy="8" r="1.4" />
   </svg>
 );
+/** Lucide triangle-alert: mistakes (DESIGN.md › Mistakes). */
+export const IcMistake = ({ s = 16 }: { s?: number }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" strokeWidth="1.8" {...P}>
+    <path d="m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z" />
+    <path d="M12 9v4M12 17h.01" />
+  </svg>
+);
 export const IcDir = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="1.8" {...P}>
     <path d="M8 20V4L4.5 7.5M16 4v16l3.5-3.5" />

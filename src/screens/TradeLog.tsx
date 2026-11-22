@@ -36,7 +36,7 @@ import { DEFAULT_SESSIONS } from "../data/settings";
 import { FilterMenu, type Opt } from "./tradelog/FilterMenu";
 import { GridCard, ListRow, type RowActions } from "./tradelog/Rows";
 import { SHORT_SECONDS, useTradeLog } from "./tradelog/state";
-import { IcBook, IcCalendar, IcClock, IcDir, IcGrid, IcList, IcPair, IcPlus, IcSort, IcStatus, IcTag } from "./tradelog/icons";
+import { IcBook, IcCalendar, IcClock, IcDir, IcGrid, IcList, IcPair, IcPlus, IcSort, IcStatus, IcTag, IcMistake } from "./tradelog/icons";
 
 const segStyle = (on: boolean) =>
   ({ font: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", fontWeight: 500, color: on ? "var(--inverse-fg)" : "var(--text-2)", background: on ? "var(--inverse-bg)" : "transparent", border: 0, borderRadius: "var(--r-sm)", padding: "0 12px", minHeight: "32px", cursor: "pointer" }) as const;
@@ -121,6 +121,7 @@ export function TradeLog() {
     { k: "pair", name: "Pair", icon: <IcPair />, width: 220, all: "Any pair", values: valuesBy(entries, pairsOf) },
     { k: "setup", name: "Setup", icon: <IcBook />, width: 260, all: "Any setup", values: valuesBy(entries, (e) => [setupOf(e)]) },
     { k: "tag", name: "Tags", icon: <IcTag />, width: 260, all: "Any tag", values: valuesBy(entries, (e) => e.tags) },
+    { k: "mistake", name: "Mistakes", icon: <IcMistake />, width: 260, all: "Any mistake", values: valuesBy(entries, (e) => e.mistakes) },
     { k: "dir", name: "Direction", icon: <IcDir />, width: 180, all: "Long and short", values: [...DIRS] },
     { k: "status", name: "Status", icon: <IcStatus />, width: 220, all: "Any status", values: STATUSES },
   ];

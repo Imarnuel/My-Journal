@@ -1,7 +1,7 @@
 // Dashboard formulas (handoff/docs/05-data-and-calculations.md) on top of calc.ts: the period line,
 // R over time geometry, R by day / week, breakdown rows, recent stories, and the no-charts notice.
 // Pure functions over one set of entries, so every number follows the period and the account picker.
-import type { Entry, Period, TagKind } from "./types";
+import type { Entry, Period } from "./types";
 import { MIN_RATE, byTime, countStatus, counted, periodStart, stats, type Stats } from "./calc";
 import { addDays, monShort, monthName, mondayOf, parseDate, shortDate } from "./format";
 
@@ -40,10 +40,9 @@ export function subtitle(period: Period, today: string): string {
   return `${name} · ${span} · all figures in R`;
 }
 
-/** An entry's mistake-kind tags: tags whose kind is Mistake (falls back to the stored list when it carries no tags). */
-export function mistakesOf(e: Entry, kindOf: (t: string) => TagKind | undefined): string[] {
-  if (!e.tags.length) return e.mistakes;
-  return [...new Set(e.tags.filter((t) => kindOf(t) === "Mistake"))];
+/** An entry's mistakes: their own field since 2026-11-22 (DESIGN.md › Mistakes). */
+export function mistakesOf(e: Entry): string[] {
+  return [...new Set(e.mistakes)];
 }
 
 export type PeriodNumbers = { from: string; T: Entry[]; s: Stats; watched: number; notFilled: number; enough: boolean };
@@ -198,10 +197,10 @@ export function setupOrder(setups: { name: string }[], T: Entry[]): string[] {
 }
 
 /** Costliest mistakes with the bar length as a share of the costliest one. */
-export function mistakeRows(T: Entry[], kindOf: (t: string) => TagKind | undefined) {
+export function mistakeRows(T: Entry[]) {
   const m = new Map<string, { n: number; r: number }>();
   for (const e of T)
-    for (const t of mistakesOf(e, kindOf)) {
+    for (const t of mistakesOf(e)) {
       const v = m.get(t) ?? { n: 0, r: 0 };
       v.n++;
       v.r = round2(v.r + (e.r as number));
@@ -209,7 +208,7 @@ export function mistakeRows(T: Entry[], kindOf: (t: string) => TagKind | undefin
     }
   const rows = [...m.entries()].map(([tag, v]) => ({ tag, ...v })).sort((a, b) => a.r - b.r);
   const mm = Math.max(0.01, ...rows.map((x) => Math.abs(x.r)));
-  const untagged = T.filter((e) => mistakesOf(e, kindOf).length === 0).length;
+  const untagged = T.filter((e) => mistakesOf(e).length === 0).length;
   return { rows: rows.map((x) => ({ ...x, pct: Math.round((Math.abs(x.r) / mm) * 100) })), untagged };
 }
 

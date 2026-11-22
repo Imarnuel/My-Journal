@@ -410,13 +410,14 @@ test("frame 16: Prices on this screenshot are too small to read; Type the number
 
 // ---------- tags
 
-test("tags: autocomplete, most used first and no counts (DESIGN.md), Enter, Backspace, × with Undo, a new tag gets its kind from its words", async ({ page }) => {
+test("tags and mistakes: autocomplete, most used first and no counts (DESIGN.md), Enter, Backspace, × with Undo, new ones added at once", async ({ page }) => {
   await page.goto("/new");
   const input = page.getByRole("combobox", { name: "Add a tag" });
   await expect(input).toHaveAttribute("placeholder", "Add a tag");
   await input.click();
   await expect(page.getByRole("listbox", { name: "Matching tags" }).getByRole("option")).toHaveCount(5);
-  await expect(page.getByRole("listbox", { name: "Matching tags" }).getByRole("option")).toHaveText(["Break of structure", "Trend continuation", "Liquidity sweep", "Entered before close", "Supply zone"]);
+  // Tags suggest tags only; mistakes have their own field (DESIGN.md › Mistakes).
+  await expect(page.getByRole("listbox", { name: "Matching tags" }).getByRole("option")).not.toContainText(["Entered before close"]);
   await input.fill("supp");
   await expect(page.getByRole("option", { name: "Supply zone", exact: true })).toBeVisible();
   await input.press("Enter");
@@ -434,22 +435,34 @@ test("tags: autocomplete, most used first and no counts (DESIGN.md), Enter, Back
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(pills).toHaveText(["Supply zone"]);
 
-  await input.fill("revenge entry");
-  await expect(page.getByRole("option", { name: "Add “Revenge entry” as a new tag" })).toBeVisible();
+  // A new tag is added at once: no question.
+  await input.fill("asian high");
+  await expect(page.getByRole("option", { name: "Add “Asian high” as a new tag" })).toBeVisible();
   await input.press("Enter");
-  // No question: the kind comes from the words (DESIGN.md › Tags), and the toast says which.
-  await expect(page.getByRole("dialog", { name: "New tag" })).toHaveCount(0);
-  await expect(pills).toHaveText(["Supply zone", "Revenge entry"]);
-  await expect(toast(page)).toContainText("“Revenge entry” added as a new mistake tag");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(pills).toHaveText(["Supply zone", "Asian high"]);
+  await expect(toast(page)).toContainText("“Asian high” added as a new tag");
 
-  // the kind is stored once the story is saved, and the tag counts as a mistake
+  // Mistakes: their own field, the same behaviour, suggesting mistakes only.
+  const mInput = page.getByRole("combobox", { name: "Add a mistake" });
+  await mInput.click();
+  await expect(page.getByRole("listbox", { name: "Matching mistakes" }).getByRole("option")).toHaveText(["Entered before close", "Chased entry", "Moved stop"]);
+  await mInput.fill("revenge entry");
+  await expect(page.getByRole("option", { name: "Add “Revenge entry” as a new mistake" })).toBeVisible();
+  await mInput.press("Enter");
+  const mPills = page.getByRole("group", { name: "Mistakes" }).locator(".pill");
+  await expect(mPills).toHaveText(["Revenge entry"]);
+  await expect(toast(page)).toContainText("“Revenge entry” added as a new mistake");
+
+  // Saved as two lists; the new mistake counts in the mistakes vocabulary.
   await page.getByRole("button", { name: "Save story" }).click();
   await expect(page).toHaveURL(/\/story\/e\d+$/);
   const kind = await store<string>(page, `return s.getState().tags.find((t) => t.t === "Revenge entry").k`);
   expect(kind).toBe("Mistake");
   const id = page.url().split("/").pop();
-  const e = await store<{ mistakes: string[] }>(page, `return s.getState().entries.find((e) => e.id === "${id}")`);
+  const e = await store<{ tags: string[]; mistakes: string[] }>(page, `return s.getState().entries.find((e) => e.id === "${id}")`);
   expect(e.mistakes).toEqual(["Revenge entry"]);
+  expect(e.tags).toEqual(["Supply zone", "Asian high"]);
 });
 
 test("Plan: Followed / Not followed, click again to clear", async ({ page }) => {
@@ -850,7 +863,7 @@ test("every saved entry opens in the story; the analysis is linked by its own da
   await expect(page.locator("header .meta")).toHaveText("Taken · Challenge 50K · Fri 13 Nov, 10:05 · London");
   await expect(page.locator("header .num")).toHaveText("−1.0R");
   await expect(page.locator("#nR")).toHaveValue("Chased the London open after missing my entry. Moved the stop too.");
-  await expect(page.getByRole("group", { name: "Tags" }).locator(".pill")).toHaveText(["Moved stop", "Chased entry"]);
+  await expect(page.getByRole("group", { name: "Mistakes" }).locator(".pill")).toHaveText(["Moved stop", "Chased entry"]);
   await expect(page.getByRole("button", { name: "Not followed" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText("2 of 2")).toBeVisible();
 

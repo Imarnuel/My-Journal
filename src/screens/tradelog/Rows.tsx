@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Entry } from "../../lib/types";
 import { isImage, rowFacts, thumbs, type Thumbs } from "../../lib/tradelog";
 import { returnFocus } from "./FilterMenu";
-import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcLink, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash } from "./icons";
+import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcLink, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash, IcMistake } from "./icons";
 
 export type RowActions = {
   menuOpen: boolean;
@@ -235,7 +235,14 @@ export function ListRow({ e, a, fresh }: { e: Entry; a: RowActions; fresh?: bool
             {f.plan ? <Fact icon={<IcPlan />} sr="Plan:" text={f.plan} /> : null}
             {e.tags.length ? <Fact icon={<IcTag s={14} />} sr="Tags:" text={e.tags.join(", ")} /> : null}
           </span>
-        ) : f.hint ? (
+        ) : null}
+        {/* Mistakes on their own line, with their own icon (DESIGN.md › Mistakes). */}
+        {f.facts2 && e.mistakes.length ? (
+          <span className="kfacts kfacts-2">
+            <Fact icon={<IcMistake s={14} />} sr="Mistakes:" text={e.mistakes.join(", ")} />
+          </span>
+        ) : null}
+        {!f.facts2 && f.hint ? (
           <span className="meta" style={{ color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={f.hint}>
             {f.hint}
           </span>

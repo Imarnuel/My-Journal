@@ -308,13 +308,14 @@ async function scrollToSessions(page: Page) {
   await page.evaluate(() => window.scrollTo(0, 630));
 }
 
-test("state 39: Manage tags lists every tag with its kind and use count", async ({ page }, info) => {
+test("state 39: Manage tags lists the tags, then the mistakes, with their use counts", async ({ page }, info) => {
   await page.goto("/settings?theme=system");
   await page.getByRole("button", { name: "Manage tags" }).click();
   const list = page.getByRole("list", { name: "Your tags" });
   await expect(list.getByRole("listitem")).toHaveCount(14); // the handoff's 13 and the sample "BOS" (DESIGN.md)
-  await expect(list.getByRole("listitem").first()).toContainText("Good");
   await expect(list.getByRole("listitem").first()).toContainText("used 18 times");
+  await expect(list.getByRole("listitem").last().getByRole("textbox", { name: /^Rename / })).toHaveValue("Moved stop"); // mistakes come after the tags
+  await expect(list).toContainText("Mistakes");
   await expect(page.getByRole("button", { name: "Done" })).toHaveAttribute("aria-expanded", "true");
   await scrollToSessions(page);
   await diffViewport(page, "states/39-settings-manage-tags.png", info);
@@ -345,11 +346,10 @@ test("settings: removing a tag happens at once; Undo restores the tag and every 
   await page.getByRole("button", { name: "Manage tags" }).click();
   await page.getByRole("button", { name: "Remove Chased entry" }).click();
   await expect(page.getByRole("status")).toContainText("“Chased entry” removed from 7 stories");
-  await expect(page.getByText("Tags (13)")).toBeVisible();
-  await expect(page.getByText(/8 good · 2 mistakes · 3 neutral/)).toBeVisible();
+  await expect(page.getByText("Mistakes (2)")).toBeVisible();
   expect(await store<number>(page, `(s) => s.entries.filter((e) => e.tags.includes("Chased entry") || e.mistakes.includes("Chased entry")).length`)).toBe(0);
   await page.getByRole("status").getByRole("button", { name: "Undo" }).click();
-  await expect(page.getByText("Tags (14)")).toBeVisible();
+  await expect(page.getByText("Mistakes (3)")).toBeVisible();
   expect(await store<string>(page, snap)).toBe(before);
 });
 
@@ -357,11 +357,11 @@ test("state 40: Merge look-alike tags shows an Undo toast; Undo brings the promp
   await page.goto("/settings?theme=system");
   const prompt = page.getByText('"BOS" and "Break of structure" look like the same tag');
   await expect(prompt).toBeVisible();
-  await expect(page.getByText("Tags (14)")).toBeVisible();
+  await expect(page.getByText("Tags (11)")).toBeVisible();
   await page.getByRole("button", { name: "Merge" }).click();
   await expect(prompt).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("Merged into “Break of structure”");
-  await expect(page.getByText("Tags (13)")).toBeVisible();
+  await expect(page.getByText("Tags (10)")).toBeVisible();
   await page.mouse.move(0, 0);
   await scrollToSessions(page);
   await diffViewport(page, "states/40-settings-tags-merged-toast.png", info);

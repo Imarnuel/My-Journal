@@ -17,8 +17,17 @@ export type Appearance = "system" | "light" | "dark";
  * sample trades got the "BOS" tag (the owner's answers to open questions 4 and 6). 3 (2026-11-21): the voice
  * recordings kept until then are cleared once.
  */
-const STORE_VERSION = 4;
+const STORE_VERSION = 5;
 type Saved = { entries?: Entry[]; tags?: Tag[] } & Record<string, unknown>;
+
+/** Move each entry's mistake-kind tags into its own mistakes list (store version 5). */
+export function splitMistakes(entries: Entry[], vocab: Tag[]): Entry[] {
+  const isMistake = new Set(vocab.filter((t) => t.k === "Mistake").map((t) => t.t));
+  return entries.map((e) => {
+    const mistakes = [...new Set([...(e.mistakes ?? []), ...e.tags.filter((t) => isMistake.has(t))])];
+    return { ...e, mistakes, tags: e.tags.filter((t) => !mistakes.includes(t)) };
+  });
+}
 
 /**
  * Bring data saved by an older version up to date without losing anything the owner changed: add what's
@@ -31,6 +40,9 @@ export async function migrateData(saved: Saved, from: number): Promise<Saved> {
   // Version 4: the real journal starts with the starter tags (DESIGN.md › Tags); a journal saved before gets the
   // ones it doesn't have, without touching its own.
   if (from < 4 && REAL) saved = { ...saved, tags: [...(saved.tags ?? []), ...missingStarters(saved.tags ?? [])] };
+  // Version 5: mistakes are their own field (DESIGN.md › Mistakes). Each entry's mistakes are its mistake-kind
+  // tags (and any it already listed); its tags keep the rest. Nothing is lost.
+  if (from < 5 && saved.entries) saved = { ...saved, entries: splitMistakes(saved.entries, saved.tags ?? []) };
   if (from >= 2 || !saved.entries) return saved;
   let entries = saved.entries;
   if (!entries.some((e) => e.id === SHORT_TRADE.id)) {

@@ -118,7 +118,7 @@ function fillSavedEntry(id: Target, fill: VoiceNoteFill, rec?: Recording) {
   const { patch, newKinds } = applyVoiceNote(story, fill);
   const fresh = Object.entries(newKinds).filter(([t]) => !st.tags.some((x) => x.t.toLowerCase() === t.toLowerCase()));
   if (fresh.length) st.setTags([...st.tags, ...fresh.map(([t, k]) => ({ t, n: 1, k }))]);
-  st.updateEntry(id, entryPatch(e, story, patch, (t) => newKinds[t] ?? st.tagKind(t)));
+  st.updateEntry(id, entryPatch(e, story, patch));
   if ("voiceLen" in patch) useStoryExtras.getState().set(id, { voiceLen: patch.voiceLen ?? undefined });
   const keep = (st.settings.keepRecordings as boolean | undefined) ?? SETTINGS_DEFAULTS.keepRecordings;
   if (rec && keep) void saveVoiceAudio(id, rec.blob);

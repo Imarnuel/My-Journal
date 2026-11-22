@@ -6,11 +6,11 @@ import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { useTileReorder } from "./story/useTileReorder";
-import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type DragEvent, type KeyboardEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
-import type { Entry, Status, TagKind } from "../lib/types";
+import type { Entry, Status, Tag, TagKind } from "../lib/types";
 import { dateTime, fr, signed, tone } from "../lib/format";
 import {
   HEADSPACE,
@@ -43,7 +43,6 @@ import {
 } from "../lib/story";
 import { transcriptRuns, type VoiceNoteFill } from "../lib/voiceNote";
 import { ChartViewer } from "./story/ChartViewer";
-import { guessKind } from "../lib/tagKind";
 import { cancelVoiceRead, clearVoiceFailure, connectVoice, readVoice, retargetVoice, useVoiceReading, type ReadPhase, type VoiceProblem } from "./story/voiceReading";
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
@@ -89,7 +88,6 @@ function StoryScreen({ id }: { id: string | null }) {
   const setups = useStore((s) => s.setups);
   const vocabRaw = useStore((s) => s.tags);
   const setTags = useStore((s) => s.setTags);
-  const tagKind = useStore((s) => s.tagKind);
   const updateEntry = useStore((s) => s.updateEntry);
   const addEntry = useStore((s) => s.addEntry);
   const removeEntry = useStore((s) => s.removeEntry);
@@ -116,7 +114,6 @@ function StoryScreen({ id }: { id: string | null }) {
   const [playing, setPlaying] = useState(false);
   const [pSec, setPSec] = useState(0);
   const [said, setSaid] = useState(false);
-  const [tagQ, setTagQ] = useState("");
 
   const dateByHand = useRef(false);
   // Which number is being edited in place (DESIGN.md, Editing numbers), and what it was, for Escape.
@@ -211,8 +208,6 @@ function StoryScreen({ id }: { id: string | null }) {
     return () => void (live = false);
   }, [saved, id]);
 
-  const kindOf = (t: string) => pendingKinds[t] ?? tagKind(t);
-
   /** Apply a change: a saved story saves at once, a new one updates its draft. */
   const update = (p: Partial<Story>) => {
     // The owner changed a fact the reader had filled: noted on this device to improve the reading rules.
@@ -230,7 +225,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const e = useStore.getState().entries.find((x) => x.id === id);
     if (!e) return;
     const cur = storyFromEntry(e, CANVAS_EXTRAS[e.id], useStoryExtras.getState().byId[e.id]);
-    updateEntry(e.id, entryPatch(e, cur, p, kindOf));
+    updateEntry(e.id, entryPatch(e, cur, p));
     if ("voiceLen" in p) setExtras(e.id, { voiceLen: p.voiceLen ?? undefined });
   };
 
@@ -423,9 +418,9 @@ function StoryScreen({ id }: { id: string | null }) {
     if (rec) keepRecording(rec.blob);
     // What it filled glows together, new tags arrive in a short wave (not on reduced motion, handled in CSS).
     // Cleared after the glow so it never replays.
-    const keys = (["before", "refl", "setup", "tags", "followed", "headspace"] as const).filter((k) => k in patch);
+    const keys = (["before", "refl", "setup", "tags", "mistakes", "followed", "headspace"] as const).filter((k) => k in patch);
     setJustFilled(new Set(keys));
-    setNewTags((patch.tags ?? []).filter((t) => !cur.tags.includes(t)));
+    setNewTags([...(patch.tags ?? []).filter((t) => !cur.tags.includes(t)), ...(patch.mistakes ?? []).filter((t) => !cur.mistakes.includes(t))]);
     readTimers.current.push(setTimeout(() => (setJustFilled(new Set()), setNewTags([])), 1400));
     toastA(voiceToast(filled), () => update(prev), "voice");
   };
@@ -532,29 +527,14 @@ function StoryScreen({ id }: { id: string | null }) {
   };
   const playText = playing || pSec ? `Playing ${clock(pSec)} of ${len ?? clock(24)}` : len ? `From your ${len} voice note` : "From your voice note";
 
-  // ---- tags
+  // ---- tags and mistakes: two fields that work the same (DESIGN.md › Mistakes). A new tag or mistake is
+  // added at once, no question; the vocabulary keeps mistakes apart (their kind) so each field suggests its own.
   const vocab = [...vocabRaw].sort((a, b) => b.n - a.n);
-  const ts = tagSuggestions(vocab, s.tags, tagQ);
-  const addTag = (t: string) => {
-    update({ tags: s.tags.concat([t]) });
-    setTagQ("");
-    menu.close();
-  };
-  /** A brand-new tag gets its kind from its words, never a question (DESIGN.md › Tags); the toast says which. */
-  const addNewTag = () => {
-    const t = niceTag(tagQ);
-    const k = guessKind(t);
-    registerKinds({ [t]: k });
-    addTag(t);
-    toastA(`“${t}” added as a new ${k.toLowerCase()} tag`, undefined, "added");
-  };
-  const tagKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (ts.sug.length && ts.ql) addTag(ts.sug[0].t);
-      else if (ts.canAdd) addNewTag();
-    }
-    if (e.key === "Backspace" && !tagQ && s.tags.length) update({ tags: s.tags.slice(0, -1) });
+  const tagVocab = vocab.filter((v) => v.k !== "Mistake");
+  const mistakeVocab = vocab.filter((v) => v.k === "Mistake");
+  const onNewItem = (field: ChipKind, t: string) => {
+    registerKinds({ [t]: field === "mistake" ? "Mistake" : "Neutral" });
+    toastA(`“${t}” added as a new ${field}`, undefined, "added");
   };
 
   // ---- facts
@@ -653,7 +633,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const nid = nextId(useStore.getState().entries);
     const fresh = Object.entries(pendingKinds).filter(([t]) => !useStore.getState().tags.some((x) => x.t === t));
     if (fresh.length) setTags([...useStore.getState().tags, ...fresh.map(([t, k]) => ({ t, n: 1, k }))]);
-    addEntry(entryFromStory(nid, s, kindOf));
+    addEntry(entryFromStory(nid, s));
     retargetReads(draftKey.current, nid); // charts still being read fill the saved story
     retargetVoice(draftKey.current, nid); // and so does a voice note still being read
     if (s.voiceLen) setExtras(nid, { voiceLen: s.voiceLen });
@@ -1148,69 +1128,10 @@ function StoryScreen({ id }: { id: string | null }) {
                 </div>
               </DetailRow>
               <DetailRow label="Tags" icon={<DetailIcon name="tags" />} fx={fx("tags", !s.tags.length)}>
-                <div style={{ position: "relative" }}>
-                  <div className="ghost tagfield" role="group" aria-label="Tags" onClick={() => document.getElementById("taginput")?.focus()} style={{ cursor: "text", flexWrap: "wrap", position: "relative", zIndex: 5 }}>
-                    {s.tags.map((t, i) => (
-                      <span key={t} className={newTags.includes(t) ? "pill knew" : "pill"} style={{ display: "inline-flex", alignItems: "center", gap: "4px", paddingRight: "4px", ["--wave" as string]: `${WAVE_MS[Math.min(newTags.indexOf(t), WAVE_MS.length - 1)] ?? 0}ms` }}>
-                        {t}
-                        <button
-                          type="button"
-                          aria-label={`Remove ${t}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const prev = s.tags;
-                            update({ tags: s.tags.filter((_, k) => k !== i) });
-                            toastA(`“${t}” removed`, () => update({ tags: prev }), "deleted");
-                          }}
-                          style={{ width: "24px", height: "24px", margin: "-2px -4px -2px -2px", border: 0, borderRadius: "var(--r-sm)", background: "transparent", color: "var(--text-3)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                            <path d="M6 6l12 12M18 6L6 18" />
-                          </svg>
-                        </button>
-                      </span>
-                    ))}
-                    <input
-                      id="taginput"
-                      type="text"
-                      role="combobox"
-                      aria-expanded={menu.isOpen("tag") ? "true" : "false"}
-                      aria-controls="tagsug"
-                      aria-autocomplete="list"
-                      aria-label="Add a tag"
-                      placeholder={s.tags.length ? "" : "Add a tag"}
-                      value={tagQ}
-                      onChange={(e) => {
-                        setTagQ(e.target.value);
-                        menu.open("tag");
-                      }}
-                      onFocus={() => {
-                        if (!menu.isOpen("tag")) menu.open("tag");
-                      }}
-                      onKeyDown={tagKey}
-                      className="tag-input"
-                      style={{ flex: 1, font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "transparent", border: 0, outline: "none", padding: "4px 2px" }}
-                    />
-                  </div>
-                  {menu.isOpen("tag") ? (
-                    <>
-                      <Closer onClose={menu.close} />
-                      <div id="tagsug" role="listbox" aria-label="Matching tags" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", ...UNDER_FIELD }}>
-                        {ts.sug.map((o) => (
-                          <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => addTag(o.t)} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", color: "var(--text-1)", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" }}>
-                            <span>{o.t}</span>
-                          </button>
-                        ))}
-                        {ts.canAdd ? (
-                          <button type="button" role="option" aria-selected="false" onClick={addNewTag} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px", color: "var(--text-2)" }}>
-                            {`Add “${niceTag(tagQ)}” as a new tag`}
-                          </button>
-                        ) : null}
-                        {ts.none ? <span style={{ fontSize: "12px", color: "var(--text-3)", padding: "8px 12px", lineHeight: "16px" }}>Type to find a tag or make a new one</span> : null}
-                      </div>
-                    </>
-                  ) : null}
-                </div>
+                <ChipField field="tag" items={s.tags} vocab={tagVocab} fresh={newTags} menu={menu} onChange={(tags) => update({ tags })} onNew={(t) => onNewItem("tag", t)} toastA={toastA} />
+              </DetailRow>
+              <DetailRow label="Mistakes" icon={<DetailIcon name="mistakes" />} fx={fx("mistakes", !s.mistakes.length)}>
+                <ChipField field="mistake" items={s.mistakes} vocab={mistakeVocab} fresh={newTags} menu={menu} onChange={(mistakes) => update({ mistakes })} onNew={(t) => onNewItem("mistake", t)} toastA={toastA} />
               </DetailRow>
               <DetailRow label="Plan" icon={<DetailIcon name="plan" />} fx={fx("followed", s.followed == null)}>
                 <div role="group" aria-label="Plan" className="kseg-track" style={{ display: "flex", gap: "2px", padding: "2px", background: "var(--surface-inset)", border: "1px solid var(--border-subtle)", borderRadius: "var(--r-md)" }}>
@@ -1577,4 +1498,116 @@ function KeptRecording({ rec }: { rec: Recording }) {
 /** "pair, direction and 3 prices". */
 function listOf(parts: string[]): string {
   return parts.length <= 1 ? parts.join("") : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+type ChipKind = "tag" | "mistake";
+/** The words each field uses; the Mistakes field's are the Tags field's with "mistake" (owner-approved 2026-11-22). */
+const CHIP_WORDS: Record<ChipKind, { group: string; add: string; none: string }> = {
+  tag: { group: "Tags", add: "Add a tag", none: "Type to find a tag or make a new one" },
+  mistake: { group: "Mistakes", add: "Add a mistake", none: "Type to find a mistake or make a new one" },
+};
+
+/**
+ * A field of chips (Tags, Mistakes): × on every chip (Undo), typing suggests what was used before (most used
+ * first), Enter adds the first match or a new one, Backspace on an empty field removes the last chip. New chips
+ * from a voice note arrive in a short wave. One behaviour for both fields (01-decisions.md › Tags).
+ */
+function ChipField({ field, items, vocab, fresh, menu, onChange, onNew, toastA }: {
+  field: ChipKind;
+  items: string[];
+  vocab: Tag[];
+  fresh: string[];
+  menu: ReturnType<typeof useMenu<string>>;
+  onChange: (items: string[]) => void;
+  onNew: (t: string) => void;
+  toastA: ReturnType<typeof useToastAction>;
+}) {
+  const [q, setQ] = useState("");
+  const w = CHIP_WORDS[field];
+  const ids = { input: `${field}input`, list: `${field}sug` };
+  const sugg = tagSuggestions(vocab, items, q);
+  const add = (t: string) => {
+    onChange(items.concat([t]));
+    setQ("");
+    menu.close();
+  };
+  const addNew = () => {
+    const t = niceTag(q);
+    add(t);
+    onNew(t);
+  };
+  const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (sugg.sug.length && sugg.ql) add(sugg.sug[0].t);
+      else if (sugg.canAdd) addNew();
+    }
+    if (e.key === "Backspace" && !q && items.length) onChange(items.slice(0, -1));
+  };
+  const optStyle: CSSProperties = { font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" };
+  return (
+    <div style={{ position: "relative" }}>
+      <div className="ghost tagfield" role="group" aria-label={w.group} onClick={() => document.getElementById(ids.input)?.focus()} style={{ cursor: "text", flexWrap: "wrap", position: "relative", zIndex: 5 }}>
+        {items.map((t, i) => (
+          <span key={t} className={fresh.includes(t) ? "pill knew" : "pill"} style={{ display: "inline-flex", alignItems: "center", gap: "4px", paddingRight: "4px", ["--wave" as string]: `${WAVE_MS[Math.min(fresh.indexOf(t), WAVE_MS.length - 1)] ?? 0}ms` }}>
+            {t}
+            <button
+              type="button"
+              aria-label={`Remove ${t}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                const prev = items;
+                onChange(items.filter((_, k) => k !== i));
+                toastA(`“${t}” removed`, () => onChange(prev), "deleted");
+              }}
+              style={{ width: "24px", height: "24px", margin: "-2px -4px -2px -2px", border: 0, borderRadius: "var(--r-sm)", background: "transparent", color: "var(--text-3)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </span>
+        ))}
+        <input
+          id={ids.input}
+          type="text"
+          role="combobox"
+          aria-expanded={menu.isOpen(field) ? "true" : "false"}
+          aria-controls={ids.list}
+          aria-autocomplete="list"
+          aria-label={w.add}
+          placeholder={items.length ? "" : w.add}
+          value={q}
+          onChange={(e) => {
+            setQ(e.target.value);
+            menu.open(field);
+          }}
+          onFocus={() => {
+            if (!menu.isOpen(field)) menu.open(field);
+          }}
+          onKeyDown={onKey}
+          className="tag-input"
+          style={{ flex: 1, font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "transparent", border: 0, outline: "none", padding: "4px 2px" }}
+        />
+      </div>
+      {menu.isOpen(field) ? (
+        <>
+          <Closer onClose={menu.close} />
+          <div id={ids.list} role="listbox" aria-label={`Matching ${w.group.toLowerCase()}`} className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", ...UNDER_FIELD }}>
+            {sugg.sug.map((o) => (
+              <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => add(o.t)} className="kit-opt" style={{ ...optStyle, color: "var(--text-1)" }}>
+                <span>{o.t}</span>
+              </button>
+            ))}
+            {sugg.canAdd ? (
+              <button type="button" role="option" aria-selected="false" onClick={addNew} className="kit-opt" style={{ ...optStyle, color: "var(--text-2)" }}>
+                {`Add “${niceTag(q)}” as a new ${field}`}
+              </button>
+            ) : null}
+            {sugg.none ? <span style={{ fontSize: "12px", color: "var(--text-3)", padding: "8px 12px", lineHeight: "16px" }}>{w.none}</span> : null}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
 }

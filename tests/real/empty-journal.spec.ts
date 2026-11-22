@@ -148,18 +148,17 @@ test("a single chart just uploaded can be removed: the drop area returns", async
   await expect(page.getByRole("status").filter({ hasText: "Chart removed" })).toBeVisible();
 });
 
-test("a new journal starts with the starter tags: suggested as you type, kinds changeable in Settings", async ({ page }) => {
+test("a new journal starts with starter tags and mistakes, each suggested in its own field", async ({ page }) => {
   await page.goto("/new");
-  const input = page.locator("#taginput");
-  await input.click();
-  await input.fill("ch");
-  await expect(page.getByRole("option", { name: "Chased entry" })).toBeVisible();
+  await page.locator("#taginput").click();
+  await page.locator("#taginput").fill("re");
+  await expect(page.getByRole("option", { name: "Retest" })).toBeVisible();
+  await expect(page.getByRole("option", { name: "Revenge trade" })).toHaveCount(0); // a mistake, not a tag
+  await page.keyboard.press("Escape");
+  await page.locator("#mistakeinput").click();
+  await page.locator("#mistakeinput").fill("re");
+  await expect(page.getByRole("option", { name: "Revenge trade" })).toBeVisible();
   await page.goto("/settings");
-  await expect(page.getByText("Tags (12)")).toBeVisible();
-  await expect(page.getByText(/3 good · 6 mistakes · 3 neutral/)).toBeVisible();
-  await page.getByRole("button", { name: "Manage tags" }).click();
-  await page.getByRole("button", { name: "Kind of News: Neutral" }).click();
-  await page.getByRole("option", { name: /Mistake/ }).click();
-  await expect(page.getByRole("button", { name: "Kind of News: Mistake" })).toBeVisible();
-  await expect(page.getByText(/3 good · 7 mistakes · 2 neutral/)).toBeVisible();
+  await expect(page.getByText("Tags (6)")).toBeVisible();
+  await expect(page.getByText("Mistakes (6)")).toBeVisible();
 });
