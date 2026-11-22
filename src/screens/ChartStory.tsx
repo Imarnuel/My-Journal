@@ -1397,8 +1397,8 @@ function StoryScreen({ id }: { id: string | null }) {
                     onClick={() => editNum(k)}
                   >
                     {isRes ? null : `${label} `}
-                    {/* An empty result shows a grey example of what goes there, a win and a loss (the owner,
-                        2026-11-22, replacing "No result yet"). */}
+                    {/* An empty result shows a grey example of what goes there (the owner, 2026-11-22, replacing
+                        "No result yet"). */}
                     <span className={value ? "knum-v" : "knum-v knum-empty"} style={isRes && value ? { color: resCol, fontWeight: 500 } : isRes ? { color: "var(--text-3)" } : undefined}>
                       {isRes ? (value ? resVal : R_HINT) : value || "\u00a0"}
                     </span>
@@ -1550,9 +1550,10 @@ const READ_COPY: Record<ReadPhase, { title: string; text?: string }> = {
   long: { title: "Taking longer than usual" },
 };
 
-/** The empty result's grey example (with a real minus), and the same inside the box, where R follows it. */
-const R_HINT = "e.g. 2.5R or \u22121R";
-const R_HINT_TYPING = "e.g. 2.5 or \u22121";
+/** The empty result's grey example ("3R", the owner: "use 3R to reduce clutter"), and "3" inside the box, where R
+ *  follows it. */
+const R_HINT = "3R";
+const R_HINT_TYPING = "3";
 
 /** The one-tap outcomes under the numbers (approved wording, DESIGN.md › Result). */
 const OUTCOME_LABEL: Record<Outcome, string> = { target: "Target", stop: "Stop", breakeven: "Breakeven" };

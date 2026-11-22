@@ -325,11 +325,11 @@ and "we need to ensure it's not too much admin work". Approved wording: "How did
   being edited, and for any status but Taken.
 - **Anything else** is typed into Exit (already in the line) and the R follows; or the R itself, in the result
   box, which shows "R" after it.
-- **The empty result shows a grey example, a win and a loss**: "e.g. 2.5R or −1R" (real minus), in `--text-3`
-  on the empty slot's dashed underline; inside the box, "e.g. 2.5 or −1" with the R after it, gone as you type.
-  It replaces "No result yet" in the numbers line (the owner, 2026-11-22: "isn't a good placeholder"; "they
-  should know they're to type X R"; "we need to show negative too"). A saved story's header still says "No
-  result yet" for a taken trade without one.
+- **The empty result shows a grey example**: "3R" in `--text-3` on the empty slot's dashed underline; inside
+  the box, "3" with the R after it, gone as you type. It replaces "No result yet" in the numbers line (the owner,
+  2026-11-22: "isn't a good placeholder"; "they should know they're to type X R"; then "use 3R to reduce
+  clutter", over "e.g. 2.5R or −1R"). A loss is typed with a minus ("-1"). A saved story's header still says
+  "No result yet" for a taken trade without one.
 - **Voice notes fill it** when the owner says how it ended ("hit my target", "stopped out", "closed at
   breakeven"), only while Exit is empty; the toast lists "result". MT5 (later) brings the real exit.
 - **Never required**: a story saves with "No result yet", and nothing nags.
