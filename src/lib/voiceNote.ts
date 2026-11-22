@@ -35,7 +35,8 @@ export type VoiceNoteFill = {
  * answer), "mic" (no microphone access). Only "unclear" has designed copy (frame 16); the others use the
  * owner-approved wording in ChartStory (DESIGN.md › Voice notes in the real journal).
  */
-export type VoiceNoteResult = VoiceNoteFill | { ok: false; reason: "unclear" | "offline" | "failed" | "mic" };
+/** `quota`: the free daily allowance is used up (the card is the usual "failed" one; Settings says paused). */
+export type VoiceNoteResult = VoiceNoteFill | { ok: false; reason: "unclear" | "offline" | "failed" | "mic"; quota?: boolean };
 
 const CANNED: VoiceNoteFill = {
   ok: true,
@@ -118,7 +119,8 @@ async function readOnServer(rec: Recording, ctx: VoiceContext, { onPhase, signal
       out = null;
     }
     if (!out || typeof out !== "object" || !("ok" in out)) return { ok: false, reason: "failed" };
-    return out.ok ? out : { ok: false, reason: out.reason === "unclear" ? "unclear" : "failed" };
+    if (out.ok) return out;
+    return { ok: false, reason: out.reason === "unclear" ? "unclear" : "failed", ...((out as { quota?: boolean }).quota ? { quota: true } : {}) };
   } catch {
     return { ok: false, reason: navigator.onLine === false ? "offline" : "failed" };
   } finally {

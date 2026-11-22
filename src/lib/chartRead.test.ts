@@ -36,7 +36,7 @@ describe("trusting the position box", () => {
   /** A chart with one position tool, changed where a test says. */
   const one = (p: Record<string, unknown> = {}, t: Record<string, unknown> = {}) => ({ ...top, positions: [{ ...box, ...p }], ...t });
   it("a long whose prices agree fills everything", () => {
-    expect(readFromAnswer(one(), ctx)).toEqual({ ok: true, pair: "GBPUSD", dir: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", timeframe: "15m", unreadable: false, takenAt: null });
+    expect(readFromAnswer(one(), ctx)).toEqual({ ok: true, pair: "GBPUSD", dir: "Long", entry: "1.26840", stop: "1.26670", target: "1.27180", timeframe: "15m", unreadable: false, takenAt: null, noPrices: false });
   });
   it("the prices decide the direction; the model's own word is ignored (the owner's GBPJPY chart)", () => {
     const gj = { symbol: "GBPJPY", timeframe: "15", prices_legible: true, price_text: "212.008 | 211.840 | 211.197", positions: [{ direction: "Long", entry: "211.840", stop: "212.008", target: "211.197" }] };
@@ -65,12 +65,12 @@ describe("trusting the position box", () => {
     expect(readFromAnswer(one({}, { price_text: null }), ctx)).toMatchObject({ entry: null, unreadable: true });
     expect(readFromAnswer(one({ entry: null, stop: null, target: null }, { price_text: null }), ctx)).toMatchObject({ unreadable: false });
   });
-  it("two reads: prices and direction only when both match exactly; a mismatch is unreadable", () => {
+  it("two reads: prices and direction only when both match exactly; a mismatch fills nothing and says nothing", () => {
     const first = readFromAnswer(one(), ctx);
     expect(agreeReads(first, readFromAnswer(one(), ctx))).toEqual(first);
     // A guessed set: the second read's stop differs (as a blurry chart's did, three reads, three stops).
     const second = readFromAnswer(one({ stop: "1.26650" }, { price_text: top.price_text.replace("1.26670", "1.26650") }), ctx);
-    expect(agreeReads(first, second)).toMatchObject({ pair: "GBPUSD", timeframe: "15m", dir: null, entry: null, stop: null, target: null, unreadable: true });
+    expect(agreeReads(first, second)).toMatchObject({ pair: "GBPUSD", timeframe: "15m", dir: null, entry: null, stop: null, target: null, unreadable: false, noPrices: false });
     expect(agreeReads(first, { ...first, timeframe: "1H" })).toMatchObject({ timeframe: null, entry: "1.26840" });
   });
   it("only one read came back: the legend only, nothing to check prices against", () => {
@@ -87,10 +87,19 @@ describe("trusting the position box", () => {
         { direction: "Short", entry: "4055.77", stop: "4065.89", target: "3981.79" },
       ],
     };
-    expect(readFromAnswer(gold, ctx)).toEqual({ ok: true, pair: "XAUUSD", timeframe: "30m", dir: "Short", entry: null, stop: null, target: null, unreadable: false, takenAt: null });
+    expect(readFromAnswer(gold, ctx)).toEqual({ ok: true, pair: "XAUUSD", timeframe: "30m", dir: "Short", entry: null, stop: null, target: null, unreadable: false, takenAt: null, noPrices: false });
     // A tool whose prices can't be read, or that points the other way: no direction either.
     expect(readFromAnswer({ ...gold, positions: [gold.positions[0], { direction: "Short", entry: null, stop: null, target: null }] }, ctx)).toMatchObject({ dir: null, unreadable: false });
     expect(readFromAnswer({ ...gold, positions: [gold.positions[0], { direction: null, entry: "4055.77", stop: "3981.79", target: "4065.89" }] }, ctx)).toMatchObject({ dir: null });
+  });
+  it("a box read clearly but with no prices printed is told apart from one too small to read", () => {
+    const bare = one({ entry: null, stop: null, target: null }, { price_text: null });
+    expect(readFromAnswer(bare, ctx)).toMatchObject({ unreadable: false, noPrices: true });
+    expect(readFromAnswer({ ...bare, prices_legible: false }, ctx)).toMatchObject({ unreadable: true, noPrices: false });
+    expect(readFromAnswer({ ...top, positions: [] }, ctx)).toMatchObject({ noPrices: false }); // no box at all
+    // Both reads must agree before a card shows.
+    expect(agreeReads(readFromAnswer(bare, ctx), readFromAnswer(bare, ctx))).toMatchObject({ noPrices: true });
+    expect(agreeReads(readFromAnswer(bare, ctx), readFromAnswer(one(), ctx))).toMatchObject({ noPrices: false, unreadable: false });
   });
   it("prices must be plain numbers", () => {
     expect(readFromAnswer(one({ entry: "about 1.27" }), ctx)).toMatchObject({ entry: null, stop: null });
@@ -133,7 +142,7 @@ describe("the server function", () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify(answer) }] }] })));
     vi.stubGlobal("fetch", fetchMock);
     const out = JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx }))).text()).trim());
-    expect(out).toEqual({ ok: true, pair: "XAUUSD", dir: "Short", entry: "2340.5", stop: "2348.0", target: "2320.0", timeframe: "4H", unreadable: false, takenAt: null, via: ["gemini-4-hydrogen", "gemini-4-hydrogen"], tried: [] });
+    expect(out).toEqual({ ok: true, pair: "XAUUSD", dir: "Short", entry: "2340.5", stop: "2348.0", target: "2320.0", timeframe: "4H", unreadable: false, takenAt: null, noPrices: false, via: ["gemini-4-hydrogen", "gemini-4-hydrogen"], tried: [] });
     expect(fetchMock).toHaveBeenCalledTimes(2); // read twice at once
     const sent = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
     expect(sent.input[1]).toEqual({ type: "image", data: "AAAA", mime_type: "image/png" });
@@ -149,7 +158,13 @@ describe("the server function", () => {
       new Response(JSON.stringify({ steps: [{ type: "model_output", content: [{ type: "text", text: JSON.stringify({ symbol: "FX:GBPUSD", timeframe: "15", prices_legible: true, price_text: `Stop: ${stop} | 1.26550 | Target: 1.25150`, positions: [{ direction: "Short", entry: "1.26550", stop, target: "1.25150" }] }) }] }] }));
     vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(reply("1.27000")).mockResolvedValueOnce(new Response("busy", { status: 503 })).mockResolvedValueOnce(reply("1.27092")));
     const out = JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx }))).text()).trim());
-    expect(out).toMatchObject({ ok: true, pair: "GBPUSD", entry: null, stop: null, dir: null, unreadable: true, tried: ["gemini-4-hydrogen: 503"] });
+    expect(out).toMatchObject({ ok: true, pair: "GBPUSD", entry: null, stop: null, dir: null, unreadable: false, tried: ["gemini-4-hydrogen: 503"] });
+  });
+  it("every model out of free requests is 'quota' (reading is paused until tomorrow); a mix is just 'failed'", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("quota", { status: 429 })));
+    expect(JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx }))).text()).trim())).toMatchObject({ ok: false, reason: "quota" });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(new Response("busy", { status: 503 })).mockResolvedValue(new Response("quota", { status: 429 })));
+    expect(JSON.parse((await (await handler(post({ image: "AAAA", mime: "image/png", context: ctx }))).text()).trim())).toMatchObject({ ok: false, reason: "failed" });
   });
   it("only images; no key or a Gemini error is 'failed'", async () => {
     expect((await handler(post({ image: "AAAA", mime: "text/html", context: ctx }))).status).toBe(400);

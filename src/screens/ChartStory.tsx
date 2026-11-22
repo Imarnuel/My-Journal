@@ -50,10 +50,11 @@ import { CANVAS_EXTRAS, captionOf, newStoryStart } from "./story/canvas";
 import { PairList } from "./story/PairMenu";
 import { yourPairs } from "../lib/instruments";
 import { chartFill } from "../lib/chartFill";
-import { cancelChartRead, connectStory, noteCorrection, queueChartRead, retargetReads, useChartReading } from "./story/chartReading";
+import { cancelChartRead, connectStory, noteCorrection, queueChartRead, retargetReads, retryFailedReads, useChartReading } from "./story/chartReading";
+import { factsFull } from "../lib/chartFill";
 import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
-import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS } from "../data/settings";
+import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, setReadingPaused, usePref } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText, type Fx } from "./story/parts";
 
@@ -146,6 +147,11 @@ function StoryScreen({ id }: { id: string | null }) {
   const draftKey = useRef(`draft:${Math.random().toString(36).slice(2)}`);
   const readTarget = saved ? (id ?? "") : draftKey.current;
   const chartsReading = useChartReading((st) => st.pending[readTarget] ?? 0);
+  const chartsFailed = useChartReading((st) => st.failed[readTarget] ?? 0);
+  // "This chart has no prices on it" (#12), with its tip the first time only.
+  const [noPrices, setNoPrices] = useState(false);
+  const [seenTip, setSeenTip] = usePref("seenPricesTip");
+  const [showTip, setShowTip] = useState(false);
   const applyRef = useRef<(r: ChartRead) => void>(() => {});
   useEffect(
     () =>
@@ -411,9 +417,11 @@ function StoryScreen({ id }: { id: string | null }) {
     stopRead.current = null;
     setReading(false);
     if (!res.ok) {
+      if (res.quota) setReadingPaused(true); // Settings says reading is paused until tomorrow (#23)
       setVoiceError(res.reason);
       return;
     }
+    if (rec) setReadingPaused(false);
     lastRec.current = null;
     const cur = storyRef.current ?? s;
     const { patch, filled, newKinds } = applyVoiceNote(cur, res);
@@ -463,11 +471,14 @@ function StoryScreen({ id }: { id: string | null }) {
       if (date !== cur.date || time !== cur.time) Object.assign(patch, { date, time, session: sessionOf(time, sessionTimes()) }), parts.push("date");
     }
     if (fill.prices) (patch.numbers = { ...cur.numbers, ...fill.prices }), parts.push(fill.filled[fill.filled.length - 1]);
-    if (!Object.keys(patch).length) {
-      // Nothing new to fill. A position box whose prices can't be read gets the designed card (frame 16).
-      if (fill.unreadable) setUnreadable(true);
-      return;
+    // A box whose prices can't be read gets the designed card (frame 16); a box with no prices printed gets its
+    // own card, with a tip the first time (DESIGN.md › Chart reading, #12).
+    if (fill.unreadable) setUnreadable(true);
+    else if (fill.noPrices) {
+      setNoPrices(true);
+      if (!seenTip) (setShowTip(true), setSeenTip(true));
     }
+    if (!Object.keys(patch).length) return;
     const prev = prevOf(cur, patch);
     update(patch);
     Object.assign(readerFilled.current, {
@@ -866,6 +877,20 @@ function StoryScreen({ id }: { id: string | null }) {
             </p>
             </>
             ) : null}
+            {noPrices && !unreadable && !s.numbers.entry ? (
+              <ProblemCard title="This chart has no prices on it" text={showTip ? "Click the position box before taking the screenshot and its prices show." : undefined}>
+                <button
+                  type="button"
+                  className="btn btn-q"
+                  onClick={() => {
+                    setNoPrices(false);
+                    editNum("entry");
+                  }}
+                >
+                  Type the numbers
+                </button>
+              </ProblemCard>
+            ) : null}
             {unreadable ? (
               <ProblemCard title="Prices on this screenshot are too small to read" text="It's still in the story. Replace it with a sharper one, or type the entry, stop and target yourself.">
                 <button type="button" className="btn btn-g" onClick={() => replaceInput.current?.click()}>
@@ -1249,6 +1274,14 @@ function StoryScreen({ id }: { id: string | null }) {
             {chartsReading ? (
               <span role="status" className="kshimmer kmsg" style={{ fontSize: "12px", lineHeight: "16px", fontWeight: 500, alignSelf: "flex-start" }}>
                 Reading your chart…
+              </span>
+            ) : chartsFailed && !factsFull(s) ? (
+              // Still couldn't read after asking again (#22), or out of free requests (#23): one quiet line.
+              <span role="status" className="lbl kmsg" style={{ fontSize: "12px", lineHeight: "16px", display: "inline-flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                Couldn't read your chart just now ·
+                <button type="button" onClick={() => retryFailedReads(readTarget)} style={{ font: "inherit", fontWeight: 500, color: "var(--text-1)", background: "transparent", border: 0, padding: "4px 2px", margin: "-4px 0", minHeight: "24px", cursor: "pointer" }}>
+                  Try again
+                </button>
               </span>
             ) : (
               <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>

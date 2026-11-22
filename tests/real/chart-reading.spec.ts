@@ -240,3 +240,52 @@ test("a fact the reader filled and the owner changed is noted on this device, ne
   );
   expect(JSON.parse(log)).toMatchObject([{ field: "pair", read: "GBPUSD", typed: "EURUSD" }]);
 });
+
+// ---------- the approved messages (DESIGN.md › Chart reading, #12, #22, #23, #25)
+
+test("a box with no prices printed: its own card, with the tip only the first time", async ({ page }) => {
+  await server(page, { ...read, dir: null, entry: null, stop: null, target: null, unreadable: false, noPrices: true });
+  await page.goto("/new");
+  await addChart(page);
+  const card = page.getByRole("status").filter({ hasText: "This chart has no prices on it" });
+  await expect(card).toBeVisible({ timeout: 10_000 });
+  await expect(card).toContainText("Click the position box before taking the screenshot and its prices show.");
+  await expect(page.getByText("Prices on this screenshot are too small to read")).toHaveCount(0);
+  await card.getByRole("button", { name: "Type the numbers" }).click();
+  await expect(page.getByLabel("Entry", { exact: true })).toBeFocused();
+  // A second time: the card, without the tip.
+  await page.goto("/new");
+  await addChart(page);
+  await expect(page.getByRole("status").filter({ hasText: "This chart has no prices on it" })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText("Click the position box before taking the screenshot")).toHaveCount(0);
+});
+
+test("still can't read after asking again: one quiet line with Try again", async ({ page }) => {
+  await page.clock.install();
+  const asked = await server(page, { ok: false, reason: "failed" });
+  await page.goto("/new");
+  await addChart(page);
+  await expect.poll(() => asked.length).toBe(1);
+  await page.waitForTimeout(700); // the (fake) server answers before the clock moves on
+  await page.clock.runFor(61_000);
+  await expect.poll(() => asked.length).toBe(2);
+  await page.waitForTimeout(700);
+  await expect(page.getByText("Couldn't read your chart just now")).toHaveCount(0); // not yet: one more try
+  await page.clock.runFor(181_000);
+  await expect.poll(() => asked.length).toBe(3);
+  const line = trade(page).getByRole("status").filter({ hasText: "Couldn't read your chart just now" });
+  await expect(line).toBeVisible();
+  await line.getByRole("button", { name: "Try again" }).click();
+  await expect.poll(() => asked.length).toBe(4);
+});
+
+test("out of free requests: no retries, the same line, and Settings says reading is paused; what's sent is said", async ({ page }) => {
+  const asked = await server(page, { ok: false, reason: "quota" });
+  await page.goto("/new");
+  await addChart(page);
+  await expect(trade(page).getByRole("status").filter({ hasText: "Couldn't read your chart just now" })).toBeVisible({ timeout: 10_000 });
+  expect(asked.length).toBe(1);
+  await page.getByRole("link", { name: "Settings" }).click();
+  await expect(page.getByText("Chart and voice reading is paused until tomorrow.")).toBeVisible();
+  await expect(page.getByText("Charts and voice notes are sent to Google to be read. Google doesn't keep them.")).toBeVisible();
+});

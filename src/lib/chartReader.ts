@@ -35,7 +35,8 @@ export async function readChart(file: Blob, ctx: ChartReadContext): Promise<Char
       signal: ctl.signal,
     });
     const out = JSON.parse((await res.text()).trim()) as ChartReadResult;
-    return out && typeof out === "object" && out.ok === true ? out : { ok: false, reason: "failed" };
+    if (out && typeof out === "object" && out.ok === true) return out;
+    return { ok: false, reason: (out as { reason?: string } | null)?.reason === "quota" ? "quota" : "failed" };
   } catch {
     return { ok: false, reason: navigator.onLine === false ? "offline" : "failed" };
   } finally {

@@ -1,7 +1,7 @@
 // Settings preferences (frame 15, handoff/docs/01-decisions.md "Settings"): keys and defaults.
 // Values live in the shared store's `settings` (setSetting); this file only names them and holds the defaults.
 import { useStore } from "./store";
-import { detectedZone, REAL } from "../app/mode";
+import { detectedZone, localDate, REAL } from "../app/mode";
 
 export type SessionTimes = [name: string, start: string, end: string][];
 
@@ -28,6 +28,10 @@ export const SETTINGS_DEFAULTS = {
   // The real journal keeps only the written notes (the owner, 2026-11-21: "keep only the written notes for
   // now"; recordings fill storage quickly). The switch in Settings turns keeping back on. DESIGN.md › Real app.
   keepRecordings: !REAL,
+  /** The one-time tip on the "no prices on this chart" card has been shown (DESIGN.md › Chart reading, #12). */
+  seenPricesTip: false,
+  /** The day the free reading allowance ran out ("" when it hasn't): Settings says reading is paused (#23). */
+  readingPausedOn: "",
   /** Look-alike tag pairs already merged or no longer relevant ("from>into"). */
   mergedLookalikes: [] as string[],
 };
@@ -40,4 +44,11 @@ export function usePref<K extends SettingKey>(key: K): [(typeof SETTINGS_DEFAULT
   const setSetting = useStore((s) => s.setSetting);
   const value = (raw === undefined ? SETTINGS_DEFAULTS[key] : raw) as (typeof SETTINGS_DEFAULTS)[K];
   return [value, (v) => setSetting(key, v)];
+}
+
+/** Chart and voice reading ran out of free requests today (or works again): Settings says so (#23). */
+export function setReadingPaused(paused: boolean) {
+  const st = useStore.getState();
+  const v = paused ? localDate() : "";
+  if (st.settings.readingPausedOn !== v && (paused || st.settings.readingPausedOn)) st.setSetting("readingPausedOn", v);
 }

@@ -3,7 +3,7 @@
 // Netlify variable Gemini_API_Key (src/lib/geminiServer.ts); GEMINI_MODEL can override the model. An edge
 // function: it waits on Gemini without the 10-second limit of ordinary functions on the free plan.
 import { fillFromAnswer, voicePrompt, voiceSchema, type VoiceContext } from "../../src/lib/voicePrompt.ts";
-import { askGeminiJson, geminiKey } from "../../src/lib/geminiServer.ts";
+import { askGeminiJson, geminiKey, outOfRequests } from "../../src/lib/geminiServer.ts";
 
 declare const Netlify: { env: { get(name: string): string | undefined } };
 
@@ -59,9 +59,10 @@ export default async (req: Request, context?: Ctx): Promise<Response> => {
         ],
         schema: voiceSchema(ctx),
         onBusy: () => ctrl.enqueue(enc.encode("\t")),
-      }).catch(() => ({ ok: false as const, detail: "error" }));
+      }).catch(() => ({ ok: false as const, detail: "error", tried: [] as string[] }));
       clearInterval(beat);
-      const result = answer.ok ? fillFromAnswer(answer.json, ctx, Number(body.seconds) || 0) : { ok: false, reason: "failed", detail: answer.detail };
+      // `quota`: the free daily allowance is used up; the app says reading is paused until tomorrow (Settings).
+      const result = answer.ok ? fillFromAnswer(answer.json, ctx, Number(body.seconds) || 0) : { ok: false, reason: "failed", detail: answer.detail, ...(outOfRequests([answer]) ? { quota: true } : {}) };
       ctrl.enqueue(enc.encode(JSON.stringify(result)));
       ctrl.close();
     },

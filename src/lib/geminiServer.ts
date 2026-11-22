@@ -85,3 +85,8 @@ export function geminiKey(get: (name: string) => string | undefined): { key: str
   if (std.startsWith("AIza")) return { key: std, from: "GEMINI_API_KEY" };
   return { key: "", from: null };
 }
+
+/** Every model said 429 ("too many requests"): the free daily allowance is used up, so asking again won't help. */
+export function outOfRequests(answers: GeminiAnswer[]): boolean {
+  return answers.length > 0 && answers.every((a) => !a.ok && /^gemini 429/.test(a.detail) && a.tried.every((t) => t.endsWith(": 429")));
+}

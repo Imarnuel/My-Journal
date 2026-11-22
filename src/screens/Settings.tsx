@@ -9,7 +9,7 @@ import { ChoiceSelect } from "../components/primitives/ChoiceSelect";
 import { useMenu } from "./useKit";
 import { Switch } from "./settings/Switch";
 import { YourTags } from "./settings/YourTags";
-import { REAL } from "../app/mode";
+import { localDate, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
 
 const APPEARANCE: { label: string; value: Appearance }[] = [
@@ -48,6 +48,7 @@ export function Settings() {
   const [sess, setSess] = usePref("sessions");
   const [lang, setLang] = usePref("voiceLanguage");
   const [keep, setKeep] = usePref("keepRecordings");
+  const [paused] = usePref("readingPausedOn");
   const [sessEdit, setSessEdit] = useState(false);
 
   const select = (key: MenuKey, name: string, value: string, options: string[], pick: (v: string) => void, triggerName?: string) => (
@@ -171,6 +172,17 @@ export function Settings() {
             <Row title="Keep recordings" hint="Turn off to keep only the written transcript.">
               <Switch on={keep} label="Keep recordings" onFlip={() => setKeep(!keep)} />
             </Row>
+          </div>
+          {/* What leaves the device (#25), and a day without free requests left (#23). DESIGN.md › Chart reading. */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginTop: "12px" }}>
+            {paused === localDate() ? (
+              <p role="status" className="lbl" style={{ margin: 0, color: "var(--text-2)" }}>
+                Chart and voice reading is paused until tomorrow.
+              </p>
+            ) : null}
+            <p className="lbl" style={{ margin: 0 }}>
+              Charts and voice notes are sent to Google to be read. Google doesn't keep them.
+            </p>
           </div>
         </section>
         ) : null}

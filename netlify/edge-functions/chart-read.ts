@@ -2,7 +2,7 @@
 // user's pairs; this asks Gemini to read the legend and the position box, then trusts nothing it returns
 // (src/lib/chartRead.ts). Same key and models as voice notes (src/lib/geminiServer.ts). Nothing is stored.
 import { agreeReads, chartPrompt, chartSchema, readFromAnswer, type ChartReadContext } from "../../src/lib/chartRead.ts";
-import { askGeminiJson, geminiKey } from "../../src/lib/geminiServer.ts";
+import { askGeminiJson, geminiKey, outOfRequests } from "../../src/lib/geminiServer.ts";
 
 declare const Netlify: { env: { get(name: string): string | undefined } };
 
@@ -53,7 +53,7 @@ export default async (req: Request): Promise<Response> => {
       const why = { via: good.map((r) => r.model), tried: [...x.tried, ...y.tried], ...(body.debug ? { raw: good.map((r) => r.json) } : {}) };
       const result = good.length
         ? { ...agreeReads(readFromAnswer(good[0].json, ctx), good[1] ? readFromAnswer(good[1].json, ctx) : null), ...why }
-        : { ok: false, reason: "failed", detail: x.ok ? "" : x.detail, ...why };
+        : { ok: false, reason: outOfRequests([x, y]) ? "quota" : "failed", detail: x.ok ? "" : x.detail, ...why };
       ctrl.enqueue(enc.encode(JSON.stringify(result)));
       ctrl.close();
     },

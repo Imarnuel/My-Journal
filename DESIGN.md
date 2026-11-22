@@ -507,8 +507,21 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
     by colour; read MT5's entry line and its "sl" and "tp" lines as one position; take the symbol of the pane with
     the trade when a screenshot has several panes; ignore the current-price tag, line tags, the legend's open,
     high, low and close, indicator values and drawings.
-  - Waiting for the owner's wording (new experiences): #12 a box with no prices printed, #22's visible line,
-    #23 the daily allowance used up, #25 what is sent to Google.
+  - **The owner's wording, approved 2026-11-22** ("approve the wording, keep it silent when reads disagree"):
+    - **#12** A box read clearly but with no prices printed gets its own card, **"This chart has no prices on
+      it"** with **Type the numbers**, and the first time only the tip **"Click the position box before taking
+      the screenshot and its prices show."** (`seenPricesTip`). "Too small to read" stays for prices that are
+      there but can't be made out. A card shows only when both reads say the same.
+    - **Reads that disagree stay silent**: the prices are left empty and no card claims anything.
+    - **#22** Still unreadable after the two quiet retries: the facts line reads **"Couldn't read your chart just
+      now · Try again"** (in place of "Tap anything to change"); Try again reads those charts from the start.
+      Hidden once every fact is set.
+    - **#23** Every model out of free requests: no retries, the same line, and Settings › Voice notes says
+      **"Chart and voice reading is paused until tomorrow."** for the rest of that day (`readingPausedOn`;
+      cleared by the next successful reading). A voice note out of requests shows its usual "Couldn't read your
+      note just now" card and sets the same line.
+    - **#25** Settings › Voice notes always says **"Charts and voice notes are sent to Google to be read. Google
+      doesn't keep them."**
 - Not yet: showing the read timeframe as a caption under uploaded charts (stories keep no caption per uploaded
   image yet); the reader returns it already.
 

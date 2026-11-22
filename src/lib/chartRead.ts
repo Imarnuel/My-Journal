@@ -22,8 +22,11 @@ export type ChartRead = {
   unreadable: boolean;
   /** When the chart was captured, from TradingView's "created with TradingView.com, <date> UTC" line (ISO, UTC). */
   takenAt?: string | null;
+  /** One position box, drawn without any prices printed (its tags show only while it's selected). */
+  noPrices?: boolean;
 };
-export type ChartReadResult = ChartRead | { ok: false; reason: "failed" | "offline" };
+/** "quota": the free daily allowance is used up (every model answered 429). */
+export type ChartReadResult = ChartRead | { ok: false; reason: "failed" | "offline" | "quota" };
 
 export function chartSchema() {
   const price = { type: ["string", "null"], description: "The price exactly as printed on the chart, digits and decimal point only. Null if not printed or not legible." };
@@ -150,18 +153,20 @@ export function readFromAnswer(raw: unknown, ctx: ChartReadContext): ChartRead {
   const read = tools.map((p) => readPosition(p, text));
   const legend = { ok: true as const, pair: normalisePair(a.symbol, ctx.pairs), timeframe: normaliseTimeframe(a.timeframe), takenAt: snapshotTime(a.snapshot_header) };
   const none = { dir: null, entry: null, stop: null, target: null };
-  if (tools.length === 0) return { ...legend, ...none, unreadable: false };
+  if (tools.length === 0) return { ...legend, ...none, unreadable: false, noPrices: false };
   if (tools.length > 1) {
     // Several position tools (the owner's choice, 2026-11-21): which one is this trade isn't clear, so only the
     // direction, and only when every tool's readable prices give the same one. The owner types the prices.
     const dirs = read.map((r) => r?.dir ?? null);
     const dir = dirs.every((d) => d && d === dirs[0]) ? dirs[0] : null;
-    return { ...legend, ...none, dir, unreadable: false };
+    return { ...legend, ...none, dir, unreadable: false, noPrices: false };
   }
   const one = read[0];
-  // A box whose prices weren't printed legibly or weren't quoted counts as unreadable (the user types them).
+  // A box whose prices weren't printed legibly or weren't quoted counts as unreadable (the user types them); a box
+  // read clearly but with no prices printed at all is told apart (DESIGN.md › Chart reading, #12).
   const hadPrices = [tools[0].entry, tools[0].stop, tools[0].target].some((v) => v != null);
-  return { ...legend, ...(one ?? none), unreadable: a.prices_legible === false || (!one && hadPrices) };
+  const unreadable = a.prices_legible === false || (!one && hadPrices);
+  return { ...legend, ...(one ?? none), unreadable, noPrices: !one && !unreadable };
 }
 
 /**
@@ -204,17 +209,16 @@ export function snapshotTime(header: unknown): string | null {
 /**
  * Every chart is read twice at once. Printed prices come back the same both times; guessed ones don't (a blurry
  * chart gave three different stops in three reads), so prices and direction are kept only when both reads match
- * exactly, and a mismatch counts as unreadable. Pair and timeframe are kept where the two agree.
+ * exactly; a mismatch fills nothing and says nothing. Pair, timeframe and date are kept where the two agree.
  */
 export function agreeReads(a: ChartRead, b: ChartRead | null): ChartRead {
   const same = <T,>(x: T, y: T) => (x === y ? x : null);
   if (!b) {
-    // Only one read came back: nothing to check the prices against, so only the legend is used. The chart isn't
-    // called too small to read: the owner simply types the prices, as when reading fails.
-    return { ...a, dir: null, entry: null, stop: null, target: null };
+    // Only one read came back: nothing to check the prices against, so only the legend is used, and nothing is
+    // said about the prices: the owner simply types them, as when reading fails.
+    return { ...a, dir: null, entry: null, stop: null, target: null, unreadable: false, noPrices: false };
   }
   const match = a.dir === b.dir && a.entry === b.entry && a.stop === b.stop && a.target === b.target;
-  const any = [a.entry, b.entry, a.stop, b.stop].some((v) => v != null);
   return {
     ok: true,
     pair: same(a.pair, b.pair),
@@ -224,6 +228,9 @@ export function agreeReads(a: ChartRead, b: ChartRead | null): ChartRead {
     entry: match ? a.entry : null,
     stop: match ? a.stop : null,
     target: match ? a.target : null,
-    unreadable: a.unreadable || b.unreadable || (!match && any),
+    // Reads that disagree stay silent (the owner's choice, 2026-11-22): the prices are left empty and no card
+    // claims they're too small. A card only shows when both reads say the same thing.
+    unreadable: a.unreadable && b.unreadable,
+    noPrices: !!(a.noPrices && b.noPrices),
   };
 }

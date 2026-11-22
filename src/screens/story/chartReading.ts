@@ -6,6 +6,7 @@
 import { create } from "zustand";
 import { chartKey, useStore } from "../../data/store";
 import { idbStorage } from "../../data/persist";
+import { setReadingPaused } from "../../data/settings";
 import { readChart } from "../../lib/chartReader";
 import type { ChartRead } from "../../lib/chartRead";
 import { chartFill, factsFull, type FillFacts } from "../../lib/chartFill";
@@ -21,10 +22,29 @@ type Job = { file: File; url: string; target: Target; tries: number; counted: bo
 /** What an open story page offers: its facts and charts as they are now, and how it shows a reading. */
 export type StoryPort = { facts: () => FillFacts; charts: () => string[]; apply: (read: ChartRead) => void };
 
-/** Charts waiting or being read, per story: the page shows "Reading your chart…" while it's above 0. */
-export const useChartReading = create<{ pending: Record<Target, number> }>(() => ({ pending: {} }));
+/**
+ * Per story: charts waiting or being read (the page shows "Reading your chart…"), and charts that couldn't be
+ * read even after asking again (the page shows "Couldn't read your chart just now · Try again").
+ */
+export const useChartReading = create<{ pending: Record<Target, number>; failed: Record<Target, number> }>(() => ({ pending: {}, failed: {} }));
 
 const ports = new Map<Target, StoryPort>();
+const failedJobs = new Map<Target, Job[]>();
+const syncFailed = (t: Target) => useChartReading.setState((s) => ({ failed: { ...s.failed, [t]: failedJobs.get(t)?.length ?? 0 } }));
+
+function giveUp(job: Job) {
+  jobs.delete(job);
+  failedJobs.set(job.target, [...(failedJobs.get(job.target) ?? []), job]);
+  syncFailed(job.target);
+}
+
+/** Try again: the charts that couldn't be read are read again, from the start. */
+export function retryFailedReads(target: Target) {
+  const list = failedJobs.get(target) ?? [];
+  failedJobs.delete(target);
+  syncFailed(target);
+  for (const j of list) if (!j.cancelled) enqueue({ ...j, tries: 0, counted: false });
+}
 const jobs = new Set<Job>();
 let chain: Promise<void> = Promise.resolve();
 /** How long a busy or failing service is left before it is asked again (twice at most), in ms. */
@@ -64,6 +84,14 @@ export function retargetReads(from: Target, to: Target) {
     if (j.counted) (bump(from, -1), bump(to, 1));
     j.target = to;
   }
+  const failed = failedJobs.get(from);
+  if (failed) {
+    for (const j of failed) j.target = to;
+    failedJobs.delete(from);
+    failedJobs.set(to, [...(failedJobs.get(to) ?? []), ...failed]);
+    syncFailed(from);
+    syncFailed(to);
+  }
 }
 
 /** A chart was removed: its reading, if it hasn't filled anything yet, never will. */
@@ -95,12 +123,15 @@ async function run(job: Job) {
     // Not counted while it waits: the page doesn't say "Reading…" when nothing is being read.
     if (job.counted) (bump(job.target, -1), (job.counted = false));
     if (res.reason === "offline") return waitForOnline(job);
+    // Out of free requests for today: asking again won't help; Settings says reading is paused (#23).
+    if (res.reason === "quota") return setReadingPaused(true), giveUp(job);
     const wait = RETRY_MS[job.tries];
-    if (wait == null) return finish(job);
+    if (wait == null) return giveUp(job);
     job.tries++;
     setTimeout(() => (job.cancelled ? finish(job) : (jobs.delete(job), enqueue(job))), wait);
     return;
   }
+  setReadingPaused(false);
   if (job.cancelled || !present(job)) return finish(job);
   const port = ports.get(job.target);
   if (port) port.apply(res);

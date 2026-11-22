@@ -15,6 +15,8 @@ export type ChartFill = {
   filled: string[];
   /** A box whose prices can't be read, while the story's prices are still empty: the designed card. */
   unreadable: boolean;
+  /** A box with no prices printed, while the story's prices are still empty: "This chart has no prices on it". */
+  noPrices: boolean;
 };
 
 /** Same instrument whatever the spelling: GOLD and XAUUSD.a are XAUUSD. */
@@ -28,7 +30,7 @@ export function chartFill(cur: FillFacts, r: ChartRead, yours: string[]): ChartF
   const storyPairs = cur.pair ? cur.pair.split(",").map(key).filter(Boolean) : [];
   if (r.pair && storyPairs.length && !storyPairs.includes(key(r.pair))) return null;
   if (r.dir && cur.dir && r.dir !== cur.dir) return null;
-  const out: ChartFill = { filled: [], unreadable: false };
+  const out: ChartFill = { filled: [], unreadable: false, noPrices: false };
   if (!cur.pair && r.pair) (out.pair = ownSpelling(r.pair, yours)), out.filled.push("pair");
   if (!cur.dir && r.dir) (out.dir = r.dir), out.filled.push("direction");
   const n = cur.numbers;
@@ -38,5 +40,6 @@ export function chartFill(cur: FillFacts, r: ChartRead, yours: string[]): ChartF
     out.filled.push(`${r.target ? 3 : 2} prices`);
   }
   out.unreadable = r.unreadable && empty && !out.prices;
+  out.noPrices = !!r.noPrices && !out.unreadable && empty && !out.prices;
   return out;
 }
