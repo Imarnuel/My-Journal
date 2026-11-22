@@ -24,7 +24,7 @@ const SHOTS = [
   { name: "10-story-more", url: `${SAMPLE}/story/e20`, act: (p) => p.getByRole("button", { name: "More actions" }).click() },
   { name: "11-story-date", url: `${SAMPLE}/story/e20`, act: (p) => p.getByRole("button", { name: /^Date and time:/ }).click() },
   { name: "12-playbook", url: `${SAMPLE}/playbook` },
-  { name: "13-setup", url: `${SAMPLE}/playbook`, act: (p) => p.locator('#main a[href^="/playbook/"]').first().click() },
+  { name: "13-setup", url: `${SAMPLE}/playbook`, act: (p) => p.locator('#main a[href^="/playbook/"]:not([href="/playbook/new"])').first().click() },
   { name: "14-setup-new", url: `${SAMPLE}/playbook/new` },
   { name: "15-review", url: `${SAMPLE}/review` },
   { name: "16-accounts", url: `${SAMPLE}/accounts` },
