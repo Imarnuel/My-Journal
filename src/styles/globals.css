@@ -334,7 +334,7 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
    Circles, dots, pills and chart bars use their own sizes, not the scale, so they stay perfectly round. */
 [style*="var(--r-"] { corner-shape: squircle; }
 
-/* Typeface (DESIGN.md › Typeface): Instrument Serif for the page titles (--title-size, 28px) (every page's h1), Public Sans for
+/* Typeface (DESIGN.md › Typeface): Instrument Serif for the page titles (--title-size, 26px) (every page's h1), Public Sans for
    the rest. Instrument Serif has one weight (400) and is set at its natural tracking; page titles set no font,
    size, weight or tracking inline, so this rule decides. A smaller h1 that isn't a page title (an "… deleted" state)
    keeps the body face with .kplain. */

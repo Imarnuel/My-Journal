@@ -297,7 +297,7 @@ Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`, and the earlier Geist.
 for headings and public sans for others (body, labels)", page titles only; then "Spectra is ugly, let's use
 instruments serif".
 - **Instrument Serif** (400, its only weight), self-hosted from `@fontsource/instrument-serif`, set once in
-  `--font-heading`, on the 24px page title of every page (its `h1`: "Trade log", "New chart story", the pair on
+  `--font-heading`, on the page title of every page (its `h1`: "Trade log", "New chart story", the pair on
   a story), at its natural tracking (no −0.025em: that suits a bold sans and cramps a display serif). One rule in
   `globals.css` sets the face, weight and tracking; page titles set none of them inline. Chips and labels inside
   a title (direction, Textbook example) stay Public Sans. A smaller `h1` that isn't a page title (an "… deleted"
@@ -305,7 +305,10 @@ instruments serif".
   24px stat figures stay Public Sans.
 - **Public Sans** Variable, self-hosted from `@fontsource-variable/public-sans`, set once in `--font-sans`:
   body, labels, controls, numbers. Tabular figures stay on (Public Sans has them).
-- Sizes and line heights are unchanged. `src/styles/taste.test.ts` allows only these two font variables.
+- **Page titles are 26px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif
+  reads small at 24px (the owner, 2026-11-22: 28px, then "26 is better"). If page titles ever go back to the
+  body face, `--title-size` goes back to 24px. Every other size is unchanged. `src/styles/taste.test.ts` allows
+  only these two font variables.
 
 ## Editing numbers
 Overrides `01-decisions.md` ("…a numbers line with 'Edit numbers', which opens six live inputs"). Why: the
