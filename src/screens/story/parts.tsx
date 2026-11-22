@@ -132,6 +132,11 @@ export function Plus() {
 export const factBtn: CSSProperties = { font: "inherit", fontSize: "14px", fontWeight: 500, color: "var(--text-1)", background: "transparent", border: 0, padding: "2px 0", cursor: "pointer", position: "relative", zIndex: 5, display: "inline-flex", alignItems: "center", gap: "8px" };
 /** The fact's value: a dashed underline marks it as tappable (under the words only, not the icon). */
 export const factText: CSSProperties = { borderBottom: "1px dashed var(--border-strong)", lineHeight: "20px" };
+/**
+ * A fact not set yet shows its name ("Pair", "Account") in grey, like every empty field's placeholder, so what is
+ * set reads first (the owner, 2026-11-22: "grey a bit the options that have not been selected").
+ */
+export const factEmpty: CSSProperties = { ...factText, color: "var(--text-3)" };
 
 export function Sep() {
   return (

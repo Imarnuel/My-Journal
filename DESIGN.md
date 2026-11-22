@@ -54,7 +54,9 @@ reason, replace it.
   level line while it's empty), status (circle with a check), account (card), date and time (calendar). Pair and
   direction are knocked out of a filled circle like status, so every icon on the line has the same weight (first
   ui-polish audit, 2026-11-22: the bare arrows read as outline icons beside the filled ones). Facts sit 16px apart with no "·"
-  separators, matching the Trade log's facts. The dashed underline marks the words only, not the icon.
+  separators, matching the Trade log's facts. The dashed underline marks the words only, not the icon. A fact not
+  set yet shows its name ("Pair", "Direction", "Account") in `--text-3`, like every empty field's placeholder, so
+  what is set reads first (the owner, 2026-11-22: "grey a bit the options that have not been selected").
 - **These icons are filled, 14px, a step lighter than tertiary text (`--text-3` at 72% opacity).** (Was 16px
   at full `--text-3`; the owner asked for smaller and lighter so the labels lead.) Source: `src/screens/story/detailIcons.tsx`. Other
   icons in the app stay as the handoff draws them (stroke icons) unless the owner says otherwise.

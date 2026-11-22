@@ -60,7 +60,7 @@ import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
 import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, usePref } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
-import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText, type Fx } from "./story/parts";
+import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factEmpty, factText, type Fx } from "./story/parts";
 
 const KINDS: { k: TagKind; hint: string }[] = [
   { k: "Good", hint: "Something to repeat" },
@@ -1446,7 +1446,7 @@ function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: s
     <span style={{ position: "relative", display: "inline-flex" }}>
       <button type="button" aria-haspopup="listbox" aria-expanded={open ? "true" : "false"} aria-label={`${name}: ${value || "not set"}`} onClick={() => menu.toggle(k)} style={factBtn}>
         <DetailIcon name={icon} />
-        <span style={factText}>{value || name}</span>
+        <span style={value ? factText : factEmpty}>{value || name}</span>
       </button>
       {open ? (
         <>
@@ -1467,7 +1467,7 @@ function PairFact({ value, menu, onPick }: { value: string | null; menu: ReturnT
     <span style={{ position: "relative", display: "inline-flex" }}>
       <button type="button" aria-haspopup="listbox" aria-expanded={open ? "true" : "false"} aria-label={`Pair: ${value || "not set"}`} onClick={() => menu.toggle("pair")} style={factBtn}>
         <DetailIcon name="pair" />
-        <span style={factText}>{value || "Pair"}</span>
+        <span style={value ? factText : factEmpty}>{value || "Pair"}</span>
       </button>
       {open ? (
         <>
