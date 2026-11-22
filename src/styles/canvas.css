@@ -2,7 +2,7 @@
    Tokens live in tokens.css. Class names match the prototype so screens can be compared 1:1. */
 *,*::before,*::after{font-family:var(--font-sans);font-optical-sizing:auto}
 
-button,input,textarea,select{font-family:var(--font-sans);letter-spacing:inherit}
+button,input,textarea,select{font-family:var(--font-sans)}
 
 body{margin:0;background:var(--bg-app)}
 
@@ -175,7 +175,7 @@ to{opacity:1;transform:none}
 
 .kstat{gap:0!important}
 
-.kstat > div{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;padding:2px 12px 2px 24px!important;position:relative}
+.kstat > div{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;padding:2px 12px 2px 16px!important;position:relative}
 
 .kstat > div:first-child{padding-left:4px!important}
 

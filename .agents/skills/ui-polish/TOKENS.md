@@ -17,7 +17,7 @@ corner or shadow: they use these. Sizes and spacing are written in px but must s
 | Over images | `--on-media`, `--media-scrim` | Icons on chart thumbnails |
 | Buttons | `--btn-p-*` primary, `--btn-g-*` secondary, `--btn-v-*` voice | |
 
-## Type (Instrument Serif for page titles, Inter for everything else at `--tracking-body` +0.01em; tabular figures on)
+## Type (Instrument Serif for page titles, Inter for everything else at `--tracking-body` by size (12px +0.015em, 14px +0.009em, 16px +0.005em); tabular figures on)
 | Size / line height | Use |
 | --- | --- |
 | 12 / 16 | Hints, labels, captions, meta lines, chips |

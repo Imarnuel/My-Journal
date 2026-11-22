@@ -398,11 +398,16 @@ rest, leaving only the headings, but the tracking shouldn't be as tight as it wa
   section and card titles, numbers and the 24px stat figures stay Inter.
 - **Inter** Variable with optical sizes (`opsz`), self-hosted from `@fontsource-variable/inter`, set once in
   `--font-sans`: body, labels, buttons, fields, numbers. Tabular figures stay on.
-- **Tracking, opened up from the handoff:** body text at `--tracking-body` (+0.01em, from 0), set on the root and
-  inherited by buttons and fields; the 24px figures at `--tracking-figure` (−0.01em, from −0.025em); the wordmark
-  at the body tracking (from −0.01em). Labels, meta and chips inside headings take the body tracking too.
-  The Dashboard stat cells pad 12px on the right (24 on the left) so "Wins avg +1.8R, losses −0.9R" stays on one
-  line in Inter.
+- **Tracking, by size** (the owner: "the tracking shouldn't be as tight as it was in the beginning", then "inspect
+  the tracking … ensure the tracking values are just right"). `--tracking-body` is one formula, calc(0.48px −
+  0.025em), worked out from each text's own size: **12px +0.015em** (labels, meta, chips), **14px +0.009em**
+  (body, buttons, menus, fields), **16px +0.005em** (section and card titles), all more open than Inter's default
+  of 0, smaller text more open for legibility. Every element computes it for itself (a zero-specificity rule in
+  `globals.css`): it used to be set once at 14px and inherited as a fixed length, so 12px labels and 16px titles
+  got 14px text's spacing, and the same size could get two values. The 24px figures keep `--tracking-figure`
+  (−0.01em, from the handoff's −0.025em); page titles (Instrument Serif) keep their natural 0.
+  The Dashboard stat cells pad 16px on the left and 12px on the right (were 24 and 24) so "Wins avg +1.8R, losses
+  −0.9R" stays on one line in Inter at this tracking.
 - **Page titles are 28px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif
   reads small at 24px (the owner, 2026-11-22: 28px, then "26 is better", then, with Inter for the body, "let's
   increase page title from 26px to 28px"). If page titles ever go back to the
@@ -741,7 +746,7 @@ it looks sleeker". Findings and method: `docs/ui-audit-2026-11-22.md`. One rule 
   result; a story without a result says its status at the start of the line below ("Running · Unsorted"), so a
   six-letter pair never truncates (the handoff frame had "Running" touching the next card). Weekly review tiles put
   "Not followed" on its own line. The Dashboard stat cells have less room on the right than the left so "Wins
-  avg +1.8R, losses −0.9R" fits on one line (12px since Inter, DESIGN.md › Typeface).
+  avg +1.8R, losses −0.9R" fits on one line (16px left and 12px right since Inter and its tracking, DESIGN.md › Typeface).
 - **The same kind of element is the same size.** Chips and badges are 22px everywhere (`.kchip`, `.pill`; the
   Practice badge too, at `--r-xs`). Dashboard table rows are one height (a 64 × 36 thumbnail line), Settings rows
   one height (16px above and below a 32px line), the "Archived" disclosure rows 48px, account rows 60px, the
