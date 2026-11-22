@@ -58,3 +58,5 @@ then look at every regenerated image against the handoff screenshot before commi
 | `light/` and `dark/` 02-Dashboard; `states/` 01 to 06 | Period as a dropdown like the Trade log's Date filter (DESIGN.md, Dashboard period); only the header control changed (checked in both themes) | 2026-11-21 |
 
 | `chrome/` sidebar light and dark | Refreshed: the sidebar image is taken on Accounts, which no longer has the default for screenshots (2026-11-20); that change stayed inside this image's tolerance at the time. Field shadow (DESIGN.md) is below the comparison threshold, so no other image changed | 2026-11-21 |
+
+| `states/` 11 | The Change date picker has no Save or Cancel (DESIGN.md › Date and time); only the dialog changed (checked against the previous approved image) | 2026-11-22 |

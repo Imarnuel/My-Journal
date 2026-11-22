@@ -255,11 +255,11 @@ test("the facts line: each part is a menu; Status explains its options; the date
 
   await page.getByRole("button", { name: "Date and time: Mon 16 Nov, 09:45" }).click();
   await page.getByRole("dialog", { name: "Date and time" }).locator("input").fill("2026-11-13T15:10");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  // It changes as it's set (DESIGN.md › Date and time): no Save, no toast; the session follows the time.
   await expect(page.locator("header .meta")).toContainText("Fri 13 Nov, 15:10 to 13:20 · New York");
-  await expect(toast(page)).toContainText("Moved to ");
-  await toast(page).getByRole("button", { name: "Undo" }).click();
-  await expect(page.locator("header .meta")).toContainText("Mon 16 Nov, 09:45 to 13:20 · London");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("dialog", { name: "Date and time" })).toHaveCount(0);
+  await expect(toast(page)).toHaveCount(0);
 });
 
 test("Change date from the More menu opens the date and time picker", async ({ page }) => {
@@ -267,7 +267,18 @@ test("Change date from the More menu opens the date and time picker", async ({ p
   await page.getByRole("button", { name: "More actions" }).click();
   await page.getByRole("menuitem", { name: "Change date" }).click();
   await expect(page.getByRole("dialog", { name: "Date and time" })).toBeVisible();
-  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("dialog", { name: "Date and time" }).getByRole("button")).toHaveCount(0); // no Save or Cancel
+  // Escape only closes: what was set is kept, with no toast.
+  const input = page.getByRole("dialog", { name: "Date and time" }).locator("input");
+  await input.fill("2026-11-10T08:00");
+  await input.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Date and time" })).toHaveCount(0);
+  await expect(page.locator("header .meta")).toContainText("Tue 10 Nov, 08:00");
+  await expect(page.getByRole("button", { name: /^Date and time: Tue 10 Nov, 08:00/ })).toBeFocused();
+  await expect(toast(page)).toHaveCount(0);
+  // Clicking away closes it too.
+  await page.getByRole("button", { name: /^Date and time:/ }).click();
+  await page.mouse.click(720, 12);
   await expect(page.getByRole("dialog", { name: "Date and time" })).toHaveCount(0);
 });
 

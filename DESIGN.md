@@ -313,7 +313,18 @@ action. Same on New chart story and the chart story page. Source: `ChartStory.ts
   line. Typing a result keeps yours (prices then leave it alone); clearing it hands it back to the prices.
   Opening a story never changes a result; MT5 results only change when you edit a price.
 
-## Menu options with a hint (Status)
+## Date and time: no Save, no Escape to undo, no toast
+Overrides the prototype's date picker (Cancel and Save) and `01-decisions.md` ("Change date … All with Undo")
+for the date. Why: the owner, 2026-11-22: "why save for date and time?"; "no escape, no saving"; "no toast".
+Source: the facts' date in `ChartStory.tsx`, `DateDialog` in `src/screens/tradelog/Rows.tsx`.
+- **On a story** (the facts' date, and ··· › Change date): the date changes as it is set (whole, valid values
+  only), the session follows the time, and the picker closes on click-away, Enter or Escape. Nothing else.
+- **On a trade log row** (row menu › Change date): what's set is kept when the picker closes (click-away, Enter
+  or Escape alike), then the row moves to its place quietly; the session follows the time there too (it didn't
+  before). Applied on close, not live, so the row doesn't jump while the date is typed.
+- No toast and no Undo for a date: changing it again is the way back.
+
+
 Why: the owner, 2026-11-22: the Status menu looked cluttered and cramped ("how can we fix this clutter and
 spacing"). Two-line options (a name and a grey hint) had no padding above and below, so the selected fill hugged
 the words and options ran into each other. Rule for every option with a hint (`OptionList` in

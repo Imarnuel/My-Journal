@@ -30,14 +30,16 @@ const itemStyle = { font: "inherit", fontSize: "14px", textAlign: "left", displa
 
 function DateDialog({ e, a }: { e: Entry; a: RowActions }) {
   const [draft, setDraft] = useState(`${e.date}T${e.time}`);
+  // Same rule as the story's date (DESIGN.md › Date and time): no Save, no Escape to undo, no toast. What's set is
+  // kept when the picker closes (click away, Enter or Escape alike), then the row moves to its place.
   const save = () => {
-    if (!draft) return;
+    if (!draft || draft === `${e.date}T${e.time}` || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(draft)) return a.close();
     const [d, t] = draft.split("T");
     a.saveDate(d, t.slice(0, 5));
   };
   return (
     <>
-      {closer(a.close)}
+      {closer(save)}
       <div role="dialog" aria-label="Change date" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", right: 0, width: "260px", padding: "12px", gap: "8px", transformOrigin: "top right" }}>
         <label style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "14px", color: "var(--text-2)" }}>
           Date and time
@@ -51,14 +53,7 @@ function DateDialog({ e, a }: { e: Entry; a: RowActions }) {
             style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 12px", colorScheme: "dark" }}
           />
         </label>
-        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-          <button type="button" className="btn btn-g" onClick={a.close} style={{ minHeight: "32px" }}>
-            Cancel
-          </button>
-          <button type="button" className="btn btn-p" onClick={save} style={{ minHeight: "32px" }}>
-            Save
-          </button>
-        </div>
+
       </div>
     </>
   );

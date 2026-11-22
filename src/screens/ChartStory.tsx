@@ -120,7 +120,7 @@ function StoryScreen({ id }: { id: string | null }) {
   const [said, setSaid] = useState(false);
   const [tagQ, setTagQ] = useState("");
   const [kindFor, setKindFor] = useState<string | null>(null);
-  const [dtDraft, setDtDraft] = useState<string | null>(null);
+
   const dateByHand = useRef(false);
   // Which number is being edited in place (DESIGN.md, Editing numbers), and what it was, for Escape.
   const [editingNum, setEditingNum] = useState<NumKey | null>(null);
@@ -572,16 +572,14 @@ function StoryScreen({ id }: { id: string | null }) {
   // ---- facts
   const dtValue = `${s.date}T${s.time}`;
   const dtLabel = dateTime(s.date, s.time);
-  const saveDate = () => {
-    const v = dtDraft;
-    if (v && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)) {
-      const [d, t] = [v.slice(0, 10), v.slice(11, 16)];
-      const prev = { date: s.date, time: s.time, session: s.session };
-      update({ date: d, time: t, session: sessionOf(t, sessionTimes()) });
-      dateByHand.current = true;
-      setDtDraft(null);
-      toastA(`Moved to ${dateTime(d, t)}`, () => update(prev), "moved");
-    } else menu.close();
+  // Date and time (DESIGN.md › Date and time): no Save, no Escape to undo, no toast. The date changes live as it
+  // is set (only whole, valid values), like every other fact; the picker simply closes.
+  const setDate = (v: string) => {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)) return;
+    const [d, t] = [v.slice(0, 10), v.slice(11, 16)];
+    if (d === s.date && t === s.time) return;
+    update({ date: d, time: t, session: sessionOf(t, sessionTimes()) });
+    dateByHand.current = true;
   };
   const dirChip = s.status === "Analysis" ? "Analysis" : s.dir;
   const resVal = s.status === "Taken" ? (s.r != null ? fr(s.r) : "No result yet") : s.status;
@@ -1313,10 +1311,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   aria-haspopup="dialog"
                   aria-expanded={exp("dt")}
                   aria-label={`Date and time: ${dtLabel}`}
-                  onClick={() => {
-                    setDtDraft(null);
-                    menu.toggle("dt");
-                  }}
+                  onClick={() => menu.toggle("dt")}
                   style={factBtn}
                 >
                   <DetailIcon name="date" />
@@ -1328,17 +1323,17 @@ function StoryScreen({ id }: { id: string | null }) {
                     <div role="dialog" aria-label="Date and time" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", right: 0, width: "260px", padding: "12px", gap: "8px", transformOrigin: "top right" }}>
                       <label style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "14px", color: "var(--text-2)" }}>
                         Date and time
-                        <input type="datetime-local" value={dtDraft ?? dtValue} onChange={(e) => setDtDraft(e.target.value)} style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 12px" }} />
+                        <input
+                          type="datetime-local"
+                          value={dtValue}
+                          onChange={(e) => setDate(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") (e.preventDefault(), menu.close());
+                          }}
+                          style={{ font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 12px" }}
+                        />
                       </label>
                       <span style={{ fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>The session follows the time.</span>
-                      <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-                        <button type="button" className="btn btn-g" onClick={menu.close} style={{ minHeight: "32px" }}>
-                          Cancel
-                        </button>
-                        <button type="button" className="btn btn-p" onClick={saveDate} style={{ minHeight: "32px" }}>
-                          Save
-                        </button>
-                      </div>
                     </div>
                   </>
                 ) : null}

@@ -72,7 +72,7 @@ test("a dropped screenshot dates a new story by its file time; a date set by han
   // Set by hand, then another screenshot: the hand-set date stays.
   await trade.getByRole("button", { name: /^Date and time/ }).click();
   await page.getByRole("textbox", { name: "Date and time" }).fill("2026-03-05T14:30");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.keyboard.press("Enter");
   await expect(trade).toContainText("Thu 5 Mar, 14:30");
   await drop("2026-03-01T09:00:00");
   await expect(trade).toContainText("Thu 5 Mar, 14:30");

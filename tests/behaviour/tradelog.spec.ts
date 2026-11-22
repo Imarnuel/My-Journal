@@ -306,23 +306,28 @@ test("Delete happens at once; Undo puts the entry back in its place", async ({ p
   await expect(rows(page).nth(3)).toContainText("Mon 16 Nov, 11:10");
 });
 
-test("Change date moves the entry to its new place; Cancel changes nothing; Undo restores", async ({ page }) => {
+test("Change date: what's set is kept when the picker closes, the entry moves to its place, no toast", async ({ page }) => {
   await page.goto("/log");
   await more(page, 1).click();
   await page.getByRole("menuitem", { name: "Change date" }).click();
-  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("dialog", { name: "Change date" }).getByRole("button")).toHaveCount(0); // no Save or Cancel
+  // Opened and closed without a change: nothing moves.
+  await page.getByLabel("Date and time").press("Escape");
   await expect(rows(page).nth(1)).toContainText("Mon 16 Nov, 15:20");
   await more(page, 1).click();
   await page.getByRole("menuitem", { name: "Change date" }).click();
   await page.getByLabel("Date and time").fill("2026-11-12T12:00");
-  await page.getByRole("button", { name: "Save" }).click();
-  await expect(toast(page)).toContainText(" moved to ");
+  await page.mouse.click(1400, 950);
+  await expect(page.getByRole("dialog", { name: "Change date" })).toHaveCount(0);
   await expect(rows(page).nth(1)).toContainText("EURJPY");
-  const moved = rows(page).filter({ hasText: "AUDUSD" }).filter({ hasText: "Thu 12 Nov, 12:00" });
-  await expect(moved).toHaveCount(1);
-  await toast(page).getByRole("button", { name: "Undo" }).click();
-  await expect(rows(page).nth(1)).toContainText("AUDUSD");
-  await expect(rows(page).nth(1)).toContainText("Mon 16 Nov, 15:20");
+  await expect(rows(page).filter({ hasText: "AUDUSD" }).filter({ hasText: "Thu 12 Nov, 12:00" })).toHaveCount(1);
+  await expect(toast(page)).toHaveCount(0);
+  // Escape keeps what was set, like clicking away (now on the EURJPY row in place 1).
+  await more(page, 1).click();
+  await page.getByRole("menuitem", { name: "Change date" }).click();
+  await page.getByLabel("Date and time").fill("2026-11-16T07:00");
+  await page.getByLabel("Date and time").press("Escape");
+  await expect(rows(page).filter({ hasText: "EURJPY" }).filter({ hasText: "Mon 16 Nov, 07:00" })).toHaveCount(1);
 });
 
 test("MT5 trade without charts: the drop zone is a file picker; the chosen image shows in the row", async ({ page }) => {

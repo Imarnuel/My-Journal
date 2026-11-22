@@ -1,7 +1,7 @@
 // Frames 03 and 04 · Trade log: one list of everything recorded, List and Grid views (view kept in the URL,
 // `/log?view=grid`), compact filter dropdowns with counts, sort, batches of 12, the row menu with Undo, the
 // very short trade prompt, and the frame-16 states that belong here. Markup from prototype/Main.dc.html.
-import { dateTime, entryName } from "../lib/format";
+import { entryName } from "../lib/format";
 import { useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
@@ -31,6 +31,8 @@ import {
 } from "../lib/tradelog";
 import { toast, type ToastKind } from "../components/primitives/toast";
 import { useMenu } from "./useKit";
+import { sessionOf } from "../lib/story";
+import { DEFAULT_SESSIONS } from "../data/settings";
 import { FilterMenu, type Opt } from "./tradelog/FilterMenu";
 import { GridCard, ListRow, type RowActions } from "./tradelog/Rows";
 import { SHORT_SECONDS, useTradeLog } from "./tradelog/state";
@@ -128,10 +130,12 @@ export function TradeLog() {
     toggleMenu: () => menu.toggle("m" + e.id),
     openDate: () => menu.open("d" + e.id),
     close: menu.close,
+    // A new date applies when the picker closes, quietly: the row simply moves to its place (the owner,
+    // 2026-11-22: "no escape, no saving", "no toast"). The session follows the time, as on the story.
     saveDate: (date, time) => {
-      const was = { date: e.date, time: e.time };
-      updateEntry(e.id, { date, time });
-      act(`${e.pair} moved to ${dateTime(date, time)}`, () => updateEntry(e.id, was), "moved");
+      const sessions = (useStore.getState().settings.sessions as [string, string, string][] | undefined) ?? DEFAULT_SESSIONS;
+      updateEntry(e.id, { date, time, session: sessionOf(time, sessions) });
+      menu.close();
     },
     toggleExcluded: () => {
       const was = e.excluded;
