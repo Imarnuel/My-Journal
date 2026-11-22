@@ -60,3 +60,4 @@ then look at every regenerated image against the handoff screenshot before commi
 | `chrome/` sidebar light and dark | Refreshed: the sidebar image is taken on Accounts, which no longer has the default for screenshots (2026-11-20); that change stayed inside this image's tolerance at the time. Field shadow (DESIGN.md) is below the comparison threshold, so no other image changed | 2026-11-21 |
 
 | `states/` 11 | The Change date picker has no Save or Cancel (DESIGN.md › Date and time); only the dialog changed (checked against the previous approved image) | 2026-11-22 |
+| Every image in `light/`, `dark/`, `states/` and `chrome/` | Corners back to the handoff's values (DESIGN.md › Corners: 6, 6, 8, 10, 12, 12, 14, 16), reverting the 2026-11-19 rounder corners; only corners changed (checked the main card and filter buttons against the handoff screenshots, side by side) | 2026-11-22 |

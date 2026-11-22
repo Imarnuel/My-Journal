@@ -112,15 +112,15 @@
 }
 
 :root {
-  /* Radius scale (DESIGN.md, Rounder corners). Inner radii are the outer one minus the padding between. */
-  --r-xs: 7px;     /* chips and badges */
-  --r-sm: 8px;     /* 28px buttons, segments, focus ring */
-  --r-md: 10px;    /* 32px controls, fields, nav items, menu rows, thumbnails, tooltips */
-  --r-lg: 12px;    /* segment tracks, inset rows */
-  --r-card: 16px;  /* cards, notices, toasts */
-  --r-menu: 16px;  /* menus and popovers */
-  --r-panel: 18px; /* the main card */
-  --r-dialog: 20px;
+  /* Radius scale: the handoff's values (DESIGN.md › Corners). Inner radii are the outer one minus the padding between. */
+  --r-xs: 6px;     /* chips and badges */
+  --r-sm: 6px;     /* 28px buttons, segments, focus ring */
+  --r-md: 8px;     /* 32px controls, fields, nav items, menu rows, thumbnails, tooltips */
+  --r-lg: 10px;    /* segment tracks, inset rows */
+  --r-card: 12px;  /* cards, notices, toasts */
+  --r-menu: 12px;  /* menus and popovers */
+  --r-panel: 14px; /* the main card */
+  --r-dialog: 16px;
   /* Over chart images, in both themes: white icons on a black wash (DESIGN.md, Chart tiles). */
   --on-media: #FFFFFF;
   --media-scrim: rgba(0,0,0,0.62);

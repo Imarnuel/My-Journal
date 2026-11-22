@@ -115,7 +115,9 @@ const chartsOf = (t: Target): string[] | null => ports.get(t)?.charts() ?? entry
 const present = (j: Job) => !!chartsOf(j.target)?.some((u) => chartKey(u) === chartKey(j.url));
 
 async function run(job: Job) {
-  if (job.cancelled || !present(job)) return finish(job);
+  // Only an explicit removal stops a reading before it starts (cancelChartRead): checking the story's charts here
+  // raced the page, which may not have drawn a just-added chart yet. Presence is checked once the reading is back.
+  if (job.cancelled) return finish(job);
   const before = factsOf(job.target);
   if (before && factsFull(before)) return finish(job); // nothing left to fill: don't spend a request
   const res = await readChart(job.file, { pairs: chartPairs() });
