@@ -75,7 +75,10 @@ Library choices: the build plan names Radix UI primitives, Motion, lucide-react 
   designer would. Show the owner the references you'd draw from, each with its Mobbin link, and say what
   you'd take from each. Then propose one direction that fits this app's own style (tokens, calm, Geist,
   DESIGN.md principles), never a copy of another app, and build it on the owner's yes. Record the references
-  in the DESIGN.md section for the change. Small, exact corrections ("make it 12px") don't need research.
+  in the DESIGN.md section for the change. Small, exact corrections ("make it 12px") don't need research, and
+  neither do fixes to spacing, clutter or a single control: use your own judgement there (the owner,
+  2026-11-22: "don't use mobbin, use your head"). Keep Mobbin for real redesigns of a section or a new
+  experience, or when the owner asks for it.
   <!-- 2026-11-20, the owner: "add the Mobbin research as a standing instruction"; earlier: "check mobbin for inspiration… you're a senior product designer with 20+ years of experience" -->
 - Think in systems: one rule per kind of surface and control, applied on every screen. If you fix something on one screen, fix it everywhere it appears.
 - Design behaviour, not just looks: every control needs its trigger, result, every state, and what persists. The prototype shows them; click through it.

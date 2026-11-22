@@ -313,7 +313,13 @@ action. Same on New chart story and the chart story page. Source: `ChartStory.ts
   line. Typing a result keeps yours (prices then leave it alone); clearing it hands it back to the prices.
   Opening a story never changes a result; MT5 results only change when you edit a price.
 
-## Result: how did it end? (one tap, never a chore)
+## Menu options with a hint (Status)
+Why: the owner, 2026-11-22: the Status menu looked cluttered and cramped ("how can we fix this clutter and
+spacing"). Two-line options (a name and a grey hint) had no padding above and below, so the selected fill hugged
+the words and options ran into each other. Rule for every option with a hint (`OptionList` in
+`src/screens/story/parts.tsx`): **8px above and below, 12px at the sides**; one-line options keep their height.
+
+
 Why: the owner, 2026-11-22: an empty result box gives "no way the user knows what to input" (it wants an R),
 and "we need to ensure it's not too much admin work". Approved wording: "How did it end?", "Target", "Stop",
 "Breakeven", each with its R, and an "R" after the result box. Source: `outcomeChoices` and `outcomePatch` in

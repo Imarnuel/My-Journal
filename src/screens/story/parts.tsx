@@ -36,7 +36,7 @@ export function OptionList({ opts, value, onPick, style, label, children }: { op
   const rows = opts.map((o) => {
         const sel = o.label === value;
         return (
-          <button key={o.label} type="button" role="option" aria-selected={sel ? "true" : "false"} onClick={() => onPick(o.label)} className="kit-opt" style={{ ...optStyle, background: sel ? "var(--surface-pressed)" : "transparent" }}>
+          <button key={o.label} type="button" role="option" aria-selected={sel ? "true" : "false"} onClick={() => onPick(o.label)} className="kit-opt" style={{ ...optStyle, ...(o.hint ? { padding: "8px 12px" } : {}), background: sel ? "var(--surface-pressed)" : "transparent" }}>
             <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
                 {o.lead ? <Emoji char={o.lead} /> : null}
