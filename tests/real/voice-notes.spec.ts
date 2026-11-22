@@ -16,13 +16,13 @@ const fill = {
 };
 
 /** Fake the server: ready, and answer each POST with the next reply in the list. */
-async function server(page: Page, replies: unknown[], ready = true) {
+async function server(page: Page, replies: unknown[], ready = true, delay = 300) {
   const posts: string[] = [];
   await page.route("**/api/voice-note", async (route: Route) => {
     if (route.request().method() === "GET") return route.fulfill({ json: { ready } });
     posts.push(route.request().postData() ?? "");
     const r = replies.shift() ?? fill;
-    await new Promise((f) => setTimeout(f, 300)); // Gemini takes a moment
+    await new Promise((f) => setTimeout(f, delay)); // Gemini takes a moment
     return route.fulfill({ json: r });
   });
   return posts;
@@ -204,4 +204,39 @@ test("reduced motion: the same steps, no shimmer sweep; new tags only fade", asy
   expect(await line.evaluate((el) => getComputedStyle(el, "::after").animationName)).toBe("none");
   await expect(page.locator(".pill.knew", { hasText: "Retest" })).toBeVisible();
   expect(await page.locator(".pill.knew").first().evaluate((el) => getComputedStyle(el).animationName)).toBe("kfadein"); // a fade, no movement or delay
+});
+
+// Reading keeps going after the page is left (the owner, 2026-11-22: record, tap Done, move on).
+test("saved while the note is read: the saved story fills when the answer arrives", async ({ page }) => {
+  await server(page, [fill], true, 2500);
+  await page.goto("/new");
+  await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
+  await page.locator('#main input[type="file"]').first().setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("89504e470d0a1a0a", "hex") });
+  await talk(page);
+  await expect(page.getByRole("status").filter({ hasText: /Sending your note|Listening to your note/ })).toBeVisible();
+  await page.getByRole("button", { name: "Save story" }).click();
+  await expect(page).toHaveURL(/\/story\//);
+  // The saved story's page shows the same reading, then takes the answer.
+  await expect(page.getByRole("status").filter({ hasText: /your note/ })).toBeVisible();
+  await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.", { timeout: 10_000 });
+});
+
+test("left while the note is read: the story fills quietly and shows it on return", async ({ page }) => {
+  await server(page, [fill], true, 2500);
+  // A saved story first, with no note yet.
+  await page.goto("/new");
+  await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
+  await page.locator('#main input[type="file"]').first().setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("89504e470d0a1a0a", "hex") });
+  await page.getByRole("button", { name: "Save story" }).click();
+  await expect(page).toHaveURL(/\/story\//);
+  const story = page.url();
+  await talk(page);
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Trade log" }).click();
+  await expect(page).toHaveURL(/\/log$/);
+  await page.waitForTimeout(3500); // the answer arrives while the story isn't open
+  await page.goBack();
+  await expect(page).toHaveURL(story);
+  await expect(page.getByRole("status").filter({ hasText: /your note/ })).toHaveCount(0);
+  await expect(page.locator("#nB")).toHaveValue("Long on the London breakout retest.");
+  await expect(page.locator(".pill", { hasText: "Retest" })).toBeVisible();
 });

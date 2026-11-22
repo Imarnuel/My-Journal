@@ -41,7 +41,8 @@ import {
   type Numbers,
   type Story,
 } from "../lib/story";
-import { readVoiceNote, transcriptRuns, type VoiceNoteResult, type VoicePhase } from "../lib/voiceNote";
+import { transcriptRuns, type VoiceNoteFill } from "../lib/voiceNote";
+import { cancelVoiceRead, clearVoiceFailure, connectVoice, readVoice, retargetVoice, useVoiceReading, type ReadPhase, type VoiceProblem } from "./story/voiceReading";
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
 import type { Outcome } from "../lib/voiceNote";
@@ -57,7 +58,7 @@ import { cancelChartRead, connectStory, noteCorrection, queueChartRead, retarget
 import { factsFull } from "../lib/chartFill";
 import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
-import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, setReadingPaused, usePref } from "../data/settings";
+import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, usePref } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factText, type Fx } from "./story/parts";
 
@@ -133,24 +134,26 @@ function StoryScreen({ id }: { id: string | null }) {
   // Real journal: the microphone recorder, the last recording (kept for Try again), Gemini reading it,
   // and the story's own recording for playback (DESIGN.md › Real app).
   const recorder = useRef<Recorder | null>(null);
-  const lastRec = useRef<Recording | null>(null);
   const pendingAudio = useRef<Blob | null>(null);
   const saving = useRef(false); // Save story runs once per press
-  const [reading, setReading] = useState(false);
-  // What the reading card says (honest steps, then timed reassurance), what was just filled (a brief glow),
-  // and the tags that just arrived (a short wave). DESIGN.md › Voice note feedback.
-  const [phase, setPhase] = useState<ReadPhase>("sending");
+  // What was just filled (a brief glow) and the tags that just arrived (a short wave). DESIGN.md › Voice note
+  // feedback. What the reading card says comes from the reading service (story/voiceReading.ts).
   const [justFilled, setJustFilled] = useState<Set<string>>(new Set());
   const [newTags, setNewTags] = useState<string[]>([]);
-  const stopRead = useRef<AbortController | null>(null);
-  /** The note being read, so Undo after Cancel can read it again (held in memory only, never stored). */
-  const readArgs = useRef<{ secs: number; rec?: Recording } | null>(null);
   // Charts being read (real journal): the facts line says so and the empty facts shimmer (DESIGN.md › Chart reading).
   // Reading lives outside the page (story/chartReading.ts), so it carries on into the saved story.
   const draftKey = useRef(`draft:${Math.random().toString(36).slice(2)}`);
   const readTarget = saved ? (id ?? "") : draftKey.current;
   const chartsReading = useChartReading((st) => st.pending[readTarget] ?? 0);
   const chartsFailed = useChartReading((st) => st.failed[readTarget] ?? 0);
+  // The voice note being read, or the one that couldn't be read (kept for Try again). Reading lives outside the
+  // page (story/voiceReading.ts), so it carries on after the page is left and fills the saved story.
+  const voicePhase = useVoiceReading((st) => st.phase[readTarget]);
+  const voiceFailed = useVoiceReading((st) => st.failed[readTarget]);
+  const reading = voicePhase != null;
+  /** The problem the Notes card shows: the microphone's (on this page) or the reading's (from the service). */
+  const shownError: VoiceProblem | null = voiceError ?? voiceFailed?.reason ?? null;
+  const phase: ReadPhase = voicePhase ?? "sending";
   // "This chart has no prices on it" (#12), with its tip the first time only.
   const [noPrices, setNoPrices] = useState(false);
   const [seenTip, setSeenTip] = usePref("seenPricesTip");
@@ -165,6 +168,9 @@ function StoryScreen({ id }: { id: string | null }) {
       }),
     [readTarget],
   );
+  // The voice note's answer, when it lands while this page is open (set further down, after its helpers).
+  const applyVoiceRef = useRef<(res: VoiceNoteFill, rec?: Recording) => void>(() => {});
+  useEffect(() => connectVoice(readTarget, { apply: (res, rec) => applyVoiceRef.current(res, rec) }), [readTarget]);
   /** Facts the reader filled on this page, to notice when the owner corrects one (noteCorrection). */
   const readerFilled = useRef<Record<string, string>>({});
   /** The earliest TradingView capture time read so far for this new story. */
@@ -188,8 +194,7 @@ function StoryScreen({ id }: { id: string | null }) {
       clearInterval(playT.current);
       recorder.current?.cancel();
       audioEl.current?.pause();
-      stopRead.current?.abort();
-      readTimers.current.forEach(clearTimeout);
+      readTimers.current.forEach(clearTimeout); // a note still being read carries on (story/voiceReading.ts)
     },
     [],
   );
@@ -365,6 +370,7 @@ function StoryScreen({ id }: { id: string | null }) {
     audioEl.current?.pause();
     setPlaying(false);
     setVoiceError(null);
+    clearVoiceFailure(readTarget);
     if (REAL) {
       try {
         recorder.current = await startRecorder();
@@ -394,66 +400,38 @@ function StoryScreen({ id }: { id: string | null }) {
     if (REAL && recorder.current) {
       rec = await recorder.current.stop();
       recorder.current = null;
-      lastRec.current = rec;
     }
     await readAndFill(secs, rec);
   };
-  /** Read a note and fill what is still empty, from the story as it is when the answer arrives. */
-  const readAndFill = async (secs: number, rec?: Recording) => {
+  /** Read a note (story/voiceReading.ts); the answer fills what is still empty when it arrives. */
+  const readAndFill = (secs: number, rec?: Recording, ctx?: VoiceContext) => {
     setVoiceError(null);
-    setReading(true);
-    setPhase("sending");
-    const ctl = new AbortController();
-    stopRead.current = ctl;
-    readArgs.current = { secs, rec };
-    readTimers.current.forEach(clearTimeout);
-    // Timed reassurance only after the real steps: never earlier than what is actually happening.
-    readTimers.current = [
-      setTimeout(() => setPhase((p) => (p === "listening" ? "writing" : p)), 4000),
-      setTimeout(() => setPhase((p) => (p === "long" ? p : "still")), 20_000),
-      setTimeout(() => setPhase("long"), 45_000),
-    ];
-    const onPhase = (p: VoicePhase) => setPhase((cur) => (p === "listening" && cur !== "sending" ? cur : p));
-    const res: VoiceNoteResult = await readVoiceNote(secs, rec, rec ? voiceContext() : undefined, { onPhase, signal: ctl.signal });
-    // Cancelled: the card was already reset (and Undo may have started a new read): leave everything alone.
-    if (ctl.signal.aborted && ctl.signal.reason === CANCELLED) return;
-    readTimers.current.forEach(clearTimeout);
-    stopRead.current = null;
-    setReading(false);
-    if (!res.ok) {
-      if (res.quota) setReadingPaused(true); // Settings says reading is paused until tomorrow (#23)
-      setVoiceError(res.reason);
-      return;
-    }
-    if (rec) setReadingPaused(false);
-    lastRec.current = null;
+    readVoice(readTarget, secs, rec, ctx ?? (rec ? voiceContext() : undefined));
+  };
+  /** The answer lands on this page: fill from the story as it is now, glow, and say what was filled. */
+  const applyVoice = (res: VoiceNoteFill, rec?: Recording) => {
     const cur = storyRef.current ?? s;
     const { patch, filled, newKinds } = applyVoiceNote(cur, res);
     const prev = prevOf(cur, patch);
     registerKinds(newKinds);
     update(patch);
     if (rec) keepRecording(rec.blob);
-    // The answer lands: what it filled glows together, new tags arrive in a short wave (not on reduced motion,
-    // handled in CSS). Cleared after the glow so it never replays.
+    // What it filled glows together, new tags arrive in a short wave (not on reduced motion, handled in CSS).
+    // Cleared after the glow so it never replays.
     const keys = (["before", "refl", "setup", "tags", "followed", "headspace"] as const).filter((k) => k in patch);
     setJustFilled(new Set(keys));
     setNewTags((patch.tags ?? []).filter((t) => !cur.tags.includes(t)));
     readTimers.current.push(setTimeout(() => (setJustFilled(new Set()), setNewTags([])), 1400));
     toastA(voiceToast(filled), () => update(prev), "voice");
   };
+  applyVoiceRef.current = applyVoice;
   /**
    * Cancel while a note is read (DESIGN.md › Voice note feedback): reading stops at once, nothing is filled and
    * the recording is let go (the notes matter, not the audio). Undo for 6 seconds reads it again.
    */
   const cancelRead = () => {
-    const args = readArgs.current;
-    stopRead.current?.abort(CANCELLED);
-    stopRead.current = null;
-    readArgs.current = null;
-    readTimers.current.forEach(clearTimeout);
-    lastRec.current = null;
-    setReading(false);
-    toastA("Voice note deleted", args ? () => void readAndFill(args.secs, args.rec) : undefined, "deleted");
+    const args = cancelVoiceRead(readTarget);
+    toastA("Voice note deleted", args ? () => readAndFill(args.secs, args.rec, args.ctx) : undefined, "deleted");
   };
   /**
    * Fill the story from one chart's reading (DESIGN.md › Chart reading): the rules are in lib/chartFill.ts; a
@@ -667,6 +645,7 @@ function StoryScreen({ id }: { id: string | null }) {
     if (fresh.length) setTags([...useStore.getState().tags, ...fresh.map(([t, k]) => ({ t, n: 1, k }))]);
     addEntry(entryFromStory(nid, s, kindOf));
     retargetReads(draftKey.current, nid); // charts still being read fill the saved story
+    retargetVoice(draftKey.current, nid); // and so does a voice note still being read
     if (s.voiceLen) setExtras(nid, { voiceLen: s.voiceLen });
     // The recording is written before the story page opens, so the page finds it.
     if (pendingAudio.current) await saveVoiceAudio(nid, pendingAudio.current);
@@ -952,15 +931,15 @@ function StoryScreen({ id }: { id: string | null }) {
                   Cancel
                 </button>
               </div>
-            ) : voiceError && !recording ? (
-              <ProblemCard title={VOICE_COPY[voiceError].title} text={VOICE_COPY[voiceError].text}>
-                {(voiceError === "offline" || voiceError === "failed") && lastRec.current ? (
+            ) : shownError && !recording ? (
+              <ProblemCard title={VOICE_COPY[shownError].title} text={VOICE_COPY[shownError].text}>
+                {(shownError === "offline" || shownError === "failed") && voiceFailed?.rec ? (
                   <>
-                    <button type="button" className="btn btn-g" onClick={() => lastRec.current && readAndFill(lastRec.current.seconds, lastRec.current)}>
+                    <button type="button" className="btn btn-g" onClick={() => voiceFailed.rec && readAndFill(voiceFailed.rec.seconds, voiceFailed.rec)}>
                       Try again
                     </button>
                     {/* Hear what you said while it waits (the recording is kept). */}
-                    <KeptRecording rec={lastRec.current} />
+                    <KeptRecording rec={voiceFailed.rec} />
                   </>
                 ) : (
                   <button type="button" className="btn btn-g" onClick={startRec}>
@@ -1510,7 +1489,6 @@ function screenshotTime(files: File[]): Pick<Story, "date" | "time" | "session">
   return { date: localDate(d), time, session: sessionOf(time, sessionTimes()) };
 }
 
-type VoiceProblem = Exclude<VoiceNoteResult, { ok: true }>["reason"];
 
 /**
  * Voice note wording. "unclear" is frame 16's; the rest are the real journal's, approved by the owner
@@ -1536,7 +1514,6 @@ function voiceContext(): VoiceContext {
 
 /** What the reading card says. "sending" and "listening" are real events, "busy" comes from the server;
  *  "writing", "still" and "long" are timed and only follow them. Approved by the owner (DESIGN.md). */
-type ReadPhase = VoicePhase | "writing" | "still" | "long";
 const READ_COPY: Record<ReadPhase, { title: string; text?: string }> = {
   sending: { title: "Sending your note…" },
   listening: { title: "Listening to your note…" },
@@ -1563,7 +1540,6 @@ const UNDER_FIELD = { left: "-12px", width: "calc(100% + 12px)" } as const;
 const OUTCOME_LABEL: Record<Outcome, string> = { target: "Target", stop: "Stop", breakeven: "Breakeven" };
 
 /** The abort reason that marks a read the owner cancelled (not the time limit, which offers Try again). */
-const CANCELLED = "cancelled";
 
 /** New tags arrive in a short wave, quicker as it goes (never a metronome), all in under 200ms. */
 const WAVE_MS = [0, 45, 80, 105, 125, 140, 150];

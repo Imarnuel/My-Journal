@@ -468,7 +468,7 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   "Listening to your note…" once the server has it, "Writing your notes…" a few seconds later, and "Busy right
   now, trying again…" only when the server reports that another model took over (a tab in its stream). Timed
   reassurance only follows those: "Still writing." / "Longer notes take a little longer." at 20 seconds, "Taking
-  longer than usual" at 45. The app stops waiting at 90 seconds; the server gives each model 40. The limit ends
+  longer than usual" at 45. The app stops waiting at 90 seconds; the server gives each model 40 at most, and asks the next after 6 of silence. The limit ends
   in "Couldn't read your note just now" with Try again.
 - **Cancel, from the first second** (2026-11-21, replaces "Stop waiting" at 45 seconds). Why: the owner asked
   to be able to stop reading straight after recording, and chose to let the note go: "the transcription is the
@@ -482,6 +482,20 @@ Databricks (filled values marked as new), Lyssna and Lightfield (the error in pl
   voice colour and fades (1.2s, a fading state marker); new tags arrive in a short wave (0 to 150ms, quicker as
   it goes). Reduced motion: no sweeps or movement; message changes and new tags only fade.
 - **Failure cards keep a play button** for the recording, beside Try again.
+- **Reading carries on when you leave** (the owner, 2026-11-22, on the wait: "it leaves me thinking that this idea
+  would never work in the real world"; then "build 1 to 3"). Record, tap Done or Save, move on: the note is read
+  outside the page (`src/screens/story/voiceReading.ts`, like chart reading). A story saved while its note is
+  read shows the same card on its own page and takes the answer there; a saved story that isn't open is filled
+  quietly with the same rules (nothing overwritten, no toast away from the story); a new story left without saving
+  lets its note go. Opening the story mid-reading shows where the reading is. A note that couldn't be read keeps
+  its recording (in memory) for Try again on that story.
+- **The server asks models in parallel when one is slow** (`src/lib/geminiServer.ts`). Measured 2026-11-22 on the
+  free tier: a model that answers does so in 6 to 7 seconds, a busy one says so within 4 or stays silent for the
+  whole 40; a test note took 46 seconds, 40 of them waiting on a silent model. Now the next model is asked as well
+  after 6 seconds of silence, or at once when one says it is busy, and the first good answer wins (the others are
+  stopped). The model that answered last is asked first for 10 minutes; one that said it was busy is asked last
+  for 2. The card's "Busy right now, trying again…" shows when the next model is asked. Chart reading uses the
+  same client.
 
 ## Pair picker (search or type, nothing limited)
 Why: the owner, 2026-11-22: the Pair menu only offered nine fixed pairs, so anyone trading crosses, indices,

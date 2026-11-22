@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fillFromAnswer, voicePrompt, voiceSchema, type VoiceContext } from "./voicePrompt";
 import handler from "../../netlify/edge-functions/voice-note.ts";
+import { resetModelHealth } from "./geminiServer";
 
 const ctx: VoiceContext = {
   setups: ["4H supply pullback", "London breakout"],
@@ -79,6 +80,7 @@ describe("the server function", () => {
   const env: Record<string, string | undefined> = {};
   const post = (body: unknown) => new Request("https://x/api/voice-note", { method: "POST", body: JSON.stringify(body) });
   beforeEach(() => {
+    resetModelHealth(); // each test starts with no memory of which model answered last
     (globalThis as unknown as { Netlify: unknown }).Netlify = { env: { get: (k: string) => env[k] } };
     env.Gemini_API_Key = "test-key";
     env.GEMINI_API_KEY = undefined;
