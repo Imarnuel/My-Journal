@@ -341,6 +341,25 @@ Why: in the story's tag menu "used 18 times" was reading with nothing to act on,
 wrap. The menu still lists the most used tags first. The counts stay in Settings > Your tags, where they help
 decide what to rename, merge or remove.
 
+## Tags: starter tags, and no kind question
+Overrides `01-decisions.md` › Tags ("Adding a brand-new tag asks this once, inline"). The owner, 2026-11-22: "preload
+some items in the tags section … a starting point for tags, and they are aware of what to use the tags for"; then,
+asked what felt like too much admin work, "choosing a tag's kind". Tags stay one field (a separate Mistakes field
+was weighed and left out: it adds a field to every trade, and the kind already separates mistakes in the numbers).
+- **Starter tags**: a new real journal starts with 12, kinds set: Good: Retest, Waited for confirmation, Let it
+  run. Mistake: Chased entry, Moved stop, FOMO, Revenge trade, Overtraded, Exited early. Neutral: Break of
+  structure, Liquidity sweep, News. Mostly mistakes (they drive Costliest mistakes and the review), the sample
+  journal's names, nothing the app already knows (sessions, plan adherence). A journal saved before gets the ones
+  it doesn't have, its own untouched (store version 4). They are ordinary tags: suggested as you type (your most
+  used first, so unused ones sink), counted in Settings, renamed or removed with Undo. Voice notes prefer them, so
+  the same thing gets the same name. The sample journal keeps its own tags. Source: `src/lib/tagKind.ts`.
+- **No kind question**: "Add “x” as a new tag" adds it at once; its kind comes from its words (mistake words such
+  as chased, FOMO, moved stop, early, late; good ones such as waited, patient, let it run; anything else Neutral),
+  and the toast says which ("“Revenge entry” added as a new mistake tag"). A voice note sets its own kinds.
+- **Change a kind** in Settings › Your tags › Manage tags: each row's kind is a small menu (Good: Something to
+  repeat, Mistake: Counts in costliest mistakes, Neutral: Just context, the hints the question used). It changes
+  at once, no toast; the kind breakdown above updates.
+
 ## Typeface: Instrument Serif for page titles, Inter for everything else
 Overrides `02-look-and-feel.md`'s Inter-only rule for page titles, and the earlier Geist and Public Sans. The
 owner, 2026-11-22: "Spectra for headings and public sans for others (body, labels)", page titles only; then

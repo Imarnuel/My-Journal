@@ -460,3 +460,9 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
   .app img[data-loaded] { transition: opacity 120ms linear; }
   .app .chart:has(> img[data-loading]), .app .chart:has(> * > img[data-loading]) { animation: none; }
 }
+
+/* A tag's kind in Settings › Manage tags: a quiet menu button (12px text, the field's room), like a filter. */
+.app .kkind { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 8px; margin-left: -8px; font: inherit;
+  font-size: 12px; line-height: 16px; color: var(--text-2); background: transparent; border: 0; border-radius: var(--r-sm);corner-shape:squircle; cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .app .kkind:hover { background: var(--surface-hover); color: var(--text-1); } }
+.app .kkind[aria-expanded="true"] { background: var(--surface-pressed); color: var(--text-1); }

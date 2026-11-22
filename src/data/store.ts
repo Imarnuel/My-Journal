@@ -8,6 +8,7 @@ import type { Account, Entry, Tag, TagKind, Week } from "../lib/types";
 import { SAMPLE_BOS_IDS, SAMPLE_BOS_TAG, seedAccounts, seedEntries, seedTags, seedWeeks, SHORT_TRADE, TODAY } from "./seed";
 import { fadeTheme } from "../components/primitives/motion";
 import { localDate, REAL } from "../app/mode";
+import { missingStarters, STARTER_TAGS } from "../lib/tagKind";
 
 export type Appearance = "system" | "light" | "dark";
 
@@ -16,7 +17,7 @@ export type Appearance = "system" | "light" | "dark";
  * sample trades got the "BOS" tag (the owner's answers to open questions 4 and 6). 3 (2026-11-21): the voice
  * recordings kept until then are cleared once.
  */
-const STORE_VERSION = 3;
+const STORE_VERSION = 4;
 type Saved = { entries?: Entry[]; tags?: Tag[] } & Record<string, unknown>;
 
 /**
@@ -27,6 +28,9 @@ export async function migrateData(saved: Saved, from: number): Promise<Saved> {
   // Version 3: the owner chose to keep only the written notes (2026-11-21), and asked for the recordings kept
   // until then to be cleared, once (DESIGN.md › Real app).
   if (from < 3) await sweepVoiceAudio(() => false);
+  // Version 4: the real journal starts with the starter tags (DESIGN.md › Tags); a journal saved before gets the
+  // ones it doesn't have, without touching its own.
+  if (from < 4 && REAL) saved = { ...saved, tags: [...(saved.tags ?? []), ...missingStarters(saved.tags ?? [])] };
   if (from >= 2 || !saved.entries) return saved;
   let entries = saved.entries;
   if (!entries.some((e) => e.id === SHORT_TRADE.id)) {
@@ -121,7 +125,7 @@ export const useStore = create<State>()(
   today: REAL ? localDate() : TODAY,
   entries: REAL ? [] : seedEntries,
   accounts: REAL ? [] : seedAccounts,
-  tags: REAL ? [] : seedTags,
+  tags: REAL ? STARTER_TAGS : seedTags,
   weeks: REAL ? [] : seedWeeks,
   picked: REAL ? [] : realAccounts(seedAccounts),
   appearance: typeof window === "undefined" ? "light" : initialAppearance(),

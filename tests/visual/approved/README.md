@@ -68,3 +68,4 @@ then look at every regenerated image against the handoff screenshot before commi
 | Every image in `light/`, `dark/`, `states/` and `chrome/` | Page titles at 28px (DESIGN.md › Typeface), line height still 32px so nothing below moves (checked the story and trade log tops) | 2026-11-22 |
 | `states/` 12, 14, 17, 21, 31, 40 | Toasts reworked (DESIGN.md › Toasts): a filled check on a success, no icon on a notice, a ghost Undo; only the toast changed (checked 12 and 40) | 2026-11-22 |
 | `states/` 17 | The voice note toast leads with what was filled, no colon ("Setup, 3 tags, plan and headspace filled from your note"; DESIGN.md › Toasts) | 2026-11-22 |
+| `states/` 39 | Manage tags: each tag's kind is a small menu to change it (DESIGN.md › Tags: starter tags, and no kind question) | 2026-11-22 |

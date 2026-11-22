@@ -410,7 +410,7 @@ test("frame 16: Prices on this screenshot are too small to read; Type the number
 
 // ---------- tags
 
-test("tags: autocomplete, most used first and no counts (DESIGN.md), Enter, Backspace, × with Undo, a new tag asks its kind", async ({ page }) => {
+test("tags: autocomplete, most used first and no counts (DESIGN.md), Enter, Backspace, × with Undo, a new tag gets its kind from its words", async ({ page }) => {
   await page.goto("/new");
   const input = page.getByRole("combobox", { name: "Add a tag" });
   await expect(input).toHaveAttribute("placeholder", "Add a tag");
@@ -437,9 +437,8 @@ test("tags: autocomplete, most used first and no counts (DESIGN.md), Enter, Back
   await input.fill("revenge entry");
   await expect(page.getByRole("option", { name: "Add “Revenge entry” as a new tag" })).toBeVisible();
   await input.press("Enter");
-  const ask = page.getByRole("dialog", { name: "New tag" });
-  await expect(ask).toContainText("What kind of tag is Revenge entry? You only set this once.");
-  await ask.getByRole("button", { name: /Mistake/ }).click();
+  // No question: the kind comes from the words (DESIGN.md › Tags), and the toast says which.
+  await expect(page.getByRole("dialog", { name: "New tag" })).toHaveCount(0);
   await expect(pills).toHaveText(["Supply zone", "Revenge entry"]);
   await expect(toast(page)).toContainText("“Revenge entry” added as a new mistake tag");
 

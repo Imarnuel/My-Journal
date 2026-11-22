@@ -43,6 +43,7 @@ import {
 } from "../lib/story";
 import { transcriptRuns, type VoiceNoteFill } from "../lib/voiceNote";
 import { ChartViewer } from "./story/ChartViewer";
+import { guessKind } from "../lib/tagKind";
 import { cancelVoiceRead, clearVoiceFailure, connectVoice, readVoice, retargetVoice, useVoiceReading, type ReadPhase, type VoiceProblem } from "./story/voiceReading";
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
@@ -63,11 +64,6 @@ import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, usePref } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factEmpty, factText, type Fx } from "./story/parts";
 
-const KINDS: { k: TagKind; hint: string }[] = [
-  { k: "Good", hint: "Something to repeat" },
-  { k: "Mistake", hint: "Counts in costliest mistakes" },
-  { k: "Neutral", hint: "Just context" },
-];
 
 const query = (k: string) => {
   try {
@@ -121,7 +117,6 @@ function StoryScreen({ id }: { id: string | null }) {
   const [pSec, setPSec] = useState(0);
   const [said, setSaid] = useState(false);
   const [tagQ, setTagQ] = useState("");
-  const [kindFor, setKindFor] = useState<string | null>(null);
 
   const dateByHand = useRef(false);
   // Which number is being edited in place (DESIGN.md, Editing numbers), and what it was, for Escape.
@@ -543,18 +538,21 @@ function StoryScreen({ id }: { id: string | null }) {
   const addTag = (t: string) => {
     update({ tags: s.tags.concat([t]) });
     setTagQ("");
-    setKindFor(null);
     menu.close();
   };
-  const askKind = () => {
-    setKindFor(niceTag(tagQ));
-    menu.open("kind");
+  /** A brand-new tag gets its kind from its words, never a question (DESIGN.md › Tags); the toast says which. */
+  const addNewTag = () => {
+    const t = niceTag(tagQ);
+    const k = guessKind(t);
+    registerKinds({ [t]: k });
+    addTag(t);
+    toastA(`“${t}” added as a new ${k.toLowerCase()} tag`, undefined, "added");
   };
   const tagKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       if (ts.sug.length && ts.ql) addTag(ts.sug[0].t);
-      else if (ts.canAdd) askKind();
+      else if (ts.canAdd) addNewTag();
     }
     if (e.key === "Backspace" && !tagQ && s.tags.length) update({ tags: s.tags.slice(0, -1) });
   };
@@ -1204,40 +1202,11 @@ function StoryScreen({ id }: { id: string | null }) {
                           </button>
                         ))}
                         {ts.canAdd ? (
-                          <button type="button" role="option" aria-selected="false" onClick={askKind} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px", color: "var(--text-2)" }}>
+                          <button type="button" role="option" aria-selected="false" onClick={addNewTag} className="kit-opt" style={{ font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px", color: "var(--text-2)" }}>
                             {`Add “${niceTag(tagQ)}” as a new tag`}
                           </button>
                         ) : null}
                         {ts.none ? <span style={{ fontSize: "12px", color: "var(--text-3)", padding: "8px 12px", lineHeight: "16px" }}>Type to find a tag or make a new one</span> : null}
-                      </div>
-                    </>
-                  ) : null}
-                  {menu.isOpen("kind") && kindFor ? (
-                    <>
-                      <Closer onClose={menu.close} />
-                      <div role="dialog" aria-label="New tag" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", ...UNDER_FIELD, gap: "8px" }}>
-                        <span style={{ fontSize: "14px", color: "var(--text-1)" }}>
-                          What kind of tag is <b>{kindFor}</b>? You only set this once.
-                        </span>
-                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                          {KINDS.map(({ k, hint }) => (
-                            <button
-                              key={k}
-                              type="button"
-                              className="btn btn-g"
-                              onClick={() => {
-                                const t = kindFor;
-                                registerKinds({ [t]: k });
-                                addTag(t);
-                                toastA(`“${t}” added as a new ${k.toLowerCase()} tag`, undefined, "added");
-                              }}
-                              style={{ minHeight: "32px", flex: 1, flexDirection: "column", gap: 0, padding: "4px 12px" }}
-                            >
-                              <span style={{ fontSize: "14px", fontWeight: 500 }}>{k}</span>
-                              <span style={{ fontSize: "12px", color: "var(--text-3)", fontWeight: 400, lineHeight: "16px" }}>{hint}</span>
-                            </button>
-                          ))}
-                        </div>
                       </div>
                     </>
                   ) : null}

@@ -5,7 +5,15 @@ import { Fragment, useRef, useState } from "react";
 import { useStore } from "../../data/store";
 import { usePref } from "../../data/settings";
 import { toast } from "../../components/primitives/toast";
-import type { Tag } from "../../lib/types";
+import type { Tag, TagKind } from "../../lib/types";
+import { Chevron, Closer, OptionList } from "../story/parts";
+
+/** The three kinds, with what each does (the wording the new-tag question used, approved earlier). */
+const KIND_OPTS = [
+  { label: "Good", hint: "Something to repeat" },
+  { label: "Mistake", hint: "Counts in costliest mistakes" },
+  { label: "Neutral", hint: "Just context" },
+];
 import { findLookalikes, mergeTags, pairKey, renameTag, retagEntries, tagMix, usedLabel, validRename, type Lookalike, type TagPatch } from "./tags";
 
 /** A Settings row (Settings.tsx › row): 16px above and below a 32px line. */
@@ -50,6 +58,13 @@ export function YourTags() {
   const setTags = useStore((s) => s.setTags);
   const [merged, setMerged] = usePref("mergedLookalikes");
   const [open, setOpen] = useState(false);
+  // Which tag's kind menu is open (one menu at a time).
+  const [kindOf, setKindOf] = useState<string | null>(null);
+  /** A tag's kind, changed in place: no toast, the row says it (DESIGN.md › Tags). */
+  const setKind = (t: string, k: TagKind) => {
+    setTags(useStore.getState().tags.map((x) => (x.t === t ? { ...x, k } : x)));
+    setKindOf(null);
+  };
 
   const names = [...new Set([...tags.map((t) => t.t), ...entries.flatMap((e) => [...e.tags, ...e.mistakes])])];
   const seen = new Set<string>();
@@ -134,7 +149,18 @@ export function YourTags() {
               <Fragment key={t.t}>
                 <div role="listitem" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 90px 110px 40px", gap: "12px", alignItems: "center", padding: "16px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "32px" }}>
                   <TagName tag={t} tags={tags} onRename={(to) => rename(t.t, to)} />
-                  <span className="lbl">{t.k}</span>
+                  <span style={{ position: "relative", display: "inline-flex" }}>
+                    <button type="button" className="kkind" aria-haspopup="listbox" aria-expanded={kindOf === t.t ? "true" : "false"} aria-label={`Kind of ${t.t}: ${t.k}`} onClick={() => setKindOf(kindOf === t.t ? null : t.t)}>
+                      {t.k}
+                      <Chevron />
+                    </button>
+                    {kindOf === t.t ? (
+                      <>
+                        <Closer onClose={() => setKindOf(null)} />
+                        <OptionList label={`Kind of ${t.t}`} opts={KIND_OPTS} value={t.k} onPick={(k) => setKind(t.t, k as TagKind)} style={{ left: "-8px", width: "240px", transformOrigin: "top left" }} />
+                      </>
+                    ) : null}
+                  </span>
                   <span className="lbl" style={{ textAlign: "right" }}>{usedLabel(t.n)}</span>
                   <button className="kmore" type="button" aria-label={`Remove ${t.t}`} onClick={() => remove(t)} style={{ width: "32px", height: "32px", border: 0, borderRadius: "var(--r-md)", background: "transparent", color: "var(--text-3)", cursor: "pointer", fontSize: "16px", lineHeight: "24px" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>

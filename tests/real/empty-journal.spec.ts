@@ -147,3 +147,19 @@ test("a single chart just uploaded can be removed: the drop area returns", async
   await expect(page.getByText("Drop, paste or choose charts")).toBeVisible();
   await expect(page.getByRole("status").filter({ hasText: "Chart removed" })).toBeVisible();
 });
+
+test("a new journal starts with the starter tags: suggested as you type, kinds changeable in Settings", async ({ page }) => {
+  await page.goto("/new");
+  const input = page.locator("#taginput");
+  await input.click();
+  await input.fill("ch");
+  await expect(page.getByRole("option", { name: "Chased entry" })).toBeVisible();
+  await page.goto("/settings");
+  await expect(page.getByText("Tags (12)")).toBeVisible();
+  await expect(page.getByText(/3 good · 6 mistakes · 3 neutral/)).toBeVisible();
+  await page.getByRole("button", { name: "Manage tags" }).click();
+  await page.getByRole("button", { name: "Kind of News: Neutral" }).click();
+  await page.getByRole("option", { name: /Mistake/ }).click();
+  await expect(page.getByRole("button", { name: "Kind of News: Mistake" })).toBeVisible();
+  await expect(page.getByText(/3 good · 7 mistakes · 2 neutral/)).toBeVisible();
+});
