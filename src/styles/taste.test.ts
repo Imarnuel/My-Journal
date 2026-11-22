@@ -41,6 +41,14 @@ describe("the owner's rules, checked in the source (DESIGN.md, Principles)", () 
     expect([...find(inline, /\.tsx?$/), ...find(css, /\.css$/)]).toEqual([]);
   });
 
+  it("every corner on the scale is a continuous corner (DESIGN.md, Corners)", () => {
+    // In stylesheets, each border-radius that uses a scale token is followed by corner-shape in the same rule;
+    // inline styles get it from one rule in globals.css.
+    const css = /border-radius\s*:\s*var\(--r-[a-z]+\)(\s*!important)?\s*(?!;\s*corner-shape)[;}]/;
+    expect(find(css, /\.css$/)).toEqual([]);
+    expect(readFileSync(join(ROOT, "styles/globals.css"), "utf8")).toContain('[style*="var(--r-"] { corner-shape: squircle; }');
+  });
+
   it("one typeface, named once in --font-sans (DESIGN.md, Typeface: Geist)", () => {
     const named = /(fontFamily"?\s*:\s*"(?!var\(--font-sans\)"|inherit")[^"]+"|font-family\s*:(?!\s*(var\(--font-sans\)|inherit))[^;}]+)/;
     expect(find(named)).toEqual([]);

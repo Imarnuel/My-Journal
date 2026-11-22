@@ -36,7 +36,7 @@ Traders who quit journaling because it felt like work. The owner has ADHD. Frict
 - **Tokens only.** Colours, shadows, radii, heights and motion come from `src/styles/tokens.css`. No raw hex in components.
 - **Type: four sizes only.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight). Weights 400 and 500; 600 only at 24px and the primary button (a selected segment stays 500, DESIGN.md). Geist everywhere (DESIGN.md), tabular figures on.
 - **Spacing: eight steps only.** Tailwind `0.5 1 2 3 4 6 8 12` (2 4 8 12 16 24 32 48px).
-- **Controls are 32px tall** (segments 28px, menu rows 34px). Radii come from the `--r-*` tokens only, at the handoff's values: 6px chips, small buttons and segments, 8px controls and fields, 10px segment tracks, 12px cards and menus, 14px the main card, 16px dialogs (DESIGN.md › Corners). `src/styles/taste.test.ts` fails on a hard-coded radius.
+- **Controls are 32px tall** (segments 28px, menu rows 34px). Radii come from the `--r-*` tokens only: 7px chips, 8px small buttons and segments, 10px controls and fields, 12px segment tracks, 16px cards and menus, 18px the main card, 20px dialogs, drawn as continuous (Apple-style) corners where the browser supports it (DESIGN.md › Corners). `src/styles/taste.test.ts` fails on a hard-coded radius.
 - **Light is the default theme.** Dark is a full equal. Appearance: System, Light, Dark.
 - **One behaviour per kind of control** (the behaviour kit in `01-decisions.md`): one menu open at a time, click outside closes, destructive actions happen at once with an Undo toast for 6 seconds, no confirm dialogs.
 - **AI only pre-fills.** Every field can be set by hand. A voice note never overwrites a choice made by hand.

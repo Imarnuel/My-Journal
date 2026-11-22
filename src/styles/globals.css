@@ -55,7 +55,7 @@ button, [role="button"], [role="tab"], .pill, .btn {
 /* Segmented controls: one thumb slides under the pressed segment; the segment itself goes transparent. */
 .kseg-thumb {
   position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none;
-  border-radius: var(--r-sm); background: var(--surface-3);
+  border-radius: var(--r-sm);corner-shape:squircle; background: var(--surface-3);
   box-shadow: inset 0 1px 0 var(--highlight), 0 0 0 1px var(--border-subtle), 0 1px 2px rgba(0,0,0,0.25);
   transition: transform var(--d-fast) var(--ease-standard), width var(--d-fast) var(--ease-standard);
 }
@@ -99,7 +99,7 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 .kcrumbs { align-self: flex-start; min-width: 0; max-width: 100%; margin-bottom: -16px; }
 .kcrumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .kcrumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
-.app .kcrumb { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; margin: 0 -4px; border-radius: var(--r-md);
+.app .kcrumb { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; margin: 0 -4px; border-radius: var(--r-md);corner-shape:squircle;
   font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-2); text-decoration: none; min-width: 0;
   transition: background var(--d-instant), color var(--d-instant); }
 .kcrumbs li:first-child .kcrumb { margin-left: -8px; }
@@ -135,12 +135,12 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 .kseg-track button[aria-pressed="true"], .kseg-track [role="tab"][aria-selected="true"] { font-weight: 500 !important; }
 
 /* Dashboard notice (DESIGN.md): icon tile, text column, a quiet action. */
-.knotice { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 16px 16px 24px; border-radius: var(--r-card); }
+.knotice { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 16px 16px 24px; border-radius: var(--r-card);corner-shape:squircle; }
 .knotice-link { flex: none; gap: 4px !important; }
-.knote-tile { flex: none; align-self: flex-start; width: 32px; height: 32px; border-radius: var(--r-md); background: var(--surface-inset);
+.knote-tile { flex: none; align-self: flex-start; width: 32px; height: 32px; border-radius: var(--r-md);corner-shape:squircle; background: var(--surface-inset);
   box-shadow: 0 0 0 1px var(--border-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-2); }
 /* The drop slot is drawn where the chart goes: 16:9, dashed, and it is the file picker. */
-.kslot { position: relative; flex: none; width: 112px; height: 63px; box-sizing: border-box; border-radius: var(--r-md);
+.kslot { position: relative; flex: none; width: 112px; height: 63px; box-sizing: border-box; border-radius: var(--r-md);corner-shape:squircle;
   border: 1.5px dashed var(--border-strong); background: var(--surface-inset); color: var(--text-2);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   font-size: 12px; font-weight: 500; line-height: 16px; cursor: pointer;
@@ -168,7 +168,7 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
 
 
 /* Notes on the chart story (DESIGN.md, Notes). */
-.ksugg { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: var(--r-xs); font-size: 12px; line-height: 16px;
+.ksugg { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: var(--r-xs);corner-shape:squircle; font-size: 12px; line-height: 16px;
   font-weight: 500; color: var(--voice); background: color-mix(in srgb, var(--voice) 10%, transparent); cursor: default; }
 .ksugg-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .ksugg-row > span { font-size: 12px; line-height: 16px; color: var(--text-3); margin-right: auto; }
@@ -196,13 +196,13 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
    colours as in the handoff; they rise in from 12px below and leave faster, dropping 8px. */
 .ktoast { position: fixed; z-index: 20; right: calc(24px + env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   display: flex; align-items: center; gap: 12px; max-width: min(560px, calc(100vw - 48px)); box-sizing: border-box;
-  padding: 10px 10px 10px 14px; border-radius: var(--r-card); background: var(--inverse-bg); color: var(--inverse-fg);
+  padding: 10px 10px 10px 14px; border-radius: var(--r-card);corner-shape:squircle; background: var(--inverse-bg); color: var(--inverse-fg);
   box-shadow: 0 16px 40px -8px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.12); font-size: 14px; line-height: 20px; }
 .ktoast-ic { flex: none; display: flex; opacity: 0.72; }
 .ktoast-ic[data-kind="voice"] { opacity: 1; color: color-mix(in srgb, var(--voice) 55%, var(--inverse-fg)); }
 .ktoast-msg { flex: 1; min-width: 0; text-wrap: pretty; }
 .ktoast-undo { flex: none; font: inherit; font-size: 14px; font-weight: 500; color: var(--inverse-fg); background: transparent;
-  border: 1px solid var(--inverse-border); border-radius: var(--r-md); padding: 0 12px; min-height: 32px; cursor: pointer; }
+  border: 1px solid var(--inverse-border); border-radius: var(--r-md);corner-shape:squircle; padding: 0 12px; min-height: 32px; cursor: pointer; }
 @media (hover: hover) and (pointer: fine) { .ktoast-undo:hover { background: color-mix(in srgb, var(--inverse-fg) 10%, transparent); } }
 @keyframes ktoast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @keyframes ktoast-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px); } }
@@ -221,7 +221,7 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
    saved once the lifted tile has settled. Only transform and opacity move. */
 .ktile { position: relative; touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; cursor: grab; }
 .ktile img { -webkit-user-drag: none; }
-.ktile::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-md);
+.ktile::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-md);corner-shape:squircle;
   box-shadow: var(--shadow-float); opacity: 0; pointer-events: none; z-index: -1;
   transition: opacity var(--d-fast) var(--ease-out), transform var(--d-fast) var(--ease-out); }
 .ktile > .chart { transition: transform var(--d-fast) var(--ease-out); }
@@ -239,7 +239,7 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
   background: linear-gradient(to bottom, var(--media-scrim), transparent 70%);
   transition: opacity var(--d-fast) var(--ease-out); }
 .app .kgrip, .app .ktile-rm { position: absolute; top: 4px; z-index: 5; width: 24px; height: 24px; padding: 0; border: 0;
-  border-radius: var(--r-sm); background: transparent; color: var(--on-media); display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);corner-shape:squircle; background: transparent; color: var(--on-media); display: flex; align-items: center; justify-content: center;
   opacity: 0; transition: opacity var(--d-fast) var(--ease-out), background var(--d-instant); }
 .app .kgrip { left: 4px; cursor: grab; }
 @media (hover: none) { .app .kgrip { pointer-events: none; } } /* hidden on touch; leave the spot to the thumbnail */
@@ -269,7 +269,7 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 @media (hover: hover) and (pointer: fine) { .app .knum:hover .knum-v { border-bottom-style: solid; } }
 /* In place: the number becomes a small input in the room its column had (fields elsewhere pad 12px; this one 4px). */
 .app .knums input.knum-in { box-sizing: border-box; flex: 1 1 0; min-width: 0; width: 0; height: 24px; margin: -2px 0 -2px 2px; padding: 0 4px !important; align-self: center; font: inherit; font-size: 14px; color: var(--text-1);
-  font-variant-numeric: tabular-nums; background: var(--surface-inset); border: 1px solid var(--border-strong); border-radius: var(--r-sm); }
+  font-variant-numeric: tabular-nums; background: var(--surface-inset); border: 1px solid var(--border-strong); border-radius: var(--r-sm);corner-shape:squircle; }
 .app .knum-empty { display: inline-block; min-width: 6ch; }
 /* Phones: the same pairs side by side, three rows of two (Entry | Exit, Stop | Size, Target | R), so it fits. */
 @media (max-width: 640px) { .app .knums { grid-template-columns: repeat(2, max-content); grid-template-rows: repeat(3, auto); grid-auto-flow: column; } }
@@ -295,8 +295,8 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 
 /* Empty fields shimmer where the answer will land; the fields it filled glow together and fade (one beat). */
 .kfx { position: relative; }
-.kfx[data-fx="awaiting"] { overflow: hidden; border-radius: var(--r-md); }
-.kfx[data-fx]::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 6; border-radius: var(--r-md); }
+.kfx[data-fx="awaiting"] { overflow: hidden; border-radius: var(--r-md);corner-shape:squircle; }
+.kfx[data-fx]::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 6; border-radius: var(--r-md);corner-shape:squircle; }
 .kfx[data-fx="awaiting"]::after {
   background: linear-gradient(100deg, transparent 25%, color-mix(in srgb, var(--voice) 10%, transparent) 50%, transparent 75%);
   transform: translateX(-100%); animation: ksweep 1.8s linear infinite; }
@@ -326,3 +326,9 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
    there); the plain input inside draws no ring of its own. */
 .app .kpairs-search:focus-within { border-color: var(--border-strong) !important; }
 .app .kpairs-search input:focus-visible { outline: none !important; box-shadow: none !important; }
+
+/* Continuous corners (DESIGN.md › Corners): every corner on the radius scale is drawn with Apple's continuous
+   curve where the browser supports it (corner-shape), at the same sizes; elsewhere it stays a round corner.
+   Inline styles that use a scale token get it here; stylesheet rules set it next to their border-radius.
+   Circles, dots, pills and chart bars use their own sizes, not the scale, so they stay perfectly round. */
+[style*="var(--r-"] { corner-shape: squircle; }

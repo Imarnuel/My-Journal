@@ -228,20 +228,25 @@ Why: the owner wanted the pair to lead. Every line under the pair (date, status,
 plan, tags, plan notes) is 12/16 with 14px icons. The pair, direction chip and result stay at 14px as the
 headline line.
 
-## Corners (back to the handoff's)
-History: on 2026-11-19 the owner asked for softer corners and every radius moved up a step ("Rounder corners":
-7, 8, 10, 12, 16, 18, 20). On 2026-11-22 the owner reverted it: "i overcorrected and made them too rounded
-probably. we need to revert what we did." The values are the handoff's again (`02-look-and-feel.md`, Radius);
-the single scale stays, so every corner still comes from `src/styles/tokens.css`.
-- `--r-xs` 6px: chips and badges (direction, Suggested, Demo).
-- `--r-sm` 6px: 28px buttons, the selected segment, the focus ring.
-- `--r-md` 8px: 32px controls (buttons, fields, filter dropdowns, the account picker), sidebar items, menu
+## Corners: the rounder scale, with continuous (Apple-style) smoothing
+Overrides the radii in `02-look-and-feel.md` (8 on controls, 12 on cards and menus, 14 on the main card). Why:
+the owner wanted the whole app a little softer (2026-11-19), then asked for "continuous rounded
+corner/smoothing like apple" on the same sizes (2026-11-22: "you were only supposed to apply the smoothing").
+A revert to the handoff's sizes in between was a misreading and is undone. Every radius comes from one scale
+in `src/styles/tokens.css`, so the next change is one line.
+- `--r-xs` 7px: chips and badges (direction, Suggested, Demo).
+- `--r-sm` 8px: 28px buttons, the selected segment, the focus ring.
+- `--r-md` 10px: 32px controls (buttons, fields, filter dropdowns, the account picker), sidebar items, menu
   rows, chart thumbnails, tooltips, the drop zone.
-- `--r-lg` 10px: segment tracks and inset rows.
-- `--r-card` and `--r-menu` 12px: cards, notices, menus, toasts. `--r-panel` 14px: the main card.
-  `--r-dialog` 16px.
-- Toggle tracks are full pills; circles, dots, progress bars and the chart bars keep their own shapes. A few
-  one-off corners from before the scale (7px, 5px, 11px) sit on the nearest step.
+- `--r-lg` 12px: segment tracks and inset rows. The selected segment inside is 12 minus the 4px padding.
+- `--r-card` and `--r-menu` 16px: cards, notices, menus, toasts. `--r-panel` 18px: the main card.
+  `--r-dialog` 20px.
+- **Continuous corners**: every corner on the scale is drawn with Apple's continuous curve (`corner-shape:
+  squircle`) at these sizes, where the browser supports it (Chrome, Edge, Android); elsewhere it stays a round
+  corner of the same size. Stylesheet rules set it next to their `border-radius`, and one rule in `globals.css`
+  covers inline styles that use a scale token (`src/styles/taste.test.ts` checks both).
+- Toggle tracks are full pills; circles, dots, progress bars and the chart bars keep their own shapes and
+  stay perfectly round.
 
 ## Chart reordering
 Builds on `01-decisions.md` ("Reorder by dragging the whole tile, or each chart's menu") and the drag spring
