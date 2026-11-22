@@ -68,6 +68,7 @@ export function OptionList({ opts, value, onPick, style, label, children }: { op
 /** An emoji beside a label (Headspace, owner's request): decorative, the word carries the meaning. */
 export function Emoji({ char }: { char: string }) {
   return (
+    // ui-lint-ignore (next line): an emoji glyph in a menu row's 20px line, not text
     <span aria-hidden="true" style={{ fontSize: "16px", lineHeight: "20px", width: "20px", textAlign: "center", flex: "none", fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif' }}>
       {char}
     </span>

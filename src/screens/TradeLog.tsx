@@ -192,12 +192,7 @@ export function TradeLog() {
           <p className="meta" style={{ margin: 0 }}>
             Record a trade, a watched setup or your analysis whenever it suits you. It all lands here, newest first.
           </p>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            <Link to="/new" className="btn btn-g">
-              <IcPlus />
-              New chart story
-            </Link>
-          </div>
+          {/* No second "New chart story" here: the header's button is the one action (first ui-polish audit). */}
         </div>
       ) : (
         <>

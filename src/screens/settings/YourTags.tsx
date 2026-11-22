@@ -8,7 +8,8 @@ import { toast } from "../../components/primitives/toast";
 import type { Tag } from "../../lib/types";
 import { findLookalikes, mergeTags, pairKey, renameTag, retagEntries, tagMix, usedLabel, validRename, type Lookalike, type TagPatch } from "./tags";
 
-const line = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 0", borderTop: "1px solid var(--border-subtle)" } as const;
+/** A Settings row (Settings.tsx › row): 16px above and below a 32px line. */
+const line = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "16px 0", minHeight: "32px", borderTop: "1px solid var(--border-subtle)" } as const;
 
 function apply(patches: TagPatch[]) {
   const updateEntry = useStore.getState().updateEntry;
@@ -107,9 +108,10 @@ export function YourTags() {
         ))}
         <div style={line}>
           <span style={{ fontSize: "14px" }}>
-            Tags <span style={{ color: "var(--text-3)" }}>({tags.length})</span>
+            Tags{tags.length ? <span style={{ color: "var(--text-3)" }}>{` (${tags.length})`}</span> : null}
           </span>
-          <span className="lbl">{`${tagMix(tags)}. Each tag's kind is set once, when you add it. Every tag is a filter.`}</span>
+          {/* No zero counts: with no tags yet, only the rule is said (first ui-polish audit). */}
+          <span className="lbl">{`${tags.length ? `${tagMix(tags)}. ` : ""}Each tag's kind is set once, when you add it. Every tag is a filter.`}</span>
         </div>
         <div style={line}>
           <span style={{ fontSize: "14px" }}>
@@ -123,14 +125,14 @@ export function YourTags() {
           </span>
           <span className="lbl">Fixed: Followed, Not followed</span>
         </div>
-        <button type="button" onClick={() => setOpen(!open)} aria-expanded={open ? "true" : "false"} aria-controls="tag-list" className="btn btn-q" style={{ padding: "0 4px", marginTop: "4px" }}>
+        <button type="button" onClick={() => setOpen(!open)} aria-expanded={open ? "true" : "false"} aria-controls="tag-list" className="btn btn-q kq-start" style={{ marginTop: "4px", alignSelf: "flex-start" }}>
           {open ? "Done" : "Manage tags"}
         </button>
         {open ? (
           <div id="tag-list" role="list" aria-label="Your tags" style={{ display: "flex", flexDirection: "column", marginTop: "8px" }}>
             {tags.map((t) => (
               <Fragment key={t.t}>
-                <div role="listitem" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 90px 110px 40px", gap: "12px", alignItems: "center", padding: "8px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "44px" }}>
+                <div role="listitem" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 90px 110px 40px", gap: "12px", alignItems: "center", padding: "16px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "32px" }}>
                   <TagName tag={t} tags={tags} onRename={(to) => rename(t.t, to)} />
                   <span className="lbl">{t.k}</span>
                   <span className="lbl" style={{ textAlign: "right" }}>{usedLabel(t.n)}</span>

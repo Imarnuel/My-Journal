@@ -258,7 +258,7 @@ function StoryScreen({ id }: { id: string | null }) {
   if (deleted || !story) {
     return (
       <Shell active="log">
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", padding: "120px 0" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", padding: "48px 0" }}>
           <div className="medal" aria-hidden="true">
             <svg width="34" height="34" viewBox="0 0 32 32">
               <rect x="9" y="11" width="14" height="15" rx="2.5" style={{ fill: "var(--medal-glyph)" }} />
@@ -694,8 +694,8 @@ function StoryScreen({ id }: { id: string | null }) {
             <>
               <h1 style={{ margin: 0, lineHeight: "32px", display: "flex", alignItems: "center", gap: "12px" }}>
                 {s.pair}{" "}
-                {dirChip ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>{dirChip}</span> : null}
-                {s.textbook ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-1)", background: "var(--surface-pressed)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>Textbook example</span> : null}
+                {dirChip ? <span className="kchip">{dirChip}</span> : null}
+                {s.textbook ? <span className="kchip" style={{ color: "var(--text-1)", background: "var(--surface-pressed)", borderColor: "transparent" }}>Textbook example</span> : null}
               </h1>
               <p className="meta" style={{ margin: 0 }}>
                 {`${s.status} · ${s.account} · ${dtLabel}${s.closeTime ? ` to ${s.closeTime}` : ""} · ${s.session}`}
@@ -804,7 +804,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 </figcaption>
               </figure>
             ) : (
-              <label style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "var(--r-card)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", aspectRatio: "16 / 9", textAlign: "center", padding: "24px" }}>
+              <label style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border-strong)", borderRadius: "var(--r-card)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", fontSize: "14px", aspectRatio: "16 / 9", textAlign: "center", padding: "24px" }}>
                 <Plus />
                 {/* An MT5 trade without charts keeps the design's line; a new story asks for its charts. */}
                 {entry?.mt5 ? "Scroll back on your chart and take one now. It still counts." : "Drop, paste or choose charts"}
@@ -877,7 +877,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   </figure>
                 );
               })}
-              <label aria-label="Add or paste another chart" style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border)", borderRadius: "var(--r-md)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", fontSize: "12px", aspectRatio: "16 / 9", lineHeight: "16px" }}>
+              <label aria-label="Add or paste another chart" style={{ position: "relative", font: "inherit", border: "1.5px dashed var(--border-strong)", borderRadius: "var(--r-md)", color: "var(--text-3)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px", fontSize: "12px", aspectRatio: "16 / 9", lineHeight: "16px" }}>
                 <Plus />
                 Add
                 <input type="file"
@@ -1104,7 +1104,7 @@ function StoryScreen({ id }: { id: string | null }) {
           </section>
 
           {analysis ? (
-            <Link to={`/story/${analysis.id}`} className="card" style={{ display: "flex", gap: "12px", alignItems: "center", padding: "12px 16px", borderRadius: "var(--r-card)", textDecoration: "none", color: "var(--text-1)" }}>
+            <Link to={`/story/${analysis.id}`} className="card" style={{ display: "flex", gap: "12px", alignItems: "center", padding: "16px 24px", borderRadius: "var(--r-card)", textDecoration: "none", color: "var(--text-1)" }}>
               <div className="chart" style={{ flex: "none", width: "112px" }}>
                 {analysisChart && isImage(analysisChart) ? (
                   <img src={analysisChart} alt="" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }} />
@@ -1130,7 +1130,7 @@ function StoryScreen({ id }: { id: string | null }) {
               </h2>
               {REAL ? null : (
                 <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-                  {s.voice ? "From your note · tap any to change" : "From your note, or set them yourself"}
+                  {s.voice ? "From your note · tap anything to change" : "From your note, or set them yourself"}
                 </span>
               )}
             </div>
@@ -1196,7 +1196,7 @@ function StoryScreen({ id }: { id: string | null }) {
                       }}
                       onKeyDown={tagKey}
                       className="tag-input"
-                      style={{ flex: 1, minWidth: "90px", font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "transparent", border: 0, outline: "none", padding: "4px 2px" }}
+                      style={{ flex: 1, font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "transparent", border: 0, outline: "none", padding: "4px 2px" }}
                     />
                   </div>
                   {menu.isOpen("tag") ? (
@@ -1220,7 +1220,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   {menu.isOpen("kind") && kindFor ? (
                     <>
                       <Closer onClose={menu.close} />
-                      <div role="dialog" aria-label="New tag" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", ...UNDER_FIELD, padding: "12px", gap: "8px" }}>
+                      <div role="dialog" aria-label="New tag" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", ...UNDER_FIELD, gap: "8px" }}>
                         <span style={{ fontSize: "14px", color: "var(--text-1)" }}>
                           What kind of tag is <b>{kindFor}</b>? You only set this once.
                         </span>
@@ -1265,7 +1265,7 @@ function StoryScreen({ id }: { id: string | null }) {
                   <button type="button" className="ghost tagfield" aria-haspopup="listbox" aria-expanded={exp("head")} aria-label={`Headspace: ${s.headspace ?? "Pick one"}`} onClick={() => menu.toggle("head")} style={{ justifyContent: "space-between", position: "relative", zIndex: 5 }}>
                     {s.headspace ? (
                       <span className="pill" style={{ gap: "4px" }}>
-                        {HEADSPACE_EMOJI[s.headspace] ? <span aria-hidden="true" style={{ fontSize: "14px", lineHeight: "16px" }}>{HEADSPACE_EMOJI[s.headspace]}</span> : null}
+                        {/* ui-lint-ignore: an emoji in a chip's 16px line */}{HEADSPACE_EMOJI[s.headspace] ? <span aria-hidden="true" style={{ fontSize: "14px", lineHeight: "16px" }}>{HEADSPACE_EMOJI[s.headspace]}</span> : null}
                         {s.headspace}
                       </span>
                     ) : <span style={{ fontSize: "14px", color: "var(--text-3)" }}>Pick one</span>}
@@ -1303,7 +1303,7 @@ function StoryScreen({ id }: { id: string | null }) {
             {/* Each fact leads with its icon and they sit 16px apart, no dot separators (the Trade log's facts rule). */}
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px" }}>
               <PairFact value={s.pair} menu={menu} onPick={pick("pair")} />
-              <Fact name="Direction" k="dir" icon={s.dir === "Long" ? "long" : "short"} value={s.dir} menu={menu} opts={[{ label: "Long" }, { label: "Short" }]} onPick={pick("dir")} />
+              <Fact name="Direction" k="dir" icon={s.dir === "Long" ? "long" : s.dir === "Short" ? "short" : "nodir"} value={s.dir} menu={menu} opts={[{ label: "Long" }, { label: "Short" }]} onPick={pick("dir")} />
               <Fact name="Status" k="status" icon="status" value={s.status} menu={menu} opts={STATUS_OPTS} onPick={(v) => pick("status")(v as Status)} />
               <Fact name="Account" k="acct" icon="account" value={s.account} menu={menu} opts={acctNames.map((label) => ({ label }))} onPick={pick("account")} />
               <span style={{ position: "relative", display: "inline-flex" }}>
@@ -1321,7 +1321,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 {menu.isOpen("dt") ? (
                   <>
                     <Closer onClose={menu.close} />
-                    <div role="dialog" aria-label="Date and time" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", right: 0, width: "260px", padding: "12px", gap: "8px", transformOrigin: "top right" }}>
+                    <div role="dialog" aria-label="Date and time" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", left: 0, width: "260px", gap: "8px", transformOrigin: "top left" }}>
                       <label style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "14px", color: "var(--text-2)" }}>
                         Date and time
                         <input
@@ -1347,8 +1347,8 @@ function StoryScreen({ id }: { id: string | null }) {
                 const value = isRes ? (s.r != null ? fr(s.r) : "") : s.numbers[k];
                 if (editingNum === k) {
                   return (
-                    <label key={k} className="knum knum-edit">
-                      {isRes ? null : <span>{label}</span>}
+                    <label key={k} className={isRes ? "knum knum-edit knum-res" : "knum knum-edit"}>
+                      {isRes ? null : <span className="knum-k">{label}</span>}
                       <input
                         ref={(el) => {
                           if (el && document.activeElement !== el) requestAnimationFrame(() => (el.focus(), el.select()));
@@ -1377,7 +1377,7 @@ function StoryScreen({ id }: { id: string | null }) {
                           }
                         }}
                       />
-                      {isRes ? <span aria-hidden="true">R</span> : null}
+                      {isRes ? <span aria-hidden="true" className="knum-r">R</span> : null}
                     </label>
                   );
                 }
@@ -1388,11 +1388,11 @@ function StoryScreen({ id }: { id: string | null }) {
                       numBtns.current[k] = el;
                     }}
                     type="button"
-                    className="knum"
+                    className={isRes ? "knum knum-res" : "knum"}
                     aria-label={value ? (isRes ? `Result ${resVal}` : undefined) : `${label} empty`}
                     onClick={() => editNum(k)}
                   >
-                    {isRes ? null : `${label} `}
+                    {isRes ? null : <span className="knum-k">{`${label} `}</span>}
                     {/* An empty result shows a grey example of what goes there (the owner, 2026-11-22, replacing
                         "No result yet"). */}
                     <span className={value ? "knum-v" : "knum-v knum-empty"} style={isRes && value ? { color: resCol, fontWeight: 500 } : isRes ? { color: "var(--text-3)" } : undefined}>
@@ -1402,7 +1402,7 @@ function StoryScreen({ id }: { id: string | null }) {
                 );
               })}
               {s.status !== "Taken" ? (
-                <span className="num" style={{ color: resCol, fontWeight: 500 }}>
+                <span className="num" style={{ color: resCol, fontWeight: 500, gridColumn: "span 2" }}>
                   {resVal}
                 </span>
               ) : null}
@@ -1457,7 +1457,7 @@ function StoryScreen({ id }: { id: string | null }) {
 
 /** One menu in the facts line. Shows the field's name until a value is picked. */
 /** Note fields line up with the labels and the Talk it through card: no ghost-field pull, full width, 8px corners. */
-const NOTE_FIELD = { display: "block", margin: 0, width: "100%", boxSizing: "border-box", border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "var(--r-md)", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "vertical", color: "var(--text-1)" } as const;
+const NOTE_FIELD = { display: "block", margin: 0, width: "100%", boxSizing: "border-box", border: "1px solid var(--border)", background: "var(--surface-inset)", borderRadius: "var(--r-md)", cursor: "text", fontSize: "14px", lineHeight: "20px", padding: "8px 12px", resize: "none", color: "var(--text-1)" } as const;
 
 function Fact({ name, k, icon, value, menu, opts, onPick }: { name: string; k: string; icon: DetailIconName; value: string | null; menu: ReturnType<typeof useMenu<string>>; opts: { label: string; hint?: string }[]; onPick: (v: string) => void }) {
   const open = menu.isOpen(k);
@@ -1552,11 +1552,12 @@ const R_HINT = "3R";
 const R_HINT_TYPING = "3";
 
 /**
- * A menu under a Details field lines up with the field you see. The field is drawn 12px wider on the left than
- * its slot (`.ghost`, so its text lines up with the other rows), so the menu starts 12px left too and is as wide
- * as the field (the owner, 2026-11-22: "our app needs to look clean").
+ * A menu under a Details field lines up with the field you see: same left edge, same width. The Details fields
+ * (Setup, Tags, Headspace) keep their text on the Plan control's left edge and hang their hover fill 12px into
+ * the row's gutter, and reach the same right edge as the Plan control (`.tagfield`; the owner, 2026-11-22: "our
+ * app needs to look clean"; first audit).
  */
-const UNDER_FIELD = { left: "-12px", width: "100%" } as const;
+const UNDER_FIELD = { left: "-12px", width: "calc(100% + 12px)" } as const;
 
 /** The one-tap outcomes under the numbers (approved wording, DESIGN.md › Result). */
 const OUTCOME_LABEL: Record<Outcome, string> = { target: "Target", stop: "Stop", breakeven: "Breakeven" };

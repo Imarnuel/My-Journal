@@ -29,6 +29,14 @@ export function PairList({ value, yours, onPick, style }: { value: string | null
   };
   // Keyboard focus can move past the visible rows: keep the focused row in view.
   const show = (el: HTMLElement) => el.scrollIntoView({ block: "nearest" });
+  // While more rows sit below the fold, the list's last 24px fade out, so the edge never reads as a cut row.
+  const list = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  const measure = () => {
+    const l = list.current;
+    setMore(!!l && l.scrollHeight - l.scrollTop - l.clientHeight > 1);
+  };
+  useEffect(measure, [q]);
   return (
     <div className="kmenu kpairs" style={{ ...menuBox, width: "280px", padding: "4px", gap: "4px", ...style }}>
       {/* The field is the label box (icon + plain input), so global input styles can't shift the text under the
@@ -56,7 +64,7 @@ export function PairList({ value, yours, onPick, style }: { value: string | null
           style={{ flex: 1, minWidth: 0, font: "inherit", fontSize: "14px", lineHeight: "20px", color: "var(--text-1)", background: "transparent", border: 0, outline: "none", padding: 0, boxShadow: "none" }}
         />
       </label>
-      <div id="pairlist" role="listbox" aria-label="Pair" className="kpairs-list" style={{ display: "flex", flexDirection: "column", gap: "2px", maxHeight: "360px", overflowY: "auto", overscrollBehavior: "contain" }}>
+      <div ref={list} onScroll={measure} data-more={more ? "" : undefined} id="pairlist" role="listbox" aria-label="Pair" className="kpairs-list" style={{ display: "flex", flexDirection: "column", gap: "2px", maxHeight: "360px", overflowY: "auto", overscrollBehavior: "contain" }}>
         {res.sections.map((s) => (
           <div key={s.label ?? "matches"} role="group" aria-label={s.label ?? "Matches"} style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
             {s.label ? (

@@ -12,7 +12,7 @@ const SCALE = {
   lineHeight: [16, 20, 24, 32],
   fontWeight: [400, 500, 600],
   space: [0, 1, 2, 4, 8, 12, 16, 24, 32, 48], // 1px only for hairline offsets (borders), checked by eye
-  minHeight: [24, 28, 32, 34, 36],
+  minHeight: [24, 28, 32, 34, 36, 48, 60, 64], // controls, then rows (TOKENS.md › Heights)
 };
 /** The line height that goes with each size (TOKENS.md › Type). */
 const PAIR = { 12: 16, 14: 20, 16: 24, 24: 32 };
@@ -47,7 +47,8 @@ for (const file of files(join(ROOT, "src"))) {
   const lines = readFileSync(file, "utf8").split("\n");
   lines.forEach((text, i) => {
     const n = i + 1;
-    if (/ui-lint-ignore/.test(text)) return;
+    // A deliberate exception says why, on its line or as "ui-lint-ignore (next line)" on the line above.
+    if (/ui-lint-ignore/.test(text) || /ui-lint-ignore \(next line\)/.test(lines[i - 1] ?? "")) return;
     // Font sizes and line heights, in JS styles and CSS.
     for (const m of text.matchAll(/(?:fontSize"?\s*:\s*"|font-size\s*:\s*)(\d+)px/g))
       if (!SCALE.fontSize.includes(+m[1])) add(file, n, `font size ${m[1]}px (scale: 12, 14, 16, 24)`);
@@ -70,7 +71,7 @@ for (const file of files(join(ROOT, "src"))) {
     }
     // Control heights.
     for (const m of text.matchAll(/(?:minHeight"?\s*:\s*"|min-height\s*:\s*)(\d+)px/g))
-      if (!SCALE.minHeight.includes(+m[1]) && +m[1] <= 64) add(file, n, `control height ${m[1]}px (24, 28, 32, 34, 36)`);
+      if (!SCALE.minHeight.includes(+m[1]) && +m[1] <= 64) add(file, n, `height ${m[1]}px (controls 24, 28, 32, 34, 36; rows 48, 60, 64)`);
     // Raw colours outside the token file.
     if (!rel.endsWith("tokens.css") && !rel.endsWith("canvas.css"))
       for (const m of text.matchAll(/(#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b|rgba?\([^)]*\))/g))

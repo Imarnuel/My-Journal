@@ -15,6 +15,7 @@
   --border-subtle: rgba(15,17,21,0.06);
   --border: rgba(15,17,21,0.10);
   --border-strong: rgba(15,17,21,0.16);
+  --chart-edge: rgba(15,17,21,0.06);  /* the edge round a chart image: in dark, charts are dark too, so it is stronger */
   --highlight: rgba(255,255,255,0.9);
   --highlight-strong: #FFFFFF;
   --text-1: #141519;
@@ -35,6 +36,7 @@
   --shadow-field: 0 1px 2px rgba(15,17,21,0.05); /* text fields and dropdown buttons: barely lifted (DESIGN.md) */
   --shadow-float: 0 0 0 1px rgba(15,17,21,0.06), 0 4px 10px -4px rgba(15,17,21,0.08), 0 18px 44px -12px rgba(15,17,21,0.20);
   --shadow-dialog: 0 0 0 1px rgba(15,17,21,0.06), 0 24px 64px -16px rgba(15,17,21,0.28);
+  --drop-card-hover: 0 1px 2px rgba(15,17,21,0.06); /* a trade log card lifting on hover (light only) */
   --card-edge: linear-gradient(transparent, transparent);
   --card-edge-hover: linear-gradient(transparent, transparent);
   --scrim: rgba(242,242,244,0.55);
@@ -69,6 +71,7 @@
   --border-subtle: rgba(255,255,255,0.06);
   --border: rgba(255,255,255,0.09);
   --border-strong: rgba(255,255,255,0.14);
+  --chart-edge: rgba(255,255,255,0.14);
   --highlight: rgba(255,255,255,0.06);
   --highlight-strong: rgba(255,255,255,0.12);
   --text-1: #ECEEF1;
@@ -112,6 +115,10 @@
 }
 
 :root {
+  /* Drop shadows that read the same in both themes (the theme-dependent parts stay with the rule that uses them). */
+  --drop-thumb: 0 1px 2px rgba(0,0,0,0.25);      /* a segmented control's sliding thumb */
+  --drop-thumb-tab: 0 1px 2px rgba(0,0,0,0.12);  /* the same thumb in a tab bar */
+  --shadow-toast: 0 16px 40px -8px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.12);
   /* Radius scale, drawn as continuous corners (DESIGN.md › Corners). Inner radii are the outer one minus the padding between. */
   --r-xs: 7px;     /* chips and badges */
   --r-sm: 8px;     /* 28px buttons, segments, focus ring */

@@ -262,7 +262,7 @@ test("links: setups to their pages, Unsorted to the playbook, stories, new story
   await expect(page.getByRole("link", { name: "New chart story" })).toHaveAttribute("href", "/new");
   const recent = page.locator("section[aria-labelledby=rch] a[href^='/story/']");
   await expect(recent.first()).toHaveAttribute("href", "/story/e24");
-  await expect(recent.first()).toContainText("AUDUSDLongRunningUnsorted");
+  await expect(recent.first()).toContainText("AUDUSDLongRunning · Unsorted");
   await setups.getByRole("link", { name: /^London breakout/ }).click();
   await expect(page).toHaveURL(/\/playbook\/london-breakout$/);
 });

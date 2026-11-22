@@ -13,7 +13,6 @@ import { useMenu } from "./useKit";
 const COLS = "minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.5fr) 20px";
 const COPY_OPTS = ["Attach to both", "Only the first account", "Ask me each time"];
 
-const badge = { fontSize: "12px", color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "999px", padding: "2px 8px", marginLeft: "12px", lineHeight: "16px" } as const;
 
 function Source({ a }: { a: Account }) {
   if (a.source === "mt5")
@@ -69,7 +68,7 @@ export function Accounts() {
       <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
           <h1 style={{ margin: 0, lineHeight: "32px" }}>
-            Accounts <span style={{ fontWeight: 400, color: "var(--text-3)" }}>({active.length})</span>
+            Accounts{active.length ? <span style={{ fontWeight: 400, color: "var(--text-3)" }}>{` (${active.length})`}</span> : null}
           </h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
@@ -85,12 +84,7 @@ export function Accounts() {
         <div className="card" style={{ ["--card-fill" as string]: "var(--surface-2)", padding: "24px", borderRadius: "var(--r-card)", display: "flex", flexDirection: "column", gap: "12px", minHeight: "150px", boxSizing: "border-box" }}>
           <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>No accounts yet</h2>
           <p className="meta" style={{ margin: 0 }}>Add each account you trade. Practice accounts stay out of your numbers.</p>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            <Link to="/accounts/new" className="btn btn-g">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
-              Add account
-            </Link>
-          </div>
+          {/* No second "Add account" here: the header's button is the one action (first ui-polish audit). */}
         </div>
       ) : (
       <section aria-label="Your accounts" className="card" style={{ borderRadius: "var(--r-card)", overflow: "hidden" }}>
@@ -110,7 +104,7 @@ export function Accounts() {
               >
                 <span style={{ fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "4px" }}>
                   {a.name}
-                  {a.practice ? <span style={badge}>Practice</span> : null}
+                  {a.practice ? <span className="kchip" style={{ marginLeft: "12px" }}>Practice</span> : null}
                 </span>
                 <span style={{ fontSize: "14px", color: "var(--text-2)" }}>{a.type}</span>
                 <span style={{ fontSize: "14px", color: "var(--text-2)", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -129,7 +123,7 @@ export function Accounts() {
               type="button"
               aria-expanded={arcOpen ? "true" : "false"}
               onClick={() => setSetting("accountsArchivedOpen", !arcOpen)}
-              style={{ font: "inherit", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", minHeight: "56px", border: 0, borderTop: "1px solid var(--border-subtle)", background: "transparent", color: "var(--text-2)", cursor: "pointer", fontSize: "14px" }}
+              style={{ font: "inherit", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", minHeight: "48px", border: 0, borderTop: "1px solid var(--border-subtle)", background: "transparent", color: "var(--text-2)", cursor: "pointer", fontSize: "14px" }}
             >
               <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5" /><path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" /><path d="M10 13h4" /></svg>
@@ -142,7 +136,7 @@ export function Accounts() {
             {arcOpen
               ? archived.map((a) => (
                   <Fragment key={a.name}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "8px 16px", borderTop: "1px solid var(--border-subtle)", minHeight: "44px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", borderTop: "1px solid var(--border-subtle)", minHeight: "60px" }}>
                       <span style={{ fontSize: "14px" }}>{a.name}</span>
                       <span className="lbl">{[a.type, a.archivedNote].filter(Boolean).join(" · ")}</span>
                       <button

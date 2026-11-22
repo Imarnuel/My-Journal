@@ -235,13 +235,15 @@ function RowCells({ x }: { x: Row }) {
   );
 }
 
+// Every table row on the Dashboard is the same height: 36px of content (a setup's 64 × 36 thumbnail) with 12px
+// above and below (first ui-polish audit: setup rows were 63px, session and mistake rows 69px).
 const SETUP_COLS = "minmax(0, 1.7fr) 64px 72px 92px minmax(90px, 1fr) 64px";
 const SESS_COLS = "minmax(0, 1fr) 50px 64px 82px minmax(60px, 1fr) 56px";
 
-function Heads({ cols, first, k }: { cols: string; first: string; k?: boolean }) {
+function Heads({ cols, first }: { cols: string; first: string }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: cols, gap: "12px", padding: "0 0 8px", alignItems: "end" }}>
-      <span className={k ? "lbl lbl-k" : "lbl"} style={{ textAlign: "left" }}>
+      <span className="lbl" style={{ textAlign: "left" }}>
         {first}
       </span>
       <span className="lbl" style={{ textAlign: "right" }}>
@@ -279,19 +281,19 @@ export function BySetup({ rows, thumbs }: { rows: Row[]; thumbs: Record<string, 
           </svg>
         </Link>
       </div>
-      <Heads cols={SETUP_COLS} first="Setup" k />
+      <Heads cols={SETUP_COLS} first="Setup" />
       {rows.map((x) => {
         const thumb = thumbs[x.name];
         return (
           <Link
             key={x.name}
             to={x.name === "Unsorted" ? "/playbook" : `/playbook/${slug(x.name)}`}
-            style={{ display: "grid", gridTemplateColumns: SETUP_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "32px" }}
+            style={{ display: "grid", gridTemplateColumns: SETUP_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "36px" }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "0" }}>
               {thumb ? (
-                <span className="chart" style={{ flex: "none", width: "64px", display: "block" }}>
-                  <svg viewBox="0 0 320 180" aria-hidden="true" style={{ display: "block", width: "100%", height: "auto" }}>
+                <span className="chart" style={{ flex: "none", width: "64px", height: "36px", boxSizing: "border-box", display: "block" }}>
+                  <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style={{ display: "block", width: "100%", height: "100%" }}>
                     <use href={`#${thumb}`} />
                   </svg>
                 </span>
@@ -320,7 +322,7 @@ export function SessionsAndMistakes({ sessions, mistakes, untagged, n }: { sessi
         </div>
         <Heads cols={SESS_COLS} first="Session" />
         {sessions.map((x) => (
-          <div key={x.name} style={{ display: "grid", gridTemplateColumns: SESS_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "44px" }}>
+          <div key={x.name} style={{ display: "grid", gridTemplateColumns: SESS_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "36px" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "0" }}>
               <span style={{ fontSize: "14px", fontWeight: "500" }}>{x.name}</span>
             </span>
@@ -339,7 +341,7 @@ export function SessionsAndMistakes({ sessions, mistakes, untagged, n }: { sessi
           <>
             {mistakes.map((x) => (
               <Fragment key={x.tag}>
-                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) 70px minmax(60px, 1fr) 60px", gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "44px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) 70px minmax(60px, 1fr) 60px", gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "36px" }}>
                   <span>
                     <span className="pill">{x.tag}</span>
                   </span>

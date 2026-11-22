@@ -18,7 +18,7 @@ export function Switch({ on, label, onFlip }: { on: boolean; label: string; onFl
       role="switch"
       aria-checked="false"
       aria-label={label}
-      style={{ flex: "none", width: "46px", height: "28px", borderRadius: "999px", border: "1px solid var(--border)", background: "var(--surface-inset)", position: "relative", cursor: "pointer" }}
+      style={{ flex: "none", width: "46px", height: "28px", borderRadius: "999px", border: "1px solid var(--border-strong)", background: "var(--surface-inset)", position: "relative", cursor: "pointer" }}
     >
       <span style={{ position: "absolute", top: "3px", left: "3px", width: "20px", height: "20px", borderRadius: "10px", background: "var(--text-3)" }} />
     </button>

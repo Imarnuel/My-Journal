@@ -12,6 +12,11 @@ export function firstChart(e: Entry): { sprite?: string; src?: string } {
   return SPRITE.test(c) ? { sprite: c } : { src: c };
 }
 
+/**
+ * A card's top line is the pair, its direction and the result; a story without a result (running, watched, not
+ * filled) says so at the start of the line below, so a six-letter pair never truncates or runs into the next card
+ * (first ui-polish audit; the handoff's 1440 frame had "Not filled" wrapping and "Running" touching "EURJPY").
+ */
 export function Recent({ stories }: { stories: Entry[] }) {
   return (
     <section aria-labelledby="rch" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -44,18 +49,20 @@ export function Recent({ stories }: { stories: Entry[] }) {
                 )}
               </span>
               <span style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500" }}>
-                  {e.pair}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: "500", minWidth: "0" }}>
+                  <span style={{ whiteSpace: "nowrap" }}>{e.pair}</span>
                   {e.dir ? (
-                    <span style={{ fontSize: "12px", fontWeight: "500", color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "0 8px", lineHeight: "16px" }}>{e.dir}</span>
+                    <span className="kchip">{e.dir}</span>
                   ) : null}
                 </span>
-                <span className="num" style={{ fontSize: "14px", fontWeight: "500", color: taken ? tone(e.r) : "var(--text-2)" }}>
-                  {taken ? fr(e.r ?? 0) : e.status}
-                </span>
+                {taken ? (
+                  <span className="num" style={{ flex: "none", whiteSpace: "nowrap", fontSize: "14px", fontWeight: "500", color: tone(e.r) }}>
+                    {fr(e.r ?? 0)}
+                  </span>
+                ) : null}
               </span>
-              <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px" }}>
-                {e.setup}
+              <span className="lbl" style={{ fontSize: "12px", lineHeight: "16px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {taken ? e.setup : `${e.status} · ${e.setup}`}
               </span>
             </Link>
           );

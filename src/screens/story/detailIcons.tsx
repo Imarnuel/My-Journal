@@ -12,7 +12,7 @@ function Filled({ children, flip }: { children: ReactNode; flip?: boolean }) {
   );
 }
 
-export type DetailIconName = "setup" | "tags" | "plan" | "headspace" | "pair" | "long" | "short" | "status" | "account" | "date" | "net" | "expectancy" | "winrate" | "trades";
+export type DetailIconName = "setup" | "tags" | "plan" | "headspace" | "pair" | "long" | "short" | "nodir" | "status" | "account" | "date" | "net" | "expectancy" | "winrate" | "trades";
 
 export function DetailIcon({ name }: { name: DetailIconName }) {
   switch (name) {
@@ -40,17 +40,25 @@ export function DetailIcon({ name }: { name: DetailIconName }) {
           <path fillRule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM8.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm-7.3 3.3a1 1 0 0 0-1.4 1.4A7.1 7.1 0 0 0 12 18a7.1 7.1 0 0 0 5.2-2.3 1 1 0 1 0-1.4-1.4A5.1 5.1 0 0 1 12 16a5.1 5.1 0 0 1-3.8-1.7z" />
         </Filled>
       );
+    // Pair and direction are drawn knocked out of a filled circle, like status, so every icon on the facts line
+    // has the same weight (first ui-polish audit: the bare arrows read as outline icons beside filled ones).
     case "pair": // two arrows, one each way
       return (
         <Filled>
-          <path d="M8 2.5 2 7.5l6 5V9h12V6H8V2.5zM16 11.5V15H4v3h12v3.5l6-5-6-5z" />
+          <path fillRule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM7 7h7.6l-1.8-1.8 1.4-1.4L18.4 8l-4.2 4.2-1.4-1.4L14.6 9H7V7zm10 10H9.4l1.8 1.8-1.4 1.4L5.6 16l4.2-4.2 1.4 1.4L9.4 15H17v2z" />
         </Filled>
       );
     case "short": // trend down
     case "long": // trend up (the same arrow, mirrored)
       return (
         <Filled flip={name === "long"}>
-          <path d="M2 6.1 4.1 4 10 9.9l3-3 6.5 6.5V10h3v8.5H14v-3h3.4L13 11.1l-3 3L2 6.1z" />
+          <path fillRule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM5.85 8.91 7.11 7.65l3.54 3.54 1.8-1.8 3.9 3.9v-2.04h1.8v5.1h-5.1v-1.8h2.04l-2.64-2.64-1.8 1.8-4.8-4.8z" />
+        </Filled>
+      );
+    case "nodir": // no direction yet: a level line, so an empty fact doesn't claim Short
+      return (
+        <Filled>
+          <path fillRule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM7 11h10v2H7v-2z" />
         </Filled>
       );
     case "status": // circle with a check

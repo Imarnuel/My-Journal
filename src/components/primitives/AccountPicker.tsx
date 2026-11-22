@@ -28,7 +28,7 @@ export function AccountPicker({ kit, onKeyDownCapture }: { kit: ReturnType<typeo
             {kit.apRows.map((a) => (
               <Fragment key={a.name}>
                 <div className="kit-row" style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0 8px 0 12px", borderRadius: "var(--r-md)" }}>
-                  <label style={{ flex: 1, display: "flex", alignItems: "center", gap: "12px", minHeight: "44px", cursor: "pointer" }}>
+                  <label style={{ flex: 1, display: "flex", alignItems: "center", gap: "12px", minHeight: "34px", cursor: "pointer" }}>
                     <input type="checkbox" checked={a.on} onChange={a.toggle} style={{ width: "18px", height: "18px", margin: 0, accentColor: "var(--text-1)" }} />
                     <span style={{ fontSize: "14px", color: "var(--text-1)" }}>{a.name}</span>
                     {a.practice ? <span style={{ fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>Practice</span> : null}

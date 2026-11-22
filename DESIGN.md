@@ -50,8 +50,10 @@ reason, replace it.
 - **Story Details labels have icons**: Setup (book), Tags (tag), Plan (clipboard with a check), Headspace
   (face), before the label, 8px gap. Why: the labels are scanned, and an icon makes each row findable at a
   glance. This overrides section 10's "never on field labels" for the story's Details panel.
-- **Trade facts read from MT5 have icons**: pair (two arrows), direction (trend down for Short, up for Long),
-  status (circle with a check), account (card), date and time (calendar). Facts sit 16px apart with no "·"
+- **Trade facts read from MT5 have icons**: pair (two arrows), direction (trend down for Short, up for Long, a
+  level line while it's empty), status (circle with a check), account (card), date and time (calendar). Pair and
+  direction are knocked out of a filled circle like status, so every icon on the line has the same weight (first
+  ui-polish audit, 2026-11-22: the bare arrows read as outline icons beside the filled ones). Facts sit 16px apart with no "·"
   separators, matching the Trade log's facts. The dashed underline marks the words only, not the icon.
 - **These icons are filled, 14px, a step lighter than tertiary text (`--text-3` at 72% opacity).** (Was 16px
   at full `--text-3`; the owner asked for smaller and lighter so the labels lead.) Source: `src/screens/story/detailIcons.tsx`. Other
@@ -593,6 +595,51 @@ the voice notes' key and models. Source: `src/lib/chartRead.ts` (what Gemini is 
       doesn't keep them."**
 - Not yet: showing the read timeframe as a caption under uploaded charts (stories keep no caption per uploaded
   image yet); the reader returns it already.
+
+## First ui-polish audit (2026-11-22)
+The owner: "fix 1-11, use your judgement on the rest", then "reduce the horizontal padding on the filter inputs so
+it looks sleeker". Findings and method: `docs/ui-audit-2026-11-22.md`. One rule per kind of thing, on every screen:
+- **Popovers sit on their trigger, inside their column.** The date and time popover opens under the date, left
+  edges together; form popovers (date and time, a new tag's kind, Change date) have 12px inside, menus of options
+  4px. The Details fields keep their text on the Plan control's edge, hang their hover fill 12px into the gutter
+  and reach the column's right edge; their menus match the field exactly. A list that scrolls fades its last 24px
+  while more rows are below (the Pair menu).
+- **Quiet text buttons line up by their text** when they stand alone at a column's edge ("Edit session times",
+  "Manage tags", "Add another", "Delete", the Rules "Edit"): the hover fill hangs into the gutter (`.kq-start`,
+  `.kq-end`).
+- **Text never overflows or leaves a stray "·".** Recent chart stories: the top line is pair, direction and
+  result; a story without a result says its status at the start of the line below ("Running · Unsorted"), so a
+  six-letter pair never truncates (the handoff frame had "Running" touching the next card). Weekly review tiles put
+  "Not followed" on its own line. The Dashboard stat cells have 16px on the right (24 on the left) so "Wins avg
+  +1.8R, losses −0.9R" fits on one line.
+- **The same kind of element is the same size.** Chips and badges are 22px everywhere (`.kchip`, `.pill`; the
+  Practice badge too, at `--r-xs`). Dashboard table rows are one height (a 64 × 36 thumbnail line), Settings rows
+  one height (16px above and below a 32px line), the "Archived" disclosure rows 48px, account rows 60px, the
+  Accounts menu's rows 34px. Every Dashboard column header is 12px. The linked analysis card pads 24px at the
+  sides like the Notes card above it.
+- **Dark mode:** chart images get a visible edge (`--chart-edge`); the off switch and the chart drop areas use
+  `--border-strong`.
+- **Actions on an image sit on the image:** the Playbook card's "…" is 28px, 8px inside the thumbnail's corner,
+  white dots on the media scrim, like the chart tiles' trash.
+- **No browser leftovers:** text fields grow with what's written, no resize grip.
+- **Numbers grid:** each column is a label track and a value track, so values share their left edges (1.26840
+  over 1.26482, Stop's over Size's); the result starts where Target does; a number being typed starts exactly
+  where it rested.
+- **Small holes:** a grid card that isn't asked for charts keeps the chart's place as a dashed empty box (as the
+  Dashboard's Unsorted thumbnail), so its line and "…" match its neighbours; an analysis says "Before trading"
+  with the status icon in the grid as in the list; the tag input fits beside the last chip until it's used; the
+  Weekly review banner's label sits on the quote's baseline.
+- **Judgement calls (owner delegated):** no "In R" under the Weekly review's Net figure (the unit was there
+  twice); no zero counts ("Accounts", "Tags" and the kind mix appear once there's something to count); an empty
+  Trade log or Accounts page has one action, the header's button (the empty card no longer repeats it); the
+  Details hint says "tap anything to change" like the facts line; filter menus keep their counts (state 07) with
+  the check in a fixed slot so the counts line up; both add-chart designs stay (the trade log's drop zone and the
+  Dashboard's tile are both drawn in the handoff). **New wording, for the owner to confirm:** with Keep recordings
+  off, its hint says "Only the written transcript is kept." (it said "Turn off to keep only the written transcript"
+  beside a switch already off).
+- **Filter buttons are 8px at the sides** (fields keep 12px), so the Trade log's filter row reads as one quiet strip.
+- Not done: the date and time field still uses the browser's own picker ("11/16/2026, 09:45 AM"); a picker in the
+  app's own format is a larger piece of work, for the owner to schedule.
 
 ## Real app (the owner's own journal)
 The owner chose to make the journal usable for real trades on their own devices before any back end

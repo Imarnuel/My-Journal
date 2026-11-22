@@ -145,7 +145,7 @@ function EditForm({ account, onDelete }: { account: Account; onDelete: () => voi
               <div className="lbl">{`Removes the account and all ${stories} of its chart stories. You can undo it straight after.`}</div>
             </div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <button type="button" onClick={onDelete} className="btn btn-q" style={{ color: "var(--loss)" }}>
+              <button type="button" onClick={onDelete} className="btn btn-q kq-end" style={{ color: "var(--loss)" }}>
                 Delete
               </button>
             </div>
@@ -185,7 +185,7 @@ export function EditAccount() {
   if (gone)
     return (
       <Shell active="accounts">
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", padding: "120px 0" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", padding: "48px 0" }}>
           <div className="medal" aria-hidden="true">
             <svg width="34" height="34" viewBox="0 0 32 32"><rect x="9" y="11" width="14" height="15" rx="2.5" style={{ fill: "var(--medal-glyph)" }} /><rect x="7" y="7" width="18" height="3" rx="1.5" style={{ fill: "var(--medal-glyph-2)" }} /><rect x="13" y="5" width="6" height="3" rx="1.5" style={{ fill: "var(--medal-glyph-2)" }} /></svg>
           </div>

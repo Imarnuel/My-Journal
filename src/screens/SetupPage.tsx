@@ -288,7 +288,7 @@ export function SetupPage() {
               <h2 style={{ margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>
                 <span id="rules">Rules</span>
               </h2>
-              <Link to={`/playbook/${slug(S)}/edit`} className="btn btn-q" aria-label="Edit rules" style={{ minHeight: "32px", padding: "0 8px" }}>
+              <Link to={`/playbook/${slug(S)}/edit`} className="btn btn-q kq-end" aria-label="Edit rules">
                 <PencilIcon />
                 Edit
               </Link>

@@ -40,7 +40,7 @@ function DateDialog({ e, a }: { e: Entry; a: RowActions }) {
   return (
     <>
       {closer(save)}
-      <div role="dialog" aria-label="Change date" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", right: 0, width: "260px", padding: "12px", gap: "8px", transformOrigin: "top right" }}>
+      <div role="dialog" aria-label="Change date" className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", display: "flex", flexDirection: "column", boxSizing: "border-box", right: 0, width: "260px", gap: "8px", transformOrigin: "top right" }}>
         <label style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "14px", color: "var(--text-2)" }}>
           Date and time
           <input
@@ -165,11 +165,11 @@ function Chart({ c }: { c: string }) {
   );
 }
 
-function DirChip({ e, grid }: { e: Entry; grid?: boolean }) {
+function DirChip({ e }: { e: Entry }) {
   if (e.status === "Analysis")
-    return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--voice)", border: "1px solid var(--voice-border)", borderRadius: "var(--r-xs)", padding: grid ? "0 8px" : "2px 8px", lineHeight: "16px" }}>Analysis</span>;
+    return <span className="kchip" style={{ color: "var(--voice)", borderColor: "var(--voice-border)" }}>Analysis</span>;
   if (!e.dir) return null;
-  return <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "2px 8px", lineHeight: "16px" }}>{e.dir}</span>;
+  return <span className="kchip">{e.dir}</span>;
 }
 
 function Fact({ icon, sr, text, hint }: { icon: ReactNode; sr?: string; text: string; hint?: string }) {
@@ -275,13 +275,17 @@ export function GridCard({ e, a }: { e: Entry; a: RowActions }) {
         <span className="chart" style={{ display: "block" }}>
           <Chart c={t.grid} />
         </span>
-      ) : null}
+      ) : asksCharts(e, t) ? null : (
+        // A card that isn't asked for charts (a very short trade) keeps the chart's place, drawn as the Dashboard's
+        // empty setup thumbnail, so its pair line and "…" line up with the cards beside it (first ui-polish audit).
+        <span aria-hidden="true" style={{ display: "block", aspectRatio: "16 / 9", borderRadius: "var(--r-md)", border: "1px dashed var(--border)", boxSizing: "border-box" }} />
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
           <Link to={story(e)} style={{ fontSize: "14px", fontWeight: 500, textDecoration: "none", color: "var(--text-1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {e.pair}
           </Link>
-          <DirChip e={e} grid />
+          <DirChip e={e} />
         </span>
         <span className="num" style={{ fontSize: "14px", fontWeight: 500, color: TONE[f.resTone], whiteSpace: "nowrap" }}>
           {f.gres}
@@ -318,11 +322,18 @@ export function GridCard({ e, a }: { e: Entry; a: RowActions }) {
                 {f.gridLine}
               </span>
             </span>
-          ) : (
-            <span className="lbl" style={{ fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: "16px" }}>
-              {f.gridLine}
+          ) : f.gridLine ? (
+            // An analysis says "Before trading" with the status icon, as its list row does (first ui-polish audit).
+            <span className="kfact kfact-s">
+              <span className="kfact-ic">
+                <IcStatus s={14} />
+              </span>
+              <span className="ksr">Status:</span>
+              <span className="kfact-t" title={f.gridLine}>
+                {f.gridLine}
+              </span>
             </span>
-          )}
+          ) : null}
         </span>
         <RowMenu e={e} a={a} />
       </div>

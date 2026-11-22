@@ -176,13 +176,14 @@ export function Playbook() {
                       </span>
                     </Link>
                     <button
-                      className="kmore"
+                      className="kmore kmore-media"
                       type="button"
                       aria-label={`Actions for ${s.name}`}
                       aria-haspopup="true"
                       aria-expanded={open ? "true" : "false"}
                       onClick={() => menu.toggle(key)}
-                      style={{ position: "absolute", top: "12px", right: "12px", width: "36px", height: "36px", border: 0, borderRadius: "var(--r-md)", background: open ? "var(--surface-pressed)" : "rgba(14,16,20,0.7)", color: "var(--text-1)", cursor: "pointer", fontSize: "16px", letterSpacing: "1px", zIndex: 5, lineHeight: "24px" }}
+                      style={{ position: "absolute", top: "24px", right: "24px", width: "28px", height: "28px", border: 0, borderRadius: "var(--r-sm)", cursor: "pointer", zIndex: 5 }}
+
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <circle cx="5" cy="12" r="1.6" />
@@ -193,7 +194,7 @@ export function Playbook() {
                     {open ? (
                       <>
                         <button type="button" aria-label="Close menu" tabIndex={-1} onClick={menu.close} style={closeMenuBtn} />
-                        <div role="menu" aria-label={`Actions for ${s.name}`} className="kmenu" style={{ position: "absolute", zIndex: 6, padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", top: "52px", right: "12px", width: "210px" }}>
+                        <div role="menu" aria-label={`Actions for ${s.name}`} className="kmenu" style={{ position: "absolute", zIndex: 6, display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", top: "58px", right: "24px", width: "210px", transformOrigin: "top right" }}>
                           <button
                             type="button"
                             role="menuitem"

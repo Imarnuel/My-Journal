@@ -44,7 +44,7 @@ export function Start() {
             </div>
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            <Link to="/accounts" className="btn btn-q">Add another</Link>
+            <Link to="/accounts" className="btn btn-q kq-end">Add another</Link>
           </div>
         </li>
         ) : (

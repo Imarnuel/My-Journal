@@ -1,5 +1,6 @@
 // ui-polish's screenshots (.agents/skills/ui-polish): every screen and its key states, light and dark, at 2x,
 // for the sample preview (:5173) and the real journal (:5174). Usage: node scripts/ui-shots.mjs <folder>
+// ONLY=regex limits to matching shot names (ONLY="story-date|pair" node scripts/ui-shots.mjs out).
 // Start the dev servers first (`npm run dev` and `npm run dev:real`), or let Playwright's webServer do it.
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
@@ -42,7 +43,7 @@ const SHOTS = [
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME ?? "/opt/pw-browsers/chromium" });
 for (const theme of ["light", "dark"]) {
-  for (const s of SHOTS) {
+  for (const s of SHOTS.filter((x) => !process.env.ONLY || new RegExp(process.env.ONLY).test(x.name))) {
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2 });
     // The real journal's voice and chart reading show when the server says it's ready.
     if (s.real) await page.route("**/api/voice-note", (r) => r.fulfill({ json: { ready: true } }));

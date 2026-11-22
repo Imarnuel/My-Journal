@@ -28,6 +28,8 @@ export function returnFocus(trigger: HTMLElement | null) {
   });
 }
 
+/** The filter buttons are 8px at the sides, tighter than a field's 12px, so the row reads as one quiet strip
+ * (the owner, 2026-11-22: "reduce the horizontal padding on the filter inputs so it looks sleeker"). */
 export function FilterMenu({ name, icon, label, aria, active, open, onToggle, onClose, opts, width, align = "left", children }: Props) {
   const ref = useRef<HTMLButtonElement>(null);
   return (
@@ -40,7 +42,7 @@ export function FilterMenu({ name, icon, label, aria, active, open, onToggle, on
         aria-label={aria}
         onClick={onToggle}
         className="kfield"
-        style={{ font: "inherit", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", background: active || open ? "var(--surface-pressed)" : "transparent", border: `1px solid ${active ? "var(--border-strong)" : "var(--border)"}`, borderRadius: "var(--r-md)", padding: "0 12px", minHeight: "32px", cursor: "pointer", position: "relative", zIndex: 5 }}
+        style={{ font: "inherit", display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", background: active || open ? "var(--surface-pressed)" : "transparent", border: `1px solid ${active ? "var(--border-strong)" : "var(--border)"}`, borderRadius: "var(--r-md)", padding: "0 8px", minHeight: "32px", cursor: "pointer", position: "relative", zIndex: 5 }}
       >
         <span style={{ color: "var(--text-2)", display: "flex" }}>{icon}</span>
         {label}
@@ -71,11 +73,8 @@ export function FilterMenu({ name, icon, label, aria, active, open, onToggle, on
                 <span style={{ color: o.dim ? "var(--text-disabled)" : "var(--text-1)" }}>{o.label}</span>
                 <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ color: "var(--text-3)", fontSize: "12px", lineHeight: "16px" }}>{o.count}</span>
-                  {o.sel ? (
-                    <span style={{ color: "var(--text-1)", display: "flex" }}>
-                      <IcCheck />
-                    </span>
-                  ) : null}
+                  {/* The check has its own 16px slot on every row, so the counts line up (first ui-polish audit). */}
+                  <span style={{ color: "var(--text-1)", display: "flex", width: "16px", flex: "none" }}>{o.sel ? <IcCheck /> : null}</span>
                 </span>
               </button>
             ))}

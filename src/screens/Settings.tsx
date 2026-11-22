@@ -19,8 +19,10 @@ const APPEARANCE: { label: string; value: Appearance }[] = [
 ];
 
 const h2 = { margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const;
+// Every Settings row is one height: 16px above and below a 32px line (a control's height, so a row doesn't jump
+// when its control appears, as the session times do when edited). First ui-polish audit: rows were 69, 45 and 65px.
 const row = { display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px 24px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)" } as const;
-const timeInput = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 8px", colorScheme: "dark" } as const;
+const timeInput = { font: "inherit", fontSize: "14px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "0 8px", height: "32px", boxSizing: "border-box" } as const;
 
 function Row({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -133,7 +135,7 @@ export function Settings() {
             <div style={{ marginTop: "8px" }}>
               {sess.map((x, i) => (
                 <Fragment key={x[0]}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", fontSize: "14px", minHeight: "44px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "16px 0", borderTop: "1px solid var(--border-subtle)", fontSize: "14px", minHeight: "32px" }}>
                     <span>{x[0]}</span>
                     {sessEdit ? (
                       <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-2)" }}>
@@ -149,11 +151,11 @@ export function Settings() {
               ))}
             </div>
             <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
-              <button type="button" onClick={() => setSessEdit(!sessEdit)} className="btn btn-q" style={{ padding: "0 4px" }}>
+              <button type="button" onClick={() => setSessEdit(!sessEdit)} className="btn btn-q kq-start">
                 {sessEdit ? "Done" : "Edit session times"}
               </button>
               {sessEdit ? (
-                <button type="button" onClick={() => setSess(DEFAULT_SESSIONS)} className="btn btn-q" style={{ padding: "0 4px", color: "var(--text-3)" }}>
+                <button type="button" onClick={() => setSess(DEFAULT_SESSIONS)} className="btn btn-q" style={{ color: "var(--text-3)" }}>
                   Reset to defaults
                 </button>
               ) : null}
@@ -169,7 +171,9 @@ export function Settings() {
           <h2 id="set-voice" style={h2}>Voice notes</h2>
           <div style={{ marginTop: "12px" }}>
             <Row title="Language">{select("lang", "Voice note language", lang, VOICE_LANGUAGES, setLang)}</Row>
-            <Row title="Keep recordings" hint="Turn off to keep only the written transcript.">
+            {/* The hint says what happens now, so it never tells you to turn off a switch that's already off (first
+                ui-polish audit; the off wording is new, flagged for the owner). */}
+            <Row title="Keep recordings" hint={keep ? "Turn off to keep only the written transcript." : "Only the written transcript is kept."}>
               <Switch on={keep} label="Keep recordings" onFlip={() => setKeep(!keep)} />
             </Row>
           </div>

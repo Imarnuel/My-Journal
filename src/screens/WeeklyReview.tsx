@@ -43,14 +43,16 @@ function TradeCard({ e }: { e: Entry }) {
         <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 500 }}>
             {e.pair}
-            {e.dir ? <span style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", border: "1px solid var(--border)", borderRadius: "var(--r-xs)", padding: "0 8px", lineHeight: "16px" }}>{e.dir}</span> : null}
+            {e.dir ? <span className="kchip">{e.dir}</span> : null}
           </span>
           <span className="num" style={{ fontSize: "14px", fontWeight: 500, color: tone(r) }}>
             {fr(r)}
           </span>
         </span>
-        <span className="lbl" style={small}>
-          {`${shortDate(e.date)} · ${e.setup}${e.followed === false ? " · Not followed" : ""}`}
+        {/* "Not followed" has its own line, so a wrap never leaves a "·" at a line's end (first ui-polish audit). */}
+        <span className="lbl" style={{ ...small, display: "flex", flexDirection: "column" }}>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{`${shortDate(e.date)} · ${e.setup}`}</span>
+          {e.followed === false ? <span>Not followed</span> : null}
         </span>
       </Link>
     </li>
@@ -121,8 +123,9 @@ export function WeeklyReview() {
               <>
                 {prevTake ? (
                   <div className="card" style={{ display: "flex", alignItems: "baseline", gap: "8px", padding: "16px 16px", borderRadius: "var(--r-card)", flexWrap: "wrap" }}>
-                    <span className="lbl" style={{ fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap", lineHeight: "16px" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {/* Inline, not a flex box, so the label's baseline is its text's and it sits on the quote's line (first audit). */}
+                    <span className="lbl" style={{ fontSize: "12px", whiteSpace: "nowrap", lineHeight: "16px" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: "-2px", marginRight: "8px" }}>
                         <circle cx="12" cy="12" r="9" />
                         <circle cx="12" cy="12" r="5" />
                         <circle cx="12" cy="12" r="1" />
@@ -143,9 +146,7 @@ export function WeeklyReview() {
                       <span className="num" style={{ ...statNum, color: tone(w.net) }}>
                         {fr(w.net)}
                       </span>
-                      <span className="lbl" style={small}>
-                        In R
-                      </span>
+                      {/* No "In R" under "+3.4R": the unit was said twice (first ui-polish audit). */}
                     </div>
                     <div className="card" style={stat}>
                       <span className="lbl">Trades taken</span>
@@ -242,7 +243,7 @@ export function WeeklyReview() {
                     placeholder="One thing, in your own words"
                     value={tk}
                     onChange={(ev) => setTakeaway(sel, ev.target.value)}
-                    style={{ font: "inherit", fontSize: "14px", lineHeight: "20px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "12px 12px", resize: "vertical" }}
+                    style={{ font: "inherit", fontSize: "14px", lineHeight: "20px", color: "var(--text-1)", background: "var(--surface-inset)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "12px 12px", resize: "none" }}
                   />
                   <span className="lbl" style={small}>
                     {takeNote}

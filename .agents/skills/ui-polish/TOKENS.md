@@ -52,6 +52,10 @@ has rows of 12 or less; we use 10). Circles, dots and pills use their own sizes 
 ## Heights
 Controls **32px** (`--h-md`), segments and small buttons **28px** (`--h-sm`), menu rows **34px**, large
 controls **36px** (`--h-lg`). Touch targets at least **24px** (text buttons get 4px padding to reach it).
+Rows: **48px** a Details row and an "Archived" disclosure row; **60px** an account row (archived or not); **64px**
+the voice note's status card; Settings rows are 16px above and below a 32px line; Dashboard table rows 12px above
+and below a 36px line. Chips and badges **22px** (`.kchip`, `.pill`). A `minHeight` is the content box unless the
+element says `boxSizing: "border-box"`: padding and the top border add to it.
 
 ## Shadows (layers)
 `--shadow-panel` the main card, `--shadow-card` cards, `--shadow-field` fields and dropdown buttons (barely
