@@ -956,3 +956,16 @@ test("the large chart opens full screen: arrows move, Escape or a click outside 
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Open chart 1 of 5$/ })).toBeVisible();
 });
+
+test("picking a second tag from the list takes one click, even when the chips fill a line", async ({ page }) => {
+  await page.goto("/new");
+  const input = page.locator("#taginput");
+  const pills = page.getByRole("group", { name: "Tags" }).locator(".pill");
+  for (let n = 1; n <= 3; n++) {
+    await page.getByRole("group", { name: "Tags" }).click();
+    const first = page.getByRole("listbox", { name: "Matching tags" }).getByRole("option").first();
+    await first.click();
+    await expect(pills).toHaveCount(n);
+    await expect(input).toBeFocused(); // the cursor stays in the field
+  }
+});

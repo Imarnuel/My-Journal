@@ -352,6 +352,9 @@ could be good, a mistake or context made people classify it; two fields need no 
   only (most used first), Enter adds the first match or a new one at once (no question), Backspace on an empty
   field removes the last chip. Empty hints: "Add a tag", "Add a mistake"; new ones: "Add “x” as a new tag" /
   "… as a new mistake"; toasts "“x” added as a new tag" / "… mistake". Nothing prompts you to fill Mistakes.
+- **One click picks** (the owner, 2026-11-22: "I have to click twice sometimes to select"): pressing an option keeps
+  the cursor in the field, so the field never shrinks under the pointer and moves the list; a click anywhere on
+  the field opens its list, even when the cursor is already there.
 - **Voice notes fill both**: what the note calls a mistake goes to Mistakes, the rest to Tags; the toast counts
   them apart ("Setup, 1 tag, 1 mistake, plan and headspace filled from your note").
 - **Trade log**: a row shows its mistakes on their own facts line with the triangle icon; a **Mistakes** filter

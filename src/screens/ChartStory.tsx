@@ -6,7 +6,7 @@ import { Breadcrumbs } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { useTileReorder } from "./story/useTileReorder";
-import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type DragEvent, type KeyboardEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
@@ -1544,10 +1544,23 @@ function ChipField({ field, items, vocab, fresh, menu, onChange, onNew, toastA }
     }
     if (e.key === "Backspace" && !q && items.length) onChange(items.slice(0, -1));
   };
+  // Pressing an option keeps the cursor in the field (a combobox's options never take focus on press): if the
+  // field lost focus, its input would shrink, the chips could move up a line and the list with them, and the
+  // release would miss the option ("I have to click twice sometimes", the owner, 2026-11-22).
+  const keepFocus = (e: MouseEvent) => e.preventDefault();
   const optStyle: CSSProperties = { font: "inherit", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", background: "transparent", border: 0, borderRadius: "var(--r-md)", padding: "0 12px", cursor: "pointer", width: "100%", fontSize: "14px", minHeight: "32px" };
   return (
     <div style={{ position: "relative" }}>
-      <div className="ghost tagfield" role="group" aria-label={w.group} onClick={() => document.getElementById(ids.input)?.focus()} style={{ cursor: "text", flexWrap: "wrap", position: "relative", zIndex: 5 }}>
+      <div
+        className="ghost tagfield"
+        role="group"
+        aria-label={w.group}
+        onClick={() => {
+          // A click anywhere on the field puts the cursor in it and shows the list, even when it already had focus.
+          document.getElementById(ids.input)?.focus();
+          if (!menu.isOpen(field)) menu.open(field);
+        }}
+        style={{ cursor: "text", flexWrap: "wrap", position: "relative", zIndex: 5 }}>
         {items.map((t, i) => (
           <span key={t} className={fresh.includes(t) ? "pill knew" : "pill"} style={{ display: "inline-flex", alignItems: "center", gap: "4px", paddingRight: "4px", ["--wave" as string]: `${WAVE_MS[Math.min(fresh.indexOf(t), WAVE_MS.length - 1)] ?? 0}ms` }}>
             {t}
@@ -1595,12 +1608,12 @@ function ChipField({ field, items, vocab, fresh, menu, onChange, onNew, toastA }
           <Closer onClose={menu.close} />
           <div id={ids.list} role="listbox" aria-label={`Matching ${w.group.toLowerCase()}`} className="kmenu" style={{ position: "absolute", zIndex: 6, top: "calc(100% + 6px)", padding: "8px", display: "flex", flexDirection: "column", gap: "2px", boxSizing: "border-box", ...UNDER_FIELD }}>
             {sugg.sug.map((o) => (
-              <button key={o.t} type="button" role="option" aria-selected="false" onClick={() => add(o.t)} className="kit-opt" style={{ ...optStyle, color: "var(--text-1)" }}>
+              <button key={o.t} type="button" role="option" aria-selected="false" onMouseDown={keepFocus} onClick={() => add(o.t)} className="kit-opt" style={{ ...optStyle, color: "var(--text-1)" }}>
                 <span>{o.t}</span>
               </button>
             ))}
             {sugg.canAdd ? (
-              <button type="button" role="option" aria-selected="false" onClick={addNew} className="kit-opt" style={{ ...optStyle, color: "var(--text-2)" }}>
+              <button type="button" role="option" aria-selected="false" onMouseDown={keepFocus} onClick={addNew} className="kit-opt" style={{ ...optStyle, color: "var(--text-2)" }}>
                 {`Add “${niceTag(q)}” as a new ${field}`}
               </button>
             ) : null}
