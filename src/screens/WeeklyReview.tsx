@@ -14,7 +14,7 @@ import { PastWeeks } from "./review/PastWeeks";
 
 const h2 = { margin: 0, fontSize: "16px", fontWeight: 500, lineHeight: "24px" } as const;
 const stat = { display: "flex", flexDirection: "column", gap: "4px", padding: "16px 16px", borderRadius: "var(--r-card)", minWidth: 0 } as const;
-const statNum = { fontSize: "24px", fontWeight: 600, letterSpacing: "-0.025em", lineHeight: "32px" } as const;
+const statNum = { fontSize: "24px", fontWeight: 600, letterSpacing: "var(--tracking-figure)", lineHeight: "32px" } as const;
 const small = { fontSize: "12px", lineHeight: "16px" } as const;
 const q = (t: string) => `“${t}”`;
 

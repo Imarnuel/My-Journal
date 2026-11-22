@@ -12,7 +12,7 @@ import { EquityChart, type EqPoint } from "../../components/charts/EquityChart";
 import { BarsChart, type Bar } from "../../components/charts/BarsChart";
 
 const card = { display: "flex", flexDirection: "column", gap: "8px", padding: "16px 16px 16px", borderRadius: "var(--r-card)", minWidth: "0" } as const;
-const big = { fontSize: "24px", fontWeight: "600", lineHeight: "32px", letterSpacing: "-0.025em" } as const;
+const big = { fontSize: "24px", fontWeight: "600", lineHeight: "32px", letterSpacing: "var(--tracking-figure)" } as const;
 
 function Stat({ label, icon, value, color, sub }: { label: string; icon: DetailIconName; value: string; color?: string; sub: string }) {
   return (

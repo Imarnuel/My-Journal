@@ -294,19 +294,24 @@ Why: in the story's tag menu "used 18 times" was reading with nothing to act on,
 wrap. The menu still lists the most used tags first. The counts stay in Settings > Your tags, where they help
 decide what to rename, merge or remove.
 
-## Typeface: Instrument Serif for page titles, Public Sans for everything else
-Overrides Inter in `CLAUDE.md` and `02-look-and-feel.md`, and the earlier Geist. The owner, 2026-11-22: "Spectra
-for headings and public sans for others (body, labels)", page titles only; then "Spectra is ugly, let's use
-instruments serif".
+## Typeface: Instrument Serif for page titles, Inter for everything else
+Overrides `02-look-and-feel.md`'s Inter-only rule for page titles, and the earlier Geist and Public Sans. The
+owner, 2026-11-22: "Spectra for headings and public sans for others (body, labels)", page titles only; then
+"Spectra is ugly, let's use instruments serif"; then "let's go back to inter for the body, label, buttons and the
+rest, leaving only the headings, but the tracking shouldn't be as tight as it was in the beginning".
 - **Instrument Serif** (400, its only weight), self-hosted from `@fontsource/instrument-serif`, set once in
   `--font-heading`, on the page title of every page (its `h1`: "Trade log", "New chart story", the pair on
-  a story), at its natural tracking (no −0.025em: that suits a bold sans and cramps a display serif). One rule in
-  `globals.css` sets the face, weight and tracking; page titles set none of them inline. Chips and labels inside
-  a title (direction, Textbook example) stay Public Sans. A smaller `h1` that isn't a page title (an "… deleted"
-  state) has `.kplain` and stays Public Sans. Nothing else is serif: section and card titles, numbers and the
-  24px stat figures stay Public Sans.
-- **Public Sans** Variable, self-hosted from `@fontsource-variable/public-sans`, set once in `--font-sans`:
-  body, labels, controls, numbers. Tabular figures stay on (Public Sans has them).
+  a story), at its natural tracking (0). One rule in `globals.css` sets the face, weight and tracking; page titles
+  set none of them inline. Chips and labels inside a title (direction, Textbook example) stay Inter. A smaller
+  `h1` that isn't a page title (an "… deleted" state) has `.kplain` and stays Inter. Nothing else is serif:
+  section and card titles, numbers and the 24px stat figures stay Inter.
+- **Inter** Variable with optical sizes (`opsz`), self-hosted from `@fontsource-variable/inter`, set once in
+  `--font-sans`: body, labels, buttons, fields, numbers. Tabular figures stay on.
+- **Tracking, opened up from the handoff:** body text at `--tracking-body` (+0.01em, from 0), set on the root and
+  inherited by buttons and fields; the 24px figures at `--tracking-figure` (−0.01em, from −0.025em); the wordmark
+  at the body tracking (from −0.01em). Labels, meta and chips inside headings take the body tracking too.
+  The Dashboard stat cells pad 12px on the right (24 on the left) so "Wins avg +1.8R, losses −0.9R" stays on one
+  line in Inter.
 - **Page titles are 26px** (`--title-size`, line height 32px, so nothing below moves): the narrow display serif
   reads small at 24px (the owner, 2026-11-22: 28px, then "26 is better"). If page titles ever go back to the
   body face, `--title-size` goes back to 24px. Every other size is unchanged. `src/styles/taste.test.ts` allows
@@ -610,8 +615,8 @@ it looks sleeker". Findings and method: `docs/ui-audit-2026-11-22.md`. One rule 
 - **Text never overflows or leaves a stray "·".** Recent chart stories: the top line is pair, direction and
   result; a story without a result says its status at the start of the line below ("Running · Unsorted"), so a
   six-letter pair never truncates (the handoff frame had "Running" touching the next card). Weekly review tiles put
-  "Not followed" on its own line. The Dashboard stat cells have 16px on the right (24 on the left) so "Wins avg
-  +1.8R, losses −0.9R" fits on one line.
+  "Not followed" on its own line. The Dashboard stat cells have less room on the right than the left so "Wins
+  avg +1.8R, losses −0.9R" fits on one line (12px since Inter, DESIGN.md › Typeface).
 - **The same kind of element is the same size.** Chips and badges are 22px everywhere (`.kchip`, `.pill`; the
   Practice badge too, at `--r-xs`). Dashboard table rows are one height (a 64 × 36 thumbnail line), Settings rows
   one height (16px above and below a 32px line), the "Archived" disclosure rows 48px, account rows 60px, the

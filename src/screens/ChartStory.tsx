@@ -715,7 +715,7 @@ function StoryScreen({ id }: { id: string | null }) {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", alignSelf: s.status === "Taken" ? undefined : "flex-start" }}>
             {/* The result only when there is one: a running or watched entry already says its status under the title. */}
             {s.status === "Taken" ? (
-              <span className="num" style={{ fontSize: "24px", fontWeight: 600, color: resCol, letterSpacing: "-0.025em", lineHeight: "32px" }}>
+              <span className="num" style={{ fontSize: "24px", fontWeight: 600, color: resCol, letterSpacing: "var(--tracking-figure)", lineHeight: "32px" }}>
                 {resVal}
               </span>
             ) : null}

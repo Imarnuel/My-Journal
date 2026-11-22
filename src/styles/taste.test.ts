@@ -49,7 +49,7 @@ describe("the owner's rules, checked in the source (DESIGN.md, Principles)", () 
     expect(readFileSync(join(ROOT, "styles/globals.css"), "utf8")).toContain('[style*="var(--r-"] { corner-shape: squircle; }');
   });
 
-  it("two typefaces, each named once: --font-sans (Public Sans) and --font-heading (Instrument Serif, page titles)", () => {
+  it("two typefaces, each named once: --font-sans (Inter) and --font-heading (Instrument Serif, page titles)", () => {
     const named = /(fontFamily"?\s*:\s*"(?!var\(--font-(sans|heading)\)"|inherit")[^"]+"|font-family\s*:(?!\s*(var\(--font-(sans|heading)\)|inherit))[^;}]+)/;
     expect(find(named)).toEqual([]);
   });

@@ -34,7 +34,7 @@ Traders who quit journaling because it felt like work. The owner has ADHD. Frict
 - **Match the screenshots.** Every screen at 1440px wide must match `screenshots/light/` and `screenshots/dark/`, or the owner's approved image in `tests/visual/approved/` where one exists (it replaces the handoff screenshot once the owner has changed that screen). Compare with a visual diff, not by eye alone.
 - **Copy is exact.** Use the wording in `07-screens-inventory.md` and the prototype. Sentence case. Results always in R with a sign and a real minus (−, U+2212), never money.
 - **Tokens only.** Colours, shadows, radii, heights and motion come from `src/styles/tokens.css`. No raw hex in components.
-- **Type: four sizes, plus the page title.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, tracking-tight); page titles only at 26/32. Weights 400 and 500; 600 only at 24px figures and the primary button (a selected segment stays 500, DESIGN.md). Instrument Serif 400 for page titles at 26px (`--title-size`; 24px if titles ever use the body face), Public Sans for everything else (DESIGN.md › Typeface), tabular figures on.
+- **Type: four sizes, plus the page title.** `text-xs` (12/16), `text-sm` (14/20), `text-base` (16/24), `text-2xl` (24/32, figures at `--tracking-figure`, −0.01em); page titles only at 26/32. Weights 400 and 500; 600 only at 24px figures and the primary button (a selected segment stays 500, DESIGN.md). Instrument Serif 400 for page titles at 26px (`--title-size`; 24px if titles ever use the body face), Inter (variable, optical sizes) for everything else at `--tracking-body` (+0.01em, a touch more open than the handoff) (DESIGN.md › Typeface), tabular figures on.
 - **Spacing: eight steps only.** Tailwind `0.5 1 2 3 4 6 8 12` (2 4 8 12 16 24 32 48px).
 - **Controls are 32px tall** (segments 28px, menu rows 34px). Radii come from the `--r-*` tokens only: 7px chips, 8px small buttons and segments, 10px controls and fields, 12px segment tracks, 16px cards and menus, 18px the main card, 20px dialogs, drawn as continuous (Apple-style) corners where the browser supports it (DESIGN.md › Corners). `src/styles/taste.test.ts` fails on a hard-coded radius.
 - **Light is the default theme.** Dark is a full equal. Appearance: System, Light, Dark.
@@ -73,7 +73,7 @@ Library choices: the build plan names Radix UI primitives, Motion, lucide-react 
 - **Research before a visual redesign.** When the owner asks to make a section look better, restyle it, or
   find inspiration, search Mobbin first (`mobbin-ui-research` skill, web platform), as a senior product
   designer would. Show the owner the references you'd draw from, each with its Mobbin link, and say what
-  you'd take from each. Then propose one direction that fits this app's own style (tokens, calm, Instrument Serif and Public Sans,
+  you'd take from each. Then propose one direction that fits this app's own style (tokens, calm, Instrument Serif and Inter,
   DESIGN.md principles), never a copy of another app, and build it on the owner's yes. Record the references
   in the DESIGN.md section for the change. Small, exact corrections ("make it 12px") don't need research, and
   neither do fixes to spacing, clutter or a single control: use your own judgement there (the owner,

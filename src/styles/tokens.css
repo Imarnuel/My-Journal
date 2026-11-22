@@ -142,7 +142,12 @@
   --ease-out: cubic-bezier(0.16,1,0.3,1);
   --ease-in: cubic-bezier(0.4,0,1,1);
   --ease-standard: cubic-bezier(0.2,0,0,1);
-  --font-sans: "Public Sans Variable", "Public Sans", system-ui, sans-serif;
+  --font-sans: "Inter Variable", "Inter", system-ui, sans-serif; /* optical sizes on (opsz), DESIGN.md › Typeface */
+  /* Tracking (the owner, 2026-11-22: Inter again, "but the tracking shouldn't be as tight as it was in the
+     beginning"): body text a touch open instead of Inter's default, and the 24px figures at −0.01em instead of
+     the handoff's −0.025em. Page titles (Instrument Serif) stay at their natural 0. */
+  --tracking-body: 0.01em;
+  --tracking-figure: -0.01em;
   --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif; /* page titles only (DESIGN.md › Typeface) */
   /* Page title size: 26px while --font-heading is a different face from the body (a narrow display serif reads
      smaller); back to 24px if page titles ever use --font-sans again (the owner, 2026-11-22, over 28px). */
@@ -151,6 +156,7 @@
 
 html {
   font-family: var(--font-sans);
+  letter-spacing: var(--tracking-body);
   font-size: 14px; line-height: 20px;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;

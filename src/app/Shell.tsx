@@ -27,7 +27,7 @@ export function Wordmark() {
       >
         <Icon name="logo-mark" />
       </span>
-      <span style={{ fontWeight: "600", fontSize: "16px", letterSpacing: "-0.01em" }}>Journal</span>
+      <span style={{ fontWeight: "600", fontSize: "16px", letterSpacing: "var(--tracking-body)" }}>Journal</span>
     </div>
   );
 }

@@ -24,7 +24,7 @@ const TABS: { k: Tab; label: string }[] = [
   { k: "les", label: "Lessons" },
 ];
 
-const statNum = { fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "-0.025em" } as const;
+const statNum = { fontSize: "24px", fontWeight: 600, lineHeight: "32px", letterSpacing: "var(--tracking-figure)" } as const;
 const tabBtn = { font: "inherit", fontSize: "14px", fontWeight: 500, border: 0, borderRadius: "var(--r-md)", padding: "0 16px", minHeight: "32px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px" } as const;
 
 function Stat({ k, v }: { k: string; v: string }) {

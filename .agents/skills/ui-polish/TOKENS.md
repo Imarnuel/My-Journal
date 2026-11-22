@@ -17,14 +17,14 @@ corner or shadow: they use these. Sizes and spacing are written in px but must s
 | Over images | `--on-media`, `--media-scrim` | Icons on chart thumbnails |
 | Buttons | `--btn-p-*` primary, `--btn-g-*` secondary, `--btn-v-*` voice | |
 
-## Type (Instrument Serif for page titles, Public Sans for everything else; tabular figures on)
+## Type (Instrument Serif for page titles, Inter for everything else at `--tracking-body` +0.01em; tabular figures on)
 | Size / line height | Use |
 | --- | --- |
 | 12 / 16 | Hints, labels, captions, meta lines, chips |
 | 14 / 20 | Body, controls, menu rows, row headlines |
 | 16 / 24 | Section titles, card titles |
 | 26 / 32 | Page titles only: Instrument Serif 400, natural tracking, from `--title-size` (24 if titles use the body face) |
-| 24 / 32 | Big numbers (Public Sans 600, −0.025em) |
+| 24 / 32 | Big numbers (Inter 600, `--tracking-figure` −0.01em) |
 
 Weights: 400 body and page titles, 500 labels and controls (a selected segment stays 500), 600 only at 24px figures and the primary
 button. Sentence case. A line height always goes with its size.
