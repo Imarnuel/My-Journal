@@ -99,7 +99,7 @@ export function WeeklyReview() {
     <Shell active="review">
       <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: "24px", lineHeight: "32px" }}>Weekly review</h1>
+          <h1 style={{ margin: 0, lineHeight: "32px" }}>Weekly review</h1>
           {sel ? (
             <p className="meta" style={{ margin: 0 }}>
               {`Week of ${weekTitle(sel)}`}

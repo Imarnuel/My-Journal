@@ -137,6 +137,9 @@
   --ease-standard: cubic-bezier(0.2,0,0,1);
   --font-sans: "Public Sans Variable", "Public Sans", system-ui, sans-serif;
   --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif; /* page titles only (DESIGN.md › Typeface) */
+  /* Page title size: 28px while --font-heading is a different face from the body (a narrow display serif reads
+     smaller); back to 24px if page titles ever use --font-sans again (the owner, 2026-11-22). */
+  --title-size: 28px;
 }
 
 html {

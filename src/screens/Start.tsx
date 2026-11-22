@@ -25,7 +25,7 @@ export function Start() {
     <Shell active={null}>
       <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: "24px", lineHeight: "32px" }}>Let's get your first trade in</h1>
+          <h1 style={{ margin: 0, lineHeight: "32px" }}>Let's get your first trade in</h1>
           <p className="meta" style={{ margin: 0 }}>About 5 minutes. Skip anything you like.</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }} />

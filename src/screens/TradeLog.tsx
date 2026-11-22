@@ -173,7 +173,7 @@ export function TradeLog() {
     <Shell active="log">
       <header style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "16px 24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: "24px", lineHeight: "32px" }}>Trade log</h1>
+          <h1 style={{ margin: 0, lineHeight: "32px" }}>Trade log</h1>
           <p className="meta" style={{ margin: 0 }}>
             {`Everything you've recorded, whenever you recorded it${mt5 ? " · MT5 synced 2 min ago" : ""}`}
           </p>

@@ -58,6 +58,6 @@ export const BackIcon = () => (
 );
 
 export const backLink = { display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-2)", textDecoration: "none", alignSelf: "flex-start", minHeight: "32px" } as const;
-export const h1Style = { margin: 0, fontSize: "24px", lineHeight: "32px" } as const;
+export const h1Style = { margin: 0, lineHeight: "32px" } as const;
 export const groupHead = { fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-2)", lineHeight: "16px" } as const;
 export const closeMenuBtn = { position: "fixed", inset: 0, zIndex: 4, background: "transparent", border: 0, padding: 0, cursor: "default" } as const;
