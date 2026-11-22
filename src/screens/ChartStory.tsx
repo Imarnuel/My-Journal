@@ -42,6 +42,7 @@ import {
   type Story,
 } from "../lib/story";
 import { transcriptRuns, type VoiceNoteFill } from "../lib/voiceNote";
+import { ChartViewer } from "./story/ChartViewer";
 import { cancelVoiceRead, clearVoiceFailure, connectVoice, readVoice, retargetVoice, useVoiceReading, type ReadPhase, type VoiceProblem } from "./story/voiceReading";
 import { startRecorder, type Recorder, type Recording } from "../lib/recorder";
 import type { VoiceContext } from "../lib/voicePrompt";
@@ -142,6 +143,8 @@ function StoryScreen({ id }: { id: string | null }) {
   const [newTags, setNewTags] = useState<string[]>([]);
   // Charts being read (real journal): the facts line says so and the empty facts shimmer (DESIGN.md › Chart reading).
   // Reading lives outside the page (story/chartReading.ts), so it carries on into the saved story.
+  // The chart open full screen, if any (story/ChartViewer.tsx).
+  const [viewing, setViewing] = useState<number | null>(null);
   const draftKey = useRef(`draft:${Math.random().toString(36).slice(2)}`);
   const readTarget = saved ? (id ?? "") : draftKey.current;
   const chartsReading = useChartReading((st) => st.pending[readTarget] ?? 0);
@@ -773,7 +776,8 @@ function StoryScreen({ id }: { id: string | null }) {
           <section aria-label="Charts" onDragOver={onSectionDragOver} onDrop={onSectionDrop} style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
             {big != null ? (
               <figure style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div className="chart" style={{ borderRadius: "var(--r-card)" }}>
+                {/* Click to open it full screen (DESIGN.md › Chart viewer). */}
+                <button type="button" className="chart kchart-open" aria-label={`Open chart ${selI + 1} of ${charts.length}`} aria-haspopup="dialog" onClick={() => setViewing(selI)} style={{ borderRadius: "var(--r-card)" }}>
                   {isImage(big) ? (
                     <img src={big} alt="Your chart" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "contain", background: "var(--surface-inset)" }} />
                   ) : (
@@ -781,7 +785,10 @@ function StoryScreen({ id }: { id: string | null }) {
                       <use href={`#${big}`} />
                     </svg>
                   )}
-                </div>
+                </button>
+                {viewing != null && charts[viewing] ? (
+                  <ChartViewer charts={charts} index={viewing} isImage={isImage} onIndex={(i) => (setViewing(i), setSel(i))} onClose={() => setViewing(null)} />
+                ) : null}
                 <figcaption style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                   <span className="lbl">{isImage(big) ? "" : captionOf(big)}</span>
                   <span className="lbl">{`${selI + 1} of ${charts.length}`}</span>

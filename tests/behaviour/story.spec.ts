@@ -922,3 +922,25 @@ test("reduced motion: recording, menus and toasts still work", async ({ page }) 
   await page.getByRole("option", { name: "Focused" }).click();
   await expect(page.getByRole("button", { name: "Headspace" })).toContainText("Focused");
 });
+
+test("the large chart opens full screen: arrows move, Escape or a click outside closes, focus comes back", async ({ page }) => {
+  await page.goto("/story/e20");
+  const open = page.getByRole("button", { name: /^Open chart 5 of 5$/ });
+  await open.click();
+  const viewer = page.getByRole("dialog", { name: "Chart 5 of 5" });
+  await expect(viewer).toBeVisible();
+  await expect(viewer.getByRole("button", { name: "Close" })).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByRole("dialog", { name: "Chart 4 of 5" })).toBeVisible();
+  await page.getByRole("button", { name: "Next chart" }).click();
+  await expect(page.getByRole("dialog", { name: "Chart 5 of 5" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(open).toBeFocused();
+  // A click on the backdrop closes too; the chart shown on the page follows the one viewed.
+  await open.click();
+  await page.keyboard.press("ArrowRight"); // wraps to the first
+  await page.mouse.click(8, 400);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Open chart 1 of 5$/ })).toBeVisible();
+});

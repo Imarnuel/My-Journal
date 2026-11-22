@@ -397,3 +397,34 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
    chip, so a full Tags row doesn't end in an empty line (first ui-polish audit). */
 .app .tag-input { min-width: 90px; }
 .app .tag-input:not(:focus):placeholder-shown { min-width: 0; width: 0; }
+
+/* Chart viewer (DESIGN.md › Chart viewer): a story's chart full screen over a dark backdrop. It opens like a
+   dialog (a fade, the chart from 0.96, --d-base on --ease-out) except from the keyboard; moving between charts
+   and closing don't animate. Buttons are 32px, white on a 10% white fill, as on the chart tiles. */
+.app .kchart-open { display: block; width: 100%; padding: 0; cursor: zoom-in; font: inherit; }
+.kviewer { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+  padding: 48px; box-sizing: border-box; background: var(--viewer-bg); animation: kfade var(--d-base) var(--ease-out); }
+.kviewer-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 100%;
+  animation: kviewer-in var(--d-base) var(--ease-out); }
+@keyframes kviewer-in { from { opacity: 0; transform: scale(0.96); } }
+.kviewer-img { display: block; max-width: calc(100vw - 128px); max-height: calc(100vh - 128px); width: auto; height: auto;
+  object-fit: contain; border-radius: var(--r-card);corner-shape:squircle; }
+svg.kviewer-img { width: min(calc(100vw - 128px), calc((100vh - 128px) * 16 / 9)); }
+.kviewer-count { font-size: 12px; line-height: 16px; color: var(--on-media); opacity: 0.72; }
+.kviewer-btn { position: absolute; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; padding: 0;
+  border: 0; border-radius: var(--r-md);corner-shape:squircle; background: color-mix(in srgb, var(--on-media) 10%, transparent);
+  color: var(--on-media); cursor: pointer; transition: background var(--d-instant), transform var(--d-fast) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .kviewer-btn:hover { background: color-mix(in srgb, var(--on-media) 18%, transparent); } }
+.kviewer-btn:active { transform: scale(0.97); }
+.kviewer-close { top: 16px; right: 16px; }
+.kviewer-prev, .kviewer-next { top: 50%; margin-top: -16px; }
+.kviewer-prev { left: 16px; }
+.kviewer-next { right: 16px; }
+html[data-input="kbd"] .kviewer, html[data-input="kbd"] .kviewer-fig { animation: none; }
+@media (prefers-reduced-motion: reduce) { .kviewer-fig { animation: kfade 120ms linear; } .kviewer-btn:active { transform: none; } }
+@media (max-width: 640px) {
+  .kviewer { padding: 48px 16px; }
+  .kviewer-img { max-width: calc(100vw - 32px); max-height: calc(100vh - 160px); }
+  svg.kviewer-img { width: calc(100vw - 32px); }
+  .kviewer-prev, .kviewer-next { top: auto; bottom: 16px; margin-top: 0; }
+}

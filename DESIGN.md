@@ -268,6 +268,18 @@ in `src/styles/tokens.css`, so the next change is one line.
 - Toggle tracks are full pills; circles, dots, progress bars and the chart bars keep their own shapes and
   stay perfectly round.
 
+## Chart viewer
+The owner, 2026-11-22: "I should be able to open the image on click". Source: `src/screens/story/ChartViewer.tsx`.
+- **Click the story's large chart** (new or saved story; the cursor shows a zoom-in) and it opens full screen,
+  fitted to the window over a dark backdrop (`--viewer-bg`, both themes), with "2 of 5" under it when there are
+  several.
+- **← → or the side buttons** move between charts (they wrap round), and the large chart on the page follows.
+  **Escape, the close button or a click outside the chart** closes; focus goes back to the chart. The page under
+  it doesn't scroll.
+- Buttons are 32px, white on a 10% white fill, like the chart tiles' controls. No new visible words.
+- Motion: it opens like a dialog (fade, the chart from 0.96, `--d-base`, `--ease-out`) except from the keyboard;
+  moving between charts and closing don't animate. Reduced motion: a 120ms fade.
+
 ## Chart reordering
 Builds on `01-decisions.md` ("Reorder by dragging the whole tile, or each chart's menu") and the drag spring
 in `02-look-and-feel.md`. Why: the owner wanted dragging charts to feel better; the browser's own drag gave a
