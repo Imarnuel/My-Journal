@@ -150,7 +150,8 @@
   --font-sans: "Inter Variable", "Inter", system-ui, sans-serif; /* optical sizes on (opsz), DESIGN.md › Typeface */
   /* Tracking: Inter as it is drawn (the owner, 2026-11-22: "let's fix the inter", after asking whether ours
      looked different from the normal Inter). Body text and the 24px figures at Inter's own spacing; the variable
-     font's optical sizes already tighten the big figures. Page titles (Instrument Serif) stay at their natural 0. */
+     font's optical sizes already tighten the big figures. Smoothing stays antialiased (on the root, below): without
+     it Mac draws Inter heavier ("this inter looks bolder than normal inter"). Page titles (Instrument Serif) stay at their natural 0. */
   --tracking-body: 0;
   --tracking-figure: 0;
   --font-heading: "Instrument Serif", Georgia, "Times New Roman", serif; /* page titles only (DESIGN.md › Typeface) */
@@ -164,6 +165,7 @@ html {
   letter-spacing: var(--tracking-body);
   font-size: 14px; line-height: 20px;
   font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   overflow-wrap: break-word;
 }
 h1, h2, h3 { text-wrap: balance; }
