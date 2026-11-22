@@ -217,13 +217,17 @@ content, and quicker to read. Source: `Toasts` in `src/app/Shell.tsx`, `src/comp
 ## Notes reflection, tidied
 Why: the owner found the Suggested pill too big, Keep and Delete nudging, and "What you said" not reading as
 a control. Source: the Notes card in `src/screens/ChartStory.tsx`.
-- **Suggested** is a small 18px badge (12px text, voice colour on a 10% voice tint) beside the label.
+- **Suggested** is a 22px badge like every chip (12px text, voice colour on a 10% voice tint) beside the label
+  (18px until the first ui-polish audit).
 - **Under the field**: "Inferred from your note", then Keep (neutral 28px button with a check) and Delete
   (quiet 28px button in `--loss` with a ×). Green isn't in the palette and blue means profit, so Keep stays
   neutral rather than green.
 - **Voice row**: a 28px play circle, the length, "What you said" as a ghost button with a speech icon and a
   chevron that turns when open, and Re-record in the voice colour with a mic, at the far right.
 - Labels sit 8px above their fields.
+- **Sizes** (the owner, 2026-11-22, on the Notes card): "Talk it through" at 14px (500), its line under it
+  ("Why you took it and how it went…") at 12px, and the field labels "Before / during" and "Reflection" at 14px
+  (500, `--text-2`). Were 16, 14 and 12.
 
 ## Trade log rows at 12px
 Why: the owner wanted the pair to lead. Every line under the pair (date, status, account, ticket, setup,

@@ -975,8 +975,8 @@ function StoryScreen({ id }: { id: string | null }) {
                   <Mic />
                 </span>
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "16px", fontWeight: 500, lineHeight: "24px" }}>Talk it through</span>
-                  <span className="meta" style={{ fontSize: "14px" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 500, lineHeight: "20px" }}>Talk it through</span>
+                  <span className="meta" style={{ fontSize: "12px", lineHeight: "16px" }}>
                     Why you took it and how it went. It fills both notes and the details you haven't set.
                   </span>
                 </span>
@@ -1001,7 +1001,7 @@ function StoryScreen({ id }: { id: string | null }) {
             ) : null}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <label htmlFor="nB" className="lbl" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", lineHeight: "16px" }}>
+                <label htmlFor="nB" className="lbl" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-2)", lineHeight: "20px" }}>
                   Before / during
                 </label>
               </div>
@@ -1013,7 +1013,7 @@ function StoryScreen({ id }: { id: string | null }) {
               {/* Tidied (DESIGN.md, Notes): the label row is only the label and a small Suggested badge, so it
                   sits 8px from its field like Before / during; Keep and Delete move under the field. */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <label htmlFor="nR" className="lbl" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-2)", lineHeight: "16px" }}>
+                <label htmlFor="nR" className="lbl" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-2)", lineHeight: "20px" }}>
                   Reflection
                 </label>
                 {s.suggested && s.refl ? (
