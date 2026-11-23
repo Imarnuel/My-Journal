@@ -111,8 +111,8 @@ export function Chevron() {
 }
 
 /** The voice note mark: the filled mic with a sparkle (components/primitives/AiMic.tsx). */
-export function Mic({ size = 16 }: { size?: number }) {
-  return <AiMic size={size} />;
+export function Mic({ size = 16, inCircle = false }: { size?: number; inCircle?: boolean }) {
+  return <AiMic size={size} inCircle={inCircle} />;
 }
 
 export function Plus() {

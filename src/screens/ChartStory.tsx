@@ -998,7 +998,7 @@ function StoryScreen({ id }: { id: string | null }) {
             ) : VOICE && !s.voice && !recording ? (
               <button type="button" onClick={startRec} className="kswap" style={{ font: "inherit", textAlign: "left", display: "flex", alignItems: "center", gap: "12px", width: "100%", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px dashed var(--border-strong)", color: "var(--text-1)", cursor: "pointer" }}>
                 <span className="kvoice" style={{ flex: "none", width: "48px", height: "48px", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Mic size={20} />
+                  <Mic size={20} inCircle />
                 </span>
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                   <span style={{ fontSize: "14px", fontWeight: 500, lineHeight: "20px" }}>Talk it through</span>

@@ -138,8 +138,10 @@ reason, replace it.
 - **One mark wherever a voice note is recorded:** a filled mic with a small four-point sparkle cut into its
   top-right corner (`AiMic`, `src/components/primitives/AiMic.tsx`). The mic says "record", the sparkle says the note
   is read for you. It replaces the outline mic on Talk it through (20px in its 48px circle), Re-record, Record again
-  and the Trade log's "Add a note" (16px). It is optically centred: the heavy capsule pulls the eye up and left, so
-  the glyph sits 0.1 right and 1.1 down of its box centre (weighted between its mass centre and its bounding box).
+  and the Trade log's "Add a note" (16px). In the circle the mic itself is centred and the sparkle hangs off its
+  corner like a badge (the eye centres the mic, not the pair; the owner, 2026-11-23: "it's not optically
+  aligned"), with the mic a hair below centre because its solid top reads high. Beside a label the whole mark fits
+  its 16px box, so the sparkle never crowds the text.
 - **The voice circle has depth from a gradient** (`--btn-v-bg`): lighter top-left, deeper bottom-right, a soft top
   highlight, a purple-tinted shadow underneath and a subtle ring (`--btn-v-shadow`; 25% in light, a little firmer
   on the pale dark-theme circle), not the solid near-black ring of the primary button.
