@@ -117,9 +117,8 @@ reason, replace it.
   fill, fail or the reading is cancelled.
 - **Live words are a preview, never saved.** They come from the browser's own speech recognition, in the voice
   note language. After Stop, Gemini still reads the recording and writes the notes; "What you said" shows
-  Gemini's version. Settings › Voice notes says where live words come from (new line, awaiting the owner's
-  approval: "The words you see while recording come from your browser's speech service (Google in Chrome, Apple
-  in Safari).").
+  Gemini's version. Nothing in Settings explains where live words come from (the owner, 2026-11-23: "needless to be
+  user-facing").
 - **Motion:** the waveform moves by transform and opacity only (a bar every 90ms); the card arrives with the Notes
   card's usual rise. Reduced motion: the bars still follow your voice but jump instead of easing, and words appear
   without the fade. Only the "Listening · 0:14" line is announced to screen readers, not every word.
@@ -154,7 +153,9 @@ reason, replace it.
   sparkle badge: "1. but be sure to optically centre it". References: [Semrush](https://mobbin.com/screens/72cddde5-77af-4654-9b94-634776de3647)
   and [Magnific](https://mobbin.com/screens/361f9db4-8d1d-4446-ac25-ab00d2a1ea03) (the sparkle beside the action),
   [Meta AI](https://mobbin.com/screens/fca8709b-7a3a-4ce9-995d-3bd6677c5dd4) (depth and colour in the circle).
-- Open: whether the same sparkle also marks chart reading, so AI looks the same everywhere.
+- **The sparkle marks the AI at work everywhere** (`AiSparkle`, voice colour, breathing): before "Reading your
+  chart…" (12px) and in place of the reading card's dot before "Writing your notes…" (16px), so AI looks the same
+  wherever it is. The owner, 2026-11-23: "yes" to the sparkle on chart reading.
 
 ## Headspace
 - **Seven headspaces, each covering a family of feelings:** Calm 😌, Focused 🧐, Confident 😎, Overconfident 😏

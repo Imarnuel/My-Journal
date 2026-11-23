@@ -82,3 +82,4 @@ then look at every regenerated image against the handoff screenshot before commi
 | `light/` and `dark/` 15-Settings; `states/` 40 | Settings › Voice notes gains the live-words line (awaiting the owner's wording approval; DESIGN.md › Voice note: recording) | 2026-11-23 |
 | `light/` and `dark/` 05-NewStory; `states/` 15 | The AI mic centred on the mic in its circle, the sparkle hanging off (DESIGN.md › Voice note: the AI mic); only the glyph moved | 2026-11-23 |
 | `light/` and `dark/` 05-NewStory; `states/` 15 | The voice circle: the mic just left of centre with the sparkle to its upper right (the middle of five steps), and the circle drifting from purple to blue (DESIGN.md › Voice note: the AI mic) | 2026-11-23 |
+| `light/` and `dark/` 15-Settings; `states/` 40 | The live-words line leaves Settings (the owner: "needless to be user-facing") | 2026-11-23 |

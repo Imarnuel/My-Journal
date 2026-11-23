@@ -32,3 +32,15 @@ export function AiMic({ size = 16, inCircle = false }: { size?: number; inCircle
     </svg>
   );
 }
+
+/**
+ * The AI mark on its own: the same four-point sparkle, in the voice colour, wherever the AI is at work ("Reading your
+ * chart…", "Writing your notes…"). DESIGN.md › Voice note: the AI mic.
+ */
+export function AiSparkle({ size = 12, className }: { size?: number; className?: string }) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{ flex: "none", color: "var(--voice)" }}>
+      <path d={sparkle(12, 12, 11)} fill="currentColor" />
+    </svg>
+  );
+}
