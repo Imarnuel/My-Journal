@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { slug } from "../app/routes";
-import { useStore } from "../data/store";
+import { useStore, useCountedAccounts } from "../data/store";
 import { deleteSetup, nameFree, renameSetup, setArchived, SUGGESTION, usePlaybook, useSuggestion } from "../data/playbook";
 import { isStory, setupStats, spark, unsortedOf } from "../lib/playbook";
 import { fr } from "../lib/format";
@@ -37,7 +37,7 @@ export function Playbook() {
   const nav = useNavigate();
   const entries = useStore((s) => s.entries);
   const setups = useStore((s) => s.setups);
-  const picked = useStore((s) => s.picked);
+  const picked = useCountedAccounts(); // ticked accounts, plus trades with no account (DESIGN.md)
   const { examples, archivedOpen } = usePlaybook();
   const sug = useSuggestion();
   const [renaming, setRenaming] = useState<{ name: string; draft: string } | null>(null);

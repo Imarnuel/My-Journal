@@ -19,7 +19,7 @@ export function periodStart(period: Period, today: string): string {
 export function counted(entries: Entry[], accounts: string[], from?: string, to?: string): Entry[] {
   const set = new Set(accounts);
   return entries
-    .filter((e) => e.status === "Taken" && !e.excluded && e.r != null && set.has(e.account))
+    .filter((e) => e.status === "Taken" && !e.excluded && e.r != null && set.has(e.account ?? ""))
     .filter((e) => (!from || e.date >= from) && (!to || e.date <= to))
     .sort(byTime);
 }

@@ -1,5 +1,6 @@
 // One dataset for every screen (handoff/docs/01-decisions.md, "One dataset").
 // Screens read from here and never keep their own copy of the numbers.
+import { useMemo } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { idbStorage, persistOptions, toDataUrl } from "./persist";
@@ -109,6 +110,20 @@ type State = {
 };
 
 export const realAccounts = (accounts: Account[]) => accounts.filter((a) => !a.practice && !a.archived).map((a) => a.name);
+
+/**
+ * The accounts whose trades count in the numbers (DESIGN.md › Trades without an account): the ticked ones, plus
+ * trades with no account ("") while every real account is ticked, which is the default and covers a journal with
+ * no accounts yet. Narrowing the menu to some accounts leaves them out: they belong to none of them.
+ */
+export function countedAccounts(accounts: Account[], picked: string[]): string[] {
+  return realAccounts(accounts).every((a) => picked.includes(a)) ? [...picked, ""] : picked;
+}
+export function useCountedAccounts(): string[] {
+  const accounts = useStore((s) => s.accounts);
+  const picked = useStore((s) => s.picked);
+  return useMemo(() => countedAccounts(accounts, picked), [accounts, picked]);
+}
 
 function applyTheme(a: Appearance) {
   try {

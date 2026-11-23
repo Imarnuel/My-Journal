@@ -133,6 +133,14 @@ reason, replace it.
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
 
+## Trades without an account
+- **A trade with no account still counts** in the Dashboard, the Playbook's numbers and the weekly review, whenever
+  every real account is ticked in the accounts menu (the default, and a journal with no accounts yet). Narrowing the
+  menu to some accounts leaves it out, because it belongs to none of them. Before this, a story saved without an
+  account vanished from every number. Source: `countedAccounts` in `src/data/store.ts`.
+- Why: the owner, 2026-11-23, found the live Dashboard summary empty with two trades that had results: "maybe
+  because they have no account yet".
+
 ## Voice note: the AI mic
 - **One mark wherever a voice note is recorded:** a filled mic with a small four-point sparkle cut into its
   top-right corner (`AiMic`, `src/components/primitives/AiMic.tsx`). The mic says "record", the sparkle says the note

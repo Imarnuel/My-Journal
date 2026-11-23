@@ -162,3 +162,23 @@ test("a new journal starts with starter tags and mistakes, each suggested in its
   await expect(page.getByText("Tags (6)")).toBeVisible();
   await expect(page.getByText("Mistakes (6)")).toBeVisible();
 });
+
+test("trades with no account yet count on the Dashboard (DESIGN.md › Trades without an account)", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#main")).toBeVisible();
+  await page.evaluate(async () => {
+    const url = performance.getEntriesByType("resource").map((e) => e.name).filter((n) => n.includes("/src/data/store.ts")).pop() ?? "/src/data/store.ts";
+    const m = await import(/* @vite-ignore */ url);
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const base = { account: "", also: null, status: "Taken", date: today, time: "10:00", session: "London", pair: "GBPUSD", dir: "Short", setup: "Unsorted", tags: [], mistakes: [], followed: true, charts: 1, chartKey: null, note: false, refl: null, plan: null, mt5: null, excluded: false, textbook: false };
+    m.useStore.getState().addEntry({ ...base, id: "na1", r: 2.1 });
+    m.useStore.getState().addEntry({ ...base, id: "na2", r: -1, time: "11:00", followed: false });
+  });
+  await page.waitForTimeout(500); // saved to the journal
+  await page.goto("/"); // with trades, the Dashboard opens instead of Start
+  const stats = page.locator(".kstat");
+  await expect(stats).toContainText("+1.1R");
+  await expect(stats.getByText("Trades taken").locator("xpath=../..")).toContainText("2");
+  await expect(stats).toContainText("1 of 2 trades");
+});

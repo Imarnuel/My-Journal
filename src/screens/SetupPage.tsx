@@ -7,7 +7,7 @@ import { Fragment, useState, type KeyboardEvent } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { slug } from "../app/routes";
-import { useStore } from "../data/store";
+import { useStore, useCountedAccounts } from "../data/store";
 import { GROUP_NOTE, GROUPS, hideSuggestion, SUGGESTION, usePlaybook, useSuggestion } from "../data/playbook";
 import { EX_BATCH, EX_FILTERS, examplesOf, filterExamples, LESSONS_BATCH, lessonsOf, patterns, setupStats, spark, type ExFilter } from "../lib/playbook";
 import { fr, shortDate, tone } from "../lib/format";
@@ -78,7 +78,7 @@ export function SetupPage() {
   const kit = useKit(menu);
   const entries = useStore((s) => s.entries);
   const setups = useStore((s) => s.setups);
-  const picked = useStore((s) => s.picked);
+  const picked = useCountedAccounts(); // ticked accounts, plus trades with no account (DESIGN.md)
   const examples = usePlaybook((s) => s.examples);
   const sug = useSuggestion();
   const [tab, setTab] = useState<Tab>("ex");

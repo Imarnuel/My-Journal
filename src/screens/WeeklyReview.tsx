@@ -4,7 +4,7 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
-import { useStore } from "../data/store";
+import { useStore, useCountedAccounts } from "../data/store";
 import { fr, shortDate, tone } from "../lib/format";
 import { mistakeWhere, pastWeeks, tradedWeeks, watchedLine, weekParam, weekReview, weekTitle } from "../lib/review";
 import type { Entry } from "../lib/types";
@@ -65,7 +65,7 @@ export function WeeklyReview() {
   const menu = useMenu<"ap">();
   const kit = useKit(menu);
   const entries = useStore((s) => s.entries);
-  const picked = useStore((s) => s.picked);
+  const picked = useCountedAccounts(); // ticked accounts, plus trades with no account (DESIGN.md)
   const today = useStore((s) => s.today);
   const weeks = useStore((s) => s.weeks);
   const setTakeaway = useStore((s) => s.setTakeaway);

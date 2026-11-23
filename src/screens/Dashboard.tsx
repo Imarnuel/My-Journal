@@ -2,7 +2,7 @@
 // shared store with src/lib/calc.ts and src/lib/dashboard.ts, so the period and the account picker change all of them.
 import { useCallback, useMemo, useState } from "react";
 import { Shell } from "../app/Shell";
-import { useStore } from "../data/store";
+import { useStore, useCountedAccounts } from "../data/store";
 import type { Entry, Period } from "../lib/types";
 import {
   breakdown, mistakeRows, noChartTrades, periodNumbers, PERIODS, recentStories, setupOrder, subtitle,
@@ -18,7 +18,7 @@ export function Dashboard() {
   const menu = useMenu<"ap" | "period">();
   const kit = useKit(menu as ReturnType<typeof useMenu>);
   const entries = useStore((s) => s.entries);
-  const picked = useStore((s) => s.picked);
+  const picked = useCountedAccounts(); // ticked accounts, plus trades with no account (DESIGN.md)
   const today = useStore((s) => s.today);
   const setups = useStore((s) => s.setups);
 
