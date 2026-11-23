@@ -5,12 +5,15 @@ import { Link } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { slug } from "../app/routes";
 import { useStore } from "../data/store";
-import type { Account } from "../lib/types";
+import type { Account, Entry } from "../lib/types";
+import { fr, shortDate, tone } from "../lib/format";
 import { ChoiceSelect } from "../components/primitives/ChoiceSelect";
 import { toast } from "../components/primitives/toast";
 import { useMenu } from "./useKit";
 
-const COLS = "minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.5fr) 20px";
+// Account (type under it) · Trades · Net R · Last trade · status (only when MT5 needs saying) · chevron.
+// DESIGN.md › Accounts table.
+const COLS = "minmax(0, 2fr) minmax(0, 0.7fr) minmax(0, 0.8fr) minmax(0, 0.9fr) minmax(0, 1.5fr) 20px";
 const COPY_OPTS = ["Attach to both", "Only the first account", "Ask me each time"];
 
 
@@ -42,19 +45,36 @@ function Source({ a }: { a: Account }) {
         MT5 · reconnect needed
       </>
     );
+  // Screenshot-only is the usual case: nothing to say (DESIGN.md › Accounts table).
+  return null;
+}
+
+/** One account's numbers, all time: trades taken, net R of those with a result, the latest story's date. */
+function accountNumbers(entries: Entry[], name: string) {
+  const mine = entries.filter((e) => (e.account ?? "") === name);
+  const taken = mine.filter((e) => e.status === "Taken");
+  const rs = taken.filter((e) => !e.excluded && e.r != null).map((e) => e.r as number);
+  const last = mine.reduce<string | null>((d, e) => (!d || e.date > d ? e.date : d), null);
+  return { trades: taken.length, net: rs.length ? rs.reduce((x, y) => x + y, 0) : null, last, stories: mine.length };
+}
+
+/** Trades · Net R · Last trade cells. Nothing yet reads "–" in the quiet colour. */
+function AccountNumbers({ n }: { n: ReturnType<typeof accountNumbers> }) {
+  const quiet = { fontSize: "14px", color: "var(--text-3)" } as const;
   return (
     <>
-      <span className="kstatus-ic">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2.5" /><circle cx="9" cy="9" r="1.8" /><path d="M21 15l-5-5L5 21" /></svg>
-      </span>
-      Your screenshots
+      <span className="num" style={{ fontSize: "14px", color: n.trades ? "var(--text-1)" : "var(--text-3)" }}>{n.trades}</span>
+      {n.net == null ? <span style={quiet}>–</span> : <span className="num" style={{ fontSize: "14px", fontWeight: 500, color: tone(n.net) }}>{fr(n.net)}</span>}
+      {n.last ? <span className="num" style={{ fontSize: "14px", color: "var(--text-2)" }}>{shortDate(n.last)}</span> : <span style={quiet}>–</span>}
     </>
   );
 }
 
 export function Accounts() {
-  const menu = useMenu<"copy">();
+  const menu = useMenu<"copy" | "assign">();
   const accounts = useStore((s) => s.accounts);
+  const entries = useStore((s) => s.entries);
+  const updateEntry = useStore((s) => s.updateEntry);
   const settings = useStore((s) => s.settings);
   const setSetting = useStore((s) => s.setSetting);
   const updateAccount = useStore((s) => s.updateAccount);
@@ -62,6 +82,14 @@ export function Accounts() {
   const archived = accounts.filter((a) => a.archived);
   const copy = (settings.copiedTrades as string) ?? "Attach to both";
   const arcOpen = !!settings.accountsArchivedOpen;
+  // Stories with no account: one quiet row to give them one (DESIGN.md › Accounts table).
+  const loose = entries.filter((e) => !e.account);
+  const assign = (name: string) => {
+    const ids = loose.map((e) => e.id);
+    ids.forEach((id) => updateEntry(id, { account: name }));
+    menu.close();
+    toast(`${ids.length} ${ids.length === 1 ? "trade" : "trades"} added to ${name}`, () => ids.forEach((id) => updateEntry(id, { account: "" })), "edited");
+  };
 
   return (
     <Shell active="accounts">
@@ -87,11 +115,13 @@ export function Accounts() {
           {/* No second "Add account" here: the header's button is the one action (first ui-polish audit). */}
         </div>
       ) : (
-      <section aria-label="Your accounts" className="card" style={{ borderRadius: "var(--r-card)", overflow: "hidden" }}>
+      <section aria-label="Your accounts" className="card" style={{ borderRadius: "var(--r-card)" }}>
         <div aria-hidden="true" className="acct-head" style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", padding: "12px 16px", fontSize: "12px", color: "var(--text-3)", lineHeight: "16px" }}>
-          <span>Name</span>
-          <span>Type</span>
-          <span>Trade numbers from</span>
+          <span>Account</span>
+          <span>Trades</span>
+          <span>Net R</span>
+          <span>Last trade</span>
+          <span />
           <span />
         </div>
         <ul style={{ margin: 0, padding: 0 }}>
@@ -102,11 +132,14 @@ export function Accounts() {
                 className="krow acct-row"
                 style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", alignItems: "center", minHeight: "60px", padding: "0 16px", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)" }}
               >
-                <span style={{ fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "4px" }}>
-                  {a.name}
-                  {a.practice ? <span className="kchip" style={{ marginLeft: "12px" }}>Practice</span> : null}
+                <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
+                  <span style={{ fontSize: "14px", fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "4px" }}>
+                    {a.name}
+                    {a.practice ? <span className="kchip" style={{ marginLeft: "12px" }}>Practice</span> : null}
+                  </span>
+                  <span className="meta" style={{ fontSize: "12px", lineHeight: "16px" }}>{a.type}</span>
                 </span>
-                <span style={{ fontSize: "14px", color: "var(--text-2)" }}>{a.type}</span>
+                <AccountNumbers n={accountNumbers(entries, a.name)} />
                 <span style={{ fontSize: "14px", color: "var(--text-2)", display: "flex", alignItems: "center", gap: "8px" }}>
                   <Source a={a} />
                 </span>
@@ -116,6 +149,26 @@ export function Accounts() {
               </Link>
             </li>
           ))}
+          {loose.length && active.length ? (
+            <li style={{ listStyle: "none" }}>
+              <div className="acct-row" style={{ display: "grid", gridTemplateColumns: COLS, gap: "16px", alignItems: "center", minHeight: "60px", padding: "0 16px", borderTop: "1px solid var(--border-subtle)" }}>
+                <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-2)" }}>No account</span>
+                <AccountNumbers n={{ ...accountNumbers(entries, ""), trades: loose.length }} />
+                <span className="acct-assign" style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <ChoiceSelect
+                    name="Add trades with no account to"
+                    triggerName="Add trades with no account to an account"
+                    value="Assign"
+                    options={active.map((a) => a.name)}
+                    open={menu.isOpen("assign")}
+                    onToggle={() => menu.toggle("assign")}
+                    onClose={menu.close}
+                    onPick={assign}
+                  />
+                </span>
+              </div>
+            </li>
+          ) : null}
         </ul>
         {archived.length ? (
           <>

@@ -133,6 +133,21 @@ reason, replace it.
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
 
+## Accounts table
+- **The table answers "how is each account doing", not "what are its settings".** Columns: Account (the name, a
+  Practice chip where it applies, and the type under it in 12px grey), Trades (taken), Net R (all time, of the trades
+  with a result, in profit or loss colour), Last trade (the latest story's date), then a status only when MT5 needs
+  saying ("MT5 · synced 2 min ago", "MT5 · waiting for sync", "MT5 · reconnect needed"). Nothing yet reads "–" in the
+  quiet colour. The row still opens the account.
+- **No "Trade numbers from" column.** Screenshot-only is the usual case, so it says nothing; "Your screenshots" read
+  as jargon (the owner: "what does "your screenshots" mean?").
+- **Stories with no account get one quiet row** at the bottom, "No account", with how many and the latest date, and
+  an Assign menu of the accounts: picking one gives them all that account at once, with an Undo toast ("2 trades
+  added to Goat Funded 100k"). The row shows only when such stories exist and there is an account to give them.
+- On a phone each row stacks: the account, then trades, net R and last trade on one line, then the status.
+- Why: the owner, 2026-11-23, asked what a trader wants to see here "as a senior product designer", then "just
+  apply the changes". Money, balances and prop-firm limits stay out (results are in R; dollar stats are declined).
+
 ## Trades without an account
 - **A trade with no account still counts** in the Dashboard, the Playbook's numbers and the weekly review, whenever
   every real account is ticked in the accounts menu (the default, and a journal with no accounts yet). Narrowing the

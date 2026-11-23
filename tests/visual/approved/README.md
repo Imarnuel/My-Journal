@@ -84,3 +84,4 @@ then look at every regenerated image against the handoff screenshot before commi
 | `light/` and `dark/` 05-NewStory; `states/` 15 | The voice circle: the mic just left of centre with the sparkle to its upper right (the middle of five steps), and the circle drifting from purple to blue (DESIGN.md › Voice note: the AI mic) | 2026-11-23 |
 | `light/` and `dark/` 15-Settings; `states/` 40 | The live-words line leaves Settings (the owner: "needless to be user-facing") | 2026-11-23 |
 | `light/` and `dark/` 05, 06, 07; `states/` 15 to 18, 20 to 22, 24; `chrome/` story top | The selected chart thumbnail's ring is 1px, not 2px (DESIGN.md › Chart tiles); only the ring changed | 2026-11-23 |
+| `light/` and `dark/` 12-Accounts; `states/` 34; `chrome/` sidebar | Accounts table (DESIGN.md › Accounts table): Account with its type, Trades, Net R, Last trade, status only for MT5; no Trade numbers from column | 2026-11-23 |

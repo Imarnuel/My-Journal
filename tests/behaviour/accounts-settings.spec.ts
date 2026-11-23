@@ -144,7 +144,9 @@ test("add account: without MT5 it reads from screenshots, and there is no defaul
   await expect(page.getByRole("checkbox")).toHaveCount(0);
   await page.getByLabel("Name").fill("Notebook");
   await page.getByRole("link", { name: "Add account" }).click();
-  await expect(page.getByRole("link", { name: /Notebook/ })).toContainText("Your screenshots");
+  const row = page.getByRole("link", { name: /Notebook/ });
+  await expect(row).toContainText("Prop firm"); // the type, under the name
+  await expect(row).not.toContainText(/screenshots|MT5/); // screenshot-only says nothing (DESIGN.md › Accounts table)
   await expect(page.getByText(/default for screenshots|no MT5 match go to/i)).toHaveCount(0);
 });
 
@@ -480,4 +482,23 @@ test("reduced motion: the screens still work", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Review day: Monday" })).toBeVisible();
   await page.getByRole("button", { name: "Merge" }).click();
   await expect(page.getByRole("status")).toContainText("Merged into “Break of structure”");
+});
+
+test("accounts table: trades, net R and last trade per account; trades with no account are assigned at once, with Undo", async ({ page }) => {
+  await page.goto("/accounts");
+  const funded = page.getByRole("link", { name: /Funded 100K/ });
+  await expect(funded).toContainText("Prop firm");
+  await expect(funded).toContainText("MT5 · synced 2 min ago");
+  await expect(page.getByText("Trade numbers from")).toHaveCount(0);
+  await expect(page.getByText("No account")).toHaveCount(0); // only when there are stories without one
+  const ids = await store<string[]>(page, `(s) => s.entries.slice(0, 2).map((e) => e.id)`);
+  await store(page, `(s) => { s.entries.slice(0, 2).forEach((e) => s.updateEntry(e.id, { account: "" })); return 0; }`);
+  await expect(page.getByText("No account")).toBeVisible();
+  await page.getByRole("button", { name: /Add trades with no account/ }).click();
+  await page.getByRole("option", { name: "Challenge 50K" }).click();
+  await expect(page.getByRole("status")).toContainText("2 trades added to Challenge 50K");
+  await expect(page.getByText("No account")).toHaveCount(0);
+  expect(await store<string[]>(page, `(s) => s.entries.filter((e) => ${JSON.stringify(ids)}.includes(e.id)).map((e) => e.account)`)).toEqual(["Challenge 50K", "Challenge 50K"]);
+  await page.getByRole("status").getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByText("No account")).toBeVisible();
 });
