@@ -50,8 +50,9 @@
   --btn-g-bg-hover: linear-gradient(180deg, #FFFFFF, #F3F3F4);
   --btn-g-shadow: 0 0 0 1px rgba(16,17,19,0.10), 0 1px 2px rgba(16,17,19,0.06);
   /* The voice button (DESIGN.md › Voice note: the AI mic): depth from a gradient, lighter top-left and deeper
-     bottom-right, a top highlight, a tinted shadow and a subtle ring (the owner, 2026-11-23). */
-  --btn-v-bg: radial-gradient(120% 120% at 30% 18%, #9C84F6 0%, #6D4FD8 55%, #5034B6 100%);
+     bottom-right, purple drifting to blue (the AI colour), a top highlight, a tinted shadow and a subtle ring
+     (the owner, 2026-11-23). */
+  --btn-v-bg: radial-gradient(120% 120% at 30% 18%, #A28AF7 0%, #6D4FD8 42%, #4568E6 100%);
   --btn-v-fg: #FFFFFF;
   --btn-v-shadow: 0 0 0 1px rgba(36,16,110,0.25), inset 0 1px 0 rgba(255,255,255,0.30), inset 0 -3px 6px rgba(36,16,110,0.28), 0 6px 14px -6px rgba(109,79,216,0.65), 0 1px 2px rgba(36,16,110,0.18);
   --medal-bg: linear-gradient(180deg, #ECECEE, #DEDEE0);
@@ -107,7 +108,7 @@
   --btn-g-bg: linear-gradient(180deg, #2B2D30, #242628);
   --btn-g-bg-hover: linear-gradient(180deg, #313337, #282A2D);
   --btn-g-shadow: 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.08), 0 1px 2px rgba(0,0,0,0.4);
-  --btn-v-bg: radial-gradient(120% 120% at 30% 18%, #E2D9FF 0%, #B9A6FF 52%, #8F78EC 100%);
+  --btn-v-bg: radial-gradient(120% 120% at 30% 18%, #E2D9FF 0%, #B3A2FF 42%, #8FAEFF 100%);
   --btn-v-fg: #0E1014;
   --btn-v-shadow: 0 0 0 1px rgba(10,6,30,0.45), inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -3px 6px rgba(60,30,160,0.25), 0 6px 16px -6px rgba(0,0,0,0.65);
   --medal-bg: linear-gradient(180deg, #282A2D, #1C1E20);
