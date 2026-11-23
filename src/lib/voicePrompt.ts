@@ -65,7 +65,7 @@ export function voicePrompt(ctx: VoiceContext): string {
     "Write the two notes short and plain, in your own words, like the trader's own shorthand.",
     `The trader's setups: ${ctx.setups.length ? ctx.setups.join(", ") : "none yet"}.`,
     `The trader's tags (kind): ${tags}.`,
-    `Headspace options: ${ctx.headspaces.join(", ")}.`,
+    `Headspace options: ${ctx.headspaces.join(", ")}. Pick the closest one to how they felt (for example greedy or euphoric is Overconfident, FOMO or impatient is Rushed, scared or hesitant is Anxious, angry or revenge is Frustrated), only from these.`,
     "If there is no understandable speech, set unclear to true and leave everything else empty or null.",
   ].join("\n");
 }

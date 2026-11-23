@@ -311,14 +311,14 @@ test("voice note: Undo restores exactly; it never overwrites what was set by han
   await page.getByRole("option", { name: "London breakout" }).click();
   await page.getByRole("button", { name: "Not followed" }).click();
   await page.getByRole("button", { name: "Headspace" }).click();
-  await page.getByRole("option", { name: "Tired" }).click();
+  await page.getByRole("option", { name: "Anxious" }).click();
   await page.getByRole("button", { name: "Talk it through" }).click();
   await page.getByRole("button", { name: "Stop", exact: true }).click();
   await expect(toast(page)).toContainText("3 tags filled from your note");
   await expect(page.locator("#nB")).toHaveValue("My own words.");
   await expect(page.getByRole("button", { name: "Setup" })).toContainText("London breakout");
   await expect(page.getByRole("button", { name: "Not followed" })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("button", { name: "Headspace" })).toContainText("Tired");
+  await expect(page.getByRole("button", { name: "Headspace" })).toContainText("Anxious");
   await expect(page.locator("#nR")).toHaveValue(/Waiting for the candle to close/);
 });
 

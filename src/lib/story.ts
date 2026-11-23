@@ -54,9 +54,15 @@ export const STATUS_OPTS: { label: Status; hint: string }[] = [
   { label: "Not filled", hint: "Order never triggered" },
   { label: "Analysis", hint: "Charts before trading" },
 ];
-export const HEADSPACE = ["Calm", "Confident", "Focused", "Rushed", "Tired", "Frustrated"];
-/** The emoji shown beside each headspace (owner's request, DESIGN.md). The word stays the value. */
-export const HEADSPACE_EMOJI: Record<string, string> = { Calm: "😌", Confident: "😎", Focused: "🧐", Rushed: "😬", Tired: "😴", Frustrated: "😤" };
+/**
+ * The fixed headspace list (DESIGN.md › Headspace): a few that cover most of what a trader feels, each standing for a
+ * family (Overconfident: greedy, excited; Rushed: FOMO, impatient; Anxious: fearful, hesitant; Frustrated: angry,
+ * revenge). The owner, 2026-11-23: "can't we have a few that covers most?", then "let's remove tired".
+ */
+export const HEADSPACE = ["Calm", "Focused", "Confident", "Overconfident", "Rushed", "Anxious", "Frustrated"];
+/** The emoji shown beside each headspace (owner's request, DESIGN.md). The word stays the value. Tired is no longer
+ *  offered but keeps its emoji, so an older story that has it still shows it. */
+export const HEADSPACE_EMOJI: Record<string, string> = { Calm: "😌", Focused: "🧐", Confident: "😎", Overconfident: "😏", Rushed: "😬", Anxious: "😰", Frustrated: "😤", Tired: "😴" };
 export const NUMBER_FIELDS: { key: keyof Numbers | "result"; label: string }[] = [
   { key: "entry", label: "Entry" },
   { key: "stop", label: "Stop" },

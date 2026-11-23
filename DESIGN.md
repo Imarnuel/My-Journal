@@ -105,10 +105,16 @@ reason, replace it.
   the typing boxes are already there, so the button repeated them (open question 10, 2026-11-20).
 
 ## Headspace
-- **Each headspace has an emoji beside its name**: Calm 😌, Confident 😎, Focused 🧐, Rushed 😬, Tired 😴,
-  Frustrated 😤, in the Headspace menu and on the chosen value. The word stays the value and carries the
-  meaning; the emoji is decorative (hidden from screen readers). This overrides the handoff's "no emoji in
-  the interface" for Headspace only. Source: `HEADSPACE_EMOJI` in `src/lib/story.ts`.
+- **Seven headspaces, each covering a family of feelings:** Calm 😌, Focused 🧐, Confident 😎, Overconfident 😏
+  (greedy, excited, euphoric), Rushed 😬 (FOMO, impatient, chasing), Anxious 😰 (fearful, hesitant, doubting),
+  Frustrated 😤 (angry, revenge). A fixed list you pick from, not edited, so stats stay comparable; the voice note
+  reader picks the closest. Tired is no longer offered; an older story that has it still shows it. Why: the owner,
+  2026-11-23, wanted the list to "account for all the possible emotions that a trader might feel" without making
+  it editable, found 14 "too much" ("can't we have a few that covers most?"), then "let's remove tired".
+- **Each headspace has an emoji beside its name**, in the Headspace menu and on the chosen value. The word stays
+  the value and carries the meaning; the emoji is decorative (hidden from screen readers). This overrides the
+  handoff's "no emoji in the interface" for Headspace only. Source: `HEADSPACE` and `HEADSPACE_EMOJI` in
+  `src/lib/story.ts`.
 
 ## Trade log entries
 - **An entry opens its story from a click anywhere on it**, List row or Grid card, with a hover state:
