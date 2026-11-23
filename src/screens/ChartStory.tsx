@@ -6,7 +6,7 @@ import { PageBar } from "../components/primitives/Breadcrumbs";
 import { Icon } from "../components/primitives/Icon";
 import { DetailIcon, type DetailIconName } from "./story/detailIcons";
 import { useTileReorder } from "./story/useTileReorder";
-import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Shell } from "../app/Shell";
 import { useStore } from "../data/store";
@@ -61,6 +61,8 @@ import { localDate, localTime, REAL } from "../app/mode";
 import { useVoice } from "../app/useVoice";
 import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, usePref } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
+import { HeardWords, LiveCard } from "./story/LiveCard";
+import { NOTHING_HEARD, sampleHeard, sampleLevel, startLiveWords, type Heard } from "./story/liveWords";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factEmpty, factText, type Fx } from "./story/parts";
 
 
@@ -150,6 +152,12 @@ function StoryScreen({ id }: { id: string | null }) {
   const voicePhase = useVoiceReading((st) => st.phase[readTarget]);
   const voiceFailed = useVoiceReading((st) => st.failed[readTarget]);
   const reading = voicePhase != null;
+  // The words heard while recording go once the reading ends (filled, failed or cancelled).
+  const wasReading = useRef(false);
+  useEffect(() => {
+    if (wasReading.current && !reading) setHeardAfter(null);
+    wasReading.current = reading;
+  }, [reading]);
   /** The problem the Notes card shows: the microphone's (on this page) or the reading's (from the service). */
   const shownError: VoiceProblem | null = voiceError ?? voiceFailed?.reason ?? null;
   const phase: ReadPhase = voicePhase ?? "sending";
@@ -182,6 +190,21 @@ function StoryScreen({ id }: { id: string | null }) {
   const audioEl = useRef<HTMLAudioElement | null>(null);
   const [unreadable, setUnreadable] = useState(() => query("charts") === "unreadable");
   const recT = useRef<ReturnType<typeof setInterval>>(undefined);
+  // Live words while recording (DESIGN.md › Voice note: recording): what is heard (null where live words aren't
+  // available), the words kept under the reading line after Stop, and the microphone's loudness for the waveform.
+  const [heard, setHeard] = useState<Heard | null>(null);
+  const [heardAfter, setHeardAfter] = useState<Heard | null>(null);
+  const live = useRef<{ stop: () => void } | null>(null);
+  const sampleT = useRef<ReturnType<typeof setInterval>>(undefined);
+  const recStart = useRef(0);
+  const micLevel = useCallback(() => (REAL ? recorder.current?.level() ?? 0 : sampleLevel(performance.now() - recStart.current)), []);
+  const endLive = () => {
+    live.current?.stop();
+    live.current = null;
+    clearInterval(sampleT.current);
+  };
+  // Leaving the page mid-recording stops listening.
+  useEffect(() => () => (live.current?.stop(), clearInterval(sampleT.current)), []);
   const playT = useRef<ReturnType<typeof setInterval>>(undefined);
   const tileGrid = useRef<HTMLDivElement>(null);
   const replaceInput = useRef<HTMLInputElement>(null);
@@ -381,10 +404,25 @@ function StoryScreen({ id }: { id: string | null }) {
     }
     setRecording(true);
     setRecSec(0);
+    setHeardAfter(null);
+    recStart.current = performance.now();
     recT.current = setInterval(() => setRecSec((x) => x + 1), 1000);
+    endLive();
+    if (REAL) {
+      const lang = (useStore.getState().settings.voiceLanguage as string | undefined) ?? SETTINGS_DEFAULTS.voiceLanguage;
+      setHeard(NOTHING_HEARD);
+      live.current = startLiveWords(lang, setHeard, () => setHeard(null));
+      if (!live.current) setHeard(null);
+    } else {
+      // The sample journal's simulated speaker (story/liveWords.ts).
+      setHeard(NOTHING_HEARD);
+      sampleT.current = setInterval(() => setHeard(sampleHeard(performance.now() - recStart.current)), 200);
+    }
   };
   const cancelRec = () => {
     clearInterval(recT.current);
+    endLive();
+    setHeard(null);
     recorder.current?.cancel();
     recorder.current = null;
     setRecording(false);
@@ -393,6 +431,10 @@ function StoryScreen({ id }: { id: string | null }) {
   const stopRec = async () => {
     clearInterval(recT.current);
     const secs = recSec;
+    endLive();
+    // The words heard stay under the reading line until the notes fill (a preview only, never saved).
+    setHeardAfter(heard && (heard.final.length || heard.partial) ? heard : null);
+    setHeard(null);
     setRecording(false);
     setRecSec(0);
     setSaid(false);
@@ -917,7 +959,8 @@ function StoryScreen({ id }: { id: string | null }) {
             {reading ? (
               // Gemini reads the note (real journal); the notes stay editable meanwhile. One line that says what is
               // really happening, shimmering in the voice colour; each new message cross-fades in.
-              <div role="status" aria-live="polite" className="kswap" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)", minHeight: "64px", boxSizing: "border-box" }}>
+              <div className="kswap klive" style={{ minHeight: "64px", boxSizing: "border-box", justifyContent: "center" }}>
+              <div role="status" aria-live="polite" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--voice)" }} />
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 0 }}>
                   <span key={phase} className="kshimmer kmsg" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-1)" }}>
@@ -932,6 +975,8 @@ function StoryScreen({ id }: { id: string | null }) {
                 <button type="button" className="btn btn-q" onClick={cancelRead}>
                   Cancel
                 </button>
+              </div>
+              {heardAfter ? <HeardWords heard={heardAfter} settled /> : null}
               </div>
             ) : shownError && !recording ? (
               <ProblemCard swap title={VOICE_COPY[shownError].title} text={VOICE_COPY[shownError].text}>
@@ -964,21 +1009,21 @@ function StoryScreen({ id }: { id: string | null }) {
               </button>
             ) : null}
             {recording ? (
-              <div role="status" className="kswap" style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", borderRadius: "var(--r-card)", background: "var(--surface-inset)", border: "1px solid var(--voice-border)" }}>
-                <span aria-hidden="true" className="kbreathe" style={{ flex: "none", width: "12px", height: "12px", borderRadius: "6px", background: "var(--loss)" }} />
-                <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
-                  <span style={{ fontSize: "14px", fontWeight: 500 }}>Listening · {clock(recSec)}</span>
-                  <span className="meta" style={{ fontSize: "14px" }}>
-                    Talk as long as you like. Stop when you're done.
-                  </span>
-                </span>
-                <button type="button" className="btn btn-q" onClick={cancelRec}>
-                  Cancel
-                </button>
-                <button type="button" className="btn btn-p" onClick={stopRec}>
-                  Stop
-                </button>
-              </div>
+              <LiveCard
+                secs={clock(recSec)}
+                level={micLevel}
+                heard={heard}
+                actions={
+                  <>
+                    <button type="button" className="btn btn-q" onClick={cancelRec}>
+                      Cancel
+                    </button>
+                    <button type="button" className="btn btn-p" onClick={stopRec}>
+                      Stop
+                    </button>
+                  </>
+                }
+              />
             ) : null}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

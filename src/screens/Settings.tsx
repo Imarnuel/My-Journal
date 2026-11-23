@@ -187,6 +187,10 @@ export function Settings() {
             <p className="lbl" style={{ margin: 0 }}>
               Charts and voice notes are sent to Google to be read. Google doesn't keep them.
             </p>
+            {/* Live words while recording (DESIGN.md › Voice note: recording); new wording, awaiting the owner. */}
+            <p className="lbl" style={{ margin: 0 }}>
+              The words you see while recording come from your browser's speech service (Google in Chrome, Apple in Safari).
+            </p>
           </div>
         </section>
         ) : null}

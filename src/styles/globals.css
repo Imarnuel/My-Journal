@@ -489,3 +489,17 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
    inheriting the page's 14px value as a fixed length. Zero specificity, so the page titles' 0 and the figures'
    --tracking-figure still win. */
 :where(.app, .app *) { letter-spacing: var(--tracking-body); }
+
+/* Voice note: recording (DESIGN.md › Voice note: recording). The card, its live waveform and the words heard. */
+.klive { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--r-card);corner-shape:squircle; background: var(--surface-inset); border: 1px solid var(--voice-border); }
+.kwave { flex: none; display: flex; align-items: center; gap: 2px; width: 70px; height: 20px; }
+.kwave > span { flex: none; width: 2px; height: 20px; border-radius: 1px; background: var(--voice); transform-origin: center; transition: transform 90ms linear, opacity 90ms linear; }
+.kheard { max-height: 60px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+.kheard[data-over] { -webkit-mask-image: linear-gradient(transparent, black 24px); mask-image: linear-gradient(transparent, black 24px); }
+.kheard > p { margin: 0; font-size: 14px; line-height: 20px; color: var(--text-1); overflow-wrap: anywhere; }
+.kheard[data-settled] > p { color: var(--text-2); }
+.kheard-partial { color: var(--text-3); }
+.kheard-caret { display: inline-block; width: 1.5px; height: 16px; margin-left: 2px; vertical-align: -3px; background: var(--voice); }
+@keyframes kword-in { from { opacity: 0; } }
+.kword-in { animation: kword-in 150ms var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) { .kwave > span { transition: none; } .kword-in { animation: none; } }

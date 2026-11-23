@@ -76,6 +76,20 @@ test("state 16: recording with timer, Cancel and Stop", async ({ page }, info) =
   await diffViewport(page, "states/16-newstory-recording.png", info);
 });
 
+test("recording shows what is heard as it is heard; Cancel lets it go (DESIGN.md › Voice note: recording)", async ({ page }) => {
+  await page.goto("/new");
+  await page.getByRole("button", { name: "Talk it through" }).click();
+  const card = page.locator(".klive");
+  await expect(card).toContainText("Talk as long as you like. Stop when you're done."); // a breath before talking
+  await expect(card).toContainText("Short from last week's four hour supply zone", { timeout: 8000 });
+  await expect(card).not.toContainText("Talk as long as you like");
+  // Only the timer line is announced, not every word.
+  await expect(page.getByRole("status").filter({ hasText: "Listening" })).not.toContainText("Short from");
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(card).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Talk it through" })).toBeVisible();
+});
+
 test("state 17: Stop fills the notes and empty Details, toast lists them with Undo", async ({ page }, info) => {
   await page.goto("/new");
   await page.getByRole("button", { name: "Talk it through" }).click();

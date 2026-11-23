@@ -104,6 +104,35 @@ reason, replace it.
   boxes (Before / during, Reflection) sit right below it and can always be typed in. Why: the owner pointed out
   the typing boxes are already there, so the button repeated them (open question 10, 2026-11-20).
 
+
+## Voice note: recording
+- **The recording card shows what it hears, as it hears it.** Top row: a small live waveform (18 bars, newest
+  on the right, quiet as dots), "Listening · 0:14", Cancel and Stop. Under it, the words heard so far: settled
+  words in the text colour, the last few, still being worked out, in grey and changing in place, with a voice
+  coloured caret. New phrases fade in (150ms); no typewriter effect. The words stop at three lines: earlier lines
+  slide up under a soft fade, so the card never pushes the notes down. Until the first words, and wherever live
+  words aren't available (Firefox, or the browser's speech recognition refused), the approved line "Talk as long
+  as you like. Stop when you're done." stays in their place, and the waveform still moves.
+- **After Stop, the words stay under the reading line** ("Writing your notes…"), settled in grey, until the notes
+  fill, fail or the reading is cancelled.
+- **Live words are a preview, never saved.** They come from the browser's own speech recognition, in the voice
+  note language. After Stop, Gemini still reads the recording and writes the notes; "What you said" shows
+  Gemini's version. Settings › Voice notes says where live words come from (new line, awaiting the owner's
+  approval: "The words you see while recording come from your browser's speech service (Google in Chrome, Apple
+  in Safari).").
+- **Motion:** the waveform moves by transform and opacity only (a bar every 90ms); the card arrives with the Notes
+  card's usual rise. Reduced motion: the bars still follow your voice but jump instead of easing, and words appear
+  without the fade. Only the "Listening · 0:14" line is announced to screen readers, not every word.
+- **The sample journal** has a simulated speaker so the card can be seen without a microphone: two quiet seconds,
+  then the sample note at an easy pace.
+- Why: the owner, 2026-11-23, asked for "a better design and animation for the recording interaction"; nothing
+  in the old card showed the microphone was hearing you. From four directions mocked in the Notes card (a
+  waveform strip, a listening mic, a flowing wave, live words) the owner chose live words ("i like D", then
+  "build it"). References: [ABY Journal](https://mobbin.com/screens/d818141b-7c83-40e2-b1ad-28e86e9cbc36)
+  (spoken bars dark, live sentence under the timer), [Fabric](https://mobbin.com/flows/3c069b65-da04-47ec-a852-5165ac63562b)
+  (transcript streaming above a slim recording bar), [ChatGPT](https://mobbin.com/screens/874aee2b-7f1c-4a52-9751-c36de1f13b01)
+  and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
+
 ## Headspace
 - **Seven headspaces, each covering a family of feelings:** Calm 😌, Focused 🧐, Confident 😎, Overconfident 😏
   (greedy, excited, euphoric), Rushed 😬 (FOMO, impatient, chasing), Anxious 😰 (fearful, hesitant, doubting),
