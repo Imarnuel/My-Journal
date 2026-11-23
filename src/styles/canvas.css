@@ -44,7 +44,7 @@ body{margin:0;background:var(--bg-app)}
 .btn-q{background:transparent!important;color:var(--text-2)!important}
 
 
-.kvoice{background:var(--btn-v-bg)!important;color:var(--btn-v-fg)!important;box-shadow:var(--btn-p-shadow)!important}
+.kvoice{background:var(--btn-v-bg)!important;color:var(--btn-v-fg)!important;box-shadow:var(--btn-v-shadow)!important}
 
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 

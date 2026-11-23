@@ -1,4 +1,5 @@
 // The Trade log's inline icons, exactly as drawn in prototype/Main.dc.html (Lucide shapes, 16px / 14px facts).
+import { AiMic } from "../../components/primitives/AiMic";
 const P = { fill: "none", stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
 
 export const IcCalendar = ({ s = 16 }: { s?: number }) => (
@@ -112,13 +113,8 @@ export const IcImage = () => (
     <path d="M21 15l-5-5L5 21" />
   </svg>
 );
-export const IcMic = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" {...P}>
-    <rect x="9" y="2" width="6" height="12" rx="3" />
-    <path d="M5 10a7 7 0 0 0 14 0" />
-    <path d="M12 17v4" />
-  </svg>
-);
+/** The voice note mark, the same everywhere a note is recorded (components/primitives/AiMic.tsx). */
+export const IcMic = () => <AiMic />;
 export const IcMore = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <circle cx="5" cy="12" r="1.6" />

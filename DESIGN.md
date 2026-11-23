@@ -133,6 +133,24 @@ reason, replace it.
   (transcript streaming above a slim recording bar), [ChatGPT](https://mobbin.com/screens/874aee2b-7f1c-4a52-9751-c36de1f13b01)
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
+
+## Voice note: the AI mic
+- **One mark wherever a voice note is recorded:** a filled mic with a small four-point sparkle cut into its
+  top-right corner (`AiMic`, `src/components/primitives/AiMic.tsx`). The mic says "record", the sparkle says the note
+  is read for you. It replaces the outline mic on Talk it through (20px in its 48px circle), Re-record, Record again
+  and the Trade log's "Add a note" (16px). It is optically centred: the heavy capsule pulls the eye up and left, so
+  the glyph sits 0.1 right and 1.1 down of its box centre (weighted between its mass centre and its bounding box).
+- **The voice circle has depth from a gradient** (`--btn-v-bg`): lighter top-left, deeper bottom-right, a soft top
+  highlight, a purple-tinted shadow underneath and a subtle ring (`--btn-v-shadow`; 25% in light, a little firmer
+  on the pale dark-theme circle), not the solid near-black ring of the primary button.
+- Why: the owner, 2026-11-23, "is there anyway we can make the recording button depict it's AI powered?", then
+  "sparkle alone doesn't denote record", "the mic icon to be filled and not outline, and slightly bigger",
+  "remove the black border … use gradient to show depth", "we can have a dark ring, but subtle", and chose the
+  sparkle badge: "1. but be sure to optically centre it". References: [Semrush](https://mobbin.com/screens/72cddde5-77af-4654-9b94-634776de3647)
+  and [Magnific](https://mobbin.com/screens/361f9db4-8d1d-4446-ac25-ab00d2a1ea03) (the sparkle beside the action),
+  [Meta AI](https://mobbin.com/screens/fca8709b-7a3a-4ce9-995d-3bd6677c5dd4) (depth and colour in the circle).
+- Open: whether the same sparkle also marks chart reading, so AI looks the same everywhere.
+
 ## Headspace
 - **Seven headspaces, each covering a family of feelings:** Calm 😌, Focused 🧐, Confident 😎, Overconfident 😏
   (greedy, excited, euphoric), Rushed 😬 (FOMO, impatient, chasing), Anxious 😰 (fearful, hesitant, doubting),

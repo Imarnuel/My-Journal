@@ -1,5 +1,6 @@
 // Small pieces of the chart story markup (copied from src/screens/body/Story.body.tsx), shared by the
 // Details menus, the facts line and the action menus.
+import { AiMic } from "../../components/primitives/AiMic";
 import type { CSSProperties, ReactNode } from "react";
 
 /** Transparent layer behind an open menu: a click anywhere outside closes it (menuKeys relies on it). */
@@ -109,14 +110,9 @@ export function Chevron() {
   );
 }
 
-export function Mic() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="9" y="2" width="6" height="12" rx="3" />
-      <path d="M5 10a7 7 0 0 0 14 0" />
-      <path d="M12 17v4" />
-    </svg>
-  );
+/** The voice note mark: the filled mic with a sparkle (components/primitives/AiMic.tsx). */
+export function Mic({ size = 16 }: { size?: number }) {
+  return <AiMic size={size} />;
 }
 
 export function Plus() {
