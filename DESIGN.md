@@ -153,9 +153,13 @@ reason, replace it.
   sparkle badge: "1. but be sure to optically centre it". References: [Semrush](https://mobbin.com/screens/72cddde5-77af-4654-9b94-634776de3647)
   and [Magnific](https://mobbin.com/screens/361f9db4-8d1d-4446-ac25-ab00d2a1ea03) (the sparkle beside the action),
   [Meta AI](https://mobbin.com/screens/fca8709b-7a3a-4ce9-995d-3bd6677c5dd4) (depth and colour in the circle).
-- **The sparkle marks the AI at work everywhere** (`AiSparkle`, voice colour, breathing): before "Reading your
+- **The sparkle marks the AI at work everywhere** (`AiSparkle`, voice colour, `.kspark`): before "Reading your
   chart…" (12px) and in place of the reading card's dot before "Writing your notes…" (16px), so AI looks the same
   wherever it is. The owner, 2026-11-23: "yes" to the sparkle on chart reading.
+- **While it works, the sparkle turns and breathes:** it scales in (240ms), then turns a quarter and shrinks to 70%
+  and back, every 1.2s, easing in and out (a four-point star looks the same every quarter turn, so the loop has no
+  seam). Transform only. Reduced motion: no turning or scaling, a soft fade. The owner, 2026-11-23: "while reading
+  the chart and also while writing the notes … spinning, scaling, and scaling out".
 
 ## Headspace
 - **Seven headspaces, each covering a family of feelings:** Calm 😌, Focused 🧐, Confident 😎, Overconfident 😏

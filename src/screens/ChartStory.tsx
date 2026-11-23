@@ -962,7 +962,7 @@ function StoryScreen({ id }: { id: string | null }) {
               // really happening, shimmering in the voice colour; each new message cross-fades in.
               <div className="kswap klive" style={{ minHeight: "64px", boxSizing: "border-box", justifyContent: "center" }}>
               <div role="status" aria-live="polite" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <AiSparkle size={16} className="kbreathe" />
+                <AiSparkle size={16} className="kspark" />
                 <span style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1, minWidth: 0 }}>
                   <span key={phase} className="kshimmer kmsg" style={{ fontSize: "14px", fontWeight: 500, color: "var(--text-1)" }}>
                     {READ_COPY[phase].title}
@@ -1224,7 +1224,7 @@ function StoryScreen({ id }: { id: string | null }) {
           <section aria-label="Trade" className="kfx kfx-soft" data-fx={chartsReading && (!s.pair || !s.numbers.entry) ? "awaiting" : justFilled.has("facts") ? "filled" : undefined} style={{ padding: "16px 24px", borderTop: "1px solid var(--border-subtle)", display: "flex", flexDirection: "column", gap: "8px", borderRadius: 0 }}>
             {chartsReading ? (
               <span role="status" className="kmsg" style={{ display: "inline-flex", alignItems: "center", gap: "4px", alignSelf: "flex-start" }}>
-                <AiSparkle size={12} className="kbreathe" />
+                <AiSparkle size={12} className="kspark" />
                 <span className="kshimmer" style={{ fontSize: "12px", lineHeight: "16px", fontWeight: 500 }}>
                   Reading your chart…
                 </span>

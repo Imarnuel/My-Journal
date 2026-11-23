@@ -503,3 +503,12 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
 @keyframes kword-in { from { opacity: 0; } }
 .kword-in { animation: kword-in 150ms var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) { .kwave > span { transition: none; } .kword-in { animation: none; } }
+
+/* The AI at work (DESIGN.md › Voice note: the AI mic): the sparkle scales in, then turns a quarter and breathes out
+   and back in, on a loop (a four-point star looks the same every quarter turn, so the loop has no seam). Transform
+   only. Reduced motion: no turning or scaling, a soft fade. */
+@keyframes kspark-in { from { transform: scale(0); } }
+@keyframes kspark { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(45deg) scale(0.7); } 100% { transform: rotate(90deg) scale(1); } }
+@keyframes kspark-fade { 50% { opacity: 0.45; } }
+.kspark { animation: kspark-in 240ms var(--ease-out) both, kspark 1.2s cubic-bezier(0.65, 0, 0.35, 1) 240ms infinite; }
+@media (prefers-reduced-motion: reduce) { .kspark { animation: kspark-fade 1.6s ease-in-out infinite; } }
