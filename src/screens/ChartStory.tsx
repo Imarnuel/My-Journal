@@ -851,7 +851,7 @@ function StoryScreen({ id }: { id: string | null }) {
                     aria-roledescription="Draggable chart"
                     style={{ margin: 0, display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}
                   >
-                    <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 2px var(--text-1)" : "none" }}>
+                    <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 1px var(--text-1)" : "none" }}>
                       <span className="ktile-scrim" aria-hidden="true" />
                       {isImage(c) ? (
                         <img src={c} alt="" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }} />

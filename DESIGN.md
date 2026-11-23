@@ -424,6 +424,8 @@ any more, and state 19 (a chart's menu open) is retired.
 - **The caption under a thumbnail only appears when there is one** (the timeframe on sample charts), so
   uploaded charts take no extra row.
 
+- **The selected chart's ring is 1px** (`--text-1`), not 2px. The owner, 2026-11-23: "reduce the border of the
+  selected chart to 1px".
 ## Tag menu without counts
 Why: in the story's tag menu "used 18 times" was reading with nothing to act on, and it made long tag names
 wrap. The menu still lists the most used tags first. The counts stay in Settings > Your tags, where they help
