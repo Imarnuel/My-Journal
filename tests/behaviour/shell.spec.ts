@@ -96,3 +96,16 @@ test.describe("phone", () => {
     expect(r).toBe("0px");
   });
 });
+
+test("the sidebar stays put while the page scrolls, beside the page only (DESIGN.md › Sidebar stays put)", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto("/log");
+  await expect(page.getByText("135 entries")).toBeVisible(); // the log has loaded
+  await page.mouse.move(700, 400);
+  await page.mouse.wheel(0, 1500);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(500);
+  expect(await page.locator(".sidebar").evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(0);
+  await page.setViewportSize({ width: 700, height: 800 }); // wrapped above the page: it scrolls away
+  await page.evaluate(() => scrollTo(0, 1500));
+  expect(await page.locator(".sidebar").evaluate((el) => el.getBoundingClientRect().top)).toBeLessThan(0);
+});

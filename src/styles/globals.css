@@ -33,6 +33,13 @@ button, [role="button"], [role="tab"], .pill, .btn {
   .app input:not([type=checkbox]):not([type=radio]):not([type=file]), .app select, .app textarea { font-size: 16px !important; }
 }
 
+/* The sidebar stays put while the page scrolls (02-look-and-feel.md section 5: the page scrolls inside the main card,
+   not the window; the owner, 2026-11-24: "the side navigation is supposed to remain fixed on scroll"). Only while it
+   sits beside the page: below 800px it wraps above the page as a row and scrolls away with it. */
+@media (min-width: 800px) {
+  .app > .sidebar { position: sticky; top: 0; align-self: flex-start; max-height: 100dvh; overflow-y: auto; }
+}
+
 /* Phone width: the main card is the screen (section 5), the sidebar becomes a scrolling row.
    Phone layouts aren't designed yet (handoff/docs/06-open-items.md item 1); this is the minimum that works. */
 @media (max-width: 640px) {

@@ -38,7 +38,9 @@ export const MAX_RATIO = 0.004;
 
 export async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready);
-  await page.addStyleTag({ content: "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}" });
+  // The approved images are whole-page drawings, like the handoff frames: the sidebar is drawn in its place at the
+  // top, not wherever a scrolled capture would pin it (its pinning is checked in tests/behaviour/shell.spec.ts).
+  await page.addStyleTag({ content: "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}.app>.sidebar{position:static!important}" });
   await page.waitForTimeout(150);
 }
 

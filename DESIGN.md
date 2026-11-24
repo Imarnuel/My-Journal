@@ -133,6 +133,12 @@ reason, replace it.
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
 
+## Sidebar stays put
+- **The sidebar doesn't scroll away.** While it sits beside the page (800px and wider) it stays pinned to the top of
+  the window as the page scrolls (`position: sticky`), as `02-look-and-feel.md` section 5 means by "the page scrolls
+  inside the main card, not the window". Below 800px it wraps above the page as a row and scrolls with it. The owner,
+  2026-11-24: "the side navigation is supposed to remain fixed on scroll, isn't it?"
+
 ## Accounts table
 - **The table answers "how is each account doing", not "what are its settings".** Columns: Account (the name, a
   Practice chip where it applies, and the type under it in 12px grey), Trades (taken), Net R (all time, of the trades
