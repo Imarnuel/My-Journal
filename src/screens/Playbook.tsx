@@ -103,7 +103,7 @@ export function Playbook() {
       </header>
 
       {live.length ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "24px" }}>
+        <div className="kpb-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "24px" }}>
           {live.map((s) => {
             const x = setupStats(entries, s.name, picked);
             const sp = spark(x.last, 150, 30);

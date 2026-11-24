@@ -133,6 +133,27 @@ reason, replace it.
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
 
+## Phone layouts
+Phone layouts weren't designed (06-open-items.md item 1). The owner, 2026-11-24: "fix everything wrong with the mobile
+responsiveness … fix it without my permission". Checked on every screen at 390px and 360px; the rules:
+- **No screen is wider than a 360px phone.** A behaviour test loads every route at 360px and checks it.
+- **Navigation:** whenever the sidebar can't sit beside the page (below 800px) it's one scrolling row of links, not
+  a six-row list. The current page is scrolled into view, and the row fades at whichever edge has more links.
+- **Dashboard tables** (By setup, By session, Costliest mistakes) become two-line rows: the name and its net R, then
+  "9 trades · 67% win rate · +1.09R expectancy" in 12px. The column headings and bars go; six columns don't fit.
+- **Chart labels stay 12px on screen** however narrow the chart is drawn (they used to shrink with the drawing, to
+  about 6px on a phone; on a large screen they're now the true 12px instead of about 11px).
+- **Story Details:** each row puts its label above its value, so Plan, Setup and the tags get the card's full width
+  ("Not followed" was cut off at 360px). Setup and Headspace stay on one line with their chevron.
+- **Trade log:** the filters don't stick to the top on a phone (three rows of them covered a quarter of the screen).
+- **Playbook:** one setup card per row (three across squeezed the names and cut the R off).
+- **Breadcrumbs:** one line; earlier crumbs shorten with an ellipsis, the page you're on stays whole.
+- **Accounts:** the counts say "24 trades" where the column headings go; the Archived row reads left to right.
+- **Touch:** text links that stand alone get the taller tap area buttons have; the rule-reorder grip is 24px; the
+  image "…" button's hover only applies to a mouse; the Dashboard notice's facts wrap like a sentence, never starting
+  a line with "·". Already in place: no tap flash, 16px fields (no zoom), immediate taps, safe areas, no pull-to-refresh.
+- Needs a real phone to confirm: tap feel, the safe areas and the software keyboard.
+
 ## Sidebar stays put
 - **The sidebar doesn't scroll away.** While it sits beside the page (800px and wider) it stays pinned to the top of
   the window as the page scrolls (`position: sticky`), as `02-look-and-feel.md` section 5 means by "the page scrolls

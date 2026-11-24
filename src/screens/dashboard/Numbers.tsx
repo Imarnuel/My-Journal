@@ -207,28 +207,28 @@ function RowCells({ x }: { x: Row }) {
   const c = tone(x.net);
   return (
     <>
-      <span className="num" style={{ fontSize: "14px", textAlign: "right" }}>
+      <span className="num kt-n" style={{ fontSize: "14px", textAlign: "right" }}>
         {x.n}
       </span>
       {x.rated ? (
         <>
-          <span className="num" style={{ fontSize: "14px", textAlign: "right" }}>
+          <span className="num kt-wr" style={{ fontSize: "14px", textAlign: "right" }}>
             {pct(x.winRate)}
           </span>
-          <span className="num" style={{ fontSize: "14px", textAlign: "right" }}>
+          <span className="num kt-ex" style={{ fontSize: "14px", textAlign: "right" }}>
             {fr(x.expectancy, 2)}
           </span>
         </>
       ) : (
-        <span className="lbl" style={{ gridColumn: "span 2", textAlign: "right" }}>
+        <span className="lbl kt-few" style={{ gridColumn: "span 2", textAlign: "right" }}>
           Too few to rate
         </span>
       )}
-      <div aria-hidden="true" style={{ position: "relative", height: "8px", borderRadius: "4px", background: "var(--surface-2)" }}>
+      <div aria-hidden="true" className="kt-bar" style={{ position: "relative", height: "8px", borderRadius: "4px", background: "var(--surface-2)" }}>
         <div style={{ position: "absolute", top: "0", bottom: "0", left: "50%", width: "1px", background: "var(--border-strong)" }} />
         <div style={{ position: "absolute", top: "0", bottom: "0", [x.bar.side]: "50%", width: `${x.bar.pct}%`, borderRadius: "4px", background: c }} />
       </div>
-      <span className="num" style={{ fontSize: "14px", fontWeight: "500", textAlign: "right", color: c }}>
+      <span className="num kt-net" style={{ fontSize: "14px", fontWeight: "500", textAlign: "right", color: c }}>
         {fr(x.net)}
       </span>
     </>
@@ -242,7 +242,7 @@ const SESS_COLS = "minmax(0, 1fr) 50px 64px 82px minmax(60px, 1fr) 56px";
 
 function Heads({ cols, first }: { cols: string; first: string }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: cols, gap: "12px", padding: "0 0 8px", alignItems: "end" }}>
+    <div className="kt-head" style={{ display: "grid", gridTemplateColumns: cols, gap: "12px", padding: "0 0 8px", alignItems: "end" }}>
       <span className="lbl" style={{ textAlign: "left" }}>
         {first}
       </span>
@@ -288,6 +288,7 @@ export function BySetup({ rows, thumbs }: { rows: Row[]; thumbs: Record<string, 
           <Link
             key={x.name}
             to={x.name === "Unsorted" ? "/playbook" : `/playbook/${slug(x.name)}`}
+            className="kt-row kt-thumb"
             style={{ display: "grid", gridTemplateColumns: SETUP_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "36px" }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "0" }}>
@@ -322,7 +323,7 @@ export function SessionsAndMistakes({ sessions, mistakes, untagged, n }: { sessi
         </div>
         <Heads cols={SESS_COLS} first="Session" />
         {sessions.map((x) => (
-          <div key={x.name} style={{ display: "grid", gridTemplateColumns: SESS_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "36px" }}>
+          <div key={x.name} className="kt-row" style={{ display: "grid", gridTemplateColumns: SESS_COLS, gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", textDecoration: "none", color: "var(--text-1)", minHeight: "36px" }}>
             <span style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "0" }}>
               <span style={{ fontSize: "14px", fontWeight: "500" }}>{x.name}</span>
             </span>
@@ -341,14 +342,14 @@ export function SessionsAndMistakes({ sessions, mistakes, untagged, n }: { sessi
           <>
             {mistakes.map((x) => (
               <Fragment key={x.tag}>
-                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) 70px minmax(60px, 1fr) 60px", gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "36px" }}>
+                <div className="kt-mrow" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) 70px minmax(60px, 1fr) 60px", gap: "12px", alignItems: "center", padding: "12px 0", borderTop: "1px solid var(--border-subtle)", minHeight: "36px" }}>
                   <span>
                     <span className="pill">{x.tag}</span>
                   </span>
                   <span className="lbl" style={{ textAlign: "right" }}>
                     {plural(x.n, "trade")}
                   </span>
-                  <div aria-hidden="true" style={{ height: "8px", borderRadius: "4px", background: "var(--surface-2)", overflow: "hidden" }}>
+                  <div aria-hidden="true" className="kt-bar" style={{ height: "8px", borderRadius: "4px", background: "var(--surface-2)", overflow: "hidden" }}>
                     <div style={{ width: `${x.pct}%`, height: "100%", background: "var(--loss)", borderRadius: "4px" }} />
                   </div>
                   <span className="num" style={{ fontSize: "14px", fontWeight: "500", textAlign: "right", color: tone(x.r) }}>

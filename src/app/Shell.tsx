@@ -122,6 +122,36 @@ function useMenuKeyboard() {
   }, []);
 }
 
+/**
+ * Phone: the sidebar is a scrolling row of links (DESIGN.md › Phone layouts). The current page is scrolled into view,
+ * and the row says which edge has more (a fade there), so the links past the edge can be found.
+ */
+function useNavRow() {
+  const nav = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = nav.current;
+    if (!el) return;
+    const mark = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      const l = el.scrollLeft > 2, r = max > 2 && el.scrollLeft < max - 2;
+      if (l && r) el.dataset.more = "both";
+      else if (r) el.dataset.more = "right";
+      else if (l) el.dataset.more = "left";
+      else delete el.dataset.more;
+    };
+    const on = el.querySelector<HTMLElement>("a.on");
+    if (on && el.scrollWidth > el.clientWidth) el.scrollLeft = on.offsetLeft - (el.clientWidth - on.offsetWidth) / 2;
+    mark();
+    el.addEventListener("scroll", mark, { passive: true });
+    window.addEventListener("resize", mark);
+    return () => {
+      el.removeEventListener("scroll", mark);
+      window.removeEventListener("resize", mark);
+    };
+  }, []);
+  return nav;
+}
+
 /** Shared motion for the whole page: sliding segmented controls and keyboard-aware entrances. */
 function useSharedMotion() {
   const ref = useRef<HTMLDivElement>(null);
@@ -164,6 +194,7 @@ export function Shell({ active, children, minHeight, bar }: { active: NavKey; ch
   useImageFade();
   const ref = useSharedMotion();
   const page = usePageTransition();
+  const navRow = useNavRow();
   return (
     <div ref={ref} className="app" style={{ minHeight: minHeight ? `${minHeight}px` : "100dvh", fontSize: "14px", lineHeight: "20px", display: "flex", flexWrap: "wrap" }}>
       <a className="kskip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
@@ -171,7 +202,7 @@ export function Shell({ active, children, minHeight, bar }: { active: NavKey; ch
       </a>
       <aside className="sidebar" style={{ flex: "1 1 232px", maxWidth: "100%", boxSizing: "border-box", padding: "16px 12px", display: "flex", flexDirection: "column", gap: "24px" }}>
         <Wordmark />
-        <nav className="nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <nav ref={navRow} className="nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {NAV.map((n) => (
             <Link key={n.key} to={n.to} className={active === n.key ? "on" : ""} aria-current={active === n.key ? "page" : undefined}>
               <Icon name={n.icon} size={16} />

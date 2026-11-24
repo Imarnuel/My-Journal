@@ -63,7 +63,11 @@ function AccountNumbers({ n }: { n: ReturnType<typeof accountNumbers> }) {
   const quiet = { fontSize: "14px", color: "var(--text-3)" } as const;
   return (
     <>
-      <span className="num" style={{ fontSize: "14px", color: n.trades ? "var(--text-1)" : "var(--text-3)" }}>{n.trades}</span>
+      <span className="num" style={{ fontSize: "14px", color: n.trades ? "var(--text-1)" : "var(--text-3)" }}>
+        {n.trades}
+        {/* On a phone the column headings go, so the count says what it counts (DESIGN.md › Phone layouts). */}
+        <span className="acct-unit">{n.trades === 1 ? " trade" : " trades"}</span>
+      </span>
       {n.net == null ? <span style={quiet}>–</span> : <span className="num" style={{ fontSize: "14px", fontWeight: 500, color: tone(n.net) }}>{fr(n.net)}</span>}
       {n.last ? <span className="num" style={{ fontSize: "14px", color: "var(--text-2)" }}>{shortDate(n.last)}</span> : <span style={quiet}>–</span>}
     </>
@@ -176,7 +180,7 @@ export function Accounts() {
               type="button"
               aria-expanded={arcOpen ? "true" : "false"}
               onClick={() => setSetting("accountsArchivedOpen", !arcOpen)}
-              style={{ font: "inherit", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", minHeight: "48px", border: 0, borderTop: "1px solid var(--border-subtle)", background: "transparent", color: "var(--text-2)", cursor: "pointer", fontSize: "14px" }}
+              style={{ font: "inherit", textAlign: "left", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "0 16px", minHeight: "48px", border: 0, borderTop: "1px solid var(--border-subtle)", background: "transparent", color: "var(--text-2)", cursor: "pointer", fontSize: "14px" }}
             >
               <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5" /><path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" /><path d="M10 13h4" /></svg>

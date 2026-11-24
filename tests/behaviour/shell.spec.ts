@@ -109,3 +109,18 @@ test("the sidebar stays put while the page scrolls, beside the page only (DESIGN
   await page.evaluate(() => scrollTo(0, 1500));
   expect(await page.locator(".sidebar").evaluate((el) => el.getBoundingClientRect().top)).toBeLessThan(0);
 });
+
+test("phones: no screen is wider than a 360px phone, and the Details panel stacks (DESIGN.md › Phone layouts)", async ({ browser }) => {
+  const ctx = await browser.newContext({ ...devices["iPhone 13"], viewport: { width: 360, height: 800 } });
+  const page = await ctx.newPage();
+  for (const r of ["/", "/start", "/log", "/new", "/story/e20", "/playbook", "/playbook/4h-supply-pullback", "/playbook/4h-supply-pullback/edit", "/playbook/new", "/review", "/accounts", "/accounts/new", "/accounts/funded-100k", "/settings"]) {
+    await page.goto(r);
+    await page.locator("#main").waitFor();
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth), r).toBeLessThanOrEqual(360);
+  }
+  await page.goto("/story/e20");
+  const plan = page.getByRole("group", { name: "Plan" });
+  expect(await plan.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true); // "Not followed" is whole
+  await ctx.close();
+});

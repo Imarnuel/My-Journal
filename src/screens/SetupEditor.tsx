@@ -215,7 +215,7 @@ export function SetupEditor() {
                     onPointerMove={onGripMove}
                     onPointerUp={onGripUp}
                     onPointerCancel={onGripUp}
-                    style={{ color: "var(--text-3)", cursor: dragging === r.id ? "grabbing" : "grab", display: "inline-flex", padding: 0, border: 0, background: "transparent", touchAction: "none" }}
+                    style={{ color: "var(--text-3)", cursor: dragging === r.id ? "grabbing" : "grab", display: "inline-flex", alignItems: "center", justifyContent: "center", width: "24px", height: "24px", margin: "0 -4px", padding: 0, border: 0, background: "transparent", touchAction: "none" }}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <circle cx="9" cy="6" r="1.5" />

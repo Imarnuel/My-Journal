@@ -83,12 +83,15 @@ export function NoChartsNotice({ trades }: { trades: Entry[] }) {
                 <span className="num" style={{ color: tone(e.r), fontWeight: 500 }}>
                   {fr(e.r ?? 0)}
                 </span>
+                {/* One run of text, so a narrow screen wraps it like a sentence and never starts a line with "·". */}
                 <span aria-hidden="true" style={{ color: "var(--text-disabled)" }}>·</span>
-                <span>{`${shortDate(e.date)}, ${e.time}`}</span>
-                <span aria-hidden="true" style={{ color: "var(--text-disabled)" }}>·</span>
-                <span>{e.account}</span>
-                <span aria-hidden="true" style={{ color: "var(--text-disabled)" }}>·</span>
-                <span>from MT5</span>
+                <span>
+                  {`${shortDate(e.date)}, ${e.time} `}
+                  <span aria-hidden="true" style={{ color: "var(--text-disabled)", margin: "0 4px" }}>·</span>
+                  {` ${e.account} `}
+                  <span aria-hidden="true" style={{ color: "var(--text-disabled)", margin: "0 4px" }}>·</span>
+                  {" from MT5"}
+                </span>
               </div>
               <p style={{ margin: 0, fontSize: "14px", lineHeight: "20px", color: "var(--text-3)" }}>No screenshot? Scroll back on your chart and take one now. It still counts.</p>
             </div>

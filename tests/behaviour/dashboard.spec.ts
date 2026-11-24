@@ -224,7 +224,7 @@ test("no-charts notice: choosing a chart adds it to that trade, the card leaves,
   await open(page);
   const card = page.getByRole("region", { name: "1 trade has no charts yet" });
   // Redesigned (DESIGN.md): the trade's facts on their own line, the instruction under them.
-  await expect(card).toContainText("EURUSDLong+0.6R·16 Nov, 11:10·Main account·from MT5");
+  await expect(card).toContainText(/EURUSDLong\+0\.6R·16 Nov, 11:10 ?· ?Main account ?· ?from MT5/);
   await expect(card).toContainText("No screenshot? Scroll back on your chart and take one now. It still counts.");
   await expect(card.getByLabel("Drop, paste or choose charts for EURUSD, 16 Nov")).toBeAttached();
   await card.locator("input[type=file]").setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: PNG_1PX });

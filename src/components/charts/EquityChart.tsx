@@ -28,6 +28,18 @@ export function EquityChart({
   onDrawn: () => void;
 }) {
   const { W, H } = EQ;
+  // Labels stay 12px on screen however narrow the chart is drawn (phones; DESIGN.md › Phone layouts): the chart is
+  // 600 units wide and scaled to fit, so the label size in units grows as the drawing shrinks.
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [k, setK] = useState(1);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setK(Math.min(1, Math.max(0.3, el.getBoundingClientRect().width / W))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [W]);
+  const labelSize = 12 / k;
   const scale = useMemo(() => eqScale(pts), [pts]);
   const target = useMemo<Geo>(() => ({ pts, lo: scale.lo, hi: scale.hi }), [pts, scale]);
   const geo = useTween(target, lerpGeo, sameGeo);
@@ -94,6 +106,7 @@ export function EquityChart({
   return (
     <div className="keq" style={{ position: "relative" }} onMouseEnter={() => setActive(null)}>
       <svg
+        ref={svgRef}
         width="100%"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
@@ -125,7 +138,7 @@ export function EquityChart({
           return (
             <Fragment key={g}>
               <line x1={EQ.pl} y1={y.toFixed(1)} x2={W - EQ.pr + 8} y2={y.toFixed(1)} style={{ stroke: g === 0 ? "var(--border)" : "var(--border-subtle)" }} />
-              <text x={W} y={(y + 4).toFixed(1)} textAnchor="end" fontSize="12" style={{ fill: "var(--text-3)" }}>
+              <text x={W} y={(y + 4 * (1 / k)).toFixed(1)} textAnchor="end" fontSize={labelSize} style={{ fill: "var(--text-3)" }}>
                 {g ? fr(g, 0) : "0R"}
               </text>
             </Fragment>
@@ -152,7 +165,7 @@ export function EquityChart({
         <circle cx={paths.endX.toFixed(1)} cy={paths.endY.toFixed(1)} r="6" style={{ fill: "var(--surface-2)" }} />
         <circle cx={paths.endX.toFixed(1)} cy={paths.endY.toFixed(1)} r="4" style={{ fill: endUp ? "var(--profit)" : "var(--loss)" }} />
         {tk.map((k) => (
-          <text key={k.label + k.x} x={k.x.toFixed(1)} y="244" textAnchor={k.anchor} fontSize="12" style={{ fill: "var(--text-3)" }}>
+          <text key={k.label + k.x} x={k.x.toFixed(1)} y={H - 4} textAnchor={k.anchor} fontSize={labelSize} style={{ fill: "var(--text-3)" }}>
             {k.label}
           </text>
         ))}

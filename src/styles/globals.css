@@ -29,6 +29,9 @@ button, [role="button"], [role="tab"], .pill, .btn {
 @media (pointer: coarse) {
   .btn, .kit-opt, .nav a, .kmore { position: relative; }
   .btn::after, .nav a::after, .kmore::after { content: ""; position: absolute; inset: -6px 0; }
+  /* Text links that stand on their own ("Open playbook", "Trade log") get the same taller tap area. */
+  .app a.lbl, .app a.meta { position: relative; }
+  .app a.lbl::after, .app a.meta::after { content: ""; position: absolute; inset: -6px 0; }
   /* iOS zooms into fields under 16px (section 9, Phones: fields go up to text-base). */
   .app input:not([type=checkbox]):not([type=radio]):not([type=file]), .app select, .app textarea { font-size: 16px !important; }
 }
@@ -45,10 +48,17 @@ button, [role="button"], [role="tab"], .pill, .btn {
 @media (max-width: 640px) {
   .app > main { padding: 0 !important; }
   .app > main > .panel { border-radius: 0 !important; padding: 24px 16px calc(48px + env(safe-area-inset-bottom, 0px)) !important; }
+}
+/* Whenever the sidebar sits above the page (below 800px, where it can't sit beside it), it's a compact scrolling
+   row of links, not a six-row list (DESIGN.md › Phone layouts). */
+@media (max-width: 799px) {
   .app > .sidebar { padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 8px !important; gap: 12px !important; }
   .app > .sidebar .nav { flex-direction: row !important; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
   .app > .sidebar .nav::-webkit-scrollbar { display: none; }
   .app > .sidebar .nav a { flex: none; }
+  .app > .sidebar .nav[data-more="right"] { mask-image: linear-gradient(to right, black calc(100% - 40px), transparent); }
+  .app > .sidebar .nav[data-more="left"] { mask-image: linear-gradient(to left, black calc(100% - 40px), transparent); }
+  .app > .sidebar .nav[data-more="both"] { mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent); }
 }
 
 /* Accounts list at phone width: name, then type and source stacked, chevron on the right. */
@@ -175,10 +185,21 @@ html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *
   .knotice-body { flex: 1 1 calc(100% - 48px) !important; }
   .knotice .kslot { margin-left: 48px; }
 }
-/* Phone: the dashboard's breakdown tables keep their columns and scroll sideways inside their own card,
-   so the page itself never gets wider than the screen (it was zooming the whole page out). */
+/* Phone: the dashboard's breakdown tables (By setup, By session, Costliest mistakes) become two-line rows: the name
+   and its net R, then trades, win rate and expectancy, each with its word (DESIGN.md › Phone layouts). The column
+   headings and the bars go; six columns don't fit in 310px. */
 @media (max-width: 640px) {
-  section[aria-labelledby="bsh"], section[aria-labelledby="ssh"], section[aria-labelledby="msh"] { min-width: 0; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+  .kt-head { display: none !important; }
+  .kt-row { display: flex !important; flex-wrap: wrap; align-items: center; column-gap: 12px !important; row-gap: 4px !important; }
+  .kt-row::before { content: ""; flex-basis: 100%; order: 2; } /* breaks the line after the name and net */
+  .kt-row > :first-child { flex: 1 1 0; min-width: 0; order: 0; }
+  .kt-row > .kt-net { order: 1; }
+  .kt-row > .kt-n, .kt-row > .kt-wr, .kt-row > .kt-ex, .kt-row > .kt-few { order: 3; white-space: nowrap; text-align: left !important; font-size: 12px !important; line-height: 16px; color: var(--text-2); }
+  .kt-row > .kt-n::after { content: " trades"; }
+  .kt-row > .kt-wr::after { content: " win rate"; }
+  .kt-row > .kt-ex::after { content: " expectancy"; }
+  .kt-row > .kt-bar, .kt-mrow > .kt-bar { display: none; }
+  .kt-mrow { grid-template-columns: minmax(0, 1fr) auto auto !important; }
 }
 /* Phone: chart card grids (Recent chart stories, a week's trades) go to two columns. */
 @media (max-width: 640px) { .kcards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 16px !important; } }
@@ -403,7 +424,8 @@ html[data-grabbing], html[data-grabbing] * { cursor: grabbing !important; }
 /* Actions on an image sit on the image (ui-polish › first audit): 8px inside the thumbnail's corner, white dots on
    the media scrim, as the chart tiles' trash and grip are. */
 .app .kmore.kmore-media { color: var(--on-media) !important; background: var(--media-scrim); corner-shape: squircle; }
-.app .kmore.kmore-media:hover, .app .kmore.kmore-media[aria-expanded="true"] { background: color-mix(in srgb, var(--media-scrim) 100%, var(--on-media) 18%); }
+.app .kmore.kmore-media[aria-expanded="true"] { background: color-mix(in srgb, var(--media-scrim) 100%, var(--on-media) 18%); }
+@media (hover: hover) and (pointer: fine) { .app .kmore.kmore-media:hover { background: color-mix(in srgb, var(--media-scrim) 100%, var(--on-media) 18%); } }
 
 /* No browser leftovers (ui-polish › first audit): text fields grow with what's written instead of showing a
    resize grip; two lines at least. Browsers without field-sizing keep their two rows and scroll. */
@@ -525,3 +547,26 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
 @media (prefers-reduced-motion: reduce) { .kspark { animation: kspark-fade 1.6s ease-in-out infinite; } }
 
 .acct-assign { grid-column: span 2; }
+
+/* Phone layouts (DESIGN.md › Phone layouts), beyond the minimum above. */
+.acct-unit { display: none; } /* "24 trades": the word shows only where the column headings go */
+.kseg-track > button { white-space: nowrap; } /* "Not followed" stays on one line */
+/* Setup and Headspace hold one value: the chip and its chevron stay on one line, a long name shortens. */
+.app button.tagfield { flex-wrap: nowrap !important; }
+.app button.tagfield > .pill { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app button.tagfield > svg { flex: none; }
+@media (max-width: 640px) {
+  .acct-unit { display: inline; }
+  /* The Trade log's filters stick to the top on a large screen; on a phone they'd cover a quarter of it. */
+  .ksticky { position: static !important; }
+  .kpb-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 16px !important; }
+  /* Details rows: the label above its value, so Plan, Setup and the tags get the card's full width. */
+  .kdrow { grid-template-columns: minmax(0, 1fr) !important; row-gap: 4px !important; padding: 12px 0; min-height: 0 !important; }
+  .kdrow > dd { padding: 0 !important; }
+  /* The trail stays one line; long names shorten with an ellipsis. */
+  .kcrumbs ol { flex-wrap: nowrap !important; }
+  .kcrumbs li { flex: 0 1 auto; }
+  .kcrumbs li:last-child { flex: none; max-width: 70%; } /* the page you're on is the one that stays whole */
+  .app .kcrumb { min-width: 0; }
+  .kcrumb-t { max-width: 100%; }
+}

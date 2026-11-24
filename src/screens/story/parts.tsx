@@ -149,7 +149,7 @@ export type Fx = "awaiting" | "filled" | undefined;
 
 export function DetailRow({ label, icon, fx, children }: { label: string; icon?: ReactNode; fx?: Fx; children: ReactNode }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "120px minmax(0, 1fr)", gap: "12px", alignItems: "center", minHeight: "48px", borderTop: "1px solid var(--border-subtle)" }}>
+    <div className="kdrow" style={{ display: "grid", gridTemplateColumns: "120px minmax(0, 1fr)", gap: "12px", alignItems: "center", minHeight: "48px", borderTop: "1px solid var(--border-subtle)" }}>
       <dt className="lbl lbl-k" style={{ margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
         {icon}
         {label}
