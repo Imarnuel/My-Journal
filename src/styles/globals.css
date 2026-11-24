@@ -51,9 +51,10 @@ button, [role="button"], [role="tab"], .pill, .btn {
 }
 /* Phone navigation (DESIGN.md › Phone navigation). Below 800px, where the sidebar can't sit beside the page, it's a slim
    top bar (the wordmark and a menu button) that stays at the top; the links live in a drawer from the left. */
-.ksidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ksidebar-head { display: flex; align-items: center; gap: 4px; }
 .kburger, .kdrawer-root { display: none; }
-.kmenu-btn { width: 32px; padding: 0 !important; justify-content: center; }
+.kmenu-btn { width: 36px; height: 36px; padding: 0 !important; justify-content: center; }
+.app .kmenu-btn svg { width: 20px; height: 20px; } /* a size up from the buttons' 16px icons */
 @media (max-width: 799px) {
   .app > .sidebar { position: sticky; top: 0; z-index: 20; background: var(--bg-app); padding: calc(8px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)) !important; }
   .app > .sidebar .ksidebar-nav { display: none !important; }
@@ -72,7 +73,9 @@ button, [role="button"], [role="tab"], .pill, .btn {
     transform: translateX(-100%); visibility: hidden;
     transition: transform 200ms var(--ease-out), visibility 0s linear 200ms; }
   .kdrawer-root[data-open] .kdrawer { transform: none; visibility: visible; transition: transform 400ms var(--ease-toast), visibility 0s; }
-  .kdrawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-left: 4px; }
+  .kdrawer-head { display: flex; align-items: center; gap: 4px; }
+  .app > .sidebar .ksidebar-head .kburger { margin-left: -8px; } /* the icon, not the button's edge, lines up with the page */
+  .kdrawer-head .kmenu-btn { margin-left: -4px; } /* the × lands exactly where the ☰ was */
 }
 @media (max-width: 799px) and (prefers-reduced-motion: reduce) {
   .kdrawer { transform: none; opacity: 0; transition: opacity 120ms linear, visibility 0s linear 120ms; }

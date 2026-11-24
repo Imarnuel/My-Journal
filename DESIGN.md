@@ -134,8 +134,11 @@ reason, replace it.
 
 
 ## Phone navigation
-- **Below 800px, where the sidebar can't sit beside the page, it's a slim top bar** (the wordmark, and a menu button
-  on the right) that stays at the top while the page scrolls. The menu button opens the sidebar's links in a drawer
+- **Below 800px, where the sidebar can't sit beside the page, it's a slim top bar** (the menu button on the left, then
+  the wordmark) that stays at the top while the page scrolls. The menu button sits on the side the drawer opens from,
+  and the drawer's close button (×) sits exactly where it was, so the same tap opens and closes (the owner: "it makes
+  no sense that the hamburger is on the right and the nav is on the left"). Both icons are 20px with a 2px line, a size up from the
+  16px icons, in a 36px button ("also increase the hamburger size"). The menu button opens the sidebar's links in a drawer
   from the left, over the page dimmed and blurred like behind a dialog. A tap outside, the close button (×), Escape or
   choosing a page closes it. Focus goes to the page you're on and stays in the drawer; closing puts it back on the
   menu button. The page underneath doesn't scroll while it's open.

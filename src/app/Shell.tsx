@@ -155,7 +155,8 @@ function usePageTransition() {
   return page;
 }
 
-const menuIcon = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
+// 20px, a size up from the 16px icons, so the menu button is easy to find and hit (the owner, 2026-11-24).
+const menuIcon = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
 
 /**
  * Below 800px, where the sidebar can't sit beside the page (DESIGN.md › Phone navigation): a slim top bar with the
@@ -195,13 +196,14 @@ function NavDrawer({ active, open, onClose, back }: { active: NavKey; open: bool
     <div className="kdrawer-root" data-open={open ? "" : undefined}>
       <button type="button" className="kdrawer-scrim" aria-label="Close menu" tabIndex={-1} onClick={onClose} />
       <div ref={panel} id="nav-drawer" role="dialog" aria-modal="true" aria-label="Menu" className="kdrawer" inert={!open}>
+        {/* The close button sits exactly where the menu button was, so the same tap opens and closes. */}
         <div className="kdrawer-head">
-          <Wordmark />
           <button type="button" className="btn btn-q kmenu-btn" aria-label="Close menu" onClick={onClose}>
             <svg {...menuIcon}>
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
+          <Wordmark />
         </div>
         <nav className="nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {NAV.map((n) => (
@@ -234,13 +236,14 @@ export function Shell({ active, children, minHeight, bar }: { active: NavKey; ch
         Skip to main content
       </a>
       <aside className="sidebar" style={{ flex: "1 1 232px", maxWidth: "100%", boxSizing: "border-box", padding: "16px 12px", display: "flex", flexDirection: "column", gap: "24px" }}>
+        {/* The menu button sits on the side the drawer opens from (the owner, 2026-11-24). */}
         <div className="ksidebar-head">
-          <Wordmark />
           <button ref={burger} type="button" className="btn btn-q kmenu-btn kburger" aria-label="Open menu" aria-expanded={navOpen ? "true" : "false"} aria-controls="nav-drawer" onClick={() => setNavOpen(true)}>
             <svg {...menuIcon}>
               <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
+          <Wordmark />
         </div>
         <nav className="nav ksidebar-nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {NAV.map((n) => (
