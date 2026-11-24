@@ -133,12 +133,23 @@ reason, replace it.
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
 
+## Phone navigation
+- **Below 800px, where the sidebar can't sit beside the page, it's a slim top bar** (the wordmark, and a menu button
+  on the right) that stays at the top while the page scrolls. The menu button opens the sidebar's links in a drawer
+  from the left, over the page dimmed and blurred like behind a dialog. A tap outside, the close button (×), Escape or
+  choosing a page closes it. Focus goes to the page you're on and stays in the drawer; closing puts it back on the
+  menu button. The page underneath doesn't scroll while it's open.
+- **Motion:** the drawer slides in over 400ms on the drawer curve (`--ease-toast`) and goes back faster (200ms),
+  transform only, as transitions so it can turn around mid-way; the backdrop fades. Reduced motion: a short fade.
+- Why: the owner, 2026-11-24, "let's use a side nav for the mobile triggered by a hamburger menu", replacing the
+  scrolling row of links (which showed three of six). The drawer shows every destination at once and gives the page
+  its height back.
+
 ## Phone layouts
 Phone layouts weren't designed (06-open-items.md item 1). The owner, 2026-11-24: "fix everything wrong with the mobile
 responsiveness … fix it without my permission". Checked on every screen at 390px and 360px; the rules:
 - **No screen is wider than a 360px phone.** A behaviour test loads every route at 360px and checks it.
-- **Navigation:** whenever the sidebar can't sit beside the page (below 800px) it's one scrolling row of links, not
-  a six-row list. The current page is scrolled into view, and the row fades at whichever edge has more links.
+- **Navigation:** see Phone navigation below.
 - **Dashboard tables** (By setup, By session, Costliest mistakes) become two-line rows: the name and its net R, then
   "9 trades · 67% win rate · +1.09R expectancy" in 12px. The column headings and bars go; six columns don't fit.
 - **Chart labels stay 12px on screen** however narrow the chart is drawn (they used to shrink with the drawing, to

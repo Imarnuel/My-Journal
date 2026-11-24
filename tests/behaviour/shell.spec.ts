@@ -105,9 +105,41 @@ test("the sidebar stays put while the page scrolls, beside the page only (DESIGN
   await page.mouse.wheel(0, 1500);
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(500);
   expect(await page.locator(".sidebar").evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(0);
-  await page.setViewportSize({ width: 700, height: 800 }); // wrapped above the page: it scrolls away
+  await page.setViewportSize({ width: 700, height: 800 }); // above the page it's the slim top bar, which stays too
   await page.evaluate(() => scrollTo(0, 1500));
-  expect(await page.locator(".sidebar").evaluate((el) => el.getBoundingClientRect().top)).toBeLessThan(0);
+  expect(await page.locator(".sidebar").evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(0);
+});
+
+test("phones: the menu button opens the links in a drawer; Escape, outside or a link closes it (DESIGN.md › Phone navigation)", async ({ browser }) => {
+  const ctx = await browser.newContext({ ...devices["iPhone 13"] });
+  const page = await ctx.newPage();
+  await page.goto("/log");
+  const burger = page.getByRole("button", { name: "Open menu" });
+  await expect(burger).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator(".ksidebar-nav")).toBeHidden(); // the links aren't on the bar
+  await burger.click();
+  const drawer = page.getByRole("dialog", { name: "Menu" });
+  await expect(drawer).toBeVisible();
+  await expect(burger).toHaveAttribute("aria-expanded", "true");
+  await expect(drawer.getByRole("link", { name: "Trade log" })).toBeFocused(); // the page you're on
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+  await expect(burger).toBeFocused();
+  await burger.click();
+  await page.mouse.click(370, 400); // outside the drawer
+  await expect(drawer).toBeHidden();
+  await burger.click();
+  await drawer.getByRole("link", { name: "Accounts" }).click();
+  await expect(page).toHaveURL(/\/accounts$/);
+  await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+  await ctx.close();
+});
+
+test("desktop: no menu button, the sidebar's links are on the page", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/log");
+  await expect(page.getByRole("button", { name: "Open menu" })).toBeHidden();
+  await expect(page.locator(".ksidebar-nav").getByRole("link", { name: "Accounts" })).toBeVisible();
 });
 
 test("phones: no screen is wider than a 360px phone, and the Details panel stacks (DESIGN.md › Phone layouts)", async ({ browser }) => {

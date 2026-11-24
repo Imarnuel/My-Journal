@@ -1,6 +1,6 @@
 // The shared shell (03-screens.md): sidebar on the window ground, the main card, skip link, one toast region.
 // Markup and inline values match the prototype frames exactly.
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { slideSegments, trackInputModality } from "../components/primitives/motion";
 import { Icon, type IconName } from "../components/primitives/Icon";
@@ -122,36 +122,6 @@ function useMenuKeyboard() {
   }, []);
 }
 
-/**
- * Phone: the sidebar is a scrolling row of links (DESIGN.md › Phone layouts). The current page is scrolled into view,
- * and the row says which edge has more (a fade there), so the links past the edge can be found.
- */
-function useNavRow() {
-  const nav = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const el = nav.current;
-    if (!el) return;
-    const mark = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      const l = el.scrollLeft > 2, r = max > 2 && el.scrollLeft < max - 2;
-      if (l && r) el.dataset.more = "both";
-      else if (r) el.dataset.more = "right";
-      else if (l) el.dataset.more = "left";
-      else delete el.dataset.more;
-    };
-    const on = el.querySelector<HTMLElement>("a.on");
-    if (on && el.scrollWidth > el.clientWidth) el.scrollLeft = on.offsetLeft - (el.clientWidth - on.offsetWidth) / 2;
-    mark();
-    el.addEventListener("scroll", mark, { passive: true });
-    window.addEventListener("resize", mark);
-    return () => {
-      el.removeEventListener("scroll", mark);
-      window.removeEventListener("resize", mark);
-    };
-  }, []);
-  return nav;
-}
-
 /** Shared motion for the whole page: sliding segmented controls and keyboard-aware entrances. */
 function useSharedMotion() {
   const ref = useRef<HTMLDivElement>(null);
@@ -185,6 +155,67 @@ function usePageTransition() {
   return page;
 }
 
+const menuIcon = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
+
+/**
+ * Below 800px, where the sidebar can't sit beside the page (DESIGN.md › Phone navigation): a slim top bar with the
+ * wordmark and a menu button, and the sidebar's links in a drawer that slides in from the left over the dimmed,
+ * blurred page. A tap outside, the close button, Escape or choosing a page closes it; focus moves in and comes back.
+ */
+function NavDrawer({ active, open, onClose, back }: { active: NavKey; open: boolean; onClose: () => void; back: RefObject<HTMLButtonElement | null> }) {
+  const panel = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (!open) {
+      if (wasOpen.current) back.current?.focus({ preventScroll: true });
+      wasOpen.current = false;
+      return;
+    }
+    wasOpen.current = true;
+    (panel.current?.querySelector<HTMLElement>("a.on") ?? panel.current?.querySelector<HTMLElement>("a"))?.focus({ preventScroll: true });
+    const html = document.documentElement;
+    const was = html.style.overflow;
+    html.style.overflow = "hidden"; // the page underneath doesn't scroll
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") (e.preventDefault(), onClose());
+      if (e.key !== "Tab" || !panel.current) return;
+      // Focus stays in the drawer while it's open.
+      const items = [...panel.current.querySelectorAll<HTMLElement>("a, button")];
+      const first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) (e.preventDefault(), last.focus());
+      else if (!e.shiftKey && document.activeElement === last) (e.preventDefault(), first.focus());
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      html.style.overflow = was;
+    };
+  }, [open, onClose, back]);
+  return (
+    <div className="kdrawer-root" data-open={open ? "" : undefined}>
+      <button type="button" className="kdrawer-scrim" aria-label="Close menu" tabIndex={-1} onClick={onClose} />
+      <div ref={panel} id="nav-drawer" role="dialog" aria-modal="true" aria-label="Menu" className="kdrawer" inert={!open}>
+        <div className="kdrawer-head">
+          <Wordmark />
+          <button type="button" className="btn btn-q kmenu-btn" aria-label="Close menu" onClick={onClose}>
+            <svg {...menuIcon}>
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <nav className="nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+          {NAV.map((n) => (
+            <Link key={n.key} to={n.to} className={active === n.key ? "on" : ""} aria-current={active === n.key ? "page" : undefined} onClick={onClose}>
+              <Icon name={n.icon} size={16} />
+              <span>{n.label}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
 /**
  * `bar`: a page's top bar (DESIGN.md › Page top bar): its breadcrumb trail and actions in a slim strip along the top
  * of the main card, edge to edge with a hairline under it; the page starts 16px below.
@@ -194,15 +225,24 @@ export function Shell({ active, children, minHeight, bar }: { active: NavKey; ch
   useImageFade();
   const ref = useSharedMotion();
   const page = usePageTransition();
-  const navRow = useNavRow();
+  const [navOpen, setNavOpen] = useState(false);
+  const burger = useRef<HTMLButtonElement>(null);
+  const closeNav = useCallback(() => setNavOpen(false), []);
   return (
     <div ref={ref} className="app" style={{ minHeight: minHeight ? `${minHeight}px` : "100dvh", fontSize: "14px", lineHeight: "20px", display: "flex", flexWrap: "wrap" }}>
       <a className="kskip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
         Skip to main content
       </a>
       <aside className="sidebar" style={{ flex: "1 1 232px", maxWidth: "100%", boxSizing: "border-box", padding: "16px 12px", display: "flex", flexDirection: "column", gap: "24px" }}>
-        <Wordmark />
-        <nav ref={navRow} className="nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <div className="ksidebar-head">
+          <Wordmark />
+          <button ref={burger} type="button" className="btn btn-q kmenu-btn kburger" aria-label="Open menu" aria-expanded={navOpen ? "true" : "false"} aria-controls="nav-drawer" onClick={() => setNavOpen(true)}>
+            <svg {...menuIcon}>
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        <nav className="nav ksidebar-nav" aria-label="Main" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {NAV.map((n) => (
             <Link key={n.key} to={n.to} className={active === n.key ? "on" : ""} aria-current={active === n.key ? "page" : undefined}>
               <Icon name={n.icon} size={16} />
@@ -221,6 +261,7 @@ export function Shell({ active, children, minHeight, bar }: { active: NavKey; ch
           <div ref={page} style={{ maxWidth: "1080px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px", ...(bar ? { marginTop: "16px" } : {}) }}>{children}</div>
         </div>
       </main>
+      <NavDrawer active={active} open={navOpen} onClose={closeNav} back={burger} />
       <Toasts />
     </div>
   );

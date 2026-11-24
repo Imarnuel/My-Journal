@@ -49,17 +49,36 @@ button, [role="button"], [role="tab"], .pill, .btn {
   .app > main { padding: 0 !important; }
   .app > main > .panel { border-radius: 0 !important; padding: 24px 16px calc(48px + env(safe-area-inset-bottom, 0px)) !important; }
 }
-/* Whenever the sidebar sits above the page (below 800px, where it can't sit beside it), it's a compact scrolling
-   row of links, not a six-row list (DESIGN.md › Phone layouts). */
+/* Phone navigation (DESIGN.md › Phone navigation). Below 800px, where the sidebar can't sit beside the page, it's a slim
+   top bar (the wordmark and a menu button) that stays at the top; the links live in a drawer from the left. */
+.ksidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.kburger, .kdrawer-root { display: none; }
+.kmenu-btn { width: 32px; padding: 0 !important; justify-content: center; }
 @media (max-width: 799px) {
-  .app > .sidebar { padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 8px !important; gap: 12px !important; }
-  .app > .sidebar .nav { flex-direction: row !important; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
-  .app > .sidebar .nav::-webkit-scrollbar { display: none; }
-  .app > .sidebar .nav a { flex: none; }
-  .app > .sidebar .nav[data-more="right"] { mask-image: linear-gradient(to right, black calc(100% - 40px), transparent); }
-  .app > .sidebar .nav[data-more="left"] { mask-image: linear-gradient(to left, black calc(100% - 40px), transparent); }
-  .app > .sidebar .nav[data-more="both"] { mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent); }
+  .app > .sidebar { position: sticky; top: 0; z-index: 20; background: var(--bg-app); padding: calc(8px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)) !important; }
+  .app > .sidebar .ksidebar-nav { display: none !important; }
+  .kburger { display: inline-flex; }
+  .kdrawer-root { display: block; position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+  .kdrawer-root[data-open] { pointer-events: auto; }
+  .kdrawer-scrim { position: absolute; inset: 0; border: 0; padding: 0; cursor: default; background: var(--scrim);
+    -webkit-backdrop-filter: blur(10px) saturate(120%); backdrop-filter: blur(10px) saturate(120%);
+    opacity: 0; transition: opacity 200ms var(--ease-out); }
+  .kdrawer-root[data-open] .kdrawer-scrim { opacity: 1; transition-duration: 300ms; }
+  /* The drawer slides in on the drawer curve and goes back the way it came, faster; transitions, so it can turn
+     around mid-way. Transform only. */
+  .kdrawer { position: absolute; top: 0; bottom: 0; left: 0; width: min(288px, 85vw); box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: 24px; background: var(--bg-app); box-shadow: var(--shadow-float);
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 12px calc(16px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+    transform: translateX(-100%); visibility: hidden;
+    transition: transform 200ms var(--ease-out), visibility 0s linear 200ms; }
+  .kdrawer-root[data-open] .kdrawer { transform: none; visibility: visible; transition: transform 400ms var(--ease-toast), visibility 0s; }
+  .kdrawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-left: 4px; }
 }
+@media (max-width: 799px) and (prefers-reduced-motion: reduce) {
+  .kdrawer { transform: none; opacity: 0; transition: opacity 120ms linear, visibility 0s linear 120ms; }
+  .kdrawer-root[data-open] .kdrawer { opacity: 1; transition: opacity 120ms linear, visibility 0s; }
+}
+@media (max-width: 799px) and (prefers-reduced-transparency: reduce) { .kdrawer-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; } }
 
 /* Accounts list at phone width: name, then type and source stacked, chevron on the right. */
 @media (max-width: 640px) {
