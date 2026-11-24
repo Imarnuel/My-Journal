@@ -258,7 +258,7 @@ export function ListRow({ e, a, fresh }: { e: Entry; a: RowActions; fresh?: bool
         {t.list.length === 1 ? <div aria-hidden="true" style={{ flex: 1, minWidth: 0 }} /> : null}
         <span style={{ flex: "none", fontSize: "12px", color: "var(--text-3)", width: "56px", textAlign: "center", lineHeight: "16px" }}>{t.more}</span>
       </div>
-      <div style={{ flex: "0 0 auto", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "8px", minWidth: "170px" }}>
+      <div className="trow-act" style={{ flex: "0 0 auto", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "8px", minWidth: "170px" }}>
         {f.noNote ? (
           <Link to={story(e)} className="btn btn-q" style={{ padding: "0 12px", fontWeight: 500 }} aria-label={`Add a note to ${e.pair}, ${f.when}`}>
             <IcMic />

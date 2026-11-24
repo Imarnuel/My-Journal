@@ -156,3 +156,17 @@ test("phones: no screen is wider than a 360px phone, and the Details panel stack
   expect(await plan.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true); // "Not followed" is whole
   await ctx.close();
 });
+
+test("phones: a menu never runs off the screen; the accounts menu opens inside it (DESIGN.md › Phone layouts)", async ({ browser }) => {
+  const ctx = await browser.newContext({ ...devices["iPhone 13"], viewport: { width: 360, height: 760 } });
+  const page = await ctx.newPage();
+  await page.goto("/playbook");
+  await page.getByRole("button", { name: /accounts/ }).first().click();
+  const menu = page.locator(".kmenu").first();
+  await expect(menu).toBeVisible();
+  await page.waitForTimeout(400); // the pop-in has settled
+  const box = await menu.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(15);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(345);
+  await ctx.close();
+});

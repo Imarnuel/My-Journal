@@ -578,7 +578,11 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
 .app button.tagfield > .pill { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app button.tagfield > svg { flex: none; }
 @media (max-width: 640px) {
+  .app .kmenu { max-width: calc(100vw - 32px); } /* never wider than the screen; it's also kept inside its edges */
   .acct-unit { display: inline; }
+  /* Trade log rows: a row's actions ("Add a note", "…") sit at its right edge, as on a large screen, not wherever the
+     wrap leaves them. */
+  .trow-act { flex: 1 1 100% !important; min-width: 0 !important; }
   /* The Trade log's filters stick to the top on a large screen; on a phone they'd cover a quarter of it. */
   .ksticky { position: static !important; }
   .kpb-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 16px !important; }

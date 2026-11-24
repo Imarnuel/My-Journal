@@ -163,6 +163,11 @@ responsiveness … fix it without my permission". Checked on every screen at 390
 - **Playbook:** one setup card per row (three across squeezed the names and cut the R off).
 - **Breadcrumbs:** one line; earlier crumbs shorten with an ellipsis, the page you're on stays whole.
 - **Accounts:** the counts say "24 trades" where the column headings go; the Archived row reads left to right.
+- **Menus stay on screen.** When a menu opens it's measured, and if it would cross the window's edge it shifts back
+  inside with a 16px margin; on a phone it's never wider than the screen (the accounts menu opened off the left edge;
+  the owner: "fix this dropdown menu in mobile"). Source: `useMenuInView` in `src/app/Shell.tsx`.
+- **Trade log rows:** a row's actions ("Add a note", "…") sit at its right edge on a phone too, not wherever the wrap
+  left them, so the "…" menu opens under it.
 - **Touch:** text links that stand alone get the taller tap area buttons have; the rule-reorder grip is 24px; the
   image "…" button's hover only applies to a mouse; the Dashboard notice's facts wrap like a sentence, never starting
   a line with "·". Already in place: no tap flash, 16px fields (no zoom), immediate taps, safe areas, no pull-to-refresh.

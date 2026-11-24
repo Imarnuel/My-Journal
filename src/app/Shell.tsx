@@ -122,6 +122,41 @@ function useMenuKeyboard() {
   }, []);
 }
 
+/**
+ * Every menu stays on screen (DESIGN.md › Phone layouts): when one opens, it's measured, and if it would cross the
+ * window's edge it shifts back inside with a 16px margin. Uses the `translate` property, so it composes with the
+ * menu's pop-in (which animates `transform`).
+ */
+function useMenuInView() {
+  useEffect(() => {
+    const fit = (el: HTMLElement) => {
+      el.style.translate = "";
+      // Its true edges, not the pop-in's scaled ones: the scale is about the centre, so the centre is true.
+      const r = el.getBoundingClientRect();
+      const cx = (r.left + r.right) / 2, half = el.offsetWidth / 2;
+      const left = cx - half, right = cx + half;
+      const vw = document.documentElement.clientWidth;
+      const dx = left < 16 ? 16 - left : right > vw - 16 ? vw - 16 - right : 0;
+      if (dx) el.style.translate = `${Math.round(dx)}px 0`;
+    };
+    const fitAll = () => document.querySelectorAll<HTMLElement>(".app .kmenu").forEach(fit);
+    const mo = new MutationObserver((list) => {
+      for (const m of list)
+        m.addedNodes.forEach((n) => {
+          if (!(n instanceof HTMLElement)) return;
+          if (n.classList.contains("kmenu")) fit(n);
+          n.querySelectorAll?.<HTMLElement>(".kmenu").forEach(fit);
+        });
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("resize", fitAll);
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("resize", fitAll);
+    };
+  }, []);
+}
+
 /** Shared motion for the whole page: sliding segmented controls and keyboard-aware entrances. */
 function useSharedMotion() {
   const ref = useRef<HTMLDivElement>(null);
@@ -224,6 +259,7 @@ function NavDrawer({ active, open, onClose, back }: { active: NavKey; open: bool
  */
 export function Shell({ active, children, minHeight, bar }: { active: NavKey; children: ReactNode; minHeight?: number; bar?: ReactNode }) {
   useMenuKeyboard();
+  useMenuInView();
   useImageFade();
   const ref = useSharedMotion();
   const page = usePageTransition();
