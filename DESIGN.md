@@ -133,6 +133,19 @@ reason, replace it.
   and [Substack](https://mobbin.com/screens/bea3047e-0234-42c0-911b-436848a0bca6) (a quiet scrolling waveform).
 
 
+## Charts landing
+- **A chart that has just been added lands:** its tile fades in while rising 4px and settling from 96% to full size,
+  240ms on `--ease-out`, transform and opacity only, then the image sharpens from its usual slight blur. On Trade log
+  rows and grid cards, and in a story's strip. Only the chart just added moves; it plays once (a tile keeps its key
+  when its blob: URL becomes the saved data URL, and the landing is spent when it ends). Pasted from the keyboard:
+  no motion. Reduced motion: a short fade.
+- **No progress ring or percentage.** Adding a chart is instant and local (nothing is uploaded), so a loading
+  animation would invent a wait. A ring tracing real upload progress belongs to cloud sync, if it ever comes.
+- **The saved copy doesn't fade in again.** When a just-added chart's blob: URL is swapped for its saved data URL,
+  the image stays visible (it used to blank and fade in a second time).
+- Why: the owner, 2026-11-26, shared an upload animation (a ring and a counting percentage) and asked whether it
+  suits dropping charts in the Trade log; agreed to keep the landing and drop the wait ("good").
+
 ## Phone navigation
 - **Below 800px, where the sidebar can't sit beside the page, it's a slim top bar** (the menu button on the left, then
   the wordmark) that stays at the top while the page scrolls. The menu button sits on the side the drawer opens from,

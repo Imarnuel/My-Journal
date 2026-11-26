@@ -442,3 +442,20 @@ test("reduced motion: menus, dialogs and toasts still work", async ({ page }) =>
   await toast(page).getByRole("button", { name: "Undo" }).click();
   await expect(toast(page)).toHaveCount(0);
 });
+
+test("a chart dropped on a row lands once: the tile settles in, and keeps its place when it's saved (DESIGN.md › Charts landing)", async ({ page }) => {
+  await page.goto("/log");
+  await page.locator(".trow").filter({ hasText: "EURUSD" }).filter({ hasText: "Drop, paste or choose charts" }).first().evaluate((el) => el.setAttribute("data-test-row", ""));
+  const row = page.locator("[data-test-row]"); // the row stays the row once its drop zone is gone
+  await row.locator("input[type=file]").setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64") });
+  const tile = row.locator(".chart").first();
+  await expect(tile).toHaveClass(/kland/);
+  expect(await tile.evaluate((el) => el.getAnimations().map((a) => (a as CSSAnimation).animationName))).toContain("kland");
+  await tile.evaluate((el) => ((window as unknown as { __tile: Element }).__tile = el));
+  // Once saved, its blob: URL becomes a data URL: the same tile, no second landing, no second fade.
+  await expect(row.locator(".chart img")).toHaveAttribute("src", /^data:/, { timeout: 5000 });
+  expect(await row.locator(".chart").first().evaluate((el) => el === (window as unknown as { __tile: Element }).__tile)).toBe(true);
+  await expect(row.locator(".chart img")).not.toHaveAttribute("data-loading", "");
+  await page.waitForTimeout(1100);
+  await expect(row.locator(".chart").first()).not.toHaveClass(/kland/); // nothing lands twice
+});

@@ -63,6 +63,7 @@ import { DEFAULT_SESSIONS, SETTINGS_DEFAULTS, usePref } from "../data/settings";
 import { useStoryExtras } from "./story/extras";
 import { HeardWords, LiveCard } from "./story/LiveCard";
 import { AiSparkle } from "../components/primitives/AiMic";
+import { landingClass, markLanding } from "../components/primitives/landing";
 import { NOTHING_HEARD, sampleHeard, sampleLevel, startLiveWords, type Heard } from "./story/liveWords";
 import { Chevron, Closer, DetailRow, Dots, MenuItem, Mic, OptionList, Plus, ProblemCard, factBtn, factEmpty, factText, type Fx } from "./story/parts";
 
@@ -352,6 +353,7 @@ function StoryScreen({ id }: { id: string | null }) {
     const imgs = files.filter((f) => !f.type || f.type.startsWith("image/"));
     if (!imgs.length) return;
     const urls = imgs.map((f) => URL.createObjectURL(f));
+    markLanding(urls); // the new charts land in the strip (DESIGN.md › Charts landing)
     // A new story in the real journal takes its date and time from the oldest screenshot, unless the owner
     // set them by hand (01-decisions.md "Capture": filled from screenshot time, always editable).
     const when = REAL && !saved && !dateByHand.current ? screenshotTime(imgs) : null;
@@ -382,6 +384,7 @@ function StoryScreen({ id }: { id: string | null }) {
     if (!f) return;
     const next = charts.slice();
     next[next.length - 1] = URL.createObjectURL(f);
+    markLanding([next[next.length - 1]]);
     update({ charts: next });
     setSel(next.length - 1);
     setUnreadable(false);
@@ -851,7 +854,7 @@ function StoryScreen({ id }: { id: string | null }) {
                     aria-roledescription="Draggable chart"
                     style={{ margin: 0, display: "flex", flexDirection: "column", gap: "4px", minWidth: 0 }}
                   >
-                    <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className="chart" style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 1px var(--text-1)" : "none" }}>
+                    <button type="button" aria-label={`Show ${ordinal(i)} chart`} aria-pressed={i === selI ? "true" : "false"} onClick={() => setSel(i)} className={`chart${landingClass(c)}`} style={{ position: "relative", display: "block", padding: 0, border: 0, cursor: "inherit", boxShadow: i === selI ? "0 0 0 1px var(--text-1)" : "none" }}>
                       <span className="ktile-scrim" aria-hidden="true" />
                       {isImage(c) ? (
                         <img src={c} alt="" style={{ display: "block", width: "100%", aspectRatio: "16 / 9", objectFit: "cover" }} />

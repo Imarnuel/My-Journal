@@ -1,6 +1,7 @@
 // Frames 03 and 04 · Trade log: one list of everything recorded, List and Grid views (view kept in the URL,
 // `/log?view=grid`), compact filter dropdowns with counts, sort, batches of 12, the row menu with Undo, the
 // very short trade prompt, and the frame-16 states that belong here. Markup from prototype/Main.dc.html.
+import { markLanding } from "../components/primitives/landing";
 import { entryName } from "../lib/format";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -156,6 +157,7 @@ export function TradeLog() {
     },
     addCharts: (files) => {
       const urls = files.map((file) => URL.createObjectURL(file));
+      markLanding(urls); // the new charts land in the row (DESIGN.md › Charts landing)
       const list = [...(e.chartList ?? []), ...urls];
       updateEntry(e.id, { chartList: list, charts: list.length });
       act(urls.length === 1 ? `Chart added to ${e.pair}` : `${urls.length} charts added to ${e.pair}`, undefined, "added");

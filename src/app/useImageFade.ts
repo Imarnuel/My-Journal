@@ -5,14 +5,19 @@
 // Images already loaded, from the cache or a blob, show at once.
 import { useEffect } from "react";
 
+/** Images that have been shown. One that gets its saved copy (blob: to data: URL) is the same picture: no fade. */
+const shown = new WeakSet<HTMLImageElement>();
 function watch(img: HTMLImageElement) {
+  if (shown.has(img) && (img.getAttribute("src") ?? "").startsWith("data:")) return;
   if (img.complete && img.naturalWidth > 0) {
+    shown.add(img);
     img.removeAttribute("data-loading");
     return;
   }
   img.removeAttribute("data-loaded");
   img.setAttribute("data-loading", "");
   const done = () => {
+    shown.add(img);
     img.removeEventListener("load", done);
     img.removeEventListener("error", done);
     // The loaded state is set first, the hidden one removed a frame later, so the fade runs.

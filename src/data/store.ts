@@ -220,9 +220,12 @@ export const useStore = create<State>()(
 // Uploaded charts start as blob: URLs, which die with the page. Turn them into data URLs so they are saved
 // with their entry (only the URLs this visit created; everything else is left alone).
 const converted = new Map<string, string>();
+const original = new Map<string, string>(); // data URL -> the blob: URL it came from
 const converting = new Set<string>();
 /** The same chart before and after it is saved (its blob: URL becomes a data URL). */
 export const chartKey = (url: string) => converted.get(url) ?? url;
+/** A key that stays the same when a chart's blob: URL is swapped for its saved data URL, so the tile isn't rebuilt. */
+export const stableChartKey = (url: string) => original.get(url) ?? url;
 useStore.subscribe((s, prev) => {
   if (s.entries === prev.entries) return;
   for (const e of s.entries) {
@@ -233,6 +236,7 @@ useStore.subscribe((s, prev) => {
         converting.delete(url);
         if (data === url) return;
         converted.set(url, data);
+        original.set(data, url);
         const st = useStore.getState();
         for (const x of st.entries)
           if (x.chartList?.includes(url)) st.updateEntry(x.id, { chartList: x.chartList.map((u) => converted.get(u) ?? u) });

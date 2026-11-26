@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Entry } from "../../lib/types";
 import { isImage, rowFacts, thumbs, type Thumbs } from "../../lib/tradelog";
 import { returnFocus } from "./FilterMenu";
+import { landingClass } from "../../components/primitives/landing";
+import { stableChartKey } from "../../data/store";
 import { IcAccount, IcBook, IcCalendar, IcChangeDate, IcExcluded, IcImage, IcLink, IcMic, IcMore, IcPlan, IcStats, IcStatus, IcTag, IcTrash, IcMistake } from "./icons";
 
 export type RowActions = {
@@ -251,7 +253,7 @@ export function ListRow({ e, a, fresh }: { e: Entry; a: RowActions; fresh?: bool
       <div style={{ flex: "1 1 300px", minWidth: 0, display: "flex", gap: "8px", alignItems: "center", position: "relative" }}>
         {asksCharts(e, t) ? <DropZone a={a} /> : null}
         {t.list.map((c, i) => (
-          <div key={`${i}-${c}`} className="chart" style={{ flex: 1, minWidth: 0 }}>
+          <div key={`${i}-${stableChartKey(c)}`} className={`chart${landingClass(c)}`} style={{ flex: 1, minWidth: 0 }}>
             <Chart c={c} />
           </div>
         ))}
@@ -279,7 +281,7 @@ export function GridCard({ e, a, fresh }: { e: Entry; a: RowActions; fresh?: boo
     <li className={fresh ? "card tcard kbatch" : "card tcard"} onClick={open} style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", padding: "12px", borderRadius: "var(--r-card)", minWidth: 0 }}>
       {asksCharts(e, t) ? <DropZone a={a} grid /> : null}
       {t.grid ? (
-        <span className="chart" style={{ display: "block" }}>
+        <span key={stableChartKey(t.grid)} className={`chart${landingClass(t.grid)}`} style={{ display: "block" }}>
           <Chart c={t.grid} />
         </span>
       ) : asksCharts(e, t) ? null : (

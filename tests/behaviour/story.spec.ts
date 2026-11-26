@@ -983,3 +983,12 @@ test("picking a second tag from the list takes one click, even when the chips fi
     await expect(input).toBeFocused(); // the cursor stays in the field
   }
 });
+
+test("a chart added to a story lands in the strip, once (DESIGN.md › Charts landing)", async ({ page }) => {
+  await page.goto("/new");
+  await page.locator("#main input[type=file]").first().setInputFiles({ name: "chart.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64") });
+  const tile = page.locator(".ktile").last().locator(".chart");
+  await expect(tile).toHaveClass(/kland/);
+  await expect(tile).not.toHaveClass(/kland/, { timeout: 2000 }); // spent once it has played
+  await expect(page.locator(".ktile .kland")).toHaveCount(0); // the charts already there never moved
+});

@@ -596,3 +596,12 @@ html[data-input="kbd"] .kswap, html[data-input="kbd"] .kreveal { animation: none
   .app .kcrumb { min-width: 0; }
   .kcrumb-t { max-width: 100%; }
 }
+
+/* Charts landing (DESIGN.md › Charts landing): a chart just added fades in while rising 4px and settling from 96%,
+   240ms, transform and opacity only. "backwards" so it lets go afterwards (a story tile still lifts when dragged).
+   Pasted from the keyboard: no motion. Reduced motion: a fade. */
+@keyframes kland { from { opacity: 0; transform: translateY(4px) scale(0.96); } }
+@keyframes kland-fade { from { opacity: 0; } }
+.app .kland { animation: kland 240ms var(--ease-out) backwards; }
+html[data-input="kbd"] .app .kland { animation: none; }
+@media (prefers-reduced-motion: reduce) { .app .kland { animation: kland-fade 160ms linear backwards; } }
